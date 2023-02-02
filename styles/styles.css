@@ -1,0 +1,130 @@
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOutSlider {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+
+    padding: 0;
+    margin: 0;
+
+    overflow: hidden;
+    background-color: black;
+}
+
+#main {
+    position: absolute;
+    inset: 0 0 0 0;
+    margin: auto;
+
+    width: 512px;
+    height: 384px;
+
+    /* transform: scaleY(-1);   */
+
+    z-index: -1;
+}
+
+#cursorContainer {
+    position: absolute;
+    inset: 0 0 0 0;
+    margin: auto;
+
+    width: 512px;
+    height: 384px;
+
+    transform: scaleY(-1);
+}
+
+#cursor {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: yellow;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 1px yellow;
+
+    z-index: 9999999;
+}
+
+#cursor:after {
+    content: "";
+    position: absolute;
+    top: 10%;
+    left: 10%;
+
+    width: 80%;
+    height: 80%;
+
+    background-color: white;
+    border-radius: 80%;
+}
+
+.hitCircle {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+
+    /* background-color: rgb(206, 94, 94); */
+    background-image: url(../static/hitcircleoverlay@2x.png);
+    background-size: 108.474576271% 108.474576271%;
+    background-position: center;
+    border-radius: 50%;
+
+    opacity: 1;
+    z-index: 999;
+}
+
+.fadeIn {
+    animation: linear 300ms fadeIn;
+}
+
+.fadeOut {
+    animation: cubic-bezier(0, 0.7, 0.8, 1) 200ms fadeOut;
+}
+
+.fadeOutSlider {
+    animation: linear 200ms fadeOutSlider;
+}
+
+canvas {
+    position: absolute;
+    inset: 0 0 0 0;
+
+    margin: auto;
+
+    /* transform: scaleY(-1); */
+    z-index: -1;
+
+    /* background-color: rgba(255, 255, 255, 0.1); */
+}
