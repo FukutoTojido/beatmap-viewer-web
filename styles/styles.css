@@ -35,19 +35,22 @@ body {
     margin: 0;
 
     overflow: hidden;
-    background-color: black;
+    background-image: url(../higuchimadoka.jpg);
+    background-size: cover;
+    background-position: center;
 }
 
 #main {
     position: absolute;
-    inset: 0 0 0 0;
-    margin: auto;
+    /* inset: 0 0 0 0;
+    margin: auto; */
 
-    width: 512px;
-    height: 384px;
+    width: 100vw;
+    height: 100vh;
 
     /* transform: scaleY(-1);   */
 
+    background-color: rgb(0 0 0 /0.8);
     z-index: -1;
 }
 
@@ -103,6 +106,10 @@ body {
 
     opacity: 1;
     z-index: 999;
+}
+
+img {
+    display: none;
 }
 
 .fadeIn {
