@@ -17,18 +17,18 @@ const sliderBorderColor = "#ffffff";
 const sampleHitCircle = document.querySelector("#sampleHitCircle");
 const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
 const sampleApproachCircle = document.querySelector("#sampleApproachCircle");
+const sampleSliderB = document.querySelector("#sampleSliderB");
 
 const canvas = document.querySelector("#canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext("2d");
-ctx.lineJoin = "round";
-ctx.lineCap = "round";
 
 const approachRate = 9.3;
 let preempt;
 let fadeIn;
+let isPlaying = true;
 
 switch (true) {
     case approachRate < 5:
@@ -49,38 +49,73 @@ class HitCircle {
     endTime;
     positionX;
     positionY;
+    isNewCombo;
+    originalX;
+    originalY;
 
-    draw(opacity, trol, expandRate, preemptRate) {
-        const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
-        const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
-        ctx.beginPath();
-        ctx.globalAlpha = opacity >= 0 ? opacity : expandRate >= 0 ? expandRate : 0;
-        ctx.drawImage(
-            sampleHitCircle,
-            this.positionX - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            this.positionY - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate,
-            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate
-        );
-        ctx.drawImage(
-            sampleHitCircleOverlay,
-            this.positionX - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            this.positionY - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate,
-            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate
-        );
-        ctx.drawImage(
+    drawApproachCircle(approachRateExpandRate, colour) {
+        const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+
+        pseudoCtx.drawImage(
             sampleApproachCircle,
             this.positionX - ((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2,
             this.positionY - ((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2,
             (hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate,
             (hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate
         );
-        ctx.globalAlpha = 1;
-        ctx.closePath();
+
+        pseudoCtx.globalCompositeOperation = "source-atop";
+        pseudoCtx.fillStyle = colour;
+        pseudoCtx.rect(0, 0, window.innerWidth, window.innerHeight);
+        pseudoCtx.fill();
+
+        return pseudoCanvas;
     }
 
-    constructor(positionX, positionY, time, isSliderHead) {
+    draw(opacity, trol, expandRate, preemptRate, colour) {
+        const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
+        const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
+
+        const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+
+        ctx.globalAlpha = opacity >= 0 ? opacity : expandRate >= 0 ? expandRate : 0;
+
+        pseudoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        pseudoCtx.drawImage(
+            sampleHitCircle,
+            this.positionX - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
+            this.positionY - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
+            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate,
+            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate
+        );
+        pseudoCtx.globalCompositeOperation = "multiply";
+        pseudoCtx.fillStyle = colour;
+        pseudoCtx.arc(this.originalX, this.originalY, ((hitCircleSize + 2) * textureScaleFactor * normalizedExpandRate) / 2, 0, 2 * Math.PI, false);
+        pseudoCtx.fill();
+
+        pseudoCtx.globalCompositeOperation = "source-over";
+        pseudoCtx.drawImage(
+            sampleHitCircleOverlay,
+            this.positionX - ((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
+            this.positionY - ((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
+            (hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate,
+            (hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate
+        );
+
+        const approachCircleCanvas = this.drawApproachCircle(approachRateExpandRate, colour);
+
+        pseudoCtx.drawImage(approachCircleCanvas, 0, 0);
+
+        // console.log(colour);
+
+        ctx.drawImage(pseudoCanvas, 0, 0);
+        ctx.globalAlpha = 1;
+    }
+
+    constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
         // const hit = document.createElement("div");
         // hit.classList.add("hitCircle");
         // hit.style.left = `${positionX * scaleFactor - (hitCircleSize * textureScaleFactor) / 2}px`;
@@ -88,6 +123,8 @@ class HitCircle {
         // hit.style.width = `${hitCircleSize * textureScaleFactor}px`;
         // hit.style.height = `${hitCircleSize * textureScaleFactor}px`;
         // this.domObject = hit;
+        this.originalX = isSliderHead ? positionX : positionX * scaleFactor + (window.innerWidth - 512 * scaleFactor) / 2;
+        this.originalY = isSliderHead ? positionY : positionY * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2;
 
         this.startTime = time - preempt;
         this.endTime = time + 240;
@@ -98,6 +135,8 @@ class HitCircle {
         this.positionY = isSliderHead
             ? positionY - (hitCircleSize * textureScaleFactor) / 2
             : positionY * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2 - (hitCircleSize * textureScaleFactor) / 2;
+
+        this.isNewCombo = isNewCombo;
     }
 }
 
@@ -117,6 +156,7 @@ class Slider {
     hitCircle;
     angleIndex;
     b;
+    isNewCombo;
 
     binom(n, k) {
         var coeff = 1;
@@ -161,23 +201,38 @@ class Slider {
         ctx.closePath();
     }
 
-    drawBorder(opacity, percentage) {
-        ctx.beginPath();
-        ctx.moveTo(this.angleList[0].x, this.angleList[0].y);
-        ctx.lineWidth = hitCircleSize * textureScaleFactor;
-        ctx.strokeStyle = sliderBorderColor;
+    drawBorder(opacity, percentage, colour) {
+        const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+
+        ctx.globalAlpha = Math.abs(opacity);
+
+        pseudoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
             // console.log(idx / this.angleList.length, this.initialSliderLen / this.sliderLen, this.sliderLen);
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
             if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / this.angleList.length < percentage) {
-                ctx.moveTo(point.x, point.y);
+            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
+                pseudoCtx.moveTo(point.x, point.y);
                 return;
             }
-            ctx.lineTo(point.x, point.y);
+            pseudoCtx.lineTo(point.x, point.y);
         });
-        ctx.stroke();
-        ctx.closePath();
+
+        pseudoCtx.lineJoin = "round";
+        pseudoCtx.lineCap = "round";
+
+        pseudoCtx.lineWidth = hitCircleSize * textureScaleFactor;
+        pseudoCtx.strokeStyle = colour;
+        pseudoCtx.stroke();
+
+        pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness) * textureScaleFactor;
+        pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
+        pseudoCtx.stroke();
+
+        ctx.drawImage(pseudoCanvas, 0, 0);
+        ctx.globalAlpha = 1;
     }
 
     drawBody1(opacity, percentage) {
@@ -186,14 +241,14 @@ class Slider {
         this.angleList.forEach((point, idx) => {
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
             if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / this.angleList.length < percentage) {
+            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
                 ctx.moveTo(point.x, point.y);
                 return;
             }
             ctx.lineTo(point.x, point.y);
         });
         ctx.lineWidth = (hitCircleSize - sliderBorderThickness) * textureScaleFactor;
-        ctx.strokeStyle = `rgb(0 0 0)`;
+        ctx.strokeStyle = `rgb(0 0 0 / .9)`;
         ctx.stroke();
         ctx.closePath();
     }
@@ -204,7 +259,7 @@ class Slider {
         this.angleList.forEach((point, idx) => {
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
             if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / this.angleList.length < percentage) {
+            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
                 ctx.moveTo(point.x, point.y);
                 return;
             }
@@ -224,7 +279,7 @@ class Slider {
         this.angleList.forEach((point, idx) => {
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
             if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / this.angleList.length < percentage) {
+            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
                 ctx.moveTo(point.x, point.y);
                 return;
             }
@@ -238,14 +293,9 @@ class Slider {
         ctx.closePath();
     }
 
-    draw(opacity, percentage, hitCircleExpandRate, preemptRate) {
-        ctx.globalAlpha = Math.abs(opacity);
-        this.drawBorder(opacity, percentage);
-        this.drawBody1(opacity, percentage);
-        this.drawBody2(opacity, percentage);
-        this.drawBody3(opacity, percentage);
-        ctx.globalAlpha = 1;
-        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate);
+    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour) {
+        this.drawBorder(opacity, percentage, colour);
+        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour);
     }
 
     getAngleList(pointArr) {
@@ -331,7 +381,7 @@ class Slider {
         }
     }
 
-    constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, beatStep, time) {
+    constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, beatStep, time, isNewCombo) {
         // const canvas = document.createElement("canvas");
         const pointArr = pointLists.split("|").map((point) => {
             return {
@@ -351,6 +401,8 @@ class Slider {
         this.startTime = time - preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
+        this.isNewCombo = isNewCombo;
+
         // this.draw(0.5);
 
         // console.log((this.initialSliderLen / this.intialSliderVelocity) * this.beatStep);
@@ -363,6 +415,8 @@ class ObjectsList {
     slidersList;
     objectsList;
     drawTime;
+    coloursList;
+    currentColor;
 
     compare(a, b) {
         if (a.time < b.time) {
@@ -374,42 +428,59 @@ class ObjectsList {
         return 0;
     }
 
-    constructor(hitCirclesList, slidersList) {
+    constructor(hitCirclesList, slidersList, coloursList) {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
-        // console.log(this.objectsList);
+        this.coloursList = coloursList;
+        this.currentColor = 0 % this.coloursList.length;
+
+        this.objectsList = this.objectsList.map((object) => {
+            if (object.obj.isNewCombo) this.currentColor = (this.currentColor + 1) % this.coloursList.length;
+            return {
+                ...object,
+                colour: this.coloursList[this.currentColor],
+            };
+        });
+        console.log(this.objectsList);
     }
 
-    draw(currentTime) {
-        const elapsed = currentTime - this.drawTime;
-
+    draw(timestamp) {
+        // console.log(timestamp);
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.objectsList
-            .filter((object) => object.obj.startTime < elapsed && object.obj.endTime > elapsed)
+            .filter((object) => object.obj.startTime < timestamp && object.obj.endTime > timestamp)
             .reverse()
             .forEach((object) => {
-                if (elapsed >= object.obj.startTime) {
+                if (timestamp >= object.obj.startTime) {
                     const opacity =
-                        elapsed < object.obj.startTime + preempt
-                            ? (elapsed - object.obj.startTime) / fadeIn
-                            : (elapsed - (object.obj.endTime - 240)) / 240 - 1;
+                        timestamp < object.obj.startTime + preempt
+                            ? (timestamp - object.obj.startTime) / fadeIn
+                            : (timestamp - (object.obj.endTime - 240)) / 240 - 1;
 
                     object.obj.draw(
                         opacity,
-                        (elapsed - (object.obj.startTime + preempt)) / (object.obj.endTime - 240 - (object.obj.startTime + preempt)),
-                        1 - (elapsed - (object.obj.startTime + preempt)) / 240,
-                        (elapsed - object.obj.startTime) / preempt
+                        (timestamp - (object.obj.startTime + preempt)) / (object.obj.endTime - 240 - (object.obj.startTime + preempt)),
+                        1 - (timestamp - (object.obj.startTime + preempt)) / 240,
+                        (timestamp - object.obj.startTime) / preempt,
+                        object.colour
                     );
                 }
             });
 
-        window.requestAnimationFrame((currentTime) => this.draw(currentTime));
+        if (isPlaying)
+            window.requestAnimationFrame((currentTime) => {
+                const timestampNext = currentTime - this.drawTime;
+                return this.draw(timestampNext);
+            });
     }
 
     render() {
-        this.drawTime = new Date().getTime() - originalTime;
-        window.requestAnimationFrame((currentTime) => this.draw(currentTime));
+        this.drawTime = new Date().getTime() - originalTime + 500;
+        window.requestAnimationFrame((currentTime) => {
+            const timestamp = currentTime - this.drawTime;
+            return this.draw(timestamp);
+        });
     }
 }
 
@@ -471,14 +542,14 @@ class Beatmap {
 
     constructor(rawBeatmap, delay) {
         const difficultyPosition = rawBeatmap.indexOf("[Difficulty]") + "[Difficulty]\r\n".length;
-        const initialSliderVelocity = rawBeatmap.slice(difficultyPosition).split("\r\n")[4].replace("SliderMultiplier:", "") * 100;
-
         const timingPosition = rawBeatmap.indexOf("[TimingPoints]") + "[TimingPoints]\r\n".length;
-        const beatStep = rawBeatmap.slice(timingPosition).split("\r\n")[0].split(",")[1];
+        const colourPosition = rawBeatmap.indexOf("[Colours]") + "[Colours]\r\n".length;
+        const hitObjectsPosition = rawBeatmap.indexOf("[HitObjects]") + "[HitObjects]\r\n".length;
 
-        const colourPosition = rawBeatmap.indexOf("[Colours]");
+        const initialSliderVelocity = rawBeatmap.slice(difficultyPosition).split("\r\n")[4].replace("SliderMultiplier:", "") * 100;
+        const beatStep = rawBeatmap.slice(timingPosition).split("\r\n")[0].split(",")[1];
         const timingPointsList = rawBeatmap
-            .slice(timingPosition, colourPosition)
+            .slice(timingPosition, colourPosition - "[Colours]\r\n".length)
             .split("\r\n")
             .filter((timingPoint) => timingPoint !== "")
             .map((timingPoint) => {
@@ -488,26 +559,25 @@ class Beatmap {
                     svMultiplier: params[1] > 0 ? 1 : parseFloat(((-1 / params[1]) * 100).toFixed(2)),
                 };
             });
-
-        // console.log(timingPointsList);
-
-        const hitObjectsPosition = rawBeatmap.indexOf("[HitObjects]") + "[HitObjects]\r\n".length;
+        const coloursList = rawBeatmap
+            .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
+            .split("\r\n")
+            .filter((line) => line !== "")
+            .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`);
         const objectLists = rawBeatmap
             .slice(hitObjectsPosition)
             .split("\r\n")
             .filter((s) => s !== "");
-
         const hitCircleList = objectLists
             .map((object) => {
                 const params = object.split(",");
                 if (!["L", "P", "B", "C"].includes(params[5][0]))
                     return {
-                        obj: new HitCircle(params[0], params[1], parseInt(params[2])),
+                        obj: new HitCircle(params[0], params[1], parseInt(params[2]), false, parseInt(params[3]) === 2),
                         time: parseInt(params[2]) + delay,
                     };
             })
             .filter((o) => o);
-
         const slidersList = objectLists
             .slice(0, -1)
             .map((object) => {
@@ -523,7 +593,8 @@ class Beatmap {
                             params[6] * params[7],
                             initialSliderVelocity * currentSVMultiplier.svMultiplier,
                             beatStep,
-                            parseInt(params[2])
+                            parseInt(params[2]),
+                            parseInt(params[3]) === 2
                         ),
                         time: parseInt(params[2]) + delay,
                     };
@@ -531,24 +602,29 @@ class Beatmap {
             })
             .filter((s) => s);
 
-        this.objectsList = new ObjectsList(hitCircleList, slidersList);
+        this.objectsList = new ObjectsList(hitCircleList, slidersList, coloursList);
     }
 
-    render(audio) {
-        audio.play();
-        this.objectsList.render();
+    render() {
+        if (isPlaying) {
+            this.objectsList.render();
+        } else {
+            this.objectsList.draw(15000);
+        }
     }
 }
 
 const beatmapRender = async () => {
-    const rawBeatmap = (await axios.get("https://tryz.vercel.app/api/b/3574847/osu")).data;
+    // const rawBeatmap = (await axios.get("https://tryz.vercel.app/api/b/3574847/osu")).data;
+    const rawBeatmap = (await axios.get("https://tryz.vercel.app/api/b/2412642/osu")).data;
 
     const audio = new Audio();
     // const cursor = new Cursor();
     const beatmap = new Beatmap(rawBeatmap, 0);
 
     document.body.addEventListener("click", () => {
-        beatmap.render(audio);
+        if (isPlaying) audio.play();
+        beatmap.render();
         // cursor.render();
     });
 };
@@ -572,7 +648,7 @@ const hcLists = [
 const sldrLists = ["208:144|176:96|192:16", "304:144|336:96|320:16", "304:240|336:288|320:368", "208:240|176:288|192:368"];
 // sldrLists.forEach((sl) => {
 //     const sldr = new Slider(sl, "B", 115, 230, 60000 / 170, 0);
-//     sldr.draw(1);
+//     sldr.draw(-1, 0.2, 0.2);
 // });
 
 // const testSlider = new Slider("192:301|187:344|176:384", "B", "230");
