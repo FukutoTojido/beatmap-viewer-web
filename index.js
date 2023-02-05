@@ -58,7 +58,7 @@ let preempt;
 let fadeIn;
 
 let isPlaying = true;
-const debugPosition = 9960;
+const debugPosition = 37858;
 const mapId = 2412642;
 const playbackRate = 1;
 
@@ -191,6 +191,7 @@ class Slider {
     angleIndex;
     b;
     isNewCombo;
+    repeat;
 
     binom(n, k) {
         var coeff = 1;
@@ -244,30 +245,36 @@ class Slider {
 
         pseudoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
-        if (opacity < 0) {
-            pseudoCtx.moveTo(this.angleList.at(endPosition).x, this.angleList.at(endPosition).y);
-            pseudoCtx.lineTo(this.angleList.at(endPosition - 1).x, this.angleList.at(endPosition - 1).y);
-            pseudoCtx.lineJoin = "round";
-            pseudoCtx.lineCap = "round";
+        // if (opacity < 0) {
+        //     pseudoCtx.moveTo(this.angleList.at(endPosition).x, this.angleList.at(endPosition).y);
+        //     pseudoCtx.lineTo(this.angleList.at(endPosition - 1).x, this.angleList.at(endPosition - 1).y);
+        //     pseudoCtx.lineJoin = "round";
+        //     pseudoCtx.lineCap = "round";
 
-            pseudoCtx.lineWidth = Math.round(hitCircleSize * textureScaleFactor);
-            pseudoCtx.strokeStyle = colour;
-            pseudoCtx.stroke();
+        //     pseudoCtx.lineWidth = Math.round(hitCircleSize * textureScaleFactor);
+        //     pseudoCtx.strokeStyle = colour;
+        //     pseudoCtx.stroke();
 
-            pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
-            pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
-            pseudoCtx.stroke();
-        }
+        //     pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
+        //     pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
+        //     pseudoCtx.stroke();
+        // }
 
         pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
             // console.log(idx / this.angleList.length, this.initialSliderLen / this.sliderLen, this.sliderLen);
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
             if (sliderSnaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / (endPosition - 1) <= percentage) {
-                pseudoCtx.moveTo(point.x, point.y);
-                return;
+
+            // console.log((percentage - 1) * this.repeat + 1);
+            if (!(sliderSnaking && opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
+                if (this.repeat % 2 === 0 && idx / (endPosition - 1) >= 1 - ((percentage - 1) * this.repeat + 1)) return;
+                if (this.repeat % 2 !== 0 && idx / (endPosition - 1) <= (percentage - 1) * this.repeat + 1) {
+                    pseudoCtx.moveTo(point.x, point.y);
+                    return;
+                }
             }
+
             pseudoCtx.lineTo(point.x, point.y);
         });
 
@@ -390,50 +397,79 @@ class Slider {
             if (pointArr[i].x === pointArr[i + 1].x && pointArr[i].y === pointArr[i + 1].y) this.breakPoints.push(i);
         }
         this.breakPoints.push(pointArr.length - 1);
+        // console.log(this.breakPoints);
 
-        for (let z = 0; z < this.breakPoints.length - 1; z++) {
-            for (var i = 0; i < 1; i += sliderAccuracy) {
-                const pCurrent =
-                    pointArr.length !== 3
-                        ? this.bezier(i, pointArr.slice(this.breakPoints[z], this.breakPoints[z + 1] + 1))
-                        : {
-                              x:
-                                  centerX +
-                                  (pointArr[0].x - centerX) * Math.cos(innerAngle * i) -
-                                  (pointArr[0].y - centerY) * Math.sin(innerAngle * i),
-                              y:
-                                  centerY +
-                                  (pointArr[0].x - centerX) * Math.sin(innerAngle * i) +
-                                  (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
-                          };
+        const calculatedAngleLength = this.breakPoints
+            .map((bP, idx) => {
+                if (idx === this.breakPoints.length - 1) return;
 
-                if (i < 1 - sliderAccuracy) {
-                    const pNext =
+                const sectionAngleList = [];
+                let sectionLength = 0;
+
+                for (var i = 0; i < 1; i += sliderAccuracy) {
+                    const pCurrent =
                         pointArr.length !== 3
-                            ? this.bezier(i + sliderAccuracy, pointArr.slice(this.breakPoints[z], this.breakPoints[z + 1] + 1))
+                            ? this.bezier(i, pointArr.slice(this.breakPoints[idx], this.breakPoints[idx + 1] + 1))
                             : {
                                   x:
                                       centerX +
-                                      (pointArr[0].x - centerX) * Math.cos(innerAngle * (i + sliderAccuracy)) -
-                                      (pointArr[0].y - centerY) * Math.sin(innerAngle * (i + sliderAccuracy)),
+                                      (pointArr[0].x - centerX) * Math.cos(innerAngle * i) -
+                                      (pointArr[0].y - centerY) * Math.sin(innerAngle * i),
                                   y:
                                       centerY +
-                                      (pointArr[0].x - centerX) * Math.sin(innerAngle * (i + sliderAccuracy)) +
-                                      (pointArr[0].y - centerY) * Math.cos(innerAngle * (i + sliderAccuracy)),
+                                      (pointArr[0].x - centerX) * Math.sin(innerAngle * i) +
+                                      (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
                               };
 
-                    this.sliderLen += Math.sqrt((pCurrent.x - pNext.x) ** 2 + (pCurrent.y - pNext.y) ** 2) / scaleFactor;
-                    this.angleList.push({
-                        x: pCurrent.x,
-                        y: pCurrent.y,
-                        angle: Math.atan2(pNext.y - pCurrent.y, pNext.x - pCurrent.x) - Math.PI / 2,
-                    });
+                    if (i < 1 - sliderAccuracy) {
+                        const pNext =
+                            pointArr.length !== 3
+                                ? this.bezier(i + sliderAccuracy, pointArr.slice(this.breakPoints[idx], this.breakPoints[idx + 1] + 1))
+                                : {
+                                      x:
+                                          centerX +
+                                          (pointArr[0].x - centerX) * Math.cos(innerAngle * (i + sliderAccuracy)) -
+                                          (pointArr[0].y - centerY) * Math.sin(innerAngle * (i + sliderAccuracy)),
+                                      y:
+                                          centerY +
+                                          (pointArr[0].x - centerX) * Math.sin(innerAngle * (i + sliderAccuracy)) +
+                                          (pointArr[0].y - centerY) * Math.cos(innerAngle * (i + sliderAccuracy)),
+                                  };
+
+                        sectionLength += Math.sqrt((pCurrent.x - pNext.x) ** 2 + (pCurrent.y - pNext.y) ** 2) / scaleFactor;
+                        sectionAngleList.push({
+                            x: pCurrent.x,
+                            y: pCurrent.y,
+                            angle: Math.atan2(pNext.y - pCurrent.y, pNext.x - pCurrent.x) - Math.PI / 2,
+                        });
+                    }
                 }
+
+                this.sliderLen += sectionLength;
+
+                return {
+                    angleList: sectionAngleList,
+                    sliderLen: sectionLength,
+                };
+            })
+            .filter((section) => section);
+
+        calculatedAngleLength.forEach((section) => {
+            const increment = this.sliderLen / section.sliderLen;
+            // console.log(section);
+            // console.log(increment);
+
+            for (let i = 0; i < 1 / sliderAccuracy; i += increment) {
+                this.angleList.push(section.angleList[Math.floor(i)]);
             }
-        }
+        });
+
+        this.angleList = this.angleList.filter((s) => s);
+
+        // console.log(this.angleList);
     }
 
-    constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, beatStep, time, isNewCombo) {
+    constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, beatStep, time, isNewCombo, repeat) {
         // const canvas = document.createElement("canvas");
         const pointArr = pointLists.split("|").map((point) => {
             return {
@@ -454,7 +490,7 @@ class Slider {
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
         this.isNewCombo = isNewCombo;
-
+        this.repeat = repeat;
         // this.draw(0.5);
 
         // console.log((this.initialSliderLen / this.intialSliderVelocity) * this.beatStep);
@@ -669,7 +705,8 @@ class Beatmap {
                             initialSliderVelocity * currentSVMultiplier.svMultiplier,
                             beatStep,
                             parseInt(params[2]),
-                            parseInt(params[3]) === 2
+                            parseInt(params[3]) === 2,
+                            parseInt(params[6])
                         ),
                         time: parseInt(params[2]) + delay,
                     };
