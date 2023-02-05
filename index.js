@@ -5,12 +5,26 @@ function timeout(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function toDataUrl(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            callback(reader.result);
+        };
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open("GET", url);
+    xhr.responseType = "blob";
+    xhr.send();
+}
+
 const scaleFactor = 1080 / 480;
 const textureScaleFactor = (1080 / 768) ** 2;
 
 const hitCircleSize = 2 * (54.4 - 4.48 * 4);
 const sliderBorderThickness = 8;
-const sliderAccuracy = 0.0025;
+const sliderAccuracy = 0.01;
 const sliderSnaking = true;
 const sliderBorderColor = "#ffffff";
 
@@ -18,6 +32,20 @@ const sampleHitCircle = document.querySelector("#sampleHitCircle");
 const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
 const sampleApproachCircle = document.querySelector("#sampleApproachCircle");
 const sampleSliderB = document.querySelector("#sampleSliderB");
+
+toDataUrl("./static/hitcircle@2x.png", (base64) => {
+    document.querySelector("#hitCircleSVG").style.backgroundImage = `url("${base64}")`;
+    document.querySelector("#hitCircleColor").style.webkitMaskImage = `url("${base64}")`;
+});
+
+toDataUrl("./static/hitcircleOverlay@2x.png", (base64) => {
+    document.querySelector("#hitCircleOverlay").style.backgroundImage = `url("${base64}")`;
+});
+
+toDataUrl("./static/approachcircle@2x.png", (base64) => {
+    document.querySelector("#approachCircleSVG").style.backgroundImage = `url("${base64}")`;
+    document.querySelector("#approachCircleColor").style.webkitMaskImage = `url("${base64}")`;
+});
 
 const canvas = document.querySelector("#canvas");
 canvas.width = window.innerWidth;
@@ -28,7 +56,11 @@ const ctx = canvas.getContext("2d");
 const approachRate = 9.3;
 let preempt;
 let fadeIn;
+
 let isPlaying = true;
+const debugPosition = 9960;
+const mapId = 2412642;
+const playbackRate = 1;
 
 switch (true) {
     case approachRate < 5:
@@ -59,10 +91,10 @@ class HitCircle {
 
         pseudoCtx.drawImage(
             sampleApproachCircle,
-            this.positionX - ((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            this.positionY - ((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            (hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate,
-            (hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate
+            Math.round(this.positionX - ((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2),
+            Math.round(this.positionY - ((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2),
+            Math.round((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate),
+            Math.round((hitCircleSize + 5) * textureScaleFactor * approachRateExpandRate)
         );
 
         pseudoCtx.globalCompositeOperation = "source-atop";
@@ -73,46 +105,48 @@ class HitCircle {
         return pseudoCanvas;
     }
 
-    draw(opacity, trol, expandRate, preemptRate, colour) {
+    draw(opacity, trol, expandRate, preemptRate, colour, colourObject) {
         const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
 
-        const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
-        const pseudoCtx = pseudoCanvas.getContext("2d");
+        // const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+        // const pseudoCtx = pseudoCanvas.getContext("2d");
 
+        ctx.beginPath();
         ctx.globalAlpha = opacity >= 0 ? opacity : expandRate >= 0 ? expandRate : 0;
 
-        pseudoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        // ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        // console.log(colourObject);
 
-        pseudoCtx.drawImage(
-            sampleHitCircle,
-            this.positionX - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            this.positionY - ((hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate,
-            (hitCircleSize + 5) * textureScaleFactor * normalizedExpandRate
-        );
-        pseudoCtx.globalCompositeOperation = "multiply";
-        pseudoCtx.fillStyle = colour;
-        pseudoCtx.arc(this.originalX, this.originalY, ((hitCircleSize + 2) * textureScaleFactor * normalizedExpandRate) / 2, 0, 2 * Math.PI, false);
-        pseudoCtx.fill();
-
-        pseudoCtx.globalCompositeOperation = "source-over";
-        pseudoCtx.drawImage(
-            sampleHitCircleOverlay,
-            this.positionX - ((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            this.positionY - ((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2,
-            (hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate,
-            (hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate
+        ctx.drawImage(
+            colourObject.approachCircle,
+            Math.round(
+                this.positionX - ((hitCircleSize + 12) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2
+            ),
+            Math.round(
+                this.positionY - ((hitCircleSize + 12) * textureScaleFactor * approachRateExpandRate - hitCircleSize * textureScaleFactor) / 2
+            ),
+            Math.round((hitCircleSize + 10) * textureScaleFactor * approachRateExpandRate),
+            Math.round((hitCircleSize + 10) * textureScaleFactor * approachRateExpandRate)
         );
 
-        const approachCircleCanvas = this.drawApproachCircle(approachRateExpandRate, colour);
+        ctx.drawImage(
+            colourObject.hitCircle,
+            Math.round(this.positionX - ((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2),
+            Math.round(this.positionY - ((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate - hitCircleSize * textureScaleFactor) / 2),
+            Math.round((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate),
+            Math.round((hitCircleSize + 10) * textureScaleFactor * normalizedExpandRate)
+        );
 
-        pseudoCtx.drawImage(approachCircleCanvas, 0, 0);
+        // const approachCircleCanvas = this.drawApproachCircle(approachRateExpandRate, colour);
+
+        // ctx.drawImage(approachCircleCanvas, 0, 0);
 
         // console.log(colour);
 
-        ctx.drawImage(pseudoCanvas, 0, 0);
+        // ctx.drawImage(pseudoCanvas, 0, 0);
         ctx.globalAlpha = 1;
+        ctx.closePath();
     }
 
     constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
@@ -130,11 +164,11 @@ class HitCircle {
         this.endTime = time + 240;
 
         this.positionX = isSliderHead
-            ? positionX - (hitCircleSize * textureScaleFactor) / 2
-            : positionX * scaleFactor + (window.innerWidth - 512 * scaleFactor) / 2 - (hitCircleSize * textureScaleFactor) / 2;
+            ? Math.round(positionX - (hitCircleSize * textureScaleFactor) / 2)
+            : Math.round(positionX * scaleFactor + (window.innerWidth - 512 * scaleFactor) / 2 - (hitCircleSize * textureScaleFactor) / 2);
         this.positionY = isSliderHead
-            ? positionY - (hitCircleSize * textureScaleFactor) / 2
-            : positionY * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2 - (hitCircleSize * textureScaleFactor) / 2;
+            ? Math.round(positionY - (hitCircleSize * textureScaleFactor) / 2)
+            : Math.round(positionY * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2 - (hitCircleSize * textureScaleFactor) / 2);
 
         this.isNewCombo = isNewCombo;
     }
@@ -202,18 +236,35 @@ class Slider {
     }
 
     drawBorder(opacity, percentage, colour) {
+        ctx.beginPath();
         const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
         const pseudoCtx = pseudoCanvas.getContext("2d");
 
         ctx.globalAlpha = Math.abs(opacity);
 
         pseudoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+        if (opacity < 0) {
+            pseudoCtx.moveTo(this.angleList.at(endPosition).x, this.angleList.at(endPosition).y);
+            pseudoCtx.lineTo(this.angleList.at(endPosition - 1).x, this.angleList.at(endPosition - 1).y);
+            pseudoCtx.lineJoin = "round";
+            pseudoCtx.lineCap = "round";
+
+            pseudoCtx.lineWidth = Math.round(hitCircleSize * textureScaleFactor);
+            pseudoCtx.strokeStyle = colour;
+            pseudoCtx.stroke();
+
+            pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
+            pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
+            pseudoCtx.stroke();
+        }
+
         pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
             // console.log(idx / this.angleList.length, this.initialSliderLen / this.sliderLen, this.sliderLen);
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
-            if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
+            if (sliderSnaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
+            if (sliderSnaking && opacity < 0 && idx / (endPosition - 1) <= percentage) {
                 pseudoCtx.moveTo(point.x, point.y);
                 return;
             }
@@ -223,16 +274,17 @@ class Slider {
         pseudoCtx.lineJoin = "round";
         pseudoCtx.lineCap = "round";
 
-        pseudoCtx.lineWidth = hitCircleSize * textureScaleFactor;
+        pseudoCtx.lineWidth = Math.round(hitCircleSize * textureScaleFactor);
         pseudoCtx.strokeStyle = colour;
         pseudoCtx.stroke();
 
-        pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness) * textureScaleFactor;
+        pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
         pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
         pseudoCtx.stroke();
 
         ctx.drawImage(pseudoCanvas, 0, 0);
         ctx.globalAlpha = 1;
+        ctx.closePath();
     }
 
     drawBody1(opacity, percentage) {
@@ -293,9 +345,9 @@ class Slider {
         ctx.closePath();
     }
 
-    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour) {
+    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourObject) {
         this.drawBorder(opacity, percentage, colour);
-        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour);
+        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourObject);
     }
 
     getAngleList(pointArr) {
@@ -385,8 +437,8 @@ class Slider {
         // const canvas = document.createElement("canvas");
         const pointArr = pointLists.split("|").map((point) => {
             return {
-                x: point.split(":")[0] * scaleFactor + (window.innerWidth - 512 * scaleFactor) / 2,
-                y: point.split(":")[1] * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2,
+                x: Math.round(point.split(":")[0] * scaleFactor + (window.innerWidth - 512 * scaleFactor) / 2),
+                y: Math.round(point.split(":")[1] * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2),
             };
         });
 
@@ -417,6 +469,7 @@ class ObjectsList {
     drawTime;
     coloursList;
     currentColor;
+    coloursObject;
 
     compare(a, b) {
         if (a.time < b.time) {
@@ -428,21 +481,41 @@ class ObjectsList {
         return 0;
     }
 
+    createHitCircleColour(colour) {
+        hitCircleColor.style.backgroundColor = colour;
+        const base64 = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
+        const hitCircleImgData = `data:image/svg+xml;base64,${base64}`;
+        const hitCircleImg = new Image();
+        hitCircleImg.src = hitCircleImgData;
+
+        approachCircleColor.style.backgroundColor = colour;
+        const base64_2 = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
+        const approachCircleImgData = `data:image/svg+xml;base64,${base64_2}`;
+        const approachCircleImg = new Image();
+        approachCircleImg.src = approachCircleImgData;
+
+        return {
+            hitCircle: hitCircleImg,
+            approachCircle: approachCircleImg,
+        };
+    }
+
     constructor(hitCirclesList, slidersList, coloursList) {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
         this.coloursList = coloursList;
-        this.currentColor = 0 % this.coloursList.length;
+        this.currentColor = 1 % this.coloursList.length;
 
-        this.objectsList = this.objectsList.map((object) => {
-            if (object.obj.isNewCombo) this.currentColor = (this.currentColor + 1) % this.coloursList.length;
+        this.objectsList = this.objectsList.map((object, idx) => {
+            if (object.obj.isNewCombo && idx !== 0) this.currentColor = (this.currentColor + 1) % this.coloursList.length;
             return {
                 ...object,
                 colour: this.coloursList[this.currentColor],
+                colourObject: this.createHitCircleColour(this.coloursList[this.currentColor]),
             };
         });
-        console.log(this.objectsList);
+        // console.log(this.objectsList);
     }
 
     draw(timestamp) {
@@ -463,22 +536,23 @@ class ObjectsList {
                         (timestamp - (object.obj.startTime + preempt)) / (object.obj.endTime - 240 - (object.obj.startTime + preempt)),
                         1 - (timestamp - (object.obj.startTime + preempt)) / 240,
                         (timestamp - object.obj.startTime) / preempt,
-                        object.colour
+                        object.colour,
+                        object.colourObject
                     );
                 }
             });
 
         if (isPlaying)
             window.requestAnimationFrame((currentTime) => {
-                const timestampNext = currentTime - this.drawTime;
+                const timestampNext = (currentTime - this.drawTime) * playbackRate;
                 return this.draw(timestampNext);
             });
     }
 
     render() {
-        this.drawTime = new Date().getTime() - originalTime + 500;
+        this.drawTime = new Date().getTime() - originalTime;
         window.requestAnimationFrame((currentTime) => {
-            const timestamp = currentTime - this.drawTime;
+            const timestamp = (currentTime - this.drawTime) * playbackRate;
             return this.draw(timestamp);
         });
     }
@@ -527,6 +601,7 @@ class Audio {
         audio.src = "./audio.mp3";
         audio.volume = 0.1;
         audio.mute = "true";
+        audio.playbackRate = playbackRate;
 
         this.audioObj = audio;
         document.body.appendChild(this.audioObj);
@@ -609,14 +684,16 @@ class Beatmap {
         if (isPlaying) {
             this.objectsList.render();
         } else {
-            this.objectsList.draw(15000);
+            this.objectsList.draw(debugPosition);
         }
     }
 }
 
 const beatmapRender = async () => {
-    // const rawBeatmap = (await axios.get("https://tryz.vercel.app/api/b/3574847/osu")).data;
-    const rawBeatmap = (await axios.get("https://tryz.vercel.app/api/b/2412642/osu")).data;
+    const beatmapData = (await axios.get(`https://tryz.vercel.app/api/b/${mapId}`)).data;
+    document.body.style.backgroundImage = `url(${beatmapData.covers["cover@2x"]})`;
+    const rawBeatmap = (await axios.get(`https://tryz.vercel.app/api/b/${mapId}/osu`)).data;
+    // const rawBeatmap = (await axios.get("https://tryz.vercel.app/api/b/2412642/osu")).data;
 
     const audio = new Audio();
     // const cursor = new Cursor();

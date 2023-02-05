@@ -14,9 +14,72 @@
 
 <body>
     <div id="main">
-        <img id="sampleHitCircle" src="./static/hitcircle@2x.png">
-        <img id="sampleHitCircleOverlay" src="./static/hitcircleoverlay@2x.png">
-        <img id="sampleApproachCircle" src="./static/approachcircle.png">
+        <svg xmlns='http://www.w3.org/2000/svg' id="sampleHitCircle" width='266' height='266'
+            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <foreignObject x="0" y="0" width='100%' height='100%'>
+                <xhtml:div id="hitCircleSVG" style="
+                position: absolute; 
+                display: block;
+                top: 10px;
+                left: 10px;
+                width: 246px;
+                height: 246px;
+                background-image: url(./static/hitcircle@2x.png);
+                background-size:cover">
+                </xhtml:div>
+                <xhtml:div id="hitCircleColor" style="
+                position: absolute; 
+                display: block;
+                top: 10px;
+                left: 10px;
+                width: 246px;
+                height: 246px;
+                background-color: rgb(82, 180, 115);
+                mix-blend-mode: multiply;
+                -webkit-mask-image:url(./static/hitcircle@2x.png);
+                -webkit-mask-size: cover;
+                ">
+                </xhtml:div>
+                <xhtml:div id="hitCircleOverlay" style="
+                position: absolute; 
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-image: url(./static/hitcircleoverlay@2x.png);
+                background-size: cover;">
+                </xhtml:div>
+            </foreignObject>
+        </svg>
+        <svg xmlns='http://www.w3.org/2000/svg' id="sampleApproachCircle" width='260' height='260'
+            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <foreignObject x="0" y="0" width='100%' height='100%'>
+                <xhtml:div id="approachCircleSVG" style="
+                position: absolute; 
+                display: block;
+                top: 10px;
+                left: 10px;
+                width: 246px;
+                height: 246px;
+                background-image: url(./static/approachcircle@2x.png);
+                background-size:cover">
+                </xhtml:div>
+                <xhtml:div id="approachCircleColor" style="
+                position: absolute; 
+                display: block;
+                top: 10px;
+                left: 10px;
+                width: 246px;
+                height: 246px;
+                background-color: rgb(82, 180, 115);
+                mix-blend-mode: multiply;
+                -webkit-mask-image:url(./static/approachcircle@2x.png);
+                -webkit-mask-size: cover;
+                ">
+                </xhtml:div>
+            </foreignObject>
+        </svg>
+        <!-- <img id="sampleHitCircleOverlay" src="./static/hitcircleoverlay@2x.png"> -->
+        <!-- <img id="sampleApproachCircle" src="./static/approachcircle@2x.png"> -->
         <img id="sampleSliderB" src="./static/sliderb@2x.png">
     </div>
     <canvas id="canvas" width="512" height="384"></canvas>

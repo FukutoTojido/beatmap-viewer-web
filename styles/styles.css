@@ -35,7 +35,7 @@ body {
     margin: 0;
 
     overflow: hidden;
-    background-image: url(../higuchimadoka.jpg);
+    /* background-image: url(../higuchimadoka.jpg); */
     background-size: cover;
     background-position: center;
 }
@@ -108,7 +108,7 @@ body {
     z-index: 999;
 }
 
-img {
+#main img {
     display: none;
 }
 
@@ -134,4 +134,8 @@ canvas {
     z-index: -1;
 
     /* background-color: rgba(255, 255, 255, 0.1); */
+}
+
+svg {
+    display: none;
 }
