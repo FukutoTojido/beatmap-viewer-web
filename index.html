@@ -6,9 +6,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/styles.css">
-    <script src="./replayData.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./deps/canvas-bezier-multipoint.js"></script>
+    <script src="./lib/zip-fs-full.min.js"></script>
+    <script src="./scripts/GlobalVariables.js"></script>
+    <script src="./scripts/Audio.js"></script>
+    <script src="./scripts/Cursor.js"></script>
+    <script src="./scripts/HitCircle.js"></script>
+    <script src="./scripts/Slider.js"></script>
+    <script src="./scripts/ObjectsList.js"></script>
+    <script src="./scripts/Beatmap.js"></script>
+    <script src="./scripts/BeatmapFile.js"></script>
     <script src="./index.js" defer></script>
 </head>
 
@@ -86,6 +94,7 @@
     <div id="cursorContainer">
         <div id="cursor"></div>
     </div>
+    <div id="playButton"></div>
 </body>
 
 </html>

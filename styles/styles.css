@@ -53,7 +53,7 @@ body {
     background-color: rgb(0 0 0 /0.8);
     z-index: -1;
 
-    backdrop-filter: blur(10px);
+    /* backdrop-filter: blur(10px); */
 }
 
 #cursorContainer {
@@ -140,4 +140,16 @@ canvas {
 
 svg {
     display: none;
+}
+
+#playButton {
+    position: absolute;
+
+    bottom: 0;
+    left: 0;
+
+    width: 100px;
+    height: 100px;
+
+    background-color: red;
 }

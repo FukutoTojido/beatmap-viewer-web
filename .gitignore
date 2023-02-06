@@ -1,0 +1,4 @@
+node_modules/
+.live-server.json
+*.pem
+package*.json
