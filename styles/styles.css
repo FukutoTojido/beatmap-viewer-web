@@ -52,6 +52,8 @@ body {
 
     background-color: rgb(0 0 0 /0.8);
     z-index: -1;
+
+    backdrop-filter: blur(10px);
 }
 
 #cursorContainer {
@@ -70,11 +72,11 @@ body {
     top: -5px;
     left: -5px;
 
-    width: 10px;
-    height: 10px;
+    width: 50px;
+    height: 50px;
 
     background-color: yellow;
-    border-radius: 5px;
+    border-radius: 25px;
     box-shadow: 0 0 5px 1px yellow;
 
     z-index: 9999999;
