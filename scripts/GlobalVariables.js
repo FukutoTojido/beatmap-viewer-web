@@ -34,8 +34,8 @@ let fadeIn;
 
 let isPlaying = true;
 const debugPosition = 179066;
-const mapId = 1155619;
-const playbackRate = 1;
+const mapId = 2146969;
+const playbackRate = 2.5;
 
 switch (true) {
     case approachRate < 5:

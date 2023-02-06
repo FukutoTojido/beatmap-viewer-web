@@ -35,7 +35,10 @@ class BeatmapFile {
         const backgroundFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/0,0,"*.*"/g))[0]
-            .match(/[a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+/g)[0];
+            .match(/"[\!\(\)\[\]\{\}a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
+            .replaceAll('"', "");
+
+        console.log(audioFilename, backgroundFilename);
 
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
         const zipReader = new zip.ZipReader(mapFileBlobReader);
@@ -60,10 +63,7 @@ class BeatmapFile {
         document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
         document.querySelector("#playButton").addEventListener("click", () => {
-            if (isPlaying) {
-                this.audio.currentTime = 0;
-                this.audio.play();
-            }
+            if (isPlaying) this.audio.play();
             this.beatmapRenderData.render();
         });
     }
