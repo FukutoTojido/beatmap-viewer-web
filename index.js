@@ -14,7 +14,7 @@ toDataUrl("./static/hitcircle@2x.png", (base64) => {
     document.querySelector("#hitCircleColor").style.webkitMaskImage = `url("${base64}")`;
 });
 
-toDataUrl("./static/hitcircleOverlay@2x.png", (base64) => {
+toDataUrl("./static/hitcircleoverlay@2x.png", (base64) => {
     document.querySelector("#hitCircleOverlay").style.backgroundImage = `url("${base64}")`;
 });
 
