@@ -22,8 +22,8 @@ function toDataUrl(url, callback) {
 const scaleFactor = Math.min(window.screen.availHeight / 480, window.screen.availWidth / 640);
 const textureScaleFactor = Math.min(window.screen.availHeight / 768, window.screen.availWidth / 1024) ** 2;
 
-let circleSize
-let hitCircleSize;
+let circleSize = 4;
+let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
 
 const sliderBorderThickness = 8;
 const sliderAccuracy = 0.005;
@@ -35,8 +35,8 @@ let preempt;
 let fadeIn;
 
 let isPlaying = true;
-const debugPosition = 13505;
-const mapId = 1919312;
+const debugPosition = 77211;
+const mapId = 2412642;
 const playbackRate = 1;
 
 let stackLeniency;

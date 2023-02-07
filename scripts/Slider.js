@@ -211,10 +211,10 @@ class Slider {
             angleIndex = lower / upper;
             b = pointArr[0].y - angleIndex * pointArr[0].x;
 
-            innerAngle =
-                (upper === 0 && pointArr[1].x > pointArr[0].x) || upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
-                    ? Math.acos((2 * radius ** 2 - lengthAC ** 2) / (2 * radius ** 2))
-                    : -Math.acos((2 * radius ** 2 - lengthAC ** 2) / (2 * radius ** 2));
+            // innerAngle =
+            //     (upper === 0 && pointArr[1].x > pointArr[0].x) || upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
+            //         ? Math.acos((2 * radius ** 2 - lengthAC ** 2) / (2 * radius ** 2))
+            //         : -Math.acos((2 * radius ** 2 - lengthAC ** 2) / (2 * radius ** 2));
 
             centerX =
                 (pointArr[0].x * Math.sin(2 * angleA) + pointArr[1].x * Math.sin(2 * angleB) + pointArr[2].x * Math.sin(2 * angleC)) /
@@ -222,6 +222,16 @@ class Slider {
             centerY =
                 (pointArr[0].y * Math.sin(2 * angleA) + pointArr[1].y * Math.sin(2 * angleB) + pointArr[2].y * Math.sin(2 * angleC)) /
                 (Math.sin(2 * angleA) + Math.sin(2 * angleB) + Math.sin(2 * angleC));
+
+            const absoluteAngle =
+                (pointArr[1].y - (angleIndex * pointArr[1].x + b)) * (centerY - (angleIndex * centerX + b)) < 0
+                    ? Math.asin(lengthAC / (2 * radius)) * 2
+                    : Math.PI * 2 - Math.asin(lengthAC / (2 * radius)) * 2;
+
+            innerAngle =
+                (upper === 0 && pointArr[1].x > pointArr[0].x) || upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
+                    ? absoluteAngle
+                    : -absoluteAngle;
 
             this.angleIndex = angleIndex;
             this.b = b;
@@ -329,8 +339,11 @@ class Slider {
             this.sliderLen += Math.sqrt((this.angleList[idx + 1].x - point.x) ** 2 + (this.angleList[idx + 1].y - point.y) ** 2) / scaleFactor;
         });
 
-        // if (this.startTime + preempt === 179067) console.log(this.sliderLen);
-        // console.log(this.angleList);
+        if (!isPlaying && this.startTime + preempt === debugPosition) {
+            console.log(this.angleList);
+            console.log(this.sliderLen);
+            console.log(innerAngle);
+        }
     }
 
     constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, baseSliderVelocity, beatStep, time, isNewCombo, repeat) {
