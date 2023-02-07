@@ -35,8 +35,8 @@ let preempt;
 let fadeIn;
 
 let isPlaying = true;
-const debugPosition = 77211;
-const mapId = 2412642;
+const debugPosition = 45182;
+const mapId = 3289286;
 const playbackRate = 1;
 
 let stackLeniency;

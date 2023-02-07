@@ -63,6 +63,7 @@ class Slider {
     }
 
     drawBorder(opacity, percentage, colour) {
+        // console.log(this.startTime + preempt, opacity, percentage);
         // console.log(this.initialSliderLen / this.initialSliderVelocity);
         ctx.beginPath();
         const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
@@ -123,6 +124,32 @@ class Slider {
         pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
         pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
         pseudoCtx.stroke();
+
+        // if (opacity < 0 && percentage >= 0 && percentage <= 1 && this.repeat == 1) {
+        //     const sliderBallPosition =
+        //         this.angleList[
+        //             Math.min(
+        //                 Math.round(Math.min(percentage, 1) * this.angleList.length - 1),
+        //                 Math.round((this.initialSliderLen / this.sliderLen) * (this.angleList.length - 1))
+        //             )
+        //         ];
+
+        //     if (sliderBallPosition !== undefined) {
+        //         pseudoCtx.beginPath();
+        //         pseudoCtx.lineWidth = Math.round(sliderBorderThickness * textureScaleFactor);
+        //         pseudoCtx.strokeStyle = colour;
+        //         pseudoCtx.arc(
+        //             sliderBallPosition.x,
+        //             sliderBallPosition.y,
+        //             Math.round(hitCircleSize * textureScaleFactor) / 2 - Math.round(sliderBorderThickness * textureScaleFactor),
+        //             0,
+        //             Math.PI * 2,
+        //             false
+        //         );
+        //         pseudoCtx.stroke();
+        //         pseudoCtx.closePath();
+        //     }
+        // }
 
         ctx.drawImage(pseudoCanvas, 0, 0);
         ctx.globalAlpha = 1;
