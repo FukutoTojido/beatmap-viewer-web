@@ -20,10 +20,15 @@ class BeatmapFile {
         const mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
         const setId = mapsetData.id;
 
+        const requestClient = axios.create({
+            baseURL: `https://api.chimu.moe/v1/download/`,
+        });
         const mapFileBlob = (
-            await axios({
-                url: `https://api.chimu.moe/v1/download/${setId}`,
+            await requestClient.get(`${setId}`, {
                 responseType: "blob",
+                onDownloadProgress: (progressEvent) => {
+                    // console.log(progressEvent);
+                },
             })
         ).data;
 
@@ -35,7 +40,7 @@ class BeatmapFile {
         const backgroundFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/0,0,"*.*"/g))[0]
-            .match(/"[\!\(\)\[\]\{\}a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
+            .match(/"[\/\\\!\(\)\[\]\{\}a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
 
         console.log(audioFilename, backgroundFilename);

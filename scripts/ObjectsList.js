@@ -51,7 +51,6 @@ class ObjectsList {
                 colourObject: this.createHitCircleColour(this.coloursList[this.currentColor]),
             };
         });
-        // console.log(this.objectsList);
     }
 
     draw(timestamp) {
@@ -80,7 +79,9 @@ class ObjectsList {
 
         if (isPlaying)
             window.requestAnimationFrame((currentTime) => {
-                const timestampNext = (currentTime - this.drawTime) * playbackRate;
+                const currentAudioTime = document.querySelector("audio").currentTime * 1000;
+                const elapsed = currentTime - this.drawTime;
+                const timestampNext = Math.min(currentAudioTime, elapsed) * playbackRate;
                 return this.draw(timestampNext);
             });
     }
@@ -88,7 +89,9 @@ class ObjectsList {
     render() {
         this.drawTime = new Date().getTime() - originalTime;
         window.requestAnimationFrame((currentTime) => {
-            const timestamp = (currentTime - this.drawTime) * playbackRate;
+            const currentAudioTime = document.querySelector("audio").currentTime * 1000;
+            const elapsed = currentTime - this.drawTime;
+            const timestamp = Math.min(currentAudioTime, elapsed) * playbackRate;
             return this.draw(timestamp);
         });
     }

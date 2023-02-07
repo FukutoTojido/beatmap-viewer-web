@@ -2,6 +2,36 @@ class Beatmap {
     objectsList;
 
     constructor(rawBeatmap, delay) {
+        approachRate = parseFloat(
+            rawBeatmap
+                .split("\r\n")
+                .filter((line) => line.includes("ApproachRate:"))
+                .shift()
+                .replaceAll("ApproachRate:", "")
+        );
+        circleSize = parseFloat(
+            rawBeatmap
+                .split("\r\n")
+                .filter((line) => line.includes("CircleSize:"))
+                .shift()
+                .replaceAll("CircleSize:", "")
+        );
+        stackLeniency = parseFloat(
+            rawBeatmap
+                .split("\r\n")
+                .filter((line) => line.includes("StackLeniency: "))
+                .shift()
+                .replaceAll("StackLeniency: ", "")
+        );
+
+        hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
+        preempt = approachRate < 5 ? 1200 + (600 * (5 - approachRate)) / 5 : approachRate > 5 ? 1200 - (750 * (approachRate - 5)) / 5 : 0;
+        fadeIn = approachRate < 5 ? 800 + (400 * (5 - approachRate)) / 5 : approachRate > 5 ? 800 - (500 * (approachRate - 5)) / 5 : 500;
+        stackOffset = (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2;
+        stackThreshold = preempt * stackLeniency;
+
+        // console.log(approachRate, circleSize, stackLeniency, stackThreshold);
+
         const difficultyPosition = rawBeatmap.indexOf("[Difficulty]") + "[Difficulty]\r\n".length;
         const timingPosition = rawBeatmap.indexOf("[TimingPoints]") + "[TimingPoints]\r\n".length;
         const colourPosition = rawBeatmap.indexOf("[Colours]") + "[Colours]\r\n".length;
@@ -36,12 +66,38 @@ class Beatmap {
         const coloursList = rawBeatmap
             .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
             .split("\r\n")
-            .filter((line) => line !== "")
+            .filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
             .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`);
-        const objectLists = rawBeatmap
+        let objectLists = rawBeatmap
             .slice(hitObjectsPosition)
             .split("\r\n")
             .filter((s) => s !== "");
+        objectLists = objectLists.map((currentObj, i) => {
+            const params = currentObj.split(",");
+            let endTime;
+
+            if (!["L", "P", "B", "C"].includes(params[5][0])) endTime = parseInt(params[2]);
+            if (["L", "P", "B", "C"].includes(params[5][0])) {
+                const currentbeatStep = beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep;
+                const currentSVMultiplier = timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]);
+                const initialSliderLen = params[6] * params[7];
+
+                endTime = parseInt(params[2]) + (initialSliderLen / initialSliderVelocity) * currentSVMultiplier.svMultiplier * currentbeatStep;
+            }
+
+            const stackHeight = objectLists.filter((object, idx) => {
+                const inParams = object.split(",");
+                return idx > i && parseInt(inParams[2]) - endTime <= stackThreshold && params[0] === inParams[0] && params[1] === inParams[1];
+            }).length;
+
+            // console.log(parseInt(params[2]), stackHeight);
+
+            const x = Math.round(parseInt(params[0]) + stackOffset * stackHeight);
+            const y = Math.round(parseInt(params[1]) + stackOffset * stackHeight);
+            return [x, y, ...params.slice(2)].join(",");
+        });
+
+        // console.log(objectLists);
         const hitCircleList = objectLists
             .map((object) => {
                 const params = object.split(",");

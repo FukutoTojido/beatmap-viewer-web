@@ -71,7 +71,7 @@ class HitCircle {
         ctx.closePath();
     }
 
-    constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
+    constructor(positionX, positionY, time, isSliderHead, isNewCombo, isStacked, nextPosition) {
         // const hit = document.createElement("div");
         // hit.classList.add("hitCircle");
         // hit.style.left = `${positionX * scaleFactor - (hitCircleSize * textureScaleFactor) / 2}px`;
