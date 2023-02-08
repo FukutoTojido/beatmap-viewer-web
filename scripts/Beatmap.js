@@ -43,7 +43,10 @@ class Beatmap {
 
         const initialSliderVelocity = rawBeatmap.slice(difficultyPosition).split("\r\n")[4].replace("SliderMultiplier:", "") * 100;
         const beatStepsList = rawBeatmap
-            .slice(timingPosition, colourPosition - "[Colours]\r\n".length)
+            .slice(
+                timingPosition,
+                rawBeatmap.indexOf("[Colours]") !== -1 ? colourPosition - "[Colours]\r\n".length : hitObjectsPosition - "[HitObjects]\r\n".length
+            )
             .split("\r\n")
             .filter((timingPoint) => {
                 const params = timingPoint.split(",");
@@ -57,7 +60,10 @@ class Beatmap {
                 };
             });
         const timingPointsList = rawBeatmap
-            .slice(timingPosition, colourPosition - "[Colours]\r\n".length)
+            .slice(
+                timingPosition,
+                rawBeatmap.indexOf("[Colours]") !== -1 ? colourPosition - "[Colours]\r\n".length : hitObjectsPosition - "[HitObjects]\r\n".length
+            )
             .split("\r\n")
             .filter((timingPoint) => timingPoint !== "")
             .map((timingPoint) => {
@@ -67,6 +73,8 @@ class Beatmap {
                     svMultiplier: params[1] > 0 ? 1 : parseFloat(((-1 / params[1]) * 100).toFixed(2)),
                 };
             });
+
+        // console.log(beatStepsList, timingPointsList);
         const coloursList = rawBeatmap
             .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
             .split("\r\n")

@@ -21,13 +21,13 @@ class BeatmapFile {
         const setId = mapsetData.id;
 
         const requestClient = axios.create({
-            baseURL: `https://api.chimu.moe/v1/download/`,
+            baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
         });
         const mapFileBlob = (
-            await requestClient.get(`${setId}`, {
+            await requestClient.get(`${setId}?server=auto`, {
                 responseType: "blob",
                 onDownloadProgress: (progressEvent) => {
-                    // console.log(progressEvent);
+                    console.log(progressEvent);
                 },
             })
         ).data;
@@ -102,5 +102,25 @@ class BeatmapFile {
                 window.requestAnimationFrame((currentTime) => troll(currentTime));
             }
         });
+
+        document.onkeydown = (e) => {
+            if (!isPlaying) {
+                e = e || window.event;
+                switch (e.key) {
+                    case "ArrowLeft":
+                        // Left pressed
+                        debugPosition -= 1;
+                        // console.log("->");
+                        break;
+                    case "ArrowRight":
+                        // Right pressed
+                        debugPosition += 1;
+                        // console.log("<-");
+                        break;
+                }
+
+                this.beatmapRenderData.render(); 
+            }
+        };
     }
 }

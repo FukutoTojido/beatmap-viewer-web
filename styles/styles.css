@@ -73,6 +73,8 @@ body {
 
     transform: scaleY(-1);
     opacity: 0;
+
+    display: none;
 }
 
 #cursor {

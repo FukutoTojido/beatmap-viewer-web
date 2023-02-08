@@ -40,7 +40,7 @@ class ObjectsList {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
-        this.coloursList = coloursList;
+        this.coloursList = coloursList.length !== 0 ? coloursList : ["#eb4034", "#ebc034", "#34eb65", "#347deb"];
         this.currentColor = 1 % this.coloursList.length;
 
         this.objectsList = this.objectsList.map((object, idx) => {

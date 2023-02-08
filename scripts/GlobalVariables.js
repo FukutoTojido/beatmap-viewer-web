@@ -23,7 +23,7 @@ let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
 
 let sliderBorderThickness = hitCircleSize * 2 / 58;
-const sliderAccuracy = 0.005;
+const sliderAccuracy = 0.0025;
 const sliderSnaking = true;
 const sliderBorderColor = "#ffffff";
 
@@ -32,8 +32,8 @@ let preempt;
 let fadeIn;
 
 let isPlaying = true;
-const debugPosition = 74501;
-const mapId = 1628723;
+let debugPosition = 52029;
+const mapId = 3939123;
 const playbackRate = 1;
 
 let stackLeniency;

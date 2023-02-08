@@ -111,8 +111,8 @@ class Slider {
             if (sliderSnaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
 
             if (!(sliderSnaking && opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
-                if (this.repeat % 2 === 0 && idx / (endPosition - 1) >= 1 - ((percentage - 1) * this.repeat + 1)) return;
-                if (this.repeat % 2 !== 0 && idx / (endPosition - 1) <= (percentage - 1) * this.repeat + 1) {
+                if (this.repeat % 2 === 0 && idx / endPosition >= 1 - ((percentage - 1) * this.repeat + 1)) return;
+                if (this.repeat % 2 !== 0 && idx / endPosition <= (percentage - 1) * this.repeat + 1) {
                     pseudoCtx.moveTo(point.x, point.y);
                     return;
                 }
@@ -135,34 +135,45 @@ class Slider {
         pseudoCtx.stroke();
 
         pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
-        pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
+        pseudoCtx.strokeStyle = `rgb(0 0 0 / 0.85)`;
         pseudoCtx.stroke();
 
-        // if (opacity < 0 && percentage >= 0 && percentage <= 1 && this.repeat == 1) {
-        //     const sliderBallPosition =
-        //         this.angleList[
-        //             Math.min(
-        //                 Math.round(Math.min(percentage, 1) * this.angleList.length - 1),
-        //                 Math.round((this.initialSliderLen / this.sliderLen) * (this.angleList.length - 1))
-        //             )
-        //         ];
+        // pseudoCtx.globalCompositeOperation = "source-out";
 
-        //     if (sliderBallPosition !== undefined) {
-        //         pseudoCtx.beginPath();
-        //         pseudoCtx.lineWidth = Math.round(sliderBorderThickness * textureScaleFactor);
-        //         pseudoCtx.strokeStyle = colour;
-        //         pseudoCtx.arc(
-        //             sliderBallPosition.x,
-        //             sliderBallPosition.y,
-        //             Math.round(hitCircleSize * textureScaleFactor) / 2 - Math.round(sliderBorderThickness * textureScaleFactor),
-        //             0,
-        //             Math.PI * 2,
-        //             false
-        //         );
-        //         pseudoCtx.stroke();
-        //         pseudoCtx.closePath();
-        //     }
-        // }
+        // pseudoCtx.globalCompositeOperation = "source-over";
+        // pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        // pseudoCtx.strokeStyle = `rgb(0 0 0 / 0.8)`;
+        // pseudoCtx.stroke();
+
+        if (opacity < 0 && percentage >= 0 && percentage <= 1) {
+            const step = 1 / this.repeat;
+            const innerPercentage = (percentage * this.repeat) % 1;
+            const repeatIndex = Math.floor(percentage / step);
+
+            const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+
+            const sliderBallPosition = this.angleList.findLast((point, idx) =>
+                repeatIndex % 2 == 0 ? idx / endPosition <= innerPercentage : idx / endPosition <= 1 - innerPercentage
+            );
+
+            // console.log(innerPercentage, percentage, repeatIndex);
+
+            if (sliderBallPosition !== undefined) {
+                pseudoCtx.beginPath();
+                pseudoCtx.lineWidth = sliderBorderThickness * currentScaleFactor * (118 / 128) * 4;
+                pseudoCtx.strokeStyle = "white";
+                pseudoCtx.arc(
+                    sliderBallPosition.x,
+                    sliderBallPosition.y,
+                    (hitCircleSize * currentScaleFactor * (118 / 128)) / 2 - (sliderBorderThickness * currentScaleFactor * (118 / 128) * 4) / 2,
+                    0,
+                    Math.PI * 2,
+                    false
+                );
+                pseudoCtx.stroke();
+                pseudoCtx.closePath();
+            }
+        }
 
         ctx.drawImage(pseudoCanvas, 0, 0);
         ctx.globalAlpha = 1;
