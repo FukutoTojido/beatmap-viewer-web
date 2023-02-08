@@ -25,6 +25,10 @@ class Beatmap {
         );
 
         hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
+        sliderBorderThickness = (hitCircleSize * 2) / 58;
+
+        // console.log(hitCircleSize, sliderBorderThickness);
+
         preempt = approachRate < 5 ? 1200 + (600 * (5 - approachRate)) / 5 : approachRate > 5 ? 1200 - (750 * (approachRate - 5)) / 5 : 0;
         fadeIn = approachRate < 5 ? 800 + (400 * (5 - approachRate)) / 5 : approachRate > 5 ? 800 - (500 * (approachRate - 5)) / 5 : 500;
         stackOffset = (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2;
@@ -142,10 +146,12 @@ class Beatmap {
             .filter((s) => s);
 
         this.objectsList = new ObjectsList(hitCircleList, slidersList, coloursList);
+        // console.log(this.objectsList);
     }
 
     render() {
         if (isPlaying) {
+            playingFlag = true;
             this.objectsList.render();
         } else {
             this.objectsList.draw(debugPosition);

@@ -22,7 +22,7 @@
 
 <body>
     <div id="main">
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleHitCircle" width='266' height='266'
+        <svg xmlns='http://www.w3.org/2000/svg' id="sampleHitCircle" width='276' height='276'
             xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
             <foreignObject x="0" y="0" width='100%' height='100%'>
                 <xhtml:div id="hitCircleSVG" style="
@@ -30,22 +30,25 @@
                 display: block;
                 top: 10px;
                 left: 10px;
-                width: 246px;
-                height: 246px;
+                width: 256px;
+                height: 256px;
                 background-image: url(./static/hitcircle@2x.png);
-                background-size:cover">
+                background-size:cover;
+                ">
                 </xhtml:div>
                 <xhtml:div id="hitCircleColor" style="
                 position: absolute; 
                 display: block;
                 top: 10px;
                 left: 10px;
-                width: 246px;
-                height: 246px;
+                width: 256px;
+                height: 256px;
                 background-color: rgb(82, 180, 115);
                 mix-blend-mode: multiply;
                 -webkit-mask-image:url(./static/hitcircle@2x.png);
                 -webkit-mask-size: cover;
+                mask-image:url(./static/hitcircle@2x.png);
+                mask-size: cover;
                 ">
                 </xhtml:div>
                 <xhtml:div id="hitCircleOverlay" style="
@@ -58,30 +61,35 @@
                 </xhtml:div>
             </foreignObject>
         </svg>
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleApproachCircle" width='260' height='260'
+        <svg xmlns='http://www.w3.org/2000/svg' id="sampleApproachCircle" width='276' height='276'
             xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
             <foreignObject x="0" y="0" width='100%' height='100%'>
                 <xhtml:div id="approachCircleSVG" style="
                 position: absolute; 
                 display: block;
-                top: 10px;
-                left: 10px;
-                width: 246px;
-                height: 246px;
+                width: 100%;
+                height: 100%;
                 background-image: url(./static/approachcircle@2x.png);
-                background-size:cover">
+                background-size: 95% 95%;
+                background-repeat: no-repeat;
+                background-position: center;
+                ">
                 </xhtml:div>
                 <xhtml:div id="approachCircleColor" style="
                 position: absolute; 
                 display: block;
-                top: 10px;
-                left: 10px;
-                width: 246px;
-                height: 246px;
+                width: 100%;
+                height: 100%;
                 background-color: rgb(82, 180, 115);
                 mix-blend-mode: multiply;
                 -webkit-mask-image:url(./static/approachcircle@2x.png);
-                -webkit-mask-size: cover;
+                -webkit-mask-size: 95% 95%;
+                -webkit-mask-repeat: no-repeat;
+                -webkit-mask-position: center;
+                mask-image:url(./static/approachcircle@2x.png);
+                mask-size: 95% 95%;
+                mask-repeat: no-repeat;
+                mask-position: center;
                 ">
                 </xhtml:div>
             </foreignObject>
@@ -90,11 +98,16 @@
         <!-- <img id="sampleApproachCircle" src="./static/approachcircle@2x.png"> -->
         <img id="sampleSliderB" src="./static/sliderb0@2x.png">
     </div>
-    <canvas id="canvas" width="512" height="384"></canvas>
+    <div id="settingsPanel"></div>
+    <div id="playerContainer">
+        <div id="overlay"></div>
+        <canvas id="canvas" width="512" height="384"></canvas>
+        <button id="settingsButton" onclick="openMenu()"></button>
+        <button id="playButton"></button>
+    </div>
     <div id="cursorContainer">
         <div id="cursor"></div>
     </div>
-    <div id="playButton"></div>
 </body>
 
 </html>

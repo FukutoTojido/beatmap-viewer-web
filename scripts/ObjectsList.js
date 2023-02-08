@@ -55,7 +55,18 @@ class ObjectsList {
 
     draw(timestamp) {
         // console.log(timestamp);
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== canvas.width)
+            canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+
+        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== canvas.height)
+            canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+
+        const currentScaleFactor = Math.min(
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 480,
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 640
+        );
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.objectsList
             .filter((object) => object.obj.startTime < timestamp && object.obj.endTime > timestamp)
             .reverse()
@@ -72,16 +83,16 @@ class ObjectsList {
                         1 - (timestamp - (object.obj.startTime + preempt)) / 240,
                         (timestamp - object.obj.startTime) / preempt,
                         object.colour,
-                        object.colourObject
+                        object.colourObject,
+                        currentScaleFactor
                     );
                 }
             });
 
-        if (isPlaying)
+        if (isPlaying && playingFlag)
             window.requestAnimationFrame((currentTime) => {
                 const currentAudioTime = document.querySelector("audio").currentTime * 1000;
-                const elapsed = currentTime - this.drawTime;
-                const timestampNext = Math.min(currentAudioTime, elapsed) * playbackRate;
+                const timestampNext = currentAudioTime * playbackRate;
                 return this.draw(timestampNext);
             });
     }
@@ -90,8 +101,7 @@ class ObjectsList {
         this.drawTime = new Date().getTime() - originalTime;
         window.requestAnimationFrame((currentTime) => {
             const currentAudioTime = document.querySelector("audio").currentTime * 1000;
-            const elapsed = currentTime - this.drawTime;
-            const timestamp = Math.min(currentAudioTime, elapsed) * playbackRate;
+            const timestamp = currentAudioTime * playbackRate;
             return this.draw(timestamp);
         });
     }

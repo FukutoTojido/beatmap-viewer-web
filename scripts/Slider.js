@@ -1,5 +1,6 @@
 class Slider {
-    pointArr;
+    originalArr = [];
+    pointArr = [];
     angleList = [];
     breakPoints = [];
     sliderLen = 0;
@@ -18,6 +19,7 @@ class Slider {
     isNewCombo;
     repeat;
     sliderAccuracy;
+    tempCanvasWidth;
 
     binom(n, k) {
         var coeff = 1;
@@ -62,16 +64,31 @@ class Slider {
         ctx.closePath();
     }
 
-    drawBorder(opacity, percentage, colour) {
-        // console.log(this.startTime + preempt, opacity, percentage);
-        // console.log(this.initialSliderLen / this.initialSliderVelocity);
+    drawBorder(opacity, percentage, colour, currentScaleFactor) {
+        if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
+            tempScaleFactor = currentScaleFactor;
+            // console.log(tempScaleFactor, "->", currentScaleFactor);
+            tempScaleFactor = currentScaleFactor;
+            this.tempCanvasWidth = canvas.width;
+            const newPointArr = this.originalArr.map((point) => {
+                return {
+                    x: point.x * currentScaleFactor + (canvas.width - 512 * currentScaleFactor) / 2,
+                    y: point.y * currentScaleFactor + (canvas.height - 384 * currentScaleFactor) / 2,
+                };
+            });
+
+            this.getAngleList(newPointArr, currentScaleFactor);
+        }
+
+        // console.log(this.angleList, canvas);
+
         ctx.beginPath();
-        const pseudoCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+        const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
         const pseudoCtx = pseudoCanvas.getContext("2d");
 
         ctx.globalAlpha = Math.abs(opacity);
 
-        pseudoCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        pseudoCtx.clearRect(0, 0, canvas.width, canvas.height);
         const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
         // if (opacity < 0) {
         //     pseudoCtx.moveTo(this.angleList.at(endPosition).x, this.angleList.at(endPosition).y);
@@ -88,15 +105,11 @@ class Slider {
         //     pseudoCtx.stroke();
         // }
 
-        // console.log(1 / this.sliderAccuracy, this.angleList);
         pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
-            // console.log(idx / this.angleList.length, this.initialSliderLen / this.sliderLen, this.sliderLen);
             if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
-            // console.log("a");
             if (sliderSnaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
 
-            // console.log((percentage - 1) * this.repeat + 1);
             if (!(sliderSnaking && opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
                 if (this.repeat % 2 === 0 && idx / (endPosition - 1) >= 1 - ((percentage - 1) * this.repeat + 1)) return;
                 if (this.repeat % 2 !== 0 && idx / (endPosition - 1) <= (percentage - 1) * this.repeat + 1) {
@@ -117,11 +130,11 @@ class Slider {
         pseudoCtx.lineJoin = "round";
         pseudoCtx.lineCap = "round";
 
-        pseudoCtx.lineWidth = Math.round(hitCircleSize * textureScaleFactor);
+        pseudoCtx.lineWidth = hitCircleSize * currentScaleFactor * (118 / 128);
         pseudoCtx.strokeStyle = colour;
         pseudoCtx.stroke();
 
-        pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
+        pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
         pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
         pseudoCtx.stroke();
 
@@ -156,70 +169,15 @@ class Slider {
         ctx.closePath();
     }
 
-    drawBody1(opacity, percentage) {
-        ctx.beginPath();
-        ctx.moveTo(this.angleList[0].x, this.angleList[0].y);
-        this.angleList.forEach((point, idx) => {
-            if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
-            if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
-                ctx.moveTo(point.x, point.y);
-                return;
-            }
-            ctx.lineTo(point.x, point.y);
-        });
-        ctx.lineWidth = (hitCircleSize - sliderBorderThickness) * textureScaleFactor;
-        ctx.strokeStyle = `rgb(0 0 0 / .9)`;
-        ctx.stroke();
-        ctx.closePath();
+    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourObject, currentScaleFactor) {
+        this.drawBorder(opacity, percentage, colour, currentScaleFactor);
+        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourObject, currentScaleFactor);
     }
 
-    drawBody2(opacity, percentage) {
-        ctx.beginPath();
-        ctx.moveTo(this.angleList[0].x, this.angleList[0].y);
-        this.angleList.forEach((point, idx) => {
-            if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
-            if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
-                ctx.moveTo(point.x, point.y);
-                return;
-            }
-            ctx.lineTo(point.x, point.y);
-        });
-        ctx.lineWidth = hitCircleSize * textureScaleFactor * 0.4;
-        ctx.filter = "blur(30px)";
-        ctx.strokeStyle = `rgb(50 50 50)`;
-        ctx.stroke();
-        ctx.filter = "none";
-        ctx.closePath();
-    }
+    getAngleList(pointArr, ascaleFactor) {
+        this.angleList = [];
+        this.breakPoints = [];
 
-    drawBody3(opacity, percentage) {
-        ctx.beginPath();
-        ctx.moveTo(this.angleList[0].x, this.angleList[0].y);
-        this.angleList.forEach((point, idx) => {
-            if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
-            if (sliderSnaking && opacity >= 0 && idx / this.angleList.length > Math.abs(opacity)) return;
-            if (sliderSnaking && opacity < 0 && idx / (this.angleList.length - 1) <= percentage) {
-                ctx.moveTo(point.x, point.y);
-                return;
-            }
-            ctx.lineTo(point.x, point.y);
-        });
-        ctx.lineWidth = hitCircleSize * textureScaleFactor * 0.03;
-        ctx.filter = "blur(10px)";
-        ctx.strokeStyle = `rgb(68 68 68)`;
-        ctx.stroke();
-        ctx.filter = "none";
-        ctx.closePath();
-    }
-
-    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourObject) {
-        this.drawBorder(opacity, percentage, colour);
-        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourObject);
-    }
-
-    getAngleList(pointArr) {
         let lengthAB, lengthBC, lengthAC, angleA, angleB, angleC, radius, innerAngle, upper, lower, angleIndex, b, centerX, centerY;
 
         if (pointArr.length === 3) {
@@ -318,7 +276,7 @@ class Slider {
                                           (pointArr[0].y - centerY) * Math.cos(innerAngle * (i + this.sliderAccuracy)),
                                   };
 
-                        sectionLength += Math.sqrt((pCurrent.x - pNext.x) ** 2 + (pCurrent.y - pNext.y) ** 2) / scaleFactor;
+                        sectionLength += Math.sqrt((pCurrent.x - pNext.x) ** 2 + (pCurrent.y - pNext.y) ** 2) / ascaleFactor;
                         sectionAngleList.push({
                             x: pCurrent.x,
                             y: pCurrent.y,
@@ -363,7 +321,7 @@ class Slider {
         this.sliderLen = 0;
         this.angleList.forEach((point, idx) => {
             if (idx === this.angleList.length - 1) return;
-            this.sliderLen += Math.sqrt((this.angleList[idx + 1].x - point.x) ** 2 + (this.angleList[idx + 1].y - point.y) ** 2) / scaleFactor;
+            this.sliderLen += Math.sqrt((this.angleList[idx + 1].x - point.x) ** 2 + (this.angleList[idx + 1].y - point.y) ** 2) / ascaleFactor;
         });
 
         if (!isPlaying && this.startTime + preempt === debugPosition) {
@@ -375,15 +333,23 @@ class Slider {
 
     constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, baseSliderVelocity, beatStep, time, isNewCombo, repeat) {
         // const canvas = document.createElement("canvas");
-        const pointArr = pointLists.split("|").map((point) => {
+        const originalArr = pointLists.split("|").map((point) => {
             return {
-                x: Math.round(point.split(":")[0] * scaleFactor + (window.innerWidth - 512 * scaleFactor) / 2),
-                y: Math.round(point.split(":")[1] * scaleFactor + (window.innerHeight - 384 * scaleFactor) / 2),
+                x: point.split(":")[0],
+                y: point.split(":")[1],
             };
         });
 
+        const pointArr = pointLists.split("|").map((point) => {
+            return {
+                x: point.split(":")[0] * scaleFactor + (canvas.width - 512 * scaleFactor) / 2,
+                y: point.split(":")[1] * scaleFactor + (canvas.height - 384 * scaleFactor) / 2,
+            };
+        });
+
+        this.originalArr = originalArr;
         this.pointArr = pointArr;
-        this.hitCircle = new HitCircle(pointArr[0].x, pointArr[0].y, time, true);
+        this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time, false);
         this.initialSliderLen = initialSliderLen;
         this.initialSliderVelocity = initialSliderVelocity;
         this.sliderAccuracy = sliderAccuracy / Math.sqrt(initialSliderLen / baseSliderVelocity);
@@ -395,7 +361,10 @@ class Slider {
         this.startTime = time - preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
-        this.getAngleList(pointArr);
+        const preTime = new Date().getTime();
+        this.getAngleList(pointArr, scaleFactor);
+        const postTime = new Date().getTime();
+        // console.log(time, preTime, postTime, postTime - preTime);
         // this.time = time;
 
         this.isNewCombo = isNewCombo;

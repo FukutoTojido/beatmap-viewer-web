@@ -19,13 +19,10 @@ function toDataUrl(url, callback) {
     xhr.send();
 }
 
-const scaleFactor = Math.min(window.screen.availHeight / 480, window.screen.availWidth / 640);
-const textureScaleFactor = Math.min(window.screen.availHeight / 768, window.screen.availWidth / 1024) ** 2;
-
 let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
 
-const sliderBorderThickness = 8;
+let sliderBorderThickness = hitCircleSize * 2 / 58;
 const sliderAccuracy = 0.005;
 const sliderSnaking = true;
 const sliderBorderColor = "#ffffff";
@@ -35,10 +32,12 @@ let preempt;
 let fadeIn;
 
 let isPlaying = true;
-const debugPosition = 45182;
-const mapId = 3289286;
+const debugPosition = 74501;
+const mapId = 1628723;
 const playbackRate = 1;
 
 let stackLeniency;
 let stackOffset;
 let stackThreshold;
+
+let playingFlag = false;

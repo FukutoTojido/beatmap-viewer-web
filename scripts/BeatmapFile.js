@@ -65,11 +65,42 @@ class BeatmapFile {
 
         this.audio = new Audio(this.audioBlobURL);
         this.beatmapRenderData = new Beatmap(this.osuFile, 0);
+        document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
         document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
         document.querySelector("#playButton").addEventListener("click", () => {
-            if (isPlaying) this.audio.play();
-            this.beatmapRenderData.render();
+            if (isPlaying) {
+                document.querySelector("#playButton").style.backgroundImage =
+                    document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
+                if (document.querySelector("audio").paused) {
+                    this.audio.play();
+                    this.beatmapRenderData.render();
+                } else {
+                    playingFlag = false;
+                    document.querySelector("audio").pause();
+                    this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
+                }
+            } else {
+                this.beatmapRenderData.render();
+            }
+        });
+
+        document.querySelector("#settingsButton").addEventListener("click", () => {
+            if (isPlaying && !playingFlag) {
+                let time;
+
+                const troll = (currentTime) => {
+                    if (time === undefined) time = currentTime;
+                    const elapsed = currentTime - time;
+
+                    if (elapsed <= 200) {
+                        this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
+                        window.requestAnimationFrame((nextTime) => troll(nextTime));
+                    }
+                };
+
+                window.requestAnimationFrame((currentTime) => troll(currentTime));
+            }
         });
     }
 }
