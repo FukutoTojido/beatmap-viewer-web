@@ -363,7 +363,7 @@ class Slider {
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time, false);
         this.initialSliderLen = initialSliderLen;
         this.initialSliderVelocity = initialSliderVelocity;
-        this.sliderAccuracy = sliderAccuracy / Math.sqrt(initialSliderLen / baseSliderVelocity);
+        this.sliderAccuracy = sliderAccuracy / (initialSliderLen / baseSliderVelocity);
         // console.log(1 / this.sliderAccuracy);
 
         this.baseSliderVelocity = baseSliderVelocity;
