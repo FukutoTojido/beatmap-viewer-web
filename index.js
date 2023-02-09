@@ -73,9 +73,7 @@ function setSliderTime() {
 
 function setAudioTime(slider) {
     sliderOnChange = true;
-    document.querySelector("audio").pause();
     document.querySelector("audio").currentTime = slider.value / 10;
-    document.querySelector("audio").play();
     sliderOnChange = false;
 }
 
