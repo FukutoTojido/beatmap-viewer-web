@@ -40,8 +40,31 @@ toDataUrl("./static/approachcircle@2x.png", (base64) => {
 function openMenu() {
     // console.log(ele);
     const settingsPanel = document.querySelector("#settingsPanel");
-    settingsPanel.style.width = settingsPanel.style.width === "" ? "600px" : "";
+    settingsPanel.style.left = settingsPanel.style.left === "" ? "0px" : "";
     settingsPanel.style.opacity = settingsPanel.style.opacity === "" ? "1" : "";
 }
 
+document.body.addEventListener("click", (e) => {
+    const settingsPanelIsClick = document.querySelector("#settingsPanel").contains(e.target);
+
+    // console.log(document.querySelector("#settingsPanel").contains(e.target), document.querySelector("#settingsButton").contains(e.target));
+
+    if (!document.querySelector("#settingsButton").contains(e.target)) {
+        if (!settingsPanelIsClick) {
+            settingsPanel.style.left = "";
+            settingsPanel.style.opacity = "";
+        }
+    }
+});
+
 const beatmapFile = new BeatmapFile(mapId);
+
+function handleCheckBox(checkbox) {
+    mods[checkbox.name] = !mods[checkbox.name];
+
+    const DTMultiplier = !mods.DT ? 1 : 1.5;
+    const HTMultiplier = !mods.HT ? 1 : 0.75;
+
+    canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
+    document.querySelector("audio").playbackRate = 1 * DTMultiplier * HTMultiplier;
+}

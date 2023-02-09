@@ -29,8 +29,8 @@ class Beatmap {
 
         // console.log(hitCircleSize, sliderBorderThickness);
 
-        preempt = approachRate < 5 ? 1200 + (600 * (5 - approachRate)) / 5 : approachRate > 5 ? 1200 - (750 * (approachRate - 5)) / 5 : 0;
-        fadeIn = approachRate < 5 ? 800 + (400 * (5 - approachRate)) / 5 : approachRate > 5 ? 800 - (500 * (approachRate - 5)) / 5 : 500;
+        preempt = approachRate < 5 ? 1200 + (600 * (5 - approachRate)) / 5 : approachRate > 5 ? 1200 - (750 * (approachRate - 5)) / 5 : 1200;
+        fadeIn = approachRate < 5 ? 800 + (400 * (5 - approachRate)) / 5 : approachRate > 5 ? 800 - (500 * (approachRate - 5)) / 5 : 800;
         stackOffset = (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2;
         stackThreshold = preempt * stackLeniency;
 

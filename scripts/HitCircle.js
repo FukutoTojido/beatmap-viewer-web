@@ -11,20 +11,23 @@ class HitCircle {
     draw(opacity, trol, expandRate, preemptRate, colour, colourObject, currentScaleFactor) {
         const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
 
         this.positionX =
             this.originalX * currentScaleFactor +
             (canvas.width - 512 * currentScaleFactor) / 2 -
-            (hitCircleSize * currentScaleFactor * 276) / 256 / 2;
+            (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
         this.positionY =
             this.originalY * currentScaleFactor +
             (canvas.height - 384 * currentScaleFactor) / 2 -
-            (hitCircleSize * currentScaleFactor * 276) / 256 / 2;
+            (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
 
         // console.log(this.positionX, this.positionY)
 
-        const currentDrawSize = (hitCircleSize * currentScaleFactor * normalizedExpandRate * 276) / 256;
-        const baseDrawSize = (hitCircleSize * currentScaleFactor * sampleApproachCircle.width.baseVal.value) / 256;
+        const currentDrawSize = (currentHitCircleSize * currentScaleFactor * normalizedExpandRate * 276) / 256;
+        const baseDrawSize = (currentHitCircleSize * currentScaleFactor * sampleApproachCircle.width.baseVal.value) / 256;
 
         ctx.beginPath();
         ctx.globalAlpha = opacity >= 0 ? opacity : expandRate >= 0 ? expandRate : 0;

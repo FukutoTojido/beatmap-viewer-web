@@ -65,6 +65,10 @@ class Slider {
     }
 
     drawBorder(opacity, percentage, colour, currentScaleFactor) {
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
+        
         if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
             tempScaleFactor = currentScaleFactor;
             // console.log(tempScaleFactor, "->", currentScaleFactor);
@@ -130,11 +134,11 @@ class Slider {
         pseudoCtx.lineJoin = "round";
         pseudoCtx.lineCap = "round";
 
-        pseudoCtx.lineWidth = hitCircleSize * currentScaleFactor * (118 / 128);
+        pseudoCtx.lineWidth = currentHitCircleSize * currentScaleFactor * (118 / 128);
         pseudoCtx.strokeStyle = colour;
         pseudoCtx.stroke();
 
-        pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        pseudoCtx.lineWidth = (currentHitCircleSize - sliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
         pseudoCtx.strokeStyle = `rgb(0 0 0 / 0.85)`;
         pseudoCtx.stroke();
 
@@ -165,7 +169,8 @@ class Slider {
                 pseudoCtx.arc(
                     sliderBallPosition.x,
                     sliderBallPosition.y,
-                    (hitCircleSize * currentScaleFactor * (118 / 128)) / 2 - (sliderBorderThickness * currentScaleFactor * (118 / 128) * 4) / 2,
+                    (currentHitCircleSize * currentScaleFactor * (118 / 128)) / 2 -
+                        (sliderBorderThickness * currentScaleFactor * (118 / 128) * 4) / 2,
                     0,
                     Math.PI * 2,
                     false

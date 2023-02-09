@@ -66,22 +66,28 @@ class ObjectsList {
             parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 640
         );
 
+        let currentAR = !mods.EZ ? approachRate : approachRate / 2;
+        currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+        const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+        const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.objectsList
-            .filter((object) => object.obj.startTime < timestamp && object.obj.endTime > timestamp)
+            .filter((object) => object.time - currentPreempt < timestamp && object.obj.endTime > timestamp)
             .reverse()
             .forEach((object) => {
-                if (timestamp >= object.obj.startTime) {
+                const objStartTime = object.time - currentPreempt;
+                if (timestamp >= objStartTime) {
                     const opacity =
-                        timestamp < object.obj.startTime + preempt
-                            ? (timestamp - object.obj.startTime) / fadeIn
-                            : (timestamp - (object.obj.endTime - 240)) / 240 - 1;
+                        timestamp < object.time ? (timestamp - objStartTime) / currentFadeIn : (timestamp - (object.obj.endTime - 240)) / 240 - 1;
+
+                    // console.log(object.time, timestamp, timestamp < object.time);
 
                     object.obj.draw(
                         opacity,
-                        (timestamp - (object.obj.startTime + preempt)) / (object.obj.endTime - 240 - (object.obj.startTime + preempt)),
-                        1 - (timestamp - (object.obj.startTime + preempt)) / 240,
-                        (timestamp - object.obj.startTime) / preempt,
+                        (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
+                        1 - (timestamp - object.time) / 240,
+                        (timestamp - objStartTime) / currentPreempt,
                         object.colour,
                         object.colourObject,
                         currentScaleFactor

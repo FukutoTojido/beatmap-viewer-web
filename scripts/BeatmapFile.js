@@ -27,7 +27,8 @@ class BeatmapFile {
             await requestClient.get(`${setId}?server=auto`, {
                 responseType: "blob",
                 onDownloadProgress: (progressEvent) => {
-                    console.log(progressEvent);
+                    document.querySelector("#loadingText").innerText = `Loading: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                    // console.log(progressEvent);
                 },
             })
         ).data;
@@ -60,67 +61,76 @@ class BeatmapFile {
     }
 
     async constructMap() {
-        await this.getOsz();
-        // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
+        try {
+            await this.getOsz();
+            // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
-        this.audio = new Audio(this.audioBlobURL);
-        this.beatmapRenderData = new Beatmap(this.osuFile, 0);
-        document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
-        document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.querySelector("#loadingText").innerText = `Setting up Audio`;
+            this.audio = new Audio(this.audioBlobURL);
+            document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
+            this.beatmapRenderData = new Beatmap(this.osuFile, 0);
+            document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.querySelector(".loading").style.display = "none";
 
-        document.querySelector("#playButton").addEventListener("click", () => {
-            if (isPlaying) {
-                document.querySelector("#playButton").style.backgroundImage =
-                    document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
-                if (document.querySelector("audio").paused) {
-                    this.audio.play();
-                    this.beatmapRenderData.render();
-                } else {
-                    playingFlag = false;
-                    document.querySelector("audio").pause();
-                    this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
-                }
-            } else {
-                this.beatmapRenderData.render();
-            }
-        });
-
-        document.querySelector("#settingsButton").addEventListener("click", () => {
-            if (isPlaying && !playingFlag) {
-                let time;
-
-                const troll = (currentTime) => {
-                    if (time === undefined) time = currentTime;
-                    const elapsed = currentTime - time;
-
-                    if (elapsed <= 200) {
+            document.querySelector("#playButton").addEventListener("click", () => {
+                if (isPlaying) {
+                    document.querySelector("#playButton").style.backgroundImage =
+                        document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
+                    if (document.querySelector("audio").paused) {
+                        this.audio.play();
+                        this.beatmapRenderData.render();
+                    } else {
+                        playingFlag = false;
+                        document.querySelector("audio").pause();
                         this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
-                        window.requestAnimationFrame((nextTime) => troll(nextTime));
                     }
-                };
-
-                window.requestAnimationFrame((currentTime) => troll(currentTime));
-            }
-        });
-
-        document.onkeydown = (e) => {
-            if (!isPlaying) {
-                e = e || window.event;
-                switch (e.key) {
-                    case "ArrowLeft":
-                        // Left pressed
-                        debugPosition -= 1;
-                        // console.log("->");
-                        break;
-                    case "ArrowRight":
-                        // Right pressed
-                        debugPosition += 1;
-                        // console.log("<-");
-                        break;
+                } else {
+                    this.beatmapRenderData.render();
                 }
+            });
 
-                this.beatmapRenderData.render(); 
-            }
-        };
+            document.querySelector("#settingsButton").addEventListener("click", () => {
+                if (isPlaying && !playingFlag && document.querySelector("audio").currentTime * 1000 !== 0) {
+                    let time;
+
+                    const troll = (currentTime) => {
+                        if (time === undefined) time = currentTime;
+                        const elapsed = currentTime - time;
+
+                        if (elapsed <= 200) {
+                            this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
+                            window.requestAnimationFrame((nextTime) => troll(nextTime));
+                        }
+                    };
+
+                    window.requestAnimationFrame((currentTime) => troll(currentTime));
+                }
+            });
+
+            document.onkeydown = (e) => {
+                if (!isPlaying) {
+                    e = e || window.event;
+                    switch (e.key) {
+                        case "ArrowLeft":
+                            // Left pressed
+                            debugPosition -= 1;
+                            // console.log("->");
+                            break;
+                        case "ArrowRight":
+                            // Right pressed
+                            debugPosition += 1;
+                            // console.log("<-");
+                            break;
+                    }
+
+                    this.beatmapRenderData.render();
+                }
+            };
+
+            this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
