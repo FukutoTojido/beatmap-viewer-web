@@ -21,7 +21,8 @@ class BeatmapFile {
         const setId = mapsetData.id;
 
         const requestClient = axios.create({
-            baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
+            // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
+            baseURL: `https://chimu.moe/d/`,
         });
         const mapFileBlob = (
             await requestClient.get(`${setId}?server=auto`, {

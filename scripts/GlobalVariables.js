@@ -33,7 +33,7 @@ let fadeIn;
 
 let isPlaying = true;
 let debugPosition = 52029;
-const mapId = 3939123;
+const mapId = 3392819;
 const playbackRate = 1;
 
 let stackLeniency;
