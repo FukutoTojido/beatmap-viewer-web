@@ -326,7 +326,7 @@ input[type="checkbox"] {
     outline: solid 3px #8c66ff;
     border-radius: 25px;
 
-    transition: cubic-bezier(.03,.16,.29,1.45) 100ms;
+    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
 }
 
 input[type="checkbox"]:hover {
@@ -337,4 +337,49 @@ input[type="checkbox"]:hover {
 input[type="checkbox"]:checked {
     width: 50px;
     background-color: #8c66ff;
+}
+
+#progress {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+
+    margin: 20px;
+    width: 80%;
+
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+#progress::-webkit-slider-runnable-track {
+    background: white;
+    height: 4px;
+
+    margin: 10px;
+    border-radius: 20px;
+}
+
+#progress::-webkit-slider-thumb {
+    appearance: none;
+
+    width: 40px;
+    height: 12px;
+
+    background: white;
+    border-radius: 20px;
+
+    margin-top: -4px;
+
+    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
+    transform-origin: center;
+}
+
+#progress::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 5px 0px white;
+    filter: brightness(1.2)
+}
+
+#progress::-webkit-slider-thumb:active {
+    width: 50px;
 }

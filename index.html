@@ -101,6 +101,10 @@
         <canvas id="canvas" width="512" height="384"></canvas>
         <button id="settingsButton" onclick="openMenu()"></button>
         <button id="playButton"></button>
+        <div id="metadata">
+            
+        </div>
+        <input id="progress" type="range" min="0" step="0.1" value="0" onchange="setAudioTime(this)">
         <div class="loading">
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
                 <circle cx="45" cy="45" r="30" strokeLinecap="round" />
@@ -117,19 +121,19 @@
             <div id="title">mods</div>
             <div class="list">
                 <div class="selection">
-                    <label for="HR">Hard Rock</label>
+                    <label for="HR">hard rock</label>
                     <input type="checkbox" id="HR" name="HR" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="EZ">Easy</label>
+                    <label for="EZ">easy</label>
                     <input type="checkbox" id="EZ" name="EZ" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="DT">Double Time</label>
+                    <label for="DT">double time</label>
                     <input type="checkbox" id="DT" name="DT" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="HT">Half Time</label>
+                    <label for="HT">half time</label>
                     <input type="checkbox" id="HT" name="HT" onchange='handleCheckBox(this);'>
                 </div>
             </div>

@@ -7,7 +7,11 @@ class Audio {
         audio.volume = 0.1;
         audio.mute = "true";
         audio.playbackRate = playbackRate;
-        audio.currentTime = 0.001
+        audio.currentTime = 0.001;
+        audio.onended = () => {
+            audio.currentTime = 0.001;
+            document.querySelector("#playButton").style.backgroundImage = "";
+        };
 
         this.audioObj = audio;
         document.body.appendChild(this.audioObj);

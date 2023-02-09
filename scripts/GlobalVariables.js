@@ -33,7 +33,7 @@ let fadeIn;
 
 let isPlaying = true;
 let debugPosition = 52029;
-const mapId = 3392819;
+const mapId = 1394797;
 const playbackRate = 1;
 
 let stackLeniency;
@@ -41,6 +41,7 @@ let stackOffset;
 let stackThreshold;
 
 let playingFlag = false;
+let sliderOnChange = false;
 
 let mods = {
     HR: false,

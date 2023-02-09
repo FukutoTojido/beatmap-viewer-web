@@ -21,8 +21,8 @@ class BeatmapFile {
         const setId = mapsetData.id;
 
         const requestClient = axios.create({
-            // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
-            baseURL: `https://chimu.moe/d/`,
+            baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
+            // baseURL: `https://chimu.moe/d/`,
         });
         const mapFileBlob = (
             await requestClient.get(`${setId}?server=auto`, {
@@ -76,6 +76,17 @@ class BeatmapFile {
 
             document.querySelector("#playButton").addEventListener("click", () => {
                 if (isPlaying) {
+                    if (document.querySelector("audio").currentTime >= document.querySelector("audio").duration) {
+                        document.querySelector("audio").currentTime = 0;
+                    }
+
+                    if (document.querySelector("audio").currentTime * 1000 === 1) {
+                        console.log(document.querySelector("audio").currentTime);
+                        document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
+                        document.querySelector("audio").ontimeupdate = setSliderTime;
+                        document.querySelector("audio").preload = "metadata";
+                    }
+
                     document.querySelector("#playButton").style.backgroundImage =
                         document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
                     if (document.querySelector("audio").paused) {
@@ -92,7 +103,7 @@ class BeatmapFile {
             });
 
             document.querySelector("#settingsButton").addEventListener("click", () => {
-                if (isPlaying && !playingFlag && document.querySelector("audio").currentTime * 1000 !== 0) {
+                if (isPlaying && !playingFlag && document.querySelector("audio").currentTime * 1000 !== 1) {
                     let time;
 
                     const troll = (currentTime) => {

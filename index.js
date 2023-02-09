@@ -57,8 +57,6 @@ document.body.addEventListener("click", (e) => {
     }
 });
 
-const beatmapFile = new BeatmapFile(mapId);
-
 function handleCheckBox(checkbox) {
     mods[checkbox.name] = !mods[checkbox.name];
 
@@ -68,3 +66,17 @@ function handleCheckBox(checkbox) {
     canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
     document.querySelector("audio").playbackRate = 1 * DTMultiplier * HTMultiplier;
 }
+
+function setSliderTime() {
+    if (!sliderOnChange) document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+}
+
+function setAudioTime(slider) {
+    sliderOnChange = true;
+    document.querySelector("audio").pause();
+    document.querySelector("audio").currentTime = slider.value / 10;
+    document.querySelector("audio").play();
+    sliderOnChange = false;
+}
+
+const beatmapFile = new BeatmapFile(mapId);
