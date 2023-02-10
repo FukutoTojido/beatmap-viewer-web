@@ -21,8 +21,10 @@ class BeatmapFile {
         const setId = mapsetData.id;
 
         const requestClient = axios.create({
-            baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
+            // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
             // baseURL: `https://chimu.moe/d/`,
+            baseURL: `https://subapi.nerinyan.moe/d/`,
+            params: { nv: 1, nh: 1, nsb: 1 },
         });
         const mapFileBlob = (
             await requestClient.get(`${setId}?server=auto`, {
@@ -74,51 +76,7 @@ class BeatmapFile {
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.querySelector(".loading").style.display = "none";
 
-            document.querySelector("#playButton").addEventListener("click", () => {
-                if (isPlaying) {
-                    if (document.querySelector("audio").currentTime >= document.querySelector("audio").duration) {
-                        document.querySelector("audio").currentTime = 0;
-                    }
-
-                    if (document.querySelector("audio").currentTime * 1000 === 1) {
-                        console.log(document.querySelector("audio").currentTime);
-                        document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
-                        document.querySelector("audio").ontimeupdate = setSliderTime;
-                        document.querySelector("audio").preload = "metadata";
-                    }
-
-                    document.querySelector("#playButton").style.backgroundImage =
-                        document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
-                    if (document.querySelector("audio").paused) {
-                        this.audio.play();
-                        this.beatmapRenderData.render();
-                    } else {
-                        playingFlag = false;
-                        document.querySelector("audio").pause();
-                        this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
-                    }
-                } else {
-                    this.beatmapRenderData.render();
-                }
-            });
-
-            document.querySelector("#settingsButton").addEventListener("click", () => {
-                if (isPlaying && !playingFlag && document.querySelector("audio").currentTime * 1000 !== 1) {
-                    let time;
-
-                    const troll = (currentTime) => {
-                        if (time === undefined) time = currentTime;
-                        const elapsed = currentTime - time;
-
-                        if (elapsed <= 200) {
-                            this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
-                            window.requestAnimationFrame((nextTime) => troll(nextTime));
-                        }
-                    };
-
-                    window.requestAnimationFrame((currentTime) => troll(currentTime));
-                }
-            });
+            document.querySelector("#playButton").addEventListener("click", playToggle);
 
             document.onkeydown = (e) => {
                 if (!isPlaying) {
@@ -137,10 +95,27 @@ class BeatmapFile {
                     }
 
                     this.beatmapRenderData.render();
+                } else {
+                    e = e || window.event;
+                    switch (e.key) {
+                        case "ArrowLeft":
+                            // Left pressed
+                            document.querySelector("audio").currentTime -= 10 / 1000;
+                            // console.log("->");
+                            break;
+                        case "ArrowRight":
+                            // Right pressed
+                            document.querySelector("audio").currentTime += 10 / 1000;
+                            // console.log("<-");
+                            break;
+                        case " ":
+                            playToggle();
+                            break;
+                    }
                 }
             };
 
-            this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000);
+            this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
         } catch (err) {
             console.log(err);
         }

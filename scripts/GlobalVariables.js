@@ -33,7 +33,7 @@ let fadeIn;
 
 let isPlaying = true;
 let debugPosition = 52029;
-const mapId = 3632720;
+const mapId = 3939123;
 const playbackRate = 1;
 
 let stackLeniency;
@@ -48,4 +48,28 @@ let mods = {
     EZ: false,
     DT: false,
     HT: false,
+};
+
+let animation = {
+    ms1digit: new CountUp("millisecond1digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
+    ms2digit: new CountUp("millisecond2digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
+    ms3digit: new CountUp("millisecond3digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
+    s1digit: new CountUp("second1digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
+    s2digit: new CountUp("second2digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
+    m1digit: new CountUp("minute1digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
+    m2digit: new CountUp("minute2digit", 0, 0, 0, 0.2, {
+        separator: "",
+    }),
 };

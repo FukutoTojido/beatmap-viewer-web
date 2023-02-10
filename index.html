@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./styles/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./deps/canvas-bezier-multipoint.js"></script>
+    <script src="./deps/countUp.js"></script>
     <script src="./lib/zip-fs-full.min.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
     <script src="./scripts/Audio.js"></script>
@@ -100,17 +101,30 @@
         <div id="overlay"></div>
         <canvas id="canvas" width="512" height="384"></canvas>
         <button id="settingsButton" onclick="openMenu()"></button>
-        <button id="playButton"></button>
         <div id="metadata">
-            
+
         </div>
+    </div>
+    <div id="playerController">
+        <div id="timeContainer">
+            <span id="minute2digit" class="digit">0</span>
+            <span id="minute1digit" class="digit">0</span>
+            :
+            <span id="second2digit" class="digit">0</span>
+            <span id="second1digit" class="digit">0</span>
+            :
+            <span id="millisecond3digit" class="digit">0</span>
+            <span id="millisecond2digit" class="digit">0</span>
+            <span id="millisecond1digit" class="digit">0</span>
+        </div>
+        <button id="playButton"></button>
         <input id="progress" type="range" min="0" step="0.1" value="0" onchange="setAudioTime(this)">
-        <div class="loading">
-            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
-                <circle cx="45" cy="45" r="30" strokeLinecap="round" />
-            </svg>
-            <div id="loadingText">Loading: 0.00%</div>
-        </div>
+    </div>
+    <div class="loading">
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
+            <circle cx="45" cy="45" r="30" strokeLinecap="round" />
+        </svg>
+        <div id="loadingText">Loading: 0.00%</div>
     </div>
     <div id="settingsPanel">
         <div class="section">
@@ -138,9 +152,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div id="cursorContainer">
-        <div id="cursor"></div>
     </div>
 </body>
 

@@ -65,16 +65,49 @@ function handleCheckBox(checkbox) {
 
     canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
     document.querySelector("audio").playbackRate = 1 * DTMultiplier * HTMultiplier;
+
+    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
 
 function setSliderTime() {
     if (!sliderOnChange) document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
 
 function setAudioTime(slider) {
     sliderOnChange = true;
     document.querySelector("audio").currentTime = slider.value / 10;
     sliderOnChange = false;
+
+    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+}
+
+function playToggle() {
+    if (isPlaying) {
+        if (document.querySelector("audio").currentTime >= document.querySelector("audio").duration) {
+            document.querySelector("audio").currentTime = 0;
+        }
+
+        if (document.querySelector("audio").currentTime * 1000 === 1) {
+            console.log(document.querySelector("audio").currentTime);
+            document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
+            document.querySelector("audio").ontimeupdate = setSliderTime;
+            document.querySelector("audio").preload = "metadata";
+        }
+
+        document.querySelector("#playButton").style.backgroundImage =
+            document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
+        if (document.querySelector("audio").paused) {
+            document.querySelector("audio").play();
+            beatmapFile.beatmapRenderData.render();
+        } else {
+            playingFlag = false;
+            document.querySelector("audio").pause();
+            beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+        }
+    } else {
+        beatmapFile.beatmapRenderData.render();
+    }
 }
 
 const beatmapFile = new BeatmapFile(mapId);

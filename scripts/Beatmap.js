@@ -25,7 +25,7 @@ class Beatmap {
         );
 
         hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
-        sliderBorderThickness = (hitCircleSize * 2) / 58;
+        sliderBorderThickness = (hitCircleSize * (236 - 190)) / 2 / 256;
 
         // console.log(hitCircleSize, sliderBorderThickness);
 
@@ -162,7 +162,7 @@ class Beatmap {
             playingFlag = true;
             this.objectsList.render();
         } else {
-            this.objectsList.draw(debugPosition);
+            this.objectsList.draw(debugPosition, true);
         }
     }
 }

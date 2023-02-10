@@ -33,7 +33,9 @@ body {
     width: 100vw;
     height: 100vh;
 
-    padding: 0;
+    box-sizing: border-box;
+
+    padding: 20px;
     margin: 0;
 
     overflow: hidden;
@@ -43,8 +45,9 @@ body {
     background-repeat: no-repeat;
 
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-content: center;
-    align-items: center;
     /* flex-wrap: wrap; */
 
     background-color: black;
@@ -52,11 +55,31 @@ body {
     font-family: Torus;
     font-weight: 500;
     color: white;
+
+    overflow-y: overlay;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 #main {
     position: absolute;
     top: 0;
+    left: 0;
 
     width: 100vw;
     height: 100vh;
@@ -68,73 +91,25 @@ body {
 
     backdrop-filter: blur(10px);
 }
-
-#cursorContainer {
-    position: absolute;
-    inset: 0 0 0 0;
-    margin: auto;
-
-    width: 512px;
-    height: 384px;
-
-    transform: scaleY(-1);
-    opacity: 0;
-
-    display: none;
-}
-
-#cursor {
-    position: absolute;
-    top: -5px;
-    left: -5px;
-
-    width: 50px;
-    height: 50px;
-
-    background-color: yellow;
-    border-radius: 25px;
-    box-shadow: 0 0 5px 1px yellow;
-
-    z-index: 9999999;
-}
-
-#cursor:after {
-    content: "";
-    position: absolute;
-    top: 10%;
-    left: 10%;
-
-    width: 80%;
-    height: 80%;
-
-    background-color: white;
-    border-radius: 80%;
-}
-
 #main img {
     display: none;
 }
 
 #playerContainer {
-    position: absolute;
-    margin: 20px;
-
+    position: relative;
+    /* margin: 20px; */
     /* aspect-ratio: 16 / 9; */
-    max-width: calc(100% - 40px);
-    width: calc(100% - 40px);
-    height: calc(100% - 40px);
+    width: 100%;
+    height: 100%;
     /* width: 1366px; */
     /* width: 1600px; */
     /* width: 1920px; */
-
-    border-radius: 20px;
-
+    border-radius: 20px 20px 0 0;
     background-size: cover;
     background-position: center;
-
     overflow: hidden;
-
     transition: ease-in-out 300ms;
+    /* z-index: 1; */
 }
 
 canvas {
@@ -147,6 +122,7 @@ canvas {
     /* z-index: 0; */
 
     /* background-color: rgba(255, 255, 255, 0.1); */
+    transition: ease-in-out 200ms;
 }
 
 #overlay {
@@ -178,19 +154,97 @@ svg {
     display: none;
 }
 
-#playButton {
-    position: absolute;
+#playerController {
+    box-sizing: border-box;
+    position: relative;
+    height: 80px;
 
-    bottom: 20px;
-    left: 20px;
+    /* padding: 20px; */
+
+    background-color: #18171c;
+    border-radius: 0 0 20px 20px;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+    overflow: hidden;
+}
+
+#timeContainer {
+    position: relative;
+    display: flex;
+
+    padding: 20px;
+    align-items: center;
+
+    font-size: 1em;
+
+    background-color: #43414C;
+}
+
+.digit {
+    width: .7em;
+    text-align: center;
+}
+
+#playButton {
+    /* position: absolute; */
+
+    /* bottom: 20px; */
+    /* left: 20px; */
 
     width: 60px;
-    height: 60px;
+
+    padding: 0;
 
     background-image: url(../static/play.png);
     background-size: 50%;
     background-position: center;
     background-repeat: no-repeat;
+}
+
+#progress {
+    /* position: absolute; */
+    /* bottom: 20px; */
+    /* right: 20px; */
+
+    margin: 0;
+    width: 100%;
+
+    padding-right: 20px;
+
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+#progress::-webkit-slider-runnable-track {
+    background: #43414C;
+    height: 4px;
+
+    margin: 10px;
+    border-radius: 20px;
+}
+
+#progress::-webkit-slider-thumb {
+    appearance: none;
+
+    width: 5px;
+    height: 30px;
+
+    background: white;
+    border-radius: 20px;
+
+    margin-top: -12px;
+
+    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
+    transform-origin: center;
+}
+
+#progress::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 5px 0px white;
+    filter: brightness(1.2);
 }
 
 button {
@@ -202,7 +256,7 @@ button {
 }
 
 button:hover {
-    background-color: rgb(255 255 255 / 0.2);
+    filter: drop-shadow(0 0 2px white);
 }
 
 @keyframes spin {
@@ -337,49 +391,4 @@ input[type="checkbox"]:hover {
 input[type="checkbox"]:checked {
     width: 50px;
     background-color: #8c66ff;
-}
-
-#progress {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-
-    margin: 20px;
-    width: 80%;
-
-    appearance: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-#progress::-webkit-slider-runnable-track {
-    background: white;
-    height: 4px;
-
-    margin: 10px;
-    border-radius: 20px;
-}
-
-#progress::-webkit-slider-thumb {
-    appearance: none;
-
-    width: 40px;
-    height: 12px;
-
-    background: white;
-    border-radius: 20px;
-
-    margin-top: -4px;
-
-    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
-    transform-origin: center;
-}
-
-#progress::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 5px 0px white;
-    filter: brightness(1.2)
-}
-
-#progress::-webkit-slider-thumb:active {
-    width: 50px;
 }

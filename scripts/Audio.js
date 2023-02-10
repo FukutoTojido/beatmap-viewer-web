@@ -11,6 +11,12 @@ class Audio {
         audio.onended = () => {
             audio.currentTime = 0.001;
             document.querySelector("#playButton").style.backgroundImage = "";
+
+            playingFlag = false;
+        };
+
+        audio.onpause = () => {
+            beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
         };
 
         this.audioObj = audio;
