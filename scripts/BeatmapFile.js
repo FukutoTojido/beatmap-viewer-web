@@ -65,6 +65,8 @@ class BeatmapFile {
 
     async constructMap() {
         try {
+            document.querySelector(".loading").style.display = "";
+            document.querySelector(".loading").style.opacity = 1;
             await this.getOsz();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
@@ -74,6 +76,11 @@ class BeatmapFile {
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
             document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+
+            document.querySelector("audio").preload = "metadata";
+            document.querySelector("audio").onloadedmetadata = setProgressMax;
+
+            document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
             document.querySelector("#playButton").addEventListener("click", playToggle);
@@ -101,11 +108,17 @@ class BeatmapFile {
                         case "ArrowLeft":
                             // Left pressed
                             document.querySelector("audio").currentTime -= 10 / 1000;
+                            document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+                            setAudioTime();
+                            // console.log(document.querySelector("#progress").value);
                             // console.log("->");
                             break;
                         case "ArrowRight":
                             // Right pressed
                             document.querySelector("audio").currentTime += 10 / 1000;
+                            document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+                            setAudioTime();
+                            // console.log(document.querySelector("#progress").value);
                             // console.log("<-");
                             break;
                         case " ":

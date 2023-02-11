@@ -50,7 +50,7 @@ body {
     align-content: center;
     /* flex-wrap: wrap; */
 
-    background-color: black;
+    background-color: rgb(37, 33, 48);
 
     font-family: Torus;
     font-weight: 500;
@@ -95,6 +95,55 @@ body {
     display: none;
 }
 
+#inputContainer {
+    position: relative;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+#inputContainer input[type=text] {
+    appearance: none;
+    box-sizing: border-box;
+
+    width: 300px;
+    height: 40px;
+
+    padding: 20px;
+    
+    font-family: Torus;
+    color: white;
+
+    border: none;
+    background-color: rgba(0 0 0 / 0.5);
+    border-radius: 15px;
+}
+
+#inputContainer input[type=text]:focus {
+    outline: solid 2px rgb(255, 187, 0);
+}
+
+#inputContainer button:nth-child(3) {
+    width: 80px;
+    height: 40px;
+
+    background-color: rgb(92, 143, 238);
+
+    font-family: Torus;
+    color: white;
+
+    border-radius: 15px;
+}
+
+#inputContainer button:nth-child(3):hover {
+    filter: none;
+    background-color: rgb(152, 184, 243);
+}
+
 #playerContainer {
     position: relative;
     /* margin: 20px; */
@@ -135,12 +184,12 @@ canvas {
 }
 
 #settingsButton {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+    position: relative;
 
     width: 60px;
     height: 60px;
+
+    margin-right: auto;
 
     background-image: url(../static/settings.png);
     background-size: 60%;
@@ -300,6 +349,8 @@ button:hover {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    
+    opacity: 0;
 }
 
 .loading circle {

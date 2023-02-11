@@ -1,3 +1,5 @@
+document.querySelector(".loading").style.display = "none";
+
 const canvas = document.querySelector("#canvas");
 canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
 canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
@@ -11,6 +13,7 @@ const ctx = canvas.getContext("2d");
 const sampleHitCircle = document.querySelector("#sampleHitCircle");
 const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
 const sampleApproachCircle = document.querySelector("#sampleApproachCircle");
+const sampleReverseArrow = document.querySelector("#sampleReverseArrow");
 const sampleSliderB = document.querySelector("#sampleSliderB");
 
 toDataUrl("./static/hitcircle@2x.png", (base64) => {
@@ -25,6 +28,10 @@ toDataUrl("./static/hitcircleoverlay@2x.png", (base64) => {
 toDataUrl("./static/approachcircle@2x.png", (base64) => {
     document.querySelector("#approachCircleSVG").style.backgroundImage = `url("${base64}")`;
     document.querySelector("#approachCircleColor").style.webkitMaskImage = `url("${base64}")`;
+});
+
+toDataUrl("./static/reversearrow@2x.png", (base64) => {
+    document.querySelector("#reverseArrowSVG").style.backgroundImage = `url("${base64}")`;
 });
 
 // document.querySelector("#cursorContainer").style.width = `${512 * scaleFactor}px`;
@@ -70,16 +77,28 @@ function handleCheckBox(checkbox) {
 }
 
 function setSliderTime() {
+    if (!document.querySelector("audio")) return;
     if (!sliderOnChange) document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
-    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+
+    if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
 
-function setAudioTime(slider) {
+function setAudioTime() {
+    const slider = document.querySelector("#progress");
+    if (!document.querySelector("audio")) {
+        slider.value = 0;
+        return;
+    }
+    
     sliderOnChange = true;
     document.querySelector("audio").currentTime = slider.value / 10;
     sliderOnChange = false;
 
-    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+}
+
+function setProgressMax() {
+    document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
 }
 
 function playToggle() {
@@ -90,9 +109,7 @@ function playToggle() {
 
         if (document.querySelector("audio").currentTime * 1000 === 1) {
             console.log(document.querySelector("audio").currentTime);
-            document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
             document.querySelector("audio").ontimeupdate = setSliderTime;
-            document.querySelector("audio").preload = "metadata";
         }
 
         document.querySelector("#playButton").style.backgroundImage =
@@ -110,4 +127,36 @@ function playToggle() {
     }
 }
 
-const beatmapFile = new BeatmapFile(mapId);
+document.querySelector("#mapInput").onkeydown = (e) => {
+    if (e.key === "Enter") {
+        submitMap();
+        document.querySelector("#mapInput").blur();
+    }
+};
+
+function checkEnter(e) {
+    console.log(e);
+}
+
+function submitMap() {
+    if (document.querySelector("audio")) {
+        document.querySelector("audio").pause();
+        document.body.removeChild(document.querySelector("audio"));
+    }
+
+    const inputValue = document.querySelector("#mapInput").value;
+    if (!inputValue.match(/([0-9])+/g) || inputValue.match(/([0-9])+/g).shift() !== inputValue) return;
+
+    beatmapFile = undefined;
+    beatmapFile = new BeatmapFile(inputValue);
+
+    document.querySelector("#mapInput").value = "";
+    document.querySelector("#progress").value = 0;
+    if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
+}
+
+let beatmapFile;
+
+document.querySelector("#submit").addEventListener("click", submitMap);
+
+// beatmapFile = new BeatmapFile(mapId);

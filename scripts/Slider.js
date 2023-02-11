@@ -20,6 +20,7 @@ class Slider {
     repeat;
     sliderAccuracy;
     tempCanvasWidth;
+    reverseArrow;
 
     binom(n, k) {
         var coeff = 1;
@@ -149,6 +150,23 @@ class Slider {
         // pseudoCtx.lineWidth = (hitCircleSize - sliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
         // pseudoCtx.strokeStyle = `rgb(0 0 0 / 0.8)`;
         // pseudoCtx.stroke();
+
+        if (this.repeat > 1) {
+            const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+            const x = this.angleList[endPosition].x;
+            const y = this.angleList[endPosition].y;
+            // console.log(x, y);
+
+            pseudoCtx.beginPath();
+            pseudoCtx.drawImage(
+                this.reverseArrow,
+                x - (currentHitCircleSize * currentScaleFactor * (118 / 128)) / 2,
+                y - (currentHitCircleSize * currentScaleFactor * (118 / 128)) / 2,
+                currentHitCircleSize * currentScaleFactor * (118 / 128),
+                currentHitCircleSize * currentScaleFactor * (118 / 128)
+            );
+            pseudoCtx.closePath();
+        }
 
         if (opacity < 0 && percentage >= 0 && percentage <= 1) {
             const step = 1 / this.repeat;
@@ -387,6 +405,17 @@ class Slider {
         this.isNewCombo = isNewCombo;
         this.repeat = repeat;
         // this.draw(0.5);
+
+        if (this.repeat > 1) {
+            const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+            reverseArrowSVG.style.transform = `rotate(${(90 - this.angleList[endPosition].angle * 180) / Math.PI}deg)`;
+            const base64 = window.btoa(new XMLSerializer().serializeToString(sampleReverseArrow));
+            const reverseArrowImgData = `data:image/svg+xml;base64,${base64}`;
+            const reverseArrowImg = new Image();
+            reverseArrowImg.src = reverseArrowImgData;
+
+            this.reverseArrow = reverseArrowImg;
+        }
 
         // console.log((this.initialSliderLen / this.intialSliderVelocity) * this.beatStep);
         // console.log(time, (this.initialSliderLen / this.intialSliderVelocity) * this.beatStep + 300);

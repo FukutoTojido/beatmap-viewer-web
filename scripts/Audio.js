@@ -16,7 +16,10 @@ class Audio {
         };
 
         audio.onpause = () => {
-            beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+            document.querySelector("#playButton").style.backgroundImage = "";
+            if (beatmapFile.beatmapRenderData === undefined) return;
+            if (beatmapFile !== undefined || beatmapFile.beatmapRenderData !== undefined)
+                beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
         };
 
         this.audioObj = audio;

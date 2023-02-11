@@ -70,8 +70,8 @@ class ObjectsList {
             document.querySelector(`#second${idx + 1}digit`).innerText = val;
             animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
         });
-        
-        const currentMinute = Math.floor((timestamp / 1000) / 60);
+
+        const currentMinute = Math.floor(timestamp / 1000 / 60);
         const mDigits = [currentMinute % 10, Math.floor((currentMinute % 100) / 10)];
 
         mDigits.forEach((val, idx) => {
@@ -121,6 +121,7 @@ class ObjectsList {
 
         if (isPlaying && playingFlag && !staticDraw)
             window.requestAnimationFrame((currentTime) => {
+                if (!document.querySelector("audio")) return;
                 const currentAudioTime = document.querySelector("audio").currentTime * 1000;
                 const timestampNext = currentAudioTime * playbackRate;
                 return this.draw(timestampNext);
