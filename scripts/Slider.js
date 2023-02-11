@@ -95,7 +95,10 @@ class Slider {
         ctx.globalAlpha = Math.abs(opacity);
 
         pseudoCtx.clearRect(0, 0, canvas.width, canvas.height);
-        const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+        const endPosition = Math.min(
+            Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
+            this.angleList.length - 1
+        );
         // if (opacity < 0) {
         //     pseudoCtx.moveTo(this.angleList.at(endPosition).x, this.angleList.at(endPosition).y);
         //     pseudoCtx.lineTo(this.angleList.at(endPosition - 1).x, this.angleList.at(endPosition - 1).y);
@@ -113,7 +116,7 @@ class Slider {
 
         pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
-            if (idx / this.angleList.length > this.initialSliderLen / this.sliderLen) return;
+            if (idx / this.angleList.length > this.initialSliderLen / this.repeat / this.sliderLen) return;
             if (sliderSnaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
 
             if (!(sliderSnaking && opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
@@ -152,7 +155,10 @@ class Slider {
         // pseudoCtx.stroke();
 
         if (this.repeat > 1) {
-            const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+            const endPosition = Math.min(
+                Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
+                this.angleList.length - 1
+            );
             const x = this.angleList[endPosition].x;
             const y = this.angleList[endPosition].y;
             // console.log(x, y);
@@ -173,7 +179,10 @@ class Slider {
             const innerPercentage = (percentage * this.repeat) % 1;
             const repeatIndex = Math.floor(percentage / step);
 
-            const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+            const endPosition = Math.min(
+                Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
+                this.angleList.length - 1
+            );
 
             const sliderBallPosition = this.angleList.findLast((point, idx) =>
                 repeatIndex % 2 == 0 ? idx / endPosition <= innerPercentage : idx / endPosition <= 1 - innerPercentage
@@ -356,7 +365,9 @@ class Slider {
         this.sliderLen = 0;
         this.angleList.forEach((point, idx) => {
             if (idx === this.angleList.length - 1) return;
-            this.sliderLen += Math.sqrt((this.angleList[idx + 1].x - point.x) ** 2 + (this.angleList[idx + 1].y - point.y) ** 2) / ascaleFactor;
+            this.sliderLen += Math.sqrt(
+                ((this.angleList[idx + 1].x - point.x) / ascaleFactor) ** 2 + ((this.angleList[idx + 1].y - point.y) / ascaleFactor) ** 2
+            );
         });
 
         if (!isPlaying && this.startTime + preempt === debugPosition) {
@@ -407,8 +418,21 @@ class Slider {
         // this.draw(0.5);
 
         if (this.repeat > 1) {
-            const endPosition = Math.min(Math.ceil((this.initialSliderLen / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
-            reverseArrowSVG.style.transform = `rotate(${(90 - this.angleList[endPosition].angle * 180) / Math.PI}deg)`;
+            const endPosition = Math.min(
+                Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
+                this.angleList.length - 1
+            );
+
+            const deltaX = this.angleList[endPosition].x - this.angleList[endPosition - 1].x;
+            const deltaY = this.angleList[endPosition].y - this.angleList[endPosition - 1].y;
+            const tan = deltaY / deltaX;
+
+            let angle = (Math.atan(tan) * 180) / Math.PI;
+            angle = deltaX < 0 ? (deltaY > 0 ? 180 - angle : 180 + angle) : angle;
+
+            console.log(time, (this.angleList[endPosition - 1].angle * 180) / Math.PI, (Math.atan(tan) * 180) / Math.PI, deltaY, flipY);
+            reverseArrowSVG.style.transform = `rotate(${angle}deg)`;
+            // reverseArrowSVG.style.transform = `rotate(30deg)`;
             const base64 = window.btoa(new XMLSerializer().serializeToString(sampleReverseArrow));
             const reverseArrowImgData = `data:image/svg+xml;base64,${base64}`;
             const reverseArrowImg = new Image();
