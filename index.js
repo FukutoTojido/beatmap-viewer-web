@@ -89,10 +89,8 @@ function setAudioTime() {
         slider.value = 0;
         return;
     }
-    
-    sliderOnChange = true;
+
     document.querySelector("audio").currentTime = slider.value / 10;
-    sliderOnChange = false;
 
     if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }

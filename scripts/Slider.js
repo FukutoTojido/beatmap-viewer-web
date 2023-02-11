@@ -430,8 +430,8 @@ class Slider {
             let angle = (Math.atan(tan) * 180) / Math.PI;
             angle = deltaX < 0 ? (deltaY > 0 ? 180 - angle : 180 + angle) : angle;
 
-            console.log(time, (this.angleList[endPosition - 1].angle * 180) / Math.PI, (Math.atan(tan) * 180) / Math.PI, deltaY, flipY);
-            reverseArrowSVG.style.transform = `rotate(${angle}deg)`;
+            console.log(time, (this.angleList[endPosition - 1].angle * 180) / Math.PI, (Math.atan(tan) * 180) / Math.PI, deltaY);
+            reverseArrowSVG.style.transform = `rotate(${angle < 0 ? angle + 180 : 180 - angle}deg)`;
             // reverseArrowSVG.style.transform = `rotate(30deg)`;
             const base64 = window.btoa(new XMLSerializer().serializeToString(sampleReverseArrow));
             const reverseArrowImgData = `data:image/svg+xml;base64,${base64}`;

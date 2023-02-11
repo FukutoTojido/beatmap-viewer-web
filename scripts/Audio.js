@@ -18,7 +18,7 @@ class Audio {
         audio.onpause = () => {
             document.querySelector("#playButton").style.backgroundImage = "";
             if (beatmapFile.beatmapRenderData === undefined) return;
-            if (beatmapFile !== undefined || beatmapFile.beatmapRenderData !== undefined)
+            if (beatmapFile !== undefined || beatmapFile.beatmapRenderData !== undefined || document.querySelector("audio") === undefined)
                 beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
         };
 
