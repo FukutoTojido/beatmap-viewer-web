@@ -40,7 +40,7 @@ body {
 
     overflow: hidden;
     /* background-image: url(../higuchimadoka.jpg); */
-    background-size: cover;
+    background-size: 120%;
     background-position: center;
     background-repeat: no-repeat;
 
@@ -50,7 +50,7 @@ body {
     align-content: center;
     /* flex-wrap: wrap; */
 
-    background-color: rgb(37, 33, 48);
+    background-color: #18171c;
 
     font-family: Torus;
     font-weight: 500;
@@ -86,10 +86,10 @@ body {
 
     /* transform: scaleY(-1);   */
 
-    background-color: rgb(0 0 0 /0.8);
+    background-color: rgb(0 0 0 /0.2);
     /* z-index: -1; */
 
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(30px);
 }
 #main img {
     display: none;
@@ -106,7 +106,7 @@ body {
     gap: 10px;
 }
 
-#inputContainer input[type=text] {
+#inputContainer input[type="text"] {
     appearance: none;
     box-sizing: border-box;
 
@@ -114,7 +114,7 @@ body {
     height: 40px;
 
     padding: 20px;
-    
+
     font-family: Torus;
     color: white;
 
@@ -123,7 +123,7 @@ body {
     border-radius: 15px;
 }
 
-#inputContainer input[type=text]:focus {
+#inputContainer input[type="text"]:focus {
     outline: solid 2px rgb(255, 187, 0);
 }
 
@@ -131,17 +131,19 @@ body {
     width: 80px;
     height: 40px;
 
-    background-color: rgb(92, 143, 238);
+    background-color: #43414c;
 
     font-family: Torus;
+    font-weight: 500;
     color: white;
 
-    border-radius: 15px;
+    border-radius: 20px;
+    transition: ease-in-out 200ms;
 }
 
 #inputContainer button:nth-child(3):hover {
     filter: none;
-    background-color: rgb(152, 184, 243);
+    background-color: #585566;
 }
 
 #playerContainer {
@@ -180,7 +182,7 @@ canvas {
     height: 100%;
 
     background-color: black;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 #settingsButton {
@@ -210,7 +212,7 @@ svg {
 
     /* padding: 20px; */
 
-    background-color: #18171c;
+    background-color: #26242b;
     border-radius: 0 0 20px 20px;
 
     display: flex;
@@ -229,11 +231,11 @@ svg {
 
     font-size: 1em;
 
-    background-color: #43414C;
+    background-color: #43414c;
 }
 
 .digit {
-    width: .7em;
+    width: 0.7em;
     text-align: center;
 }
 
@@ -269,7 +271,7 @@ svg {
 }
 
 #progress::-webkit-slider-runnable-track {
-    background: #43414C;
+    background: #43414c;
     height: 4px;
 
     margin: 10px;
@@ -340,16 +342,18 @@ button:hover {
 
 .loading {
     position: absolute;
+    top: 0;
+    left: 0;
     box-sizing: border-box;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0 0 0 / 0.5);
     border-radius: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    
+
     opacity: 0;
 }
 
@@ -423,6 +427,59 @@ button:hover {
     align-content: center;
 }
 
+.slider {
+    flex-wrap: wrap;
+}
+
+.slider input {
+    /* position: absolute; */
+    /* bottom: 20px; */
+    /* right: 20px; */
+
+    margin: 0;
+    width: 100%;
+
+    padding-right: 20px;
+
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.slider input::-webkit-slider-runnable-track {
+    background: #8c66ff;
+    height: 4px;
+
+    margin: 20px 0;
+    border-radius: 20px;
+}
+
+.slider input::-webkit-slider-thumb {
+    appearance: none;
+
+    width: 40px;
+    height: 10px;
+
+    background: #302e38;
+    border-radius: 20px;
+
+    margin-top: -3px;
+
+    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 150ms;
+    transform-origin: center;
+
+    outline: solid 3px #8c66ff;
+}
+
+.slider input::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 10px 0px #8c66ff;
+}
+
+.slider input::-webkit-slider-thumb:active {
+    background: #8c66ff;
+    width: 50px;
+}
+
 input[type="checkbox"] {
     appearance: none;
     width: 40px;
@@ -442,4 +499,28 @@ input[type="checkbox"]:hover {
 input[type="checkbox"]:checked {
     width: 50px;
     background-color: #8c66ff;
+}
+
+.list input[type="text"] {
+    appearance: none;
+    box-sizing: border-box;
+
+    height: 40px;
+
+    padding: 25px 20px;
+    margin: 10px 0;
+
+    font-family: Torus;
+    color: white;
+    font-size: 1em;
+
+    border: none;
+    background-color: rgba(0 0 0 / 0.5);
+    border-radius: 10px;
+
+    transition: ease-in-out 100ms;
+}
+
+.list input[type="text"]:focus {
+    outline: solid 4px rgb(255, 187, 0);
 }

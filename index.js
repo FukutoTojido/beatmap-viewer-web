@@ -9,6 +9,7 @@ let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
 
 const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = true;
 
 const sampleHitCircle = document.querySelector("#sampleHitCircle");
 const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
@@ -66,12 +67,13 @@ document.body.addEventListener("click", (e) => {
 
 function handleCheckBox(checkbox) {
     mods[checkbox.name] = !mods[checkbox.name];
+    sliderAppearance[checkbox.name] = !sliderAppearance[checkbox.name];
 
     const DTMultiplier = !mods.DT ? 1 : 1.5;
     const HTMultiplier = !mods.HT ? 1 : 0.75;
 
     canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
-    document.querySelector("audio").playbackRate = 1 * DTMultiplier * HTMultiplier;
+    if (document.querySelector("audio")) document.querySelector("audio").playbackRate = 1 * DTMultiplier * HTMultiplier;
 
     beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
@@ -151,6 +153,11 @@ function submitMap() {
     document.querySelector("#mapInput").value = "";
     document.querySelector("#progress").value = 0;
     if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
+}
+
+function setBackgroundDim(slider) {
+    // console.log(slider.value);
+    document.querySelector("#overlay").style.opacity = slider.value;
 }
 
 let beatmapFile;

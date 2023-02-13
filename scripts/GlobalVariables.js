@@ -50,6 +50,11 @@ let mods = {
     HT: false,
 };
 
+let sliderAppearance = {
+    untint: false,
+    legacy: false,
+};
+
 let animation = {
     ms1digit: new CountUp("millisecond1digit", 0, 0, 0, 0.2, {
         separator: "",
