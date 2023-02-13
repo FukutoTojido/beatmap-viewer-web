@@ -377,6 +377,8 @@ button:hover {
     position: absolute;
     top: 0;
     left: -600px;
+
+    max-width: 90vw;
     width: 600px;
     height: 100vh;
 
