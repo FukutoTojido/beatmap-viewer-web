@@ -51,6 +51,7 @@ let mods = {
 };
 
 let sliderAppearance = {
+    snaking: true,
     untint: false,
     legacy: false,
 };

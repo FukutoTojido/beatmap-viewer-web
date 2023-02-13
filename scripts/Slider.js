@@ -120,13 +120,15 @@ class Slider {
         pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
             if (idx / this.angleList.length > this.initialSliderLen / this.repeat / this.sliderLen) return;
-            if (sliderSnaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
+            if (sliderAppearance.snaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
 
-            if (!(sliderSnaking && opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
-                if (this.repeat % 2 === 0 && idx / endPosition >= 1 - ((percentage - 1) * this.repeat + 1)) return;
-                if (this.repeat % 2 !== 0 && idx / endPosition <= (percentage - 1) * this.repeat + 1) {
-                    pseudoCtx.moveTo(point.x, point.y);
-                    return;
+            if (!(opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
+                if (sliderAppearance.snaking) {
+                    if (this.repeat % 2 === 0 && idx / endPosition >= 1 - ((percentage - 1) * this.repeat + 1)) return;
+                    if (this.repeat % 2 !== 0 && idx / endPosition <= (percentage - 1) * this.repeat + 1) {
+                        pseudoCtx.moveTo(point.x, point.y);
+                        return;
+                    }
                 }
             }
 
@@ -162,14 +164,14 @@ class Slider {
         pseudoCtx.filter = "none";
 
         if (sliderAppearance.legacy) {
-            pseudoCtx.filter = "blur(25px) brightness(0.2)";
-            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.3;
+            pseudoCtx.filter = "blur(25px) brightness(0.4)";
+            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.4;
             pseudoCtx.strokeStyle = "#888";
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";
 
-            pseudoCtx.filter = "blur(15px)";
-            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.05;
+            pseudoCtx.filter = "blur(15px) brightness(0.4)";
+            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.1;
             pseudoCtx.strokeStyle = "#888";
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";
@@ -192,7 +194,7 @@ class Slider {
 
             // console.log(opacity);
 
-            pseudoCtx.globalAlpha = sliderSnaking ? (opacity > 1 || opacity < 0 ? 1 : 0) : opacity;
+            pseudoCtx.globalAlpha = sliderAppearance.snaking ? (opacity > 1 || opacity < 0 ? 1 : 0) : opacity;
             pseudoCtx.beginPath();
             pseudoCtx.drawImage(
                 percentage > 0
