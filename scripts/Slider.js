@@ -96,7 +96,7 @@ class Slider {
         const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
         const pseudoCtx = pseudoCanvas.getContext("2d");
 
-        ctx.globalAlpha = Math.abs(opacity);
+        ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.3, 0) : Math.abs(opacity);
 
         pseudoCtx.clearRect(0, 0, canvas.width, canvas.height);
         const endPosition = Math.min(
@@ -121,7 +121,7 @@ class Slider {
         pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
             if (idx / this.angleList.length > this.initialSliderLen / this.repeat / this.sliderLen) return;
-            if (sliderAppearance.snaking && opacity >= 0 && idx / endPosition > Math.abs(opacity)) return;
+            if (sliderAppearance.snaking && opacity >= 0 && idx / endPosition > Math.abs(opacity * 2)) return;
 
             if (!(opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
                 if (sliderAppearance.snaking) {
@@ -152,7 +152,7 @@ class Slider {
         pseudoCtx.globalCompositeOperation = "source-out";
 
         pseudoCtx.lineWidth = currentHitCircleSize * currentScaleFactor * (118 / 128);
-        pseudoCtx.strokeStyle = sliderAppearance.untint ? "#fff" : colour;
+        pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
         pseudoCtx.stroke();
 
         pseudoCtx.globalCompositeOperation = "source-over";
@@ -165,15 +165,18 @@ class Slider {
         pseudoCtx.filter = "none";
 
         if (sliderAppearance.legacy) {
-            pseudoCtx.filter = "blur(25px) brightness(0.4)";
-            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.4;
-            pseudoCtx.strokeStyle = "#888";
+            pseudoCtx.globalCompositeOperation = "source-atop";
+            pseudoCtx.filter = "blur(25px) brightness(0.2)";
+            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 1;
+            pseudoCtx.strokeStyle = sliderAppearance.untint ? "#888" : colour;
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";
 
-            pseudoCtx.filter = "blur(15px) brightness(0.4)";
+            pseudoCtx.globalCompositeOperation = "source-over";
+
+            pseudoCtx.filter = "blur(15px) brightness(0.5)";
             pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.1;
-            pseudoCtx.strokeStyle = "#888";
+            pseudoCtx.strokeStyle = sliderAppearance.untint ? "#888" : colour;
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";
         }
@@ -195,7 +198,7 @@ class Slider {
 
             // console.log(opacity);
 
-            pseudoCtx.globalAlpha = sliderAppearance.snaking ? (opacity > 1 || opacity < 0 ? 1 : 0) : opacity;
+            pseudoCtx.globalAlpha = sliderAppearance.snaking ? (opacity > 0.5 || opacity < 0 ? 1 : 0) : opacity;
             pseudoCtx.beginPath();
             pseudoCtx.drawImage(
                 percentage > 0
@@ -203,19 +206,19 @@ class Slider {
                         ? this.reverseArrow
                         : this.headReverseArrow
                     : this.reverseArrow,
-                x - (currentHitCircleSize * currentScaleFactor * (118 / 128)) / 2,
-                y - (currentHitCircleSize * currentScaleFactor * (118 / 128)) / 2,
-                currentHitCircleSize * currentScaleFactor * (118 / 128),
-                currentHitCircleSize * currentScaleFactor * (118 / 128)
+                x - (currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1)) / 2,
+                y - (currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1)) / 2,
+                currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1),
+                currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1)
             );
             pseudoCtx.closePath();
             pseudoCtx.globalAlpha = 1;
         }
 
-        if (opacity < 0 && percentage >= 0 && percentage <= 1) {
+        if (opacity < 0 && percentage >= 0) {
             const step = 1 / this.repeat;
-            const innerPercentage = (percentage * this.repeat) % 1;
-            const repeatIndex = Math.floor(percentage / step);
+            const innerPercentage = (Math.min(percentage, 1) * this.repeat) % 1;
+            const repeatIndex = Math.floor(Math.min(percentage, 1) / step);
 
             const endPosition = Math.min(
                 Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
