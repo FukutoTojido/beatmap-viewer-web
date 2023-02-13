@@ -96,7 +96,7 @@ class Slider {
         const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
         const pseudoCtx = pseudoCanvas.getContext("2d");
 
-        ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.3, 0) : Math.abs(opacity);
+        ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) : Math.abs(opacity);
 
         pseudoCtx.clearRect(0, 0, canvas.width, canvas.height);
         const endPosition = Math.min(
