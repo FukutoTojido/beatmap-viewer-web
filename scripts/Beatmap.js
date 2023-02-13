@@ -2,13 +2,24 @@ class Beatmap {
     objectsList;
 
     constructor(rawBeatmap, delay) {
-        approachRate = parseFloat(
-            rawBeatmap
-                .split("\r\n")
-                .filter((line) => line.includes("ApproachRate:"))
-                .shift()
-                .replaceAll("ApproachRate:", "")
-        );
+        if (rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0) {
+            approachRate = parseFloat(
+                rawBeatmap
+                    .split("\r\n")
+                    .filter((line) => line.includes("OverallDifficulty:"))
+                    .shift()
+                    .replaceAll("OverallDifficulty:", "")
+            );
+        } else {
+            approachRate = parseFloat(
+                rawBeatmap
+                    .split("\r\n")
+                    .filter((line) => line.includes("ApproachRate:"))
+                    .shift()
+                    .replaceAll("ApproachRate:", "")
+            );
+        }
+
         circleSize = parseFloat(
             rawBeatmap
                 .split("\r\n")
@@ -41,7 +52,14 @@ class Beatmap {
         const colourPosition = rawBeatmap.indexOf("[Colours]") + "[Colours]\r\n".length;
         const hitObjectsPosition = rawBeatmap.indexOf("[HitObjects]") + "[HitObjects]\r\n".length;
 
-        const initialSliderVelocity = rawBeatmap.slice(difficultyPosition).split("\r\n")[4].replace("SliderMultiplier:", "") * 100;
+        const initialSliderVelocity =
+            parseFloat(
+                rawBeatmap
+                    .slice(difficultyPosition)
+                    .split("\r\n")
+                    [rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0 ? 3 : 4].replace("SliderMultiplier:", "")
+            ) * 100;
+        console.log(initialSliderVelocity);
         const beatStepsList = rawBeatmap
             .slice(
                 timingPosition,
@@ -88,8 +106,8 @@ class Beatmap {
             const params = currentObj.split(",");
             let endTime;
 
-            if (!["L", "P", "B", "C"].includes(params[5][0])) endTime = parseInt(params[2]);
-            if (["L", "P", "B", "C"].includes(params[5][0])) {
+            if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) endTime = parseInt(params[2]);
+            if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
                 const currentbeatStep = beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep;
                 const currentSVMultiplier = timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]);
                 const initialSliderLen = params[6] * params[7];
@@ -114,7 +132,7 @@ class Beatmap {
             .map((object) => {
                 const params = object.split(",");
                 // console.log(parseInt(params[3]).toString(2)[2]);
-                if (!["L", "P", "B", "C"].includes(params[5][0]))
+                if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0]))
                     return {
                         obj: new HitCircle(
                             params[0],
@@ -133,8 +151,8 @@ class Beatmap {
                 const currentSVMultiplier = timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]);
                 // console.log(("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1);
 
-                // console.log(initialSliderVelocity * currentSVMultiplier.svMultiplier);
-                if (["L", "P", "B", "C"].includes(params[5][0])) {
+                // console.log(initialSliderVelocity, currentSVMultiplier.svMultiplier);
+                if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
                     return {
                         obj: new Slider(
                             `${params[0]}:${params[1]}|${params[5].slice(2)}`,

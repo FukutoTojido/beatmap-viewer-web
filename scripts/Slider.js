@@ -22,6 +22,7 @@ class Slider {
     tempCanvasWidth;
     reverseArrow;
     headReverseArrow;
+    sliderType;
 
     binom(n, k) {
         var coeff = 1;
@@ -310,6 +311,8 @@ class Slider {
         this.breakPoints.push(pointArr.length - 1);
         // console.log(this.breakPoints);
 
+        // console.log(this.sliderAccuracy);
+
         const calculatedAngleLength = this.breakPoints
             .map((bP, idx) => {
                 if (idx === this.breakPoints.length - 1) return;
@@ -319,7 +322,7 @@ class Slider {
 
                 for (var i = 0; i < 1; i += this.sliderAccuracy) {
                     const pCurrent =
-                        pointArr.length !== 3
+                        this.sliderType !== "P"
                             ? this.bezier(
                                   i,
                                   bP === 0
@@ -337,9 +340,11 @@ class Slider {
                                       (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
                               };
 
+                    // console.log(pCurrent);
+
                     if (i < 1 - this.sliderAccuracy) {
                         const pNext =
-                            pointArr.length !== 3
+                            this.sliderType !== "P"
                                 ? this.bezier(
                                       i + sliderAccuracy,
                                       bP === 0
@@ -367,6 +372,7 @@ class Slider {
                 }
 
                 this.sliderLen += sectionLength;
+                // console.log(sectionAngleList);
 
                 return {
                     angleList: sectionAngleList,
@@ -421,6 +427,8 @@ class Slider {
     }
 
     constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, baseSliderVelocity, beatStep, time, isNewCombo, repeat) {
+        this.sliderType = sliderType;
+        // console.log(sliderAccuracy, initialSliderLen, baseSliderVelocity);
         // const canvas = document.createElement("canvas");
         const originalArr = pointLists.split("|").map((point) => {
             return {
@@ -455,6 +463,8 @@ class Slider {
         const postTime = new Date().getTime();
         // console.log(time, preTime, postTime, postTime - preTime);
         // this.time = time;
+
+        // console.log(originalArr, pointArr, this.angleList);
 
         this.isNewCombo = isNewCombo;
         this.repeat = repeat;

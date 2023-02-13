@@ -124,7 +124,7 @@ body {
 }
 
 #inputContainer input[type="text"]:focus {
-    outline: solid 2px rgb(255, 187, 0);
+    outline: solid 3px rgb(255, 187, 0);
 }
 
 #inputContainer button:nth-child(3) {
