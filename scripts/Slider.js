@@ -198,6 +198,10 @@ class Slider {
 
             // console.log(opacity);
 
+            const revArrowSize = !sliderAppearance.snaking
+                ? currentHitCircleSize * currentScaleFactor * (118 / 128)
+                : currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1);
+
             pseudoCtx.globalAlpha = sliderAppearance.snaking ? (opacity > 0.5 || opacity < 0 ? 1 : 0) : opacity;
             pseudoCtx.beginPath();
             pseudoCtx.drawImage(
@@ -206,10 +210,10 @@ class Slider {
                         ? this.reverseArrow
                         : this.headReverseArrow
                     : this.reverseArrow,
-                x - (currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1)) / 2,
-                y - (currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1)) / 2,
-                currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1),
-                currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1)
+                x - revArrowSize / 2,
+                y - revArrowSize / 2,
+                revArrowSize,
+                revArrowSize
             );
             pseudoCtx.closePath();
             pseudoCtx.globalAlpha = 1;
