@@ -4,7 +4,7 @@ class Audio {
     constructor(src) {
         const audio = document.createElement("audio");
         audio.src = src;
-        audio.volume = 0.1;
+        audio.volume = 0.03;
         audio.mute = "true";
         audio.playbackRate = playbackRate;
         audio.currentTime = 0.001;
