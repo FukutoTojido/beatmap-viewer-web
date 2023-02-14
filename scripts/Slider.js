@@ -72,7 +72,7 @@ class Slider {
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
-            ? (currentHitCircleSize * (236 - 190)) / 2 / 256
+            ? (currentHitCircleSize * (236 - 190)) / 2 / 256 / 1.5
             : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
 
         if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
@@ -156,7 +156,7 @@ class Slider {
         pseudoCtx.stroke();
 
         pseudoCtx.globalCompositeOperation = "source-over";
-        pseudoCtx.globalAlpha = sliderAppearance.legacy ? 0.85 : 1;
+        pseudoCtx.globalAlpha = sliderAppearance.legacy ? 0.9 : 1;
         pseudoCtx.filter = "brightness(0.075)";
         pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
         pseudoCtx.strokeStyle = sliderAppearance.legacy ? "black" : sliderAppearance.untint ? "black" : colour;
@@ -165,20 +165,22 @@ class Slider {
         pseudoCtx.filter = "none";
 
         if (sliderAppearance.legacy) {
+            // pseudoCtx.globalCompositeOperation = "source-atop";
+            // pseudoCtx.filter = "blur(25px) brightness(0.2)";
+            // pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 1;
+            // pseudoCtx.strokeStyle = sliderAppearance.untint ? "#888" : colour;
+            // pseudoCtx.stroke();
+            // pseudoCtx.filter = "none";
+
             pseudoCtx.globalCompositeOperation = "source-atop";
-            pseudoCtx.filter = "blur(25px) brightness(0.2)";
-            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 1;
-            pseudoCtx.strokeStyle = sliderAppearance.untint ? "#888" : colour;
+
+            pseudoCtx.filter = "blur(30px)";
+            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.15;
+            pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";
 
             pseudoCtx.globalCompositeOperation = "source-over";
-
-            pseudoCtx.filter = "blur(15px) brightness(0.5)";
-            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.1;
-            pseudoCtx.strokeStyle = sliderAppearance.untint ? "#888" : colour;
-            pseudoCtx.stroke();
-            pseudoCtx.filter = "none";
         }
 
         if (this.repeat > 1 && percentage <= 1 - 1 / this.repeat) {
@@ -200,7 +202,10 @@ class Slider {
 
             const revArrowSize = !sliderAppearance.snaking
                 ? currentHitCircleSize * currentScaleFactor * (118 / 128)
-                : currentHitCircleSize * currentScaleFactor * (118 / 128) * Math.min(Math.abs((opacity - 0.5) / 0.2), 1);
+                : currentHitCircleSize *
+                  currentScaleFactor *
+                  (118 / 128) *
+                  curve.solve(Math.min(Math.abs((opacity - 0.4) / 0.4), 1), UnitBezier.prototype.epsilon);
 
             pseudoCtx.globalAlpha = sliderAppearance.snaking ? (opacity > 0.5 || opacity < 0 ? 1 : 0) : opacity;
             pseudoCtx.beginPath();

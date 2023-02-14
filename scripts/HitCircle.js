@@ -48,6 +48,18 @@ class HitCircle {
             currentDrawSize
         );
 
+        if (opacity < 0) {
+            ctx.globalAlpha = Math.max(expandRate - 0.6, 0);
+        }
+
+        ctx.drawImage(
+            colourObject.defaultIdx,
+            this.positionX,
+            this.positionY,
+            (currentHitCircleSize * currentScaleFactor * 276) / 256,
+            (currentHitCircleSize * currentScaleFactor * 276) / 256
+        );
+
         ctx.globalAlpha = 1;
         ctx.closePath();
     }

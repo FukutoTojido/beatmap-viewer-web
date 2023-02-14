@@ -43,6 +43,8 @@ let stackThreshold;
 let playingFlag = false;
 let sliderOnChange = false;
 
+const curve = new UnitBezier(0, 0.57, 0., 1.46);
+
 let mods = {
     HR: false,
     EZ: false,

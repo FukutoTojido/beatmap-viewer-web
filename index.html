@@ -10,6 +10,7 @@
     <script src="./deps/canvas-bezier-multipoint.js"></script>
     <script src="./deps/countUp.js"></script>
     <script src="./lib/zip-fs-full.min.js"></script>
+    <script src="./scripts/CubicBezier.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Cursor.js"></script>
@@ -34,7 +35,7 @@
                 width: 256px;
                 height: 256px;
                 background-image: url(./static/hitcircle@2x.png);
-                background-size:cover;
+                background-position: center;
                 ">
                 </xhtml:div>
                 <xhtml:div id="hitCircleColor" style="
@@ -47,18 +48,46 @@
                 background-color: rgb(82, 180, 115);
                 mix-blend-mode: multiply;
                 -webkit-mask-image:url(./static/hitcircle@2x.png);
-                -webkit-mask-size: 101%;
+                -webkit-mask-position: center;
                 mask-image:url(./static/hitcircle@2x.png);
-                mask-size: 101%;
+                mask-position: center;
                 ">
                 </xhtml:div>
                 <xhtml:div id="hitCircleOverlay" style="
+                position: absolute; 
+                display: block;
+                top: 10px;
+                left: 10px;
+                width: 256px;
+                height: 256px;
+                background-image: url(./static/hitcircleoverlay@2x.png);
+                background-position: center;
+                ">
+                </xhtml:div>
+                <!-- <xhtml:div id="hitCircleOverlay" style="
                 position: absolute; 
                 display: block;
                 width: 100%;
                 height: 100%;
                 background-image: url(./static/hitcircleoverlay@2x.png);
                 background-size: cover;">
+                </xhtml:div> -->
+            </foreignObject>
+        </svg>
+        <svg xmlns='http://www.w3.org/2000/svg' id="sampleDefault" width='276' height='276'
+            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <foreignObject x="0" y="0" width='100%' height='100%'>
+                <xhtml:div id="default" style="
+                position: absolute; 
+                display: block;
+                top: calc((100% - 100px) / 2);
+                left: calc((100% - 100px) / 2);
+                width: calc(100px);
+                height: calc(100px);
+                background-image: url(./static/default-1@2x.png);
+                background-size: 80%;
+                background-position: center;
+                ">
                 </xhtml:div>
             </foreignObject>
         </svg>
@@ -112,11 +141,11 @@
                 </xhtml:div>
             </foreignObject>
         </svg>
-        <img id="sampleSliderB" src="./static/sliderb0@2x.png">
+        <img id="sampleDefault" src="./static/default-1@2x.png">
     </div>
     <div id="inputContainer">
         <button id="settingsButton" onclick="openMenu()"></button>
-        <input id="mapInput" type="text" placeholder="enter beatmap id (eg: b/3939123)" value="580225">
+        <input id="mapInput" type="text" placeholder="enter beatmap id (eg: 3939123)" value="3340227">
         <button id="submit">Load</button>
     </div>
     <div id="playerContainer">
@@ -141,6 +170,7 @@
         <button id="playButton"></button>
         <input id="progress" type="range" min="0" step="0.1" value="0" oninput="setAudioTime(this)"
             onkeydown="event.preventDefault()">
+        <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.1" oninput="setAudioVolume(this)">
     </div>
     <div class="loading">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">

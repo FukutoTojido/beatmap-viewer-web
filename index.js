@@ -17,6 +17,13 @@ const sampleApproachCircle = document.querySelector("#sampleApproachCircle");
 const sampleReverseArrow = document.querySelector("#sampleReverseArrow");
 const sampleSliderB = document.querySelector("#sampleSliderB");
 
+const defaultArr = [];
+for (let i = 0; i < 10; i++) {
+    toDataUrl(`./static/default-${i}@2x.png`, (base64) => {
+        defaultArr[i] = base64;
+    });
+}
+
 toDataUrl("./static/hitcircle@2x.png", (base64) => {
     document.querySelector("#hitCircleSVG").style.backgroundImage = `url("${base64}")`;
     document.querySelector("#hitCircleColor").style.webkitMaskImage = `url("${base64}")`;
@@ -158,6 +165,14 @@ function submitMap() {
 function setBackgroundDim(slider) {
     // console.log(slider.value);
     document.querySelector("#overlay").style.opacity = slider.value;
+}
+
+function setAudioVolume(slider) {
+    if (!document.querySelector("audio")) {
+        slider.value = 0.1;
+        return;
+    }
+    document.querySelector("audio").volume = slider.value;
 }
 
 let beatmapFile;

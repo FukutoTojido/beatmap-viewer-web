@@ -17,7 +17,7 @@ class ObjectsList {
         return 0;
     }
 
-    createHitCircleColour(colour) {
+    createHitCircleColour(colour, idx) {
         hitCircleColor.style.backgroundColor = colour;
         const base64 = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
         const hitCircleImgData = `data:image/svg+xml;base64,${base64}`;
@@ -30,9 +30,16 @@ class ObjectsList {
         const approachCircleImg = new Image();
         approachCircleImg.src = approachCircleImgData;
 
+        document.querySelector("#default").style.backgroundImage = `url(${defaultArr[idx]})`;
+        const base64_3 = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
+        const defaultNumberImgData = `data:image/svg+xml;base64,${base64_3}`;
+        const defaultNumberImg = new Image();
+        defaultNumberImg.src = defaultNumberImgData;
+
         return {
             hitCircle: hitCircleImg,
             approachCircle: approachCircleImg,
+            defaultIdx: defaultNumberImg,
         };
     }
 
@@ -42,13 +49,18 @@ class ObjectsList {
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
         this.coloursList = coloursList.length !== 0 ? coloursList : ["#eb4034", "#ebc034", "#34eb65", "#347deb"];
         this.currentColor = 1 % this.coloursList.length;
+        this.comboIdx = 1;
 
         this.objectsList = this.objectsList.map((object, idx) => {
-            if (object.obj.isNewCombo && idx !== 0) this.currentColor = (this.currentColor + 1) % this.coloursList.length;
+            if (object.obj.isNewCombo && idx !== 0) {
+                this.currentColor = (this.currentColor + 1) % this.coloursList.length;
+                this.comboIdx = 1;
+            }
             return {
                 ...object,
+                comboIdx: this.comboIdx,
                 colour: this.coloursList[this.currentColor],
-                colourObject: this.createHitCircleColour(this.coloursList[this.currentColor]),
+                colourObject: this.createHitCircleColour(this.coloursList[this.currentColor], this.comboIdx++ % 10),
             };
         });
     }
