@@ -41,7 +41,7 @@ class HitCircle {
         );
 
         ctx.drawImage(
-            colourObject.hitCircle,
+            !mods.HR ? colourObject.hitCircle : colourObject.HRhitCircle,
             this.positionX - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
             this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
             currentDrawSize,
@@ -53,7 +53,7 @@ class HitCircle {
         }
 
         ctx.drawImage(
-            colourObject.defaultIdx,
+            !mods.HR ? colourObject.defaultIdx : colourObject.HRdefaultIdx,
             this.positionX,
             this.positionY,
             (currentHitCircleSize * currentScaleFactor * 276) / 256,

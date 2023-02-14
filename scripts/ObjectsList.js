@@ -19,10 +19,17 @@ class ObjectsList {
 
     createHitCircleColour(colour, idx) {
         hitCircleColor.style.backgroundColor = colour;
+        document.querySelector("#sampleHitCircle").style.transform = ``;
         const base64 = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
         const hitCircleImgData = `data:image/svg+xml;base64,${base64}`;
         const hitCircleImg = new Image();
         hitCircleImg.src = hitCircleImgData;
+
+        document.querySelector("#sampleHitCircle").style.transform = `scaleY(-1)`;
+        const base64_5 = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
+        const HRhitCircleImgData = `data:image/svg+xml;base64,${base64_5}`;
+        const HRhitCircleImg = new Image();
+        HRhitCircleImg.src = HRhitCircleImgData;
 
         approachCircleColor.style.backgroundColor = colour;
         const base64_2 = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
@@ -31,15 +38,25 @@ class ObjectsList {
         approachCircleImg.src = approachCircleImgData;
 
         document.querySelector("#default").style.backgroundImage = `url(${defaultArr[idx]})`;
+
+        document.querySelector("#default").style.transform = ``;
         const base64_3 = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
         const defaultNumberImgData = `data:image/svg+xml;base64,${base64_3}`;
         const defaultNumberImg = new Image();
         defaultNumberImg.src = defaultNumberImgData;
 
+        document.querySelector("#default").style.transform = `scaleY(-1)`;
+        const base64_4 = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
+        const HRdefaultNumberImgData = `data:image/svg+xml;base64,${base64_4}`;
+        const HRdefaultNumberImg = new Image();
+        HRdefaultNumberImg.src = HRdefaultNumberImgData;
+
         return {
             hitCircle: hitCircleImg,
             approachCircle: approachCircleImg,
             defaultIdx: defaultNumberImg,
+            HRdefaultIdx: HRdefaultNumberImg,
+            HRhitCircle: HRhitCircleImg,
         };
     }
 
