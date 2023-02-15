@@ -52,6 +52,7 @@ class Slider {
     }
 
     drawBorder(opacity, percentage, colour, currentScaleFactor) {
+        // console.log(this.angleList);
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
 
@@ -98,6 +99,17 @@ class Slider {
             const currentPointFullLengthRatio = idx / this.angleList.length;
             const currentPointCalcLengthRatio = idx / endPosition;
 
+            // console.log(
+            //     this.startTime,
+            //     idx,
+            //     endPosition,
+            //     this.initialSliderLen,
+            //     this.sliderLen,
+            //     this.angleList.length,
+            //     currentPointFullLengthRatio,
+            //     currentPointCalcLengthRatio
+            // );
+
             if (currentPointFullLengthRatio > this.INITIAL_CALCULATED_RATIO) return;
             if (sliderAppearance.snaking && opacity >= 0 && currentPointCalcLengthRatio > Math.abs(opacity * 2)) return;
 
@@ -114,17 +126,17 @@ class Slider {
             pseudoCtx.lineTo(point.x, point.y);
         });
 
-        // pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
-        // pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
-        // pseudoCtx.stroke();
+        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
+        pseudoCtx.stroke();
 
-        // pseudoCtx.globalCompositeOperation = "source-out";
+        pseudoCtx.globalCompositeOperation = "source-out";
 
         pseudoCtx.lineWidth = objectSize;
         pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
         pseudoCtx.stroke();
 
-        // pseudoCtx.globalCompositeOperation = "source-over";
+        pseudoCtx.globalCompositeOperation = "source-over";
 
         pseudoCtx.globalAlpha = sliderAppearance.legacy ? 0.7 : 1;
         pseudoCtx.filter = "brightness(0.1)";
@@ -245,14 +257,21 @@ class Slider {
                 (Math.sin(2 * angleA) + Math.sin(2 * angleB) + Math.sin(2 * angleC));
 
             const absoluteAngle =
-                (pointArr[1].y - (angleIndex * pointArr[1].x + b)) * (centerY - (angleIndex * centerX + b)) < 0
+                Math.abs(angleIndex) === Infinity || (pointArr[1].y - (angleIndex * pointArr[1].x + b)) * (centerY - (angleIndex * centerX + b)) < 0
                     ? Math.asin(lengthAC / (2 * radius)) * 2
                     : Math.PI * 2 - Math.asin(lengthAC / (2 * radius)) * 2;
 
-            innerAngle =
-                (upper === 0 && pointArr[1].x > pointArr[0].x) || upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
+            if (upper === 0) {
+                innerAngle = absoluteAngle
+            } else {
+                innerAngle =
+                upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
                     ? absoluteAngle
                     : -absoluteAngle;
+            }
+
+
+            // if (upper === 0) console.log(this.startTime, pointArr[2].y - pointArr[0].y, absoluteAngle);
 
             this.angleIndex = angleIndex;
             this.b = b;
@@ -417,7 +436,10 @@ class Slider {
         this.repeat = repeat;
         // this.draw(0.5);
 
-        this.endPosition = Math.min(Math.ceil((this.initialSliderLen / repeat / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+        this.endPosition = Math.min(
+            Math.ceil((this.initialSliderLen / repeat / this.sliderLen) * this.angleList.length - 1),
+            this.angleList.length - 1
+        );
 
         // console.log(this.repeat % 2);
 
