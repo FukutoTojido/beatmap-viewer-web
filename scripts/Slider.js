@@ -72,7 +72,7 @@ class Slider {
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
-            ? (currentHitCircleSize * (236 - 190)) / 2 / 256 / 1.6
+            ? (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2
             : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
 
         if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
@@ -263,9 +263,9 @@ class Slider {
         ctx.closePath();
     }
 
-    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourObject, currentScaleFactor) {
+    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
         this.drawBorder(opacity, percentage, colour, currentScaleFactor);
-        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourObject, currentScaleFactor);
+        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor);
     }
 
     getAngleList(pointArr, ascaleFactor) {
