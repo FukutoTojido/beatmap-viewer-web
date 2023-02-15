@@ -67,6 +67,18 @@ toDataUrl("./static/reversearrow@2x.png", (base64) => {
     document.querySelector("#reverseArrowSVG").style.backgroundImage = `url("${base64}")`;
 });
 
+let sliderBElement;
+toDataUrl("./static/sliderb0@2x.png", (base64) => {
+    document.querySelector("#sliderBSVG").style.backgroundImage = `url("${base64}")`;
+
+    const base64_sliderB = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleSliderB")));
+    const sliderBImgData = `data:image/svg+xml;base64,${base64_sliderB}`;
+    const sliderBImg = new Image();
+    sliderBImg.src = sliderBImgData;
+
+    sliderBElement = sliderBImg;
+});
+
 // document.querySelector("#cursorContainer").style.width = `${512 * scaleFactor}px`;
 // document.querySelector("#cursorContainer").style.height = `${384 * scaleFactor}px`;
 
@@ -114,7 +126,8 @@ function setSliderTime() {
     if (!document.querySelector("audio")) return;
     if (!sliderOnChange) document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
 
-    if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    // if (beatmapFile !== undefined && !playingFlag)
+    //     beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
 
 function setAudioTime() {
@@ -126,7 +139,8 @@ function setAudioTime() {
 
     document.querySelector("audio").currentTime = slider.value / 10;
 
-    if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    if (beatmapFile !== undefined && !playingFlag)
+        beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
 
 function setProgressMax() {
@@ -139,14 +153,16 @@ function playToggle() {
             document.querySelector("audio").currentTime = 0;
         }
 
-        if (document.querySelector("audio").currentTime * 1000 === 1) {
-            console.log(document.querySelector("audio").currentTime);
-            document.querySelector("audio").ontimeupdate = setSliderTime;
-        }
+        // if (document.querySelector("audio").currentTime * 1000 === 1) {
+        //     console.log(document.querySelector("audio").currentTime);
+        //     document.querySelector("audio").ontimeupdate = setSliderTime;
+        // }
 
         document.querySelector("#playButton").style.backgroundImage =
             document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
+
         if (document.querySelector("audio").paused) {
+            playingFlag = true;
             document.querySelector("audio").play();
             beatmapFile.beatmapRenderData.render();
         } else {
@@ -198,6 +214,32 @@ function setAudioVolume(slider) {
         return;
     }
     document.querySelector("audio").volume = slider.value;
+}
+
+function updateTime(timestamp) {
+    const currentMiliseconds = Math.floor(timestamp);
+    const msDigits = [currentMiliseconds % 10, Math.floor((currentMiliseconds % 100) / 10), Math.floor((currentMiliseconds % 1000) / 100)];
+
+    msDigits.forEach((val, idx) => {
+        document.querySelector(`#millisecond${idx + 1}digit`).innerText = val;
+        animation[`ms${idx + 1}digit`].update(document.querySelector(`#millisecond${idx + 1}digit`).innerText);
+    });
+
+    const currentSeconds = Math.floor((timestamp / 1000) % 60);
+    const sDigits = [currentSeconds % 10, Math.floor((currentSeconds % 100) / 10)];
+
+    sDigits.forEach((val, idx) => {
+        document.querySelector(`#second${idx + 1}digit`).innerText = val;
+        animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
+    });
+
+    const currentMinute = Math.floor(timestamp / 1000 / 60);
+    const mDigits = [currentMinute % 10, Math.floor((currentMinute % 100) / 10)];
+
+    mDigits.forEach((val, idx) => {
+        document.querySelector(`#minute${idx + 1}digit`).innerText = val;
+        animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
+    });
 }
 
 let beatmapFile;

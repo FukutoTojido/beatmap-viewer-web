@@ -77,13 +77,10 @@ class BeatmapFile {
             document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
-            document.querySelector("audio").preload = "metadata";
-            document.querySelector("audio").onloadedmetadata = setProgressMax;
-
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
-            document.querySelector("#playButton").addEventListener("click", playToggle);
+            // document.querySelector("#playButton").addEventListener("click", playToggle);
 
             document.onkeydown = (e) => {
                 if (!isPlaying) {

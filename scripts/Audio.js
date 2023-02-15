@@ -8,6 +8,7 @@ class Audio {
         audio.mute = "true";
         audio.playbackRate = playbackRate;
         audio.currentTime = 0.001;
+
         audio.onended = () => {
             audio.currentTime = 0.001;
             document.querySelector("#playButton").style.backgroundImage = "";
@@ -21,6 +22,10 @@ class Audio {
             if (beatmapFile !== undefined || beatmapFile.beatmapRenderData !== undefined || document.querySelector("audio") === undefined)
                 beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
         };
+
+        audio.preload = "metadata";
+        audio.onloadedmetadata = setProgressMax;
+        audio.ontimeupdate = setSliderTime;
 
         this.audioObj = audio;
         document.body.appendChild(this.audioObj);

@@ -60,29 +60,7 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
-        const currentMiliseconds = Math.floor(timestamp);
-        const msDigits = [currentMiliseconds % 10, Math.floor((currentMiliseconds % 100) / 10), Math.floor((currentMiliseconds % 1000) / 100)];
-
-        msDigits.forEach((val, idx) => {
-            document.querySelector(`#millisecond${idx + 1}digit`).innerText = val;
-            animation[`ms${idx + 1}digit`].update(document.querySelector(`#millisecond${idx + 1}digit`).innerText);
-        });
-
-        const currentSeconds = Math.floor((timestamp / 1000) % 60);
-        const sDigits = [currentSeconds % 10, Math.floor((currentSeconds % 100) / 10)];
-
-        sDigits.forEach((val, idx) => {
-            document.querySelector(`#second${idx + 1}digit`).innerText = val;
-            animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
-        });
-
-        const currentMinute = Math.floor(timestamp / 1000 / 60);
-        const mDigits = [currentMinute % 10, Math.floor((currentMinute % 100) / 10)];
-
-        mDigits.forEach((val, idx) => {
-            document.querySelector(`#minute${idx + 1}digit`).innerText = val;
-            animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
-        });
+        updateTime(timestamp);
 
         if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== canvas.width)
             canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
@@ -129,6 +107,7 @@ class ObjectsList {
             window.requestAnimationFrame((currentTime) => {
                 if (!document.querySelector("audio")) return;
                 const currentAudioTime = document.querySelector("audio").currentTime * 1000;
+                // const currentAudioTime = currentTime - this.drawTime;
                 const timestampNext = currentAudioTime * playbackRate;
                 return this.draw(timestampNext);
             });
@@ -138,6 +117,7 @@ class ObjectsList {
         this.drawTime = new Date().getTime() - originalTime;
         window.requestAnimationFrame((currentTime) => {
             const currentAudioTime = document.querySelector("audio").currentTime * 1000;
+            // const currentAudioTime = currentTime - this.drawTime;
             const timestamp = currentAudioTime * playbackRate;
             return this.draw(timestamp);
         });

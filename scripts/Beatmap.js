@@ -59,7 +59,7 @@ class Beatmap {
                     .split("\r\n")
                     [rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0 ? 3 : 4].replace("SliderMultiplier:", "")
             ) * 100;
-        console.log(initialSliderVelocity);
+        // console.log(initialSliderVelocity);
         const beatStepsList = rawBeatmap
             .slice(
                 timingPosition,
@@ -176,11 +176,6 @@ class Beatmap {
     }
 
     render() {
-        if (isPlaying) {
-            playingFlag = true;
-            this.objectsList.render();
-        } else {
-            this.objectsList.draw(debugPosition, true);
-        }
+        this.objectsList.render();
     }
 }

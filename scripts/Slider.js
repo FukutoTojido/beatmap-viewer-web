@@ -23,6 +23,9 @@ class Slider {
     reverseArrow;
     headReverseArrow;
     sliderType;
+    endPosition;
+    INITIAL_CALCULATED_RATIO;
+    STEP;
 
     binom(n, k) {
         var coeff = 1;
@@ -48,32 +51,18 @@ class Slider {
         };
     }
 
-    debug() {
-        ctx.fillStyle = "red";
-
-        this.pointArr.forEach((point) => {
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 5, 0, Math.PI * 2, false);
-            ctx.fill();
-            ctx.closePath();
-        });
-
-        ctx.beginPath();
-        ctx.moveTo(0, this.b);
-        ctx.lineTo(innerWidth, this.angleIndex * window.innerWidth + this.b);
-        ctx.strokeStyle = "yellow";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.closePath();
-    }
-
     drawBorder(opacity, percentage, colour, currentScaleFactor) {
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
             ? (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2
             : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
+
+        const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
+        const objectSizeWithoutBorder = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        const objectSizeWithoutScale = currentHitCircleSize * currentScaleFactor;
 
         if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
             tempScaleFactor = currentScaleFactor;
@@ -90,43 +79,32 @@ class Slider {
             this.getAngleList(newPointArr, currentScaleFactor);
         }
 
-        // console.log(this.angleList, canvas);
-
         ctx.beginPath();
-        const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
-        const pseudoCtx = pseudoCanvas.getContext("2d");
-
         ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) : Math.abs(opacity);
 
-        pseudoCtx.clearRect(0, 0, canvas.width, canvas.height);
+        const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+        pseudoCtx.lineJoin = "round";
+        pseudoCtx.lineCap = "round";
+
+        pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
+
         const endPosition = Math.min(
             Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
             this.angleList.length - 1
         );
-        // if (opacity < 0) {
-        //     pseudoCtx.moveTo(this.angleList.at(endPosition).x, this.angleList.at(endPosition).y);
-        //     pseudoCtx.lineTo(this.angleList.at(endPosition - 1).x, this.angleList.at(endPosition - 1).y);
-        //     pseudoCtx.lineJoin = "round";
-        //     pseudoCtx.lineCap = "round";
 
-        //     pseudoCtx.lineWidth = Math.round(hitCircleSize * textureScaleFactor);
-        //     pseudoCtx.strokeStyle = colour;
-        //     pseudoCtx.stroke();
-
-        //     pseudoCtx.lineWidth = Math.round((hitCircleSize - sliderBorderThickness) * textureScaleFactor);
-        //     pseudoCtx.strokeStyle = `rgb(0 0 0 / .9)`;
-        //     pseudoCtx.stroke();
-        // }
-
-        pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
         this.angleList.forEach((point, idx) => {
-            if (idx / this.angleList.length > this.initialSliderLen / this.repeat / this.sliderLen) return;
-            if (sliderAppearance.snaking && opacity >= 0 && idx / endPosition > Math.abs(opacity * 2)) return;
+            const currentPointFullLengthRatio = idx / this.angleList.length;
+            const currentPointCalcLengthRatio = idx / endPosition;
+
+            if (currentPointFullLengthRatio > this.INITIAL_CALCULATED_RATIO) return;
+            if (sliderAppearance.snaking && opacity >= 0 && currentPointCalcLengthRatio > Math.abs(opacity * 2)) return;
 
             if (!(opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
                 if (sliderAppearance.snaking) {
-                    if (this.repeat % 2 === 0 && idx / endPosition >= 1 - ((percentage - 1) * this.repeat + 1)) return;
-                    if (this.repeat % 2 !== 0 && idx / endPosition <= (percentage - 1) * this.repeat + 1) {
+                    if (this.repeat % 2 === 0 && currentPointCalcLengthRatio >= 1 - ((percentage - 1) * this.repeat + 1)) return;
+                    if (this.repeat % 2 !== 0 && currentPointCalcLengthRatio <= (percentage - 1) * this.repeat + 1) {
                         pseudoCtx.moveTo(point.x, point.y);
                         return;
                     }
@@ -134,48 +112,31 @@ class Slider {
             }
 
             pseudoCtx.lineTo(point.x, point.y);
-
-            // pseudoCtx.save();
-            // pseudoCtx.arc(point.x, point.y, 20, 0, Math.PI * 2, false);
-            // pseudoCtx.fillStyle = "red";
-            // pseudoCtx.fill();
-            // pseudoCtx.restore();
         });
 
-        pseudoCtx.lineJoin = "round";
-        pseudoCtx.lineCap = "round";
+        // pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        // pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
+        // pseudoCtx.stroke();
 
-        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
-        pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
-        pseudoCtx.stroke();
+        // pseudoCtx.globalCompositeOperation = "source-out";
 
-        pseudoCtx.globalCompositeOperation = "source-out";
-
-        pseudoCtx.lineWidth = currentHitCircleSize * currentScaleFactor * (118 / 128);
+        pseudoCtx.lineWidth = objectSize;
         pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
         pseudoCtx.stroke();
 
-        pseudoCtx.globalCompositeOperation = "source-over";
-        pseudoCtx.globalAlpha = sliderAppearance.legacy ? 0.9 : 1;
-        pseudoCtx.filter = "brightness(0.075)";
-        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
-        pseudoCtx.strokeStyle = sliderAppearance.legacy ? "black" : sliderAppearance.untint ? "black" : colour;
+        // pseudoCtx.globalCompositeOperation = "source-over";
+
+        pseudoCtx.globalAlpha = sliderAppearance.legacy ? 0.7 : 1;
+        pseudoCtx.filter = "brightness(0.1)";
+        pseudoCtx.lineWidth = objectSizeWithoutBorder;
+        pseudoCtx.strokeStyle = sliderAppearance.untint ? "black" : colour;
         pseudoCtx.stroke();
         pseudoCtx.globalAlpha = 1;
         pseudoCtx.filter = "none";
 
         if (sliderAppearance.legacy) {
-            // pseudoCtx.globalCompositeOperation = "source-atop";
-            // pseudoCtx.filter = "blur(25px) brightness(0.2)";
-            // pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 1;
-            // pseudoCtx.strokeStyle = sliderAppearance.untint ? "#888" : colour;
-            // pseudoCtx.stroke();
-            // pseudoCtx.filter = "none";
-
-            pseudoCtx.globalCompositeOperation = "source-atop";
-
-            pseudoCtx.filter = "blur(30px)";
-            pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128) * 0.15;
+            pseudoCtx.filter = "blur(20px)";
+            pseudoCtx.lineWidth = objectSizeWithoutBorder * 0.1;
             pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";
@@ -184,10 +145,6 @@ class Slider {
         }
 
         if (this.repeat > 1 && percentage <= 1 - 1 / this.repeat) {
-            const endPosition = Math.min(
-                Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
-                this.angleList.length - 1
-            );
             let x = this.angleList[endPosition].x;
             let y = this.angleList[endPosition].y;
 
@@ -196,16 +153,9 @@ class Slider {
                 y = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y;
             }
 
-            // console.log(this.startTime, percentage, Math.ceil(percentage / (1 - this.repeat)) % 2 === 0);
-
-            // console.log(opacity);
-
             const revArrowSize = !sliderAppearance.snaking
-                ? currentHitCircleSize * currentScaleFactor * (118 / 128)
-                : currentHitCircleSize *
-                  currentScaleFactor *
-                  (118 / 128) *
-                  curve.solve(Math.min(Math.abs((opacity - 0.4) / 0.4), 1), UnitBezier.prototype.epsilon);
+                ? objectSize
+                : objectSize * curve.solve(Math.min(Math.abs((opacity - 0.4) / 0.4), 1), UnitBezier.prototype.epsilon);
 
             pseudoCtx.globalAlpha = sliderAppearance.snaking ? (opacity > 0.5 || opacity < 0 ? 1 : 0) : opacity;
             pseudoCtx.beginPath();
@@ -225,35 +175,27 @@ class Slider {
         }
 
         if (opacity < 0 && percentage >= 0) {
-            const step = 1 / this.repeat;
-            const innerPercentage = (Math.min(percentage, 1) * this.repeat) % 1;
-            const repeatIndex = Math.floor(Math.min(percentage, 1) / step);
-
             const endPosition = Math.min(
                 Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
                 this.angleList.length - 1
             );
 
+            const innerPercentage = (Math.min(percentage, 1) * this.repeat) % 1;
+            const repeatIndex = Math.floor(Math.min(percentage, 1) / this.STEP);
+
             const sliderBallPosition = this.angleList.findLast((point, idx) =>
                 repeatIndex % 2 == 0 ? idx / endPosition <= innerPercentage : idx / endPosition <= 1 - innerPercentage
             );
 
-            // console.log(innerPercentage, percentage, repeatIndex);
-
             if (sliderBallPosition !== undefined) {
                 pseudoCtx.beginPath();
-                pseudoCtx.lineWidth = currentSliderBorderThickness * currentScaleFactor * (118 / 128) * 1.2;
-                pseudoCtx.strokeStyle = "white";
-                pseudoCtx.arc(
-                    sliderBallPosition.x,
-                    sliderBallPosition.y,
-                    (currentHitCircleSize * currentScaleFactor * (118 / 128)) / 2 -
-                        (currentSliderBorderThickness * currentScaleFactor * (118 / 128) * 1.2) / 2,
-                    0,
-                    Math.PI * 2,
-                    false
+                pseudoCtx.drawImage(
+                    sliderBElement,
+                    sliderBallPosition.x - (objectSizeWithoutScale / 2) * (128 / 118),
+                    sliderBallPosition.y - (objectSizeWithoutScale / 2) * (128 / 118),
+                    objectSizeWithoutScale * (128 / 118),
+                    objectSizeWithoutScale * (128 / 118)
                 );
-                pseudoCtx.stroke();
                 pseudoCtx.closePath();
             }
         }
@@ -462,7 +404,6 @@ class Slider {
         this.initialSliderLen = initialSliderLen;
         this.initialSliderVelocity = initialSliderVelocity;
         this.sliderAccuracy = sliderAccuracy / (initialSliderLen / baseSliderVelocity);
-        // console.log(1 / this.sliderAccuracy);
 
         this.baseSliderVelocity = baseSliderVelocity;
         this.beatStep = parseFloat(beatStep);
@@ -470,28 +411,19 @@ class Slider {
         this.startTime = time - preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
-        const preTime = new Date().getTime();
         this.getAngleList(pointArr, scaleFactor);
-        const postTime = new Date().getTime();
-        // console.log(time, preTime, postTime, postTime - preTime);
-        // this.time = time;
-
-        // console.log(originalArr, pointArr, this.angleList);
 
         this.isNewCombo = isNewCombo;
         this.repeat = repeat;
         // this.draw(0.5);
 
+        this.endPosition = Math.min(Math.ceil((this.initialSliderLen / repeat / this.sliderLen) * this.angleList.length - 1), this.angleList.length - 1);
+
         // console.log(this.repeat % 2);
 
         if (this.repeat > 1) {
-            const endPosition = Math.min(
-                Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
-                this.angleList.length - 1
-            );
-
-            const deltaXE = this.angleList[endPosition].x - this.angleList[endPosition - 1].x;
-            const deltaYE = this.angleList[endPosition].y - this.angleList[endPosition - 1].y;
+            const deltaXE = this.angleList[this.endPosition].x - this.angleList[this.endPosition - 1].x;
+            const deltaYE = this.angleList[this.endPosition].y - this.angleList[this.endPosition - 1].y;
             const tanE = Math.abs(deltaYE / deltaXE);
 
             const deltaXS = this.angleList[0].x - this.angleList[1].x;
@@ -521,9 +453,7 @@ class Slider {
             this.headReverseArrow = reverseArrowSImg;
         }
 
-        // console.log((this.initialSliderLen / this.intialSliderVelocity) * this.beatStep);
-        // console.log(time, (this.initialSliderLen / this.intialSliderVelocity) * this.beatStep + 300);
-
-        // console.log("a");
+        this.INITIAL_CALCULATED_RATIO = this.initialSliderLen / this.repeat / this.sliderLen;
+        this.STEP = 1 / this.repeat;
     }
 }

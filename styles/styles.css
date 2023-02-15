@@ -208,7 +208,7 @@ svg {
 #playerController {
     box-sizing: border-box;
     position: relative;
-    height: 80px;
+    height: 60px;
 
     /* padding: 20px; */
 
@@ -217,7 +217,7 @@ svg {
 
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    gap: 0px;
 
     overflow: hidden;
 }
@@ -226,10 +226,10 @@ svg {
     position: relative;
     display: flex;
 
-    padding: 20px;
+    padding: 10px 20px;
     align-items: center;
 
-    font-size: 1em;
+    font-size: 0.7em;
 
     background-color: #43414c;
 }
@@ -248,9 +248,10 @@ svg {
     width: 60px;
 
     padding: 0;
+    margin: 15px 0px;
 
     background-image: url(../static/play.png);
-    background-size: 50%;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -268,11 +269,12 @@ svg {
 }
 
 #progress {
-    width: 100%;
+    width: 80%;
 }
 
 #volumeSlider {
-    width: 200px;
+    width: 50%;
+    max-width: 200px;
     padding-right: 20px;
 }
 
