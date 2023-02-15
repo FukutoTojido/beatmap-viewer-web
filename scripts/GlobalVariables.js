@@ -21,6 +21,7 @@ function toDataUrl(url, callback) {
 
 let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
+let tempHR = false;
 
 let sliderBorderThickness = (hitCircleSize * 2) / 58;
 const sliderAccuracy = 0.0025;

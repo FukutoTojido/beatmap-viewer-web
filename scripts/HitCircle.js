@@ -8,7 +8,7 @@ class HitCircle {
     originalX;
     originalY;
 
-    draw(opacity, trol, expandRate, preemptRate, colour, colourObject, currentScaleFactor) {
+    draw(opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
         const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
@@ -33,32 +33,63 @@ class HitCircle {
         ctx.globalAlpha = opacity >= 0 ? opacity : expandRate >= 0 ? expandRate : 0;
 
         ctx.drawImage(
-            colourObject.approachCircle,
+            approachCircleArr[colourIdx],
             this.positionX - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2,
             this.positionY - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2,
             baseDrawSize * approachRateExpandRate,
             baseDrawSize * approachRateExpandRate
         );
 
+        if (mods.HR) {
+            ctx.save();
+            ctx.translate(0, this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 + currentDrawSize);
+            ctx.scale(1, -1);
+        }
         ctx.drawImage(
-            !mods.HR ? colourObject.hitCircle : colourObject.HRhitCircle,
+            hitCircleArr[colourIdx],
             this.positionX - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
-            this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
+            !mods.HR ? this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 : 0,
             currentDrawSize,
             currentDrawSize
         );
-
-        if (opacity < 0) {
-            ctx.globalAlpha = Math.max(expandRate - 0.6, 0);
+        if (mods.HR) {
+            ctx.restore();
         }
 
+        // ctx.beginPath();
+        // ctx.fillStyle = "yellow";
+        // ctx.strokeStyle = "yellow";
+        // ctx.arc(
+        //     this.positionX,
+        //     this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 + currentDrawSize / 2,
+        //     2,
+        //     0,
+        //     Math.PI * 2,
+        //     0
+        // );
+        // ctx.stroke();
+        // ctx.fill();
+        // ctx.closePath();
+
+        if (opacity < 0) {
+            ctx.globalAlpha = Math.max((expandRate - 0.6) / 0.4, 0);
+        }
+
+        if (mods.HR) {
+            ctx.save();
+            ctx.translate(0, this.positionY + (currentHitCircleSize * currentScaleFactor * 276) / 256);
+            ctx.scale(1, -1);
+        }
         ctx.drawImage(
-            !mods.HR ? colourObject.defaultIdx : colourObject.HRdefaultIdx,
+            defaultArr[comboIdx],
             this.positionX,
-            this.positionY,
+            !mods.HR ? this.positionY : 0,
             (currentHitCircleSize * currentScaleFactor * 276) / 256,
             (currentHitCircleSize * currentScaleFactor * 276) / 256
         );
+        if (mods.HR) {
+            ctx.restore();
+        }
 
         ctx.globalAlpha = 1;
         ctx.closePath();

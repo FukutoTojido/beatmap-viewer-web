@@ -20,9 +20,34 @@ const sampleSliderB = document.querySelector("#sampleSliderB");
 const defaultArr = [];
 for (let i = 0; i < 10; i++) {
     toDataUrl(`./static/default-${i}@2x.png`, (base64) => {
-        defaultArr[i] = base64;
+        document.querySelector("#default").style.backgroundImage = `url(${base64})`;
+        const base64_default = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
+        const defaultNumberImgData = `data:image/svg+xml;base64,${base64_default}`;
+        const defaultNumberImg = new Image();
+        defaultNumberImg.src = defaultNumberImgData;
+
+        defaultArr[i] = defaultNumberImg;
     });
 }
+
+let hitCircleArr = [];
+let approachCircleArr = [];
+["#eb4034", "#ebc034", "#34eb65", "#347deb"].forEach((colour, idx) => {
+    document.querySelector("#hitCircleColor").style.backgroundColor = colour;
+    const base64_hitCircle = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
+    const hitCircleImgData = `data:image/svg+xml;base64,${base64_hitCircle}`;
+    const hitCircleImg = new Image();
+    hitCircleImg.src = hitCircleImgData;
+
+    document.querySelector("#approachCircleColor").style.backgroundColor = colour;
+    const base64_approachCircle = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
+    const approachCircleImgData = `data:image/svg+xml;base64,${base64_approachCircle}`;
+    const approachCircleImg = new Image();
+    approachCircleImg.src = approachCircleImgData;
+
+    hitCircleArr[idx] = hitCircleImg;
+    approachCircleArr[idx] = approachCircleImg;
+});
 
 toDataUrl("./static/hitcircle@2x.png", (base64) => {
     document.querySelector("#hitCircleSVG").style.backgroundImage = `url("${base64}")`;

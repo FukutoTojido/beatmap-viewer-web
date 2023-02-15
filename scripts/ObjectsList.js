@@ -17,67 +17,43 @@ class ObjectsList {
         return 0;
     }
 
-    createHitCircleColour(colour, idx) {
-        hitCircleColor.style.backgroundColor = colour;
-        document.querySelector("#sampleHitCircle").style.transform = ``;
-        const base64 = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
-        const hitCircleImgData = `data:image/svg+xml;base64,${base64}`;
-        const hitCircleImg = new Image();
-        hitCircleImg.src = hitCircleImgData;
-
-        document.querySelector("#sampleHitCircle").style.transform = `scaleY(-1)`;
-        const base64_5 = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
-        const HRhitCircleImgData = `data:image/svg+xml;base64,${base64_5}`;
-        const HRhitCircleImg = new Image();
-        HRhitCircleImg.src = HRhitCircleImgData;
-
-        approachCircleColor.style.backgroundColor = colour;
-        const base64_2 = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
-        const approachCircleImgData = `data:image/svg+xml;base64,${base64_2}`;
-        const approachCircleImg = new Image();
-        approachCircleImg.src = approachCircleImgData;
-
-        document.querySelector("#default").style.backgroundImage = `url(${defaultArr[idx]})`;
-
-        document.querySelector("#default").style.transform = ``;
-        const base64_3 = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
-        const defaultNumberImgData = `data:image/svg+xml;base64,${base64_3}`;
-        const defaultNumberImg = new Image();
-        defaultNumberImg.src = defaultNumberImgData;
-
-        document.querySelector("#default").style.transform = `scaleY(-1)`;
-        const base64_4 = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
-        const HRdefaultNumberImgData = `data:image/svg+xml;base64,${base64_4}`;
-        const HRdefaultNumberImg = new Image();
-        HRdefaultNumberImg.src = HRdefaultNumberImgData;
-
-        return {
-            hitCircle: hitCircleImg,
-            approachCircle: approachCircleImg,
-            defaultIdx: defaultNumberImg,
-            HRdefaultIdx: HRdefaultNumberImg,
-            HRhitCircle: HRhitCircleImg,
-        };
-    }
-
     constructor(hitCirclesList, slidersList, coloursList) {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
-        this.coloursList = coloursList.length !== 0 ? coloursList : ["#eb4034", "#ebc034", "#34eb65", "#347deb"];
-        this.currentColor = 1 % this.coloursList.length;
+        this.currentColor = 1 % coloursList.length;
         this.comboIdx = 1;
+
+        if (coloursList.length !== 0) {
+            hitCircleArr = [];
+            coloursList.forEach((colour, idx) => {
+                document.querySelector("#hitCircleColor").style.backgroundColor = colour;
+                const base64_hitCircle = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
+                const hitCircleImgData = `data:image/svg+xml;base64,${base64_hitCircle}`;
+                const hitCircleImg = new Image();
+                hitCircleImg.src = hitCircleImgData;
+
+                document.querySelector("#approachCircleColor").style.backgroundColor = colour;
+                const base64_approachCircle = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
+                const approachCircleImgData = `data:image/svg+xml;base64,${base64_approachCircle}`;
+                const approachCircleImg = new Image();
+                approachCircleImg.src = approachCircleImgData;
+
+                hitCircleArr[idx] = hitCircleImg;
+                approachCircleArr[idx] = approachCircleImg;
+            });
+        }
 
         this.objectsList = this.objectsList.map((object, idx) => {
             if (object.obj.isNewCombo && idx !== 0) {
-                this.currentColor = (this.currentColor + 1) % this.coloursList.length;
+                this.currentColor = (this.currentColor + 1) % coloursList.length;
                 this.comboIdx = 1;
             }
             return {
                 ...object,
-                comboIdx: this.comboIdx,
-                colour: this.coloursList[this.currentColor],
-                colourObject: this.createHitCircleColour(this.coloursList[this.currentColor], this.comboIdx++ % 10),
+                comboIdx: this.comboIdx++ % 10,
+                colour: coloursList[this.currentColor],
+                colourIdx: this.currentColor,
             };
         });
     }
@@ -142,7 +118,8 @@ class ObjectsList {
                         1 - (timestamp - object.time) / 240,
                         (timestamp - objStartTime) / currentPreempt,
                         object.colour,
-                        object.colourObject,
+                        object.colourIdx,
+                        object.comboIdx,
                         currentScaleFactor
                     );
                 }
