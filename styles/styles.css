@@ -35,7 +35,7 @@ body {
 
     box-sizing: border-box;
 
-    padding: 20px;
+    padding: 10px;
     margin: 0;
 
     overflow: hidden;
@@ -158,7 +158,7 @@ body {
     border-radius: 20px 20px 0 0;
     background-size: cover;
     background-position: center;
-    overflow: hidden;
+    /* overflow: hidden; */
     transition: ease-in-out 300ms;
     /* z-index: 1; */
 }
@@ -183,6 +183,32 @@ canvas {
 
     background-color: black;
     opacity: 0.8;
+
+    border-radius: 20px 20px 0 0;
+}
+
+#metadata {
+    position: absolute;
+    /* width: 100%; */
+
+    font-size: 1rem;
+    padding: 30px;
+}
+
+#artistTitle {
+    /* width: 100%; */
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+#versionCreator {
+    /* width: 100%; */
+    font-size: 1em;
+    font-weight: 400;
+}
+
+#versionCreator span {
+    font-weight: 600;
 }
 
 #settingsButton {
@@ -248,7 +274,7 @@ svg {
     width: 60px;
 
     padding: 0;
-    margin: 15px 0px;
+    margin: 15px 15px;
 
     background-image: url(../static/play.png);
     background-size: contain;
@@ -290,12 +316,12 @@ svg {
     appearance: none;
 
     width: 5px;
-    height: 30px;
+    height: 20px;
 
     background: white;
     border-radius: 20px;
 
-    margin-top: -12px;
+    margin-top: -8px;
 
     transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
     transform-origin: center;
@@ -533,4 +559,127 @@ input[type="checkbox"]:checked {
 
 .list input[type="text"]:focus {
     outline: solid 4px rgb(255, 187, 0);
+}
+
+@media screen and (max-aspect-ratio: 1 / 1) {
+    body {
+        justify-content: flex-start;
+        padding: 0;
+
+        background-size: 0;
+    }
+
+    #main {
+        background-color: transparent;
+        backdrop-filter: none;
+    }
+
+    #inputContainer {
+        padding: 10px;
+        margin: 0;
+    }
+
+    #playerContainer {
+        aspect-ratio: 16 / 9;
+        height: auto;
+
+        border-radius: 0;
+    }
+
+    #overlay {
+        border-radius: 0;
+    }
+
+    #metadata {
+        top: 100%;
+
+        width: 100%;
+        padding: 20px 0;
+
+        background-color: #18171c;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    #artistTitle,
+    #versionCreator {
+        padding: 0 20px;
+    }
+
+    #playerController {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        bottom: 0;
+        border-radius: 0 0 0 0;
+
+        flex-wrap: wrap;
+
+    }
+
+    #settingsPanel {
+        font-size: 3vw;
+    }
+
+    .section {
+        padding: 30px;
+    }
+
+    #timeContainer {
+        width: 100%;
+        padding: 20px;
+        margin-bottom: 20px;
+
+        justify-content: center;
+    }
+
+    #playButton {
+        width: 100%;
+        height: 30px;
+        margin: 0;
+    }
+
+    #progress {
+        width: 100%;
+        padding: 20px;
+    }
+
+    #volumeSlider {
+        display: none;
+    }
+
+    #playerController input[type="range"]::-webkit-slider-runnable-track {
+        background: #43414c;
+        height: 4px;
+
+        margin: 10px;
+        border-radius: 20px;
+    }
+
+    #playerController input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+
+        width: 10px;
+        height: 10px;
+
+        background: white;
+        border-radius: 20px;
+
+        margin-top: -3px;
+
+        transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
+        transform-origin: center;
+    }
+
+    #playerController input[type="range"]::-webkit-slider-thumb:hover {
+        box-shadow: 0 0 5px 0px white;
+        filter: brightness(1.2);
+    }
+}
+
+@media screen and (max-width: 425px) {
+    #metadata {
+        font-size: 3vw;
+    }
 }

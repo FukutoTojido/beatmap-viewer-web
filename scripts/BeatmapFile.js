@@ -18,6 +18,10 @@ class BeatmapFile {
 
     async getOsz() {
         const mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
+        document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
+        document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
+            mapsetData.beatmaps.find((map) => map.id == this.mapId).version
+        }</span> - Mapset by <span>${mapsetData.creator}</span>`;
         const setId = mapsetData.id;
 
         const requestClient = axios.create({
