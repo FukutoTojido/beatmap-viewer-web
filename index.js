@@ -242,8 +242,19 @@ function updateTime(timestamp) {
     });
 }
 
-let beatmapFile;
+function goNext() {
+    document.querySelector("audio").currentTime += 10 / 1000;
+    document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+    setAudioTime();
+}
 
+function goBack() {
+    document.querySelector("audio").currentTime -= 10 / 1000;
+    document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+    setAudioTime();
+}
+
+let beatmapFile;
 document.querySelector("#submit").addEventListener("click", submitMap);
 
 // beatmapFile = new BeatmapFile(mapId);

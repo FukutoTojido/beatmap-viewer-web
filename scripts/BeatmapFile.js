@@ -108,19 +108,11 @@ class BeatmapFile {
                     switch (e.key) {
                         case "ArrowLeft":
                             // Left pressed
-                            document.querySelector("audio").currentTime -= 10 / 1000;
-                            document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
-                            setAudioTime();
-                            // console.log(document.querySelector("#progress").value);
-                            // console.log("->");
+                            goBack();
                             break;
                         case "ArrowRight":
                             // Right pressed
-                            document.querySelector("audio").currentTime += 10 / 1000;
-                            document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
-                            setAudioTime();
-                            // console.log(document.querySelector("#progress").value);
-                            // console.log("<-");
+                            goNext();
                             break;
                         case " ":
                             playToggle();

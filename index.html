@@ -183,7 +183,9 @@
             <span id="millisecond2digit" class="digit">0</span>
             <span id="millisecond1digit" class="digit">0</span>
         </div>
+        <button id="prevButton" onclick="goBack()"></button>
         <button id="playButton" onclick="playToggle()"></button>
+        <button id="nextButton" onclick="goNext()"></button>
         <input id="progress" type="range" min="0" step="0.1" value="0" oninput="setAudioTime(this)"
             onkeydown="event.preventDefault()">
         <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.1" oninput="setAudioVolume(this)">
