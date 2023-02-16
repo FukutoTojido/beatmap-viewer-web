@@ -94,7 +94,7 @@ class Beatmap {
                 };
             });
 
-        console.log(beatStepsList, timingPointsList);
+        // console.log(beatStepsList, timingPointsList);
         const coloursList =
             rawBeatmap.indexOf("[Colours]") !== -1
                 ? rawBeatmap
