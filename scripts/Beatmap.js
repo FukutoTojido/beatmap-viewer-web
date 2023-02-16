@@ -27,13 +27,15 @@ class Beatmap {
                 .shift()
                 .replaceAll("CircleSize:", "")
         );
-        stackLeniency = parseFloat(
-            rawBeatmap
-                .split("\r\n")
-                .filter((line) => line.includes("StackLeniency: "))
-                .shift()
-                .replaceAll("StackLeniency: ", "")
-        );
+        stackLeniency = rawBeatmap.includes("StackLeniency: ")
+            ? parseFloat(
+                  rawBeatmap
+                      .split("\r\n")
+                      .filter((line) => line.includes("StackLeniency: "))
+                      .shift()
+                      .replaceAll("StackLeniency: ", "")
+              )
+            : 0.7;
 
         hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
         sliderBorderThickness = (hitCircleSize * (236 - 190)) / 2 / 256;
@@ -92,12 +94,15 @@ class Beatmap {
                 };
             });
 
-        // console.log(beatStepsList, timingPointsList);
-        const coloursList = rawBeatmap
-            .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
-            .split("\r\n")
-            .filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
-            .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`);
+        console.log(beatStepsList, timingPointsList);
+        const coloursList =
+            rawBeatmap.indexOf("[Colours]") !== -1
+                ? rawBeatmap
+                      .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
+                      .split("\r\n")
+                      .filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
+                      .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`)
+                : ["#eb4034", "#ebc034", "#34eb65", "#347deb"];
         let objectLists = rawBeatmap
             .slice(hitObjectsPosition)
             .split("\r\n")
@@ -108,8 +113,14 @@ class Beatmap {
 
             if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) endTime = parseInt(params[2]);
             if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
-                const currentbeatStep = beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep;
-                const currentSVMultiplier = timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]);
+                const currentbeatStep =
+                    beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
+                        ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
+                        : beatStepsList[0].beatstep;
+                const currentSVMultiplier = 
+                    timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
+                        ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
+                        : timingPointsList[0];
                 const initialSliderLen = params[6] * params[7];
 
                 endTime = parseInt(params[2]) + (initialSliderLen / initialSliderVelocity) * currentSVMultiplier.svMultiplier * currentbeatStep;
@@ -148,7 +159,10 @@ class Beatmap {
         const slidersList = objectLists
             .map((object) => {
                 const params = object.split(",");
-                const currentSVMultiplier = timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]);
+                const currentSVMultiplier =
+                    timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
+                        ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
+                        : timingPointsList[0];
                 // console.log(("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1);
 
                 // console.log(initialSliderVelocity, currentSVMultiplier.svMultiplier);
@@ -160,7 +174,9 @@ class Beatmap {
                             params[6] * params[7],
                             initialSliderVelocity * currentSVMultiplier.svMultiplier,
                             initialSliderVelocity,
-                            beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep,
+                            beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
+                                ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
+                                : beatStepsList[0].beatstep,
                             parseInt(params[2]),
                             ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1,
                             parseInt(params[6])
