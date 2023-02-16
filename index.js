@@ -254,6 +254,10 @@ function goBack() {
     setAudioTime();
 }
 
+screen.orientation.onchange = () => {
+    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+};
+
 let beatmapFile;
 document.querySelector("#submit").addEventListener("click", submitMap);
 
