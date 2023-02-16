@@ -61,8 +61,9 @@ class BeatmapFile {
         this.audioBlobURL = URL.createObjectURL(audioBlob);
 
         const backgroundFile = (await zipReader.getEntries()).filter((e) => e.filename === backgroundFilename).shift();
-        const backgroundBlob = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
-        this.backgroundBlobURL = URL.createObjectURL(backgroundBlob);
+        const backgroundBlob =
+            backgroundFile !== undefined ? await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)) : "";
+        this.backgroundBlobURL = backgroundBlob !== "" ? URL.createObjectURL(backgroundBlob) : "";
 
         zipReader.close();
     }
