@@ -56,7 +56,7 @@ class BeatmapFile {
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
         const zipReader = new zip.ZipReader(mapFileBlobReader);
 
-        const audioFile = (await zipReader.getEntries()).filter((e) => e.filename === audioFilename).shift();
+        const audioFile = (await zipReader.getEntries()).filter((e) => e.filename === audioFilename.replace(".ogg", ".mp3")).shift();
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
         this.audioBlobURL = URL.createObjectURL(audioBlob);
 
