@@ -589,8 +589,10 @@ input[type="checkbox"]:checked {
 
 @media screen and (max-aspect-ratio: 1 / 1) {
     body {
-        justify-content: flex-start;
         padding: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-content: flex-start;
 
         overflow: hidden;
         /* background-size: 0; */
@@ -603,6 +605,8 @@ input[type="checkbox"]:checked {
     }
 
     #inputContainer {
+        width: 100%;
+
         padding: 10px;
         margin: 0;
 
@@ -620,13 +624,13 @@ input[type="checkbox"]:checked {
     }
 
     #settingsButton {
+        background-size: contain;
         height: 30px;
     }
 
     #playerContainer {
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 16 / 10;
         height: auto;
-
         border-radius: 0;
         margin-bottom: 120px;
     }
@@ -741,8 +745,35 @@ input[type="checkbox"]:checked {
 }
 
 @media screen and (max-width: 425px) {
+    body {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        align-items: flex-start;
+
+    }
+
+    #inputContainer {
+        width: calc(100% - 20px);
+    }
+
+    #inputContainer input::placeholder {
+        font-size: 0.7rem;
+    }
+
     #metadata {
         font-size: 3vw;
+    }
+
+    #playerContainer {
+        aspect-ratio: 4 / 3;
+        height: auto;
+        border-radius: 0;
+        margin-bottom: 0px;
+    }
+
+    #playerController {
+        transform: translateY(120px);
     }
 }
 

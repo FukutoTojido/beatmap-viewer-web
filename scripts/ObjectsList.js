@@ -65,7 +65,7 @@ class ObjectsList {
         if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== canvas.width)
             canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
 
-        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== canvas.height)
+        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) !== canvas.height)
             canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
 
         const currentScaleFactor = Math.min(
