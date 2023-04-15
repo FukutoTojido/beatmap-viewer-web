@@ -62,6 +62,13 @@ class Slider {
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
 
+        const dark1 = colour
+        .replaceAll("rgb(", "")
+        .replaceAll(")", "")
+        .split(",")
+        .map((val) => Math.round((val / 256) * (47 / 256) * 256))
+        .join(",");
+
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
             ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
@@ -84,6 +91,11 @@ class Slider {
             });
 
             this.getAngleList(newPointArr, currentScaleFactor);
+
+            this.minX = this.angleList.reduce((prev, curr) => (prev.x >= curr.x ? curr : prev)).x;
+            this.minY = this.angleList.reduce((prev, curr) => (prev.y >= curr.y ? curr : prev)).y;
+            this.maxX = this.angleList.reduce((prev, curr) => (prev.x <= curr.x ? curr : prev)).x;
+            this.maxY = this.angleList.reduce((prev, curr) => (prev.y <= curr.y ? curr : prev)).y;
         }
 
         ctx.beginPath();
@@ -159,16 +171,16 @@ class Slider {
         pseudoCtx.globalCompositeOperation = "source-over";
 
         pseudoCtx.globalAlpha = sliderAppearance.legacy ? 0.7 : 1;
-        pseudoCtx.filter = "brightness(0.1)";
+        // pseudoCtx.filter = "brightness(0.1)";
         pseudoCtx.lineWidth = objectSizeWithoutBorder;
-        pseudoCtx.strokeStyle = sliderAppearance.untint ? "black" : colour;
+        pseudoCtx.strokeStyle = sliderAppearance.untint ? "black" : `rgb(${dark1})`;
         pseudoCtx.stroke();
         pseudoCtx.globalAlpha = 1;
-        pseudoCtx.filter = "none";
+        // pseudoCtx.filter = "none";
 
         if (sliderAppearance.legacy) {
-            pseudoCtx.filter = "blur(20px)";
-            pseudoCtx.lineWidth = objectSizeWithoutBorder * 0.1;
+            pseudoCtx.filter = "blur(16px)";
+            pseudoCtx.lineWidth = objectSizeWithoutBorder * 0.05;
             pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
             pseudoCtx.stroke();
             pseudoCtx.filter = "none";

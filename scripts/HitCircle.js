@@ -97,7 +97,7 @@ class HitCircle {
         ctx.drawImage(
             pseudoCanvas,
             this.positionX - drawOffset * normalizedExpandRate,
-            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate : drawOffset
+            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate : drawOffset - 2
         );
 
         if (mods.HR) {
@@ -131,7 +131,7 @@ class HitCircle {
         ctx.drawImage(
             defaultArr[comboIdx],
             this.positionX - drawOffset,
-            !mods.HR ? this.positionY - drawOffset : drawOffset + 2,
+            !mods.HR ? this.positionY - drawOffset : drawOffset,
             (currentHitCircleSize * currentScaleFactor * 276) / 256,
             (currentHitCircleSize * currentScaleFactor * 276) / 256
         );
