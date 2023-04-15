@@ -71,30 +71,34 @@ class HitCircle {
 
         pseudoCtx.beginPath();
         pseudoCtx.fillStyle = colour;
-        pseudoCtx.arc(center, !mods.HR ? center : 0, (currentDrawSize / 2) * (236 / 272), 0, Math.PI * 2, 0);
+        pseudoCtx.arc(center, center, (currentDrawSize / 2) * (236 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.fill();
         pseudoCtx.closePath();
 
         pseudoCtx.beginPath();
         pseudoCtx.fillStyle = `rgb(${dark2})`;
-        pseudoCtx.arc(center, !mods.HR ? center : 0, (currentDrawSize / 2) * (186 / 272), 0, Math.PI * 2, 0);
+        pseudoCtx.arc(center, center, (currentDrawSize / 2) * (186 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.fill();
         pseudoCtx.closePath();
 
         pseudoCtx.beginPath();
         pseudoCtx.fillStyle = `rgb(${dark1})`;
-        pseudoCtx.arc(center, !mods.HR ? center : 0, (currentDrawSize / 2) * (140 / 272), 0, Math.PI * 2, 0);
+        pseudoCtx.arc(center, center, (currentDrawSize / 2) * (140 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.fill();
         pseudoCtx.closePath();
 
         pseudoCtx.beginPath();
         pseudoCtx.strokeStyle = "white";
         pseudoCtx.lineWidth = 4;
-        pseudoCtx.arc(center, !mods.HR ? center : 0, currentDrawSize / 2, 0, Math.PI * 2, 0);
+        pseudoCtx.arc(center, center, currentDrawSize / 2, 0, Math.PI * 2, 0);
         pseudoCtx.stroke();
         pseudoCtx.closePath();
 
-        ctx.drawImage(pseudoCanvas, this.positionX - drawOffset * normalizedExpandRate, this.positionY - drawOffset * normalizedExpandRate);
+        ctx.drawImage(
+            pseudoCanvas,
+            this.positionX - drawOffset * normalizedExpandRate,
+            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate : drawOffset
+        );
 
         if (mods.HR) {
             ctx.restore();
@@ -127,7 +131,7 @@ class HitCircle {
         ctx.drawImage(
             defaultArr[comboIdx],
             this.positionX - drawOffset,
-            !mods.HR ? this.positionY - drawOffset : 0,
+            !mods.HR ? this.positionY - drawOffset : drawOffset + 2,
             (currentHitCircleSize * currentScaleFactor * 276) / 256,
             (currentHitCircleSize * currentScaleFactor * 276) / 256
         );
