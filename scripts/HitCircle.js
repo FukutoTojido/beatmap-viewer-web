@@ -14,19 +14,30 @@ class HitCircle {
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
+        const drawOffset = (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
+        const dark1 = colour
+            .replaceAll("rgb(", "")
+            .replaceAll(")", "")
+            .split(",")
+            .map((val) => Math.round((val / 256) * (47 / 256) * 256))
+            .join(",");
+        const dark2 = colour
+            .replaceAll("rgb(", "")
+            .replaceAll(")", "")
+            .split(",")
+            .map((val) => Math.round((val / 256) * (154 / 256) * 256))
+            .join(",");
 
         this.positionX =
             this.originalX * currentScaleFactor +
-            (canvas.width - 512 * currentScaleFactor) / 2 -
-            (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
+            (canvas.width - 512 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
         this.positionY =
             this.originalY * currentScaleFactor +
-            (canvas.height - 384 * currentScaleFactor) / 2 -
-            (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
+            (canvas.height - 384 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
 
         // console.log(this.positionX, this.positionY)
 
-        const currentDrawSize = (currentHitCircleSize * currentScaleFactor * normalizedExpandRate * 276) / 256;
+        const currentDrawSize = (currentHitCircleSize * currentScaleFactor * normalizedExpandRate * 272) / 256;
         const baseDrawSize = (currentHitCircleSize * currentScaleFactor * sampleApproachCircle.width.baseVal.value) / 256;
 
         ctx.beginPath();
@@ -34,8 +45,8 @@ class HitCircle {
 
         ctx.drawImage(
             approachCircleArr[colourIdx],
-            this.positionX - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2,
-            this.positionY - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2,
+            this.positionX - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
+            this.positionY - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
             baseDrawSize * approachRateExpandRate,
             baseDrawSize * approachRateExpandRate
         );
@@ -45,13 +56,46 @@ class HitCircle {
             ctx.translate(0, this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 + currentDrawSize);
             ctx.scale(1, -1);
         }
-        ctx.drawImage(
-            hitCircleArr[colourIdx],
-            this.positionX - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
-            !mods.HR ? this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 : 0,
-            currentDrawSize,
-            currentDrawSize
-        );
+        // ctx.drawImage(
+        //     hitCircleArr[colourIdx],
+        //     this.positionX - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
+        //     !mods.HR ? this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 : 0,
+        //     currentDrawSize,
+        //     currentDrawSize
+        // );
+
+        const pseudoCanvas = new OffscreenCanvas(currentDrawSize + 4, currentDrawSize + 4);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+
+        const center = (currentDrawSize + 4) / 2;
+
+        pseudoCtx.beginPath();
+        pseudoCtx.fillStyle = colour;
+        pseudoCtx.arc(center, !mods.HR ? center : 0, (currentDrawSize / 2) * (236 / 272), 0, Math.PI * 2, 0);
+        pseudoCtx.fill();
+        pseudoCtx.closePath();
+
+        pseudoCtx.beginPath();
+        pseudoCtx.fillStyle = `rgb(${dark2})`;
+        pseudoCtx.arc(center, !mods.HR ? center : 0, (currentDrawSize / 2) * (186 / 272), 0, Math.PI * 2, 0);
+        pseudoCtx.fill();
+        pseudoCtx.closePath();
+
+        pseudoCtx.beginPath();
+        pseudoCtx.fillStyle = `rgb(${dark1})`;
+        pseudoCtx.arc(center, !mods.HR ? center : 0, (currentDrawSize / 2) * (140 / 272), 0, Math.PI * 2, 0);
+        pseudoCtx.fill();
+        pseudoCtx.closePath();
+
+        pseudoCtx.beginPath();
+        pseudoCtx.strokeStyle = "white";
+        pseudoCtx.lineWidth = 4;
+        pseudoCtx.arc(center, !mods.HR ? center : 0, currentDrawSize / 2, 0, Math.PI * 2, 0);
+        pseudoCtx.stroke();
+        pseudoCtx.closePath();
+
+        ctx.drawImage(pseudoCanvas, this.positionX - drawOffset * normalizedExpandRate, this.positionY - drawOffset * normalizedExpandRate);
+
         if (mods.HR) {
             ctx.restore();
         }
@@ -82,8 +126,8 @@ class HitCircle {
         }
         ctx.drawImage(
             defaultArr[comboIdx],
-            this.positionX,
-            !mods.HR ? this.positionY : 0,
+            this.positionX - drawOffset,
+            !mods.HR ? this.positionY - drawOffset : 0,
             (currentHitCircleSize * currentScaleFactor * 276) / 256,
             (currentHitCircleSize * currentScaleFactor * 276) / 256
         );

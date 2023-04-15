@@ -26,6 +26,10 @@ class Slider {
     endPosition;
     INITIAL_CALCULATED_RATIO;
     STEP;
+    minX;
+    minY;
+    maxX;
+    maxY;
 
     binom(n, k) {
         var coeff = 1;
@@ -53,12 +57,14 @@ class Slider {
 
     drawBorder(opacity, percentage, colour, currentScaleFactor) {
         // console.log(this.angleList);
+        if (!this.minX || !this.minY) return;
+
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
 
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
-            ? (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2
+            ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
             : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
 
         const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
@@ -83,12 +89,26 @@ class Slider {
         ctx.beginPath();
         ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) : Math.abs(opacity);
 
-        const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+        const sliderOffset = objectSize;
+        const shiftOffsetX = -this.minX + sliderOffset / 2;
+        const shiftOffsetY = -this.minY + sliderOffset / 2;
+
+        // this.angleList = this.angleList.map((p) => {
+        //     return {
+        //         x: p.x - minX + sliderOffset / 2,
+        //         y: p.y - minY + sliderOffset / 2,
+        //         angle: p.angle,
+        //     };
+        // });
+
+        // const pseudoCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+        const pseudoCanvas = new OffscreenCanvas(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
         const pseudoCtx = pseudoCanvas.getContext("2d");
         pseudoCtx.lineJoin = "round";
         pseudoCtx.lineCap = "round";
 
-        pseudoCtx.moveTo(this.angleList[0].x, this.angleList[0].y);
+        pseudoCtx.beginPath();
+        pseudoCtx.moveTo(this.angleList[0].x + shiftOffsetX, this.angleList[0].y + shiftOffsetY);
 
         const endPosition = Math.min(
             Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
@@ -117,13 +137,13 @@ class Slider {
                 if (sliderAppearance.snaking) {
                     if (this.repeat % 2 === 0 && currentPointCalcLengthRatio >= 1 - ((percentage - 1) * this.repeat + 1)) return;
                     if (this.repeat % 2 !== 0 && currentPointCalcLengthRatio <= (percentage - 1) * this.repeat + 1) {
-                        pseudoCtx.moveTo(point.x, point.y);
+                        pseudoCtx.moveTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
                         return;
                     }
                 }
             }
 
-            pseudoCtx.lineTo(point.x, point.y);
+            pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
         });
 
         pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
@@ -157,12 +177,12 @@ class Slider {
         }
 
         if (this.repeat > 1 && percentage <= 1 - 1 / this.repeat) {
-            let x = this.angleList[endPosition].x;
-            let y = this.angleList[endPosition].y;
+            let x = this.angleList[endPosition].x + shiftOffsetX;
+            let y = this.angleList[endPosition].y + shiftOffsetY;
 
             if (percentage > 0) {
-                x = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].x;
-                y = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y;
+                x = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].x + shiftOffsetX;
+                y = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y + shiftOffsetY;
             }
 
             const revArrowSize = !sliderAppearance.snaking
@@ -201,18 +221,63 @@ class Slider {
 
             if (sliderBallPosition !== undefined) {
                 pseudoCtx.beginPath();
-                pseudoCtx.drawImage(
-                    sliderBElement,
-                    sliderBallPosition.x - (objectSizeWithoutScale / 2) * (128 / 118),
-                    sliderBallPosition.y - (objectSizeWithoutScale / 2) * (128 / 118),
-                    objectSizeWithoutScale * (128 / 118),
-                    objectSizeWithoutScale * (128 / 118)
+                pseudoCtx.strokeStyle = colour;
+                pseudoCtx.lineWidth = currentSliderBorderThickness * 2;
+                pseudoCtx.arc(
+                    sliderBallPosition.x + shiftOffsetX,
+                    sliderBallPosition.y + shiftOffsetY,
+                    (objectSizeWithoutScale / 2) * (150 / 272),
+                    0,
+                    Math.PI * 2,
+                    0
                 );
+                pseudoCtx.stroke();
+                // pseudoCtx.drawImage(
+                //     sliderBElement,
+                //     sliderBallPosition.x - (objectSizeWithoutScale / 2) * (128 / 118),
+                //     sliderBallPosition.y - (objectSizeWithoutScale / 2) * (128 / 118),
+                //     objectSizeWithoutScale * (128 / 118),
+                //     objectSizeWithoutScale * (128 / 118)
+                // );
                 pseudoCtx.closePath();
             }
         }
 
-        ctx.drawImage(pseudoCanvas, 0, 0);
+        // const sliderOffset = ((objectSize / 2) * (236 / 272)) / (128 / 118);
+        // pseudoCtx.lineWidth = 2;
+
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "white";
+        // pseudoCtx.moveTo(0, 0);
+        // pseudoCtx.arc(0, 0, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
+
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "blue";
+        // pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, 0);
+        // pseudoCtx.arc(maxX - minX + sliderOffset, 0, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
+
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "red";
+        // pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
+        // pseudoCtx.arc(maxX - minX + sliderOffset, maxY - minY + sliderOffset, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
+
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "green";
+        // pseudoCtx.moveTo(0, maxY - minY + sliderOffset);
+        // pseudoCtx.arc(0, maxY - minY + sliderOffset, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
+
+        // pseudoCtx.closePath();
+
+        // console.log(minX, minY)
+        ctx.drawImage(pseudoCanvas, this.minX - sliderOffset / 2, this.minY - sliderOffset / 2);
         ctx.globalAlpha = 1;
         ctx.closePath();
     }
@@ -262,14 +327,10 @@ class Slider {
                     : Math.PI * 2 - Math.asin(lengthAC / (2 * radius)) * 2;
 
             if (upper === 0) {
-                innerAngle = absoluteAngle
+                innerAngle = absoluteAngle;
             } else {
-                innerAngle =
-                upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
-                    ? absoluteAngle
-                    : -absoluteAngle;
+                innerAngle = upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0 ? absoluteAngle : -absoluteAngle;
             }
-
 
             // if (upper === 0) console.log(this.startTime, pointArr[2].y - pointArr[0].y, absoluteAngle);
 
@@ -431,6 +492,13 @@ class Slider {
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
         this.getAngleList(pointArr, scaleFactor);
+
+        this.minX = this.angleList.reduce((prev, curr) => (prev.x >= curr.x ? curr : prev)).x;
+        this.minY = this.angleList.reduce((prev, curr) => (prev.y >= curr.y ? curr : prev)).y;
+        this.maxX = this.angleList.reduce((prev, curr) => (prev.x <= curr.x ? curr : prev)).x;
+        this.maxY = this.angleList.reduce((prev, curr) => (prev.y <= curr.y ? curr : prev)).y;
+
+        // console.log(time, this.angleList, this.minX, this.minY, this.maxX, this.maxY);
 
         this.isNewCombo = isNewCombo;
         this.repeat = repeat;

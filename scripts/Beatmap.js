@@ -117,7 +117,7 @@ class Beatmap {
                     beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
                         ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
                         : beatStepsList[0].beatstep;
-                const currentSVMultiplier = 
+                const currentSVMultiplier =
                     timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
                         ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
                         : timingPointsList[0];
@@ -143,7 +143,7 @@ class Beatmap {
             .map((object) => {
                 const params = object.split(",");
                 // console.log(parseInt(params[3]).toString(2)[2]);
-                if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0]))
+                if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12")
                     return {
                         obj: new HitCircle(
                             params[0],
