@@ -464,6 +464,7 @@ button:hover {
 
 #header {
     font-size: 3em;
+    font-weight: 600;
 }
 
 #description {
@@ -472,6 +473,7 @@ button:hover {
 
 #title {
     font-size: 2em;
+    font-weight: 600;
 }
 
 .list {
@@ -535,6 +537,7 @@ button:hover {
 
 .slider input::-webkit-slider-thumb:hover {
     box-shadow: 0 0 10px 0px #8c66ff;
+    filter: brightness(2);
 }
 
 .slider input::-webkit-slider-thumb:active {
