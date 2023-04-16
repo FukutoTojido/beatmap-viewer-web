@@ -63,11 +63,11 @@ class Slider {
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
 
         const dark1 = colour
-        .replaceAll("rgb(", "")
-        .replaceAll(")", "")
-        .split(",")
-        .map((val) => Math.round((val / 256) * (47 / 256) * 256))
-        .join(",");
+            .replaceAll("rgb(", "")
+            .replaceAll(")", "")
+            .split(",")
+            .map((val) => Math.round((val / 256) * (47 / 256) * 256))
+            .join(",");
 
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
@@ -234,7 +234,7 @@ class Slider {
             if (sliderBallPosition !== undefined) {
                 pseudoCtx.beginPath();
                 pseudoCtx.strokeStyle = colour;
-                pseudoCtx.lineWidth = currentSliderBorderThickness * 2;
+                pseudoCtx.lineWidth = currentSliderBorderThickness * 2 / currentScaleFactor;
                 pseudoCtx.arc(
                     sliderBallPosition.x + shiftOffsetX,
                     sliderBallPosition.y + shiftOffsetY,
@@ -358,6 +358,7 @@ class Slider {
         // console.log(this.breakPoints);
 
         // console.log(this.sliderAccuracy);
+        // console.log(pointArr);
 
         const calculatedAngleLength = this.breakPoints
             .map((bP, idx) => {
@@ -482,6 +483,8 @@ class Slider {
                 y: point.split(":")[1],
             };
         });
+
+        // console.log((canvas.width - 512 * scaleFactor) / 2, (canvas.height - 384 * scaleFactor) / 2);
 
         const pointArr = pointLists.split("|").map((point) => {
             return {

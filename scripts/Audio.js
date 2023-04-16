@@ -35,3 +35,17 @@ class Audio {
         this.audioObj.play();
     }
 }
+
+class HitSample {
+    audioObj;
+    constructor(sampleSet, hitSound) {
+        const audio = document.createElement("audio");
+        audio.src = `./static/sample/${sampleSet}-${hitSound}.wav`;
+        audio.volume = 0.1;
+
+        this.audioObj = audio;
+    }
+    play() {
+        this.audioObj.play();
+    }
+}

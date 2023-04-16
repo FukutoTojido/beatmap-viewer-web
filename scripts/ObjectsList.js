@@ -62,15 +62,15 @@ class ObjectsList {
         // console.log(timestamp);
         updateTime(timestamp);
 
-        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== canvas.width)
-            canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio !== canvas.width)
+            canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
 
-        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) !== canvas.height)
-            canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio !== canvas.height)
+            canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
 
         const currentScaleFactor = Math.min(
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 480,
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 640
+            (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio) / 480,
+            (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio) / 640
         );
 
         let currentAR = !mods.EZ ? approachRate : approachRate / 2;

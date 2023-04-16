@@ -57,6 +57,10 @@ body {
     color: white;
 
     overflow-y: overlay;
+    overflow-x: hidden;
+}
+
+body {
 }
 
 ::-webkit-scrollbar {
@@ -753,7 +757,6 @@ input[type="checkbox"]:checked {
         flex-wrap: wrap;
         align-content: flex-start;
         align-items: flex-start;
-
     }
 
     #inputContainer {
@@ -766,6 +769,7 @@ input[type="checkbox"]:checked {
 
     #metadata {
         font-size: 3vw;
+        height: 160px;
     }
 
     #playerContainer {
@@ -776,7 +780,7 @@ input[type="checkbox"]:checked {
     }
 
     #playerController {
-        transform: translateY(120px);
+        transform: translateY(160px);
     }
 }
 
@@ -846,5 +850,11 @@ input[type="checkbox"]:checked {
 
     #playerController button:hover {
         filter: none;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    #canvas {
+        width: 100%;
     }
 }

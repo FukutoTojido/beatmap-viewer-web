@@ -1,8 +1,8 @@
 document.querySelector(".loading").style.display = "none";
 
 const canvas = document.querySelector("#canvas");
-canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
+canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
 
 const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);

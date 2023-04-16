@@ -139,11 +139,18 @@ class Beatmap {
         });
 
         // console.log(objectLists);
+        const hitsampleEnum = [
+            "soft",
+            "normal",
+            "soft",
+            "drum"
+        ]
         const hitCircleList = objectLists
             .map((object) => {
                 const params = object.split(",");
                 // console.log(parseInt(params[3]).toString(2)[2]);
                 if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12")
+
                     return {
                         obj: new HitCircle(
                             params[0],
