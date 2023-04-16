@@ -68,10 +68,34 @@ class BeatmapFile {
         zipReader.close();
     }
 
+    async loadHitsounds() {
+        audioCtx = new AudioContext();
+
+        for (const sampleset of ["normal", "soft", "drum"]) {
+            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap"]) {
+                await loadSampleSound(`${sampleset}-${hs}`);
+            }
+        }
+
+        // console.log(hitsoundsBuffer);
+
+        // ["normal", "soft", "drum"].forEach((sampleset) => {
+        //     ["hitnormal", "hitwhistle", "hitfinish", "hitclap"].forEach((hs) => {
+        //         const src = audioCtx.createBufferSource();
+        //         src.buffer = hitsoundsBuffer[`${sampleset}-${hs}`];
+
+        //         // defaultHitsoundsList[`${sampleset}-${hs}`] = src;
+        //     });
+        // });
+
+        // console.log(defaultHitsoundsList);
+    }
+
     async constructMap() {
         try {
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
+            await this.loadHitsounds();
             await this.getOsz();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 

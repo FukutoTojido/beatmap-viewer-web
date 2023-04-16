@@ -19,6 +19,24 @@ function toDataUrl(url, callback) {
     xhr.send();
 }
 
+let audioCtx;
+let hitsoundsBuffer = {};
+let defaultHitsoundsList = {};
+
+async function loadSampleSound(sample) {
+    const res = (
+        await axios.get(`./static/sample/${sample}.wav`, {
+            responseType: "arraybuffer",
+        })
+    ).data;
+
+    const buffer = await audioCtx.decodeAudioData(res);
+    console.log(`${sample} decoded`);
+    hitsoundsBuffer[sample] = buffer;
+}
+
+// console.log(defaultHitsoundsList);
+
 let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
 let tempHR = false;
@@ -44,7 +62,7 @@ let stackThreshold;
 let playingFlag = false;
 let sliderOnChange = false;
 
-const curve = new UnitBezier(0, 0.57, 0., 1.46);
+const curve = new UnitBezier(0, 0.57, 0, 1.46);
 
 let mods = {
     HR: false,

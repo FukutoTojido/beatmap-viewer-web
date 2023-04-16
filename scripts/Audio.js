@@ -38,14 +38,27 @@ class Audio {
 
 class HitSample {
     audioObj;
-    constructor(sampleSet, hitSound) {
-        const audio = document.createElement("audio");
-        audio.src = `./static/sample/${sampleSet}-${hitSound}.wav`;
-        audio.volume = 0.1;
-
-        this.audioObj = audio;
+    sliderHead = false;
+    sliderTail = false;
+    constructor(hitsounds) {
+        this.audioObj = hitsounds;
+        // console.log(this.audioObj);
     }
     play() {
-        this.audioObj.play();
+        // console.log("Played");
+        this.audioObj.forEach((hs) => {
+            const src = audioCtx.createBufferSource();
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.2;
+            gainNode.connect(audioCtx.destination);
+
+            src.buffer = hitsoundsBuffer[hs];
+            src.connect(gainNode);
+
+            // const audioOffset = -document.querySelector("audio").currentTime + time;
+            // console.log(audioCtx.currentTime);
+
+            src.start();
+        });
     }
 }

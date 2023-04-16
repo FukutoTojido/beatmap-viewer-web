@@ -6,6 +6,7 @@ class ObjectsList {
     coloursList;
     currentColor;
     coloursObject;
+    lastTimestamp = 0;
 
     compare(a, b) {
         if (a.time < b.time) {
@@ -100,6 +101,17 @@ class ObjectsList {
                         object.comboIdx,
                         currentScaleFactor
                     );
+
+                    if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
+                        if (timestamp >= object.time - 20 && this.lastTimestamp <= object.time - 20 && !staticDraw) object.hitsounds.play();
+                    } else {
+                        if (timestamp >= object.time - 20 && this.lastTimestamp <= object.time - 20 && !staticDraw)
+                            object.hitsounds.sliderHead.play();
+
+                        if (timestamp >= object.obj.endTime - 260 && this.lastTimestamp <= object.obj.endTime - 260 && !staticDraw) {
+                            object.hitsounds.sliderTail.play();
+                        }
+                    }
                 }
             });
 
@@ -109,6 +121,7 @@ class ObjectsList {
                 const currentAudioTime = document.querySelector("audio").currentTime * 1000;
                 // const currentAudioTime = currentTime - this.drawTime;
                 const timestampNext = currentAudioTime * playbackRate;
+                this.lastTimestamp = timestamp;
                 return this.draw(timestampNext);
             });
     }

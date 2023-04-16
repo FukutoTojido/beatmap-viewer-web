@@ -64,10 +64,10 @@ class HitCircle {
         //     currentDrawSize
         // );
 
-        const pseudoCanvas = new OffscreenCanvas(currentDrawSize + 4, currentDrawSize + 4);
+        const pseudoCanvas = new OffscreenCanvas(currentDrawSize + 6, currentDrawSize + 6);
         const pseudoCtx = pseudoCanvas.getContext("2d");
 
-        const center = (currentDrawSize + 4) / 2;
+        const center = (currentDrawSize + 6) / 2;
 
         pseudoCtx.beginPath();
         pseudoCtx.fillStyle = colour;
@@ -96,8 +96,8 @@ class HitCircle {
 
         ctx.drawImage(
             pseudoCanvas,
-            this.positionX - drawOffset * normalizedExpandRate,
-            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate : drawOffset - 2
+            this.positionX - drawOffset * normalizedExpandRate - 2,
+            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate - 2 : drawOffset - 2
         );
 
         if (mods.HR) {

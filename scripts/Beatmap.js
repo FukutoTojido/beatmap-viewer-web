@@ -139,17 +139,30 @@ class Beatmap {
         });
 
         // console.log(objectLists);
-        const hitsampleEnum = [
-            "soft",
-            "normal",
-            "soft",
-            "drum"
-        ]
+        const hitsampleEnum = ["normal", "normal", "soft", "drum"];
+        const hitsoundEnum = ["hitwhistle", "hitfinish", "hitclap"];
+
         const hitCircleList = objectLists
             .map((object) => {
                 const params = object.split(",");
-                // console.log(parseInt(params[3]).toString(2)[2]);
-                if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12")
+
+                if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12") {
+                    let hitsoundList = ["hitnormal"];
+                    const sampleSet = hitsampleEnum[params[5].split(":")[0]];
+                    const additional = hitsampleEnum[params[5].split(":")[1]];
+                    // console.log(parseInt(params[3]).toString(2)[2]);
+                    parseInt(params[4])
+                        .toString(2)
+                        .padStart(4, "0")
+                        .split("")
+                        .reverse()
+                        .slice(1)
+                        .forEach((flag, idx) => {
+                            if (flag === "1") hitsoundList.push(hitsoundEnum[idx]);
+                        });
+
+                    hitsoundList = hitsoundList.map((hs) => (hs === "hitnormal" ? `${sampleSet}-${hs}` : `${additional}-${hs}`));
+                    // console.log(hitsoundList);
 
                     return {
                         obj: new HitCircle(
@@ -160,12 +173,15 @@ class Beatmap {
                             ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1
                         ),
                         time: parseInt(params[2]) + delay,
+                        hitsounds: new HitSample(hitsoundList),
                     };
+                }
             })
             .filter((o) => o);
         const slidersList = objectLists
             .map((object) => {
                 const params = object.split(",");
+
                 const currentSVMultiplier =
                     timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
                         ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
@@ -174,6 +190,73 @@ class Beatmap {
 
                 // console.log(initialSliderVelocity, currentSVMultiplier.svMultiplier);
                 if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
+                    let headHitsoundList = ["hitnormal"];
+                    let tailHitsoundList = ["hitnormal"];
+
+                    if (params[8] === undefined) {
+                        parseInt(params[4])
+                            .toString(2)
+                            .padStart(4, "0")
+                            .split("")
+                            .reverse()
+                            .slice(1)
+                            .forEach((flag, idx) => {
+                                if (flag === "1") {
+                                    headHitsoundList.push(hitsoundEnum[idx]);
+                                    tailHitsoundList.push(hitsoundEnum[idx]);
+                                }
+                            });
+
+                        headHitsoundList = headHitsoundList.map((hs) => `normal-${hs}`);
+                        tailHitsoundList = tailHitsoundList.map((hs) => `normal-${hs}`);
+                    } else {
+                        const headHs = params[8].split("|")[0];
+                        const tailHs = params[8].split("|").at(-1);
+
+                        let headSs = {
+                            default: hitsampleEnum[params[9].split("|")[0].split(":")[0]],
+                            additional: hitsampleEnum[params[9].split("|")[0].split(":")[1]],
+                        };
+
+                        let tailSs = {
+                            default: hitsampleEnum[params[9].split("|").at(-1).split(":")[0]],
+                            additional: hitsampleEnum[params[9].split("|").at(-1).split(":")[1]],
+                        };
+
+                        parseInt(headHs)
+                            .toString(2)
+                            .padStart(4, "0")
+                            .split("")
+                            .reverse()
+                            .slice(1)
+                            .forEach((flag, idx) => {
+                                if (flag === "1") {
+                                    headHitsoundList.push(hitsoundEnum[idx]);
+                                }
+                            });
+
+                        parseInt(tailHs)
+                            .toString(2)
+                            .padStart(4, "0")
+                            .split("")
+                            .reverse()
+                            .slice(1)
+                            .forEach((flag, idx) => {
+                                if (flag === "1") {
+                                    headHitsoundList.push(hitsoundEnum[idx]);
+                                }
+                            });
+
+                        headHitsoundList = headHitsoundList.map((hs) =>
+                            hs === "hitnormal" ? `${headSs.default}-${hs}` : `${headSs.additional}-${hs}`
+                        );
+                        tailHitsoundList = tailHitsoundList.map((hs) =>
+                            hs === "hitnormal" ? `${tailSs.default}-${hs}` : `${tailSs.additional}-${hs}`
+                        );
+                    }
+
+                    // console.log(headHitsoundList, tailHitsoundList);
+
                     return {
                         obj: new Slider(
                             `${params[0]}:${params[1]}|${params[5].slice(2)}`,
@@ -189,6 +272,10 @@ class Beatmap {
                             parseInt(params[6])
                         ),
                         time: parseInt(params[2]) + delay,
+                        hitsounds: {
+                            sliderHead: new HitSample(headHitsoundList),
+                            sliderTail: new HitSample(tailHitsoundList),
+                        },
                     };
                 }
             })
