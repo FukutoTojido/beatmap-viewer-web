@@ -193,10 +193,16 @@ function submitMap() {
     }
 
     const inputValue = document.querySelector("#mapInput").value;
-    if (!inputValue.match(/([0-9])+/g) || inputValue.match(/([0-9])+/g).shift() !== inputValue) return;
+    if (!/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
+        document.querySelector("#mapInput").value = "";
+        alert("This is not a valid URL or Beatmap ID")
+        return;
+    }
+
+    const bID = inputValue.split("/").at(-1);
 
     beatmapFile = undefined;
-    beatmapFile = new BeatmapFile(inputValue);
+    beatmapFile = new BeatmapFile(bID);
 
     document.querySelector("#mapInput").value = "";
     document.querySelector("#progress").value = 0;

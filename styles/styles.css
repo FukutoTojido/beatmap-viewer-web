@@ -32,35 +32,25 @@
 body {
     width: 100vw;
     height: 100vh;
-
     box-sizing: border-box;
-
-    padding: 10px;
+    padding: 20px;
     margin: 0;
-
     overflow: hidden;
     /* background-image: url(../higuchimadoka.jpg); */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-content: center;
     /* flex-wrap: wrap; */
-
-    background-color: #18171c;
-
+    background-color: #2e3440;
     font-family: Torus;
     font-weight: 500;
     color: white;
-
     overflow-y: overlay;
     overflow-x: hidden;
-}
-
-body {
 }
 
 ::-webkit-scrollbar {
@@ -102,7 +92,7 @@ body {
 #inputContainer {
     position: relative;
 
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 
     display: flex;
     justify-content: flex-end;
@@ -110,12 +100,18 @@ body {
     gap: 10px;
 }
 
+#inputWrapper {
+    position: relative;
+    width: 300px;
+    height: 40px;
+}
+
 #inputContainer input[type="text"] {
     appearance: none;
     box-sizing: border-box;
 
-    width: 300px;
-    height: 40px;
+    width: 100%;
+    height: 100%;
 
     padding: 20px;
 
@@ -123,31 +119,61 @@ body {
     color: white;
 
     border: none;
-    background-color: #26252c;
-    border-radius: 15px;
+    background-color: transparent;
+    border-radius: 10px;
+    outline: solid 2px #4c566a;
+}
+
+#inputWrapper::before {
+    content: "enter beatmap id or url (not beatmapset)";
+    position: absolute;
+
+    left: 10px;
+
+    font-weight: 500;
+    font-size: 0.6rem;
+
+    /* height: 10px; */
+    color: #D8DEE9;
+
+    padding: 2px 5px;
+
+    transition: ease-in-out 200ms;
+    pointer-events: none;
+}
+
+#inputWrapper:has(input[type="text"]:placeholder-shown)::before {
+    top: 10px;
+    font-size: 0.7rem;
+}
+
+#inputWrapper:has(input[type="text"]:not(:placeholder-shown))::before, #inputWrapper:has(input[type="text"]:focus)::before {
+    top: -10px;
+    font-size: 0.6rem;
+    background-color: #171a1f;
 }
 
 #inputContainer input[type="text"]:focus {
-    outline: solid 3px rgb(255, 187, 0);
+    outline: solid 3px #4c566a;
 }
 
 #inputContainer button:nth-child(3) {
     width: 80px;
     height: 40px;
 
-    background-color: #43414c;
+    background-color: #3b4252;
 
     font-family: Torus;
     font-weight: 500;
     color: white;
 
-    border-radius: 20px;
+    border-radius: 10px;
     transition: ease-in-out 200ms;
 }
 
 #inputContainer button:nth-child(3):hover {
     filter: none;
-    background-color: #585566;
+    background-color: #4c566a;
 }
 
 #playerContainer {
@@ -218,13 +244,13 @@ canvas {
 #settingsButton {
     position: relative;
 
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
 
     margin-right: auto;
 
     background-image: url(../static/settings.png);
-    background-size: 60%;
+    background-size: 90%;
     background-position: center;
     background-repeat: no-repeat;
 
@@ -242,7 +268,7 @@ svg {
 
     /* padding: 20px; */
 
-    background-color: #26242b;
+    background-color: #3b4252;
     border-radius: 0 0 20px 20px;
 
     display: flex;
@@ -261,7 +287,7 @@ svg {
 
     font-size: 0.7em;
 
-    background-color: #43414c;
+    background-color: #4c566a;
 }
 
 .digit {
@@ -333,7 +359,7 @@ svg {
 }
 
 #playerController input[type="range"]::-webkit-slider-runnable-track {
-    background: #43414c;
+    background: #2e3440;
     height: 4px;
 
     margin: 10px;
@@ -444,7 +470,7 @@ button:hover {
     width: 600px;
     height: 100vh;
 
-    background-color: #18171c;
+    background-color: #2e3440;
 
     transition: ease-in-out 200ms;
     opacity: 0;
@@ -462,7 +488,7 @@ button:hover {
     width: 100%;
 
     padding: 40px;
-    background-color: #302e38;
+    background-color: #434c5e;
     font-weight: 400;
 }
 
@@ -515,7 +541,7 @@ button:hover {
 }
 
 .slider input::-webkit-slider-runnable-track {
-    background: #8c66ff;
+    background: #88c0d0;
     height: 4px;
 
     margin: 20px 0;
@@ -528,7 +554,7 @@ button:hover {
     width: 40px;
     height: 10px;
 
-    background: #302e38;
+    background: #434c5e;
     border-radius: 20px;
 
     margin-top: -3px;
@@ -536,16 +562,16 @@ button:hover {
     transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 150ms;
     transform-origin: center;
 
-    outline: solid 3px #8c66ff;
+    outline: solid 3px #88c0d0;
 }
 
 .slider input::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 10px 0px #8c66ff;
+    box-shadow: 0 0 10px 0px #88c0d0;
     filter: brightness(2);
 }
 
 .slider input::-webkit-slider-thumb:active {
-    background: #8c66ff;
+    background: #88c0d0;
     width: 50px;
 }
 
@@ -554,20 +580,20 @@ input[type="checkbox"] {
     width: 40px;
     height: 10px;
 
-    outline: solid 3px #8c66ff;
+    outline: solid 3px #88c0d0;
     border-radius: 25px;
 
     transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
 }
 
 input[type="checkbox"]:hover {
-    box-shadow: 0 0 5px 2px #8c66ff;
+    box-shadow: 0 0 5px 2px #88c0d0;
     filter: brightness(2);
 }
 
 input[type="checkbox"]:checked {
     width: 50px;
-    background-color: #8c66ff;
+    background-color: #88c0d0;
 }
 
 .list input[type="text"] {
@@ -602,6 +628,8 @@ input[type="checkbox"]:checked {
         align-content: flex-start;
 
         overflow: hidden;
+
+        gap: 0;
         /* background-size: 0; */
     }
 
@@ -612,21 +640,21 @@ input[type="checkbox"]:checked {
     }
 
     #inputContainer {
-        width: 100%;
+        width: calc(100% - 20px);
 
-        padding: 10px;
+        padding: 20px 10px;
         margin: 0;
 
         gap: 5px;
     }
 
     #inputContainer input[type="text"] {
-        background-color: rgb(0 0 0 /0.5);
+        /* background-color: rgb(0 0 0 /0.5); */
         border-radius: 5px;
     }
 
     #inputContainer button:nth-child(3) {
-        background-color: rgba(24, 23, 31, 0.5);
+        background-color: #3b4252;
         border-radius: 5px;
     }
 
@@ -723,7 +751,7 @@ input[type="checkbox"]:checked {
     }
 
     #playerController input[type="range"]::-webkit-slider-runnable-track {
-        background: #43414c;
+        background: #4c566a;
         height: 4px;
 
         margin: 10px;
@@ -803,7 +831,7 @@ input[type="checkbox"]:checked {
         width: 100%;
         border-radius: 5px;
 
-        background-color: rgb(0 0 0 /0.5);
+        /* background-color: rgb(0 0 0 /0.5); */
     }
 
     #inputContainer button:nth-child(3) {

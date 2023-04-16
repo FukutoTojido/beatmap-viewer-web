@@ -179,7 +179,23 @@ class Slider {
         // pseudoCtx.filter = "none";
 
         if (sliderAppearance.legacy) {
-            pseudoCtx.filter = "blur(16px)";
+            pseudoCtx.globalCompositeOperation = "source-atop";
+
+            // const sliderGradientAccuracy = 50;
+            // for (let i = sliderGradientAccuracy; i >= 0; i--) {
+            //     const col = colour
+            //         .replaceAll("rgb(", "")
+            //         .replaceAll(")", "")
+            //         .split(",")
+            //         .map((val) => Math.round((val / 256) * ((sliderGradientAccuracy - i) / 256) * 256))
+            //         .join(",");
+
+            //     pseudoCtx.lineWidth = objectSizeWithoutBorder * (i / sliderGradientAccuracy);
+            //     pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : `rgb(${col})`;
+            //     pseudoCtx.stroke();
+            // }
+
+            pseudoCtx.filter = "blur(15px)";
             pseudoCtx.lineWidth = objectSizeWithoutBorder * 0.05;
             pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
             pseudoCtx.stroke();
@@ -234,7 +250,7 @@ class Slider {
             if (sliderBallPosition !== undefined) {
                 pseudoCtx.beginPath();
                 pseudoCtx.strokeStyle = colour;
-                pseudoCtx.lineWidth = currentSliderBorderThickness * 2 / currentScaleFactor;
+                pseudoCtx.lineWidth = (currentSliderBorderThickness * 2) / currentScaleFactor;
                 pseudoCtx.arc(
                     sliderBallPosition.x + shiftOffsetX,
                     sliderBallPosition.y + shiftOffsetY,
