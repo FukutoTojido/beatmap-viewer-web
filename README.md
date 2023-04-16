@@ -15,5 +15,4 @@ An osu! beatmap viewer for Chromium browsers (currently).
 - [ ] Hitsounds on slider reverse arrow
 
 ## Bugs:
-- **[This one audio and gameplay will desync upon changing the time](https://osu.ppy.sh/beatmapsets/1748951#osu/3577549)** (Tbh what the fuck was going on I can't really tell)
-
+- [ ] [Audio desync in some maps](https://github.com/FukutoTojido/beatmap-viewer-how/issues/2)
