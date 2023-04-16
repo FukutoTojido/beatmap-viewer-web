@@ -36,6 +36,8 @@ async function loadSampleSound(sample) {
 }
 
 // console.log(defaultHitsoundsList);
+const HARD_OFFSET = 0;
+let SOFT_OFFSET = 0;
 
 let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
@@ -53,7 +55,10 @@ let fadeIn;
 let isPlaying = true;
 let debugPosition = 52029;
 const mapId = 3939123;
-const playbackRate = 1;
+
+let playbackRate = 1;
+let musicVol = 0.1;
+let hsVol = 0.2;
 
 let stackLeniency;
 let stackOffset;

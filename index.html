@@ -167,11 +167,11 @@
     </div>
     <div id="playerContainer">
         <div id="overlay"></div>
-        <canvas id="canvas" width="512" height="384"></canvas>
         <div id="metadata">
             <div id="artistTitle"></div>
             <div id="versionCreator"></div>
         </div>
+        <canvas id="canvas" width="512" height="384"></canvas>
     </div>
     <div id="playerController">
         <div id="timeContainer">
@@ -188,7 +188,7 @@
         <button id="prevButton" onclick="goBack()"></button>
         <button id="playButton" onclick="playToggle()"></button>
         <button id="nextButton" onclick="goNext()"></button>
-        <input id="progress" type="range" min="0" step="0.1" value="0" oninput="setAudioTime(this)"
+        <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
             onkeydown="event.preventDefault()">
         <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.1" oninput="setAudioVolume(this)">
     </div>
@@ -203,6 +203,16 @@
             <div id="header">settings</div>
             <div id="description">change the way the replayer behaves</div>
         </div>
+        <!-- <div class="section">
+            <div id="title">offset</div>
+            <div class="list">
+                <div class="selection slider">
+                    <label for="dim">local beatmap offset</label>
+                    <input type="range" id="dim" name="dim" min="0" max="1" step="0.01"
+                        oninput='setBackgroundDim(this);' value="0.8">
+                </div>
+            </div>
+        </div> -->
         <div class="section">
             <div id="title">mods</div>
             <div class="list">
@@ -215,11 +225,11 @@
                     <input type="checkbox" id="EZ" name="EZ" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="DT">double time</label>
+                    <label for="DT">nightcore</label>
                     <input type="checkbox" id="DT" name="DT" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="HT">half time</label>
+                    <label for="HT">daycore</label>
                     <input type="checkbox" id="HT" name="HT" onchange='handleCheckBox(this);'>
                 </div>
             </div>

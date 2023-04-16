@@ -36,6 +36,78 @@ class Audio {
     }
 }
 
+class PAudio {
+    buf;
+    src;
+    currentTime = 0;
+    startTime = 0;
+    isPlaying = false;
+
+    async createBufferNode(buf) {
+        this.buf = await audioCtx.decodeAudioData(buf);
+        setProgressMax();
+    }
+
+    constructor(buf) {
+        this.createBufferNode(buf);
+    }
+
+    seekTo(time) {
+        if (this.buf === undefined || time > this.buf.duration * 1000) return;
+
+        const originalIsPlaying = this.isPlaying;
+        if (this.isPlaying) this.pause();
+        this.currentTime = time;
+        // console.log(this.currentTime);
+        if (originalIsPlaying) this.play();
+    }
+
+    play(time) {
+        if (!this.isPlaying) {
+            this.isPlaying = true;
+            this.src = audioCtx.createBufferSource();
+
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = musicVol;
+            gainNode.connect(audioCtx.destination);
+
+            this.src.buffer = this.buf;
+            this.src.playbackRate.value = playbackRate;
+            this.src.onended = () => {
+                const tempCurrentTime = this.getCurrentTime();
+
+                if (tempCurrentTime >= this.buf.duration * 1000) {
+                    console.log("Ended");
+                    this.pause();
+                    playingFlag = false;
+                    this.seekTo(0);
+                }
+            };
+            this.src.connect(gainNode);
+
+            this.startTime = audioCtx.currentTime * 1000;
+            this.src.start(audioCtx.currentTime, time !== undefined ? time / 1000 : this.currentTime / 1000);
+
+            document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
+        }
+    }
+
+    pause() {
+        if (this.isPlaying) {
+            this.src.stop();
+            this.src.disconnect();
+            this.currentTime += (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
+            this.isPlaying = false;
+            document.querySelector("#playButton").style.backgroundImage = "";
+        }
+    }
+
+    getCurrentTime() {
+        if (!this.isPlaying) return this.currentTime;
+        return this.currentTime + (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
+    }
+}
+
 class HitSample {
     audioObj;
     sliderHead = false;

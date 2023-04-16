@@ -63,16 +63,22 @@ class ObjectsList {
         // console.log(timestamp);
         updateTime(timestamp);
 
-        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio !== canvas.width)
-            canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
+        // if (!staticDraw) setAudioTime();
+        setSliderTime();
 
-        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio !== canvas.height)
-            canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
+        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== oldPlayerContainerWidth) {
+            oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+            canvas.width =
+                (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+                parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+        }
 
-        const currentScaleFactor = Math.min(
-            (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio) / 480,
-            (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio) / 640
-        );
+        // if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) !== oldPlayerContainerHeight) {
+        //     oldPlayerContainerHeight = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+        //     canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
+        // }
+
+        const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 
         let currentAR = !mods.EZ ? approachRate : approachRate / 2;
         currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
@@ -102,36 +108,58 @@ class ObjectsList {
                         currentScaleFactor
                     );
 
-                    if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
-                        if (timestamp >= object.time - 20 && this.lastTimestamp <= object.time - 20 && !staticDraw) object.hitsounds.play();
-                    } else {
-                        if (timestamp >= object.time - 20 && this.lastTimestamp <= object.time - 20 && !staticDraw)
-                            object.hitsounds.sliderHead.play();
+                    if (timestamp - this.lastTimestamp >= 2) {
+                        // console.log(timestamp - this.lastTimestamp, timestamp >= object.time && this.lastTimestamp <= object.time);
+                        if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
+                            if (
+                                timestamp >= object.time + HARD_OFFSET + SOFT_OFFSET &&
+                                this.lastTimestamp <= object.time + HARD_OFFSET + SOFT_OFFSET &&
+                                !staticDraw
+                            )
+                                object.hitsounds.play();
+                        } else {
+                            if (
+                                timestamp >= object.time + HARD_OFFSET + SOFT_OFFSET &&
+                                this.lastTimestamp <= object.time + HARD_OFFSET + SOFT_OFFSET &&
+                                !staticDraw
+                            )
+                                object.hitsounds.sliderHead.play();
 
-                        if (timestamp >= object.obj.endTime - 260 && this.lastTimestamp <= object.obj.endTime - 260 && !staticDraw) {
-                            object.hitsounds.sliderTail.play();
+                            if (
+                                timestamp >= object.obj.endTime - (240 + HARD_OFFSET + SOFT_OFFSET) &&
+                                this.lastTimestamp <= object.obj.endTime - (240 + HARD_OFFSET + SOFT_OFFSET) &&
+                                !staticDraw
+                            ) {
+                                object.hitsounds.sliderTail.play();
+                            }
                         }
                     }
                 }
             });
 
-        if (isPlaying && playingFlag && !staticDraw)
+        if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)
             window.requestAnimationFrame((currentTime) => {
-                if (!document.querySelector("audio")) return;
-                const currentAudioTime = document.querySelector("audio").currentTime * 1000;
+                // if (!document.querySelector("audio")) return;
+                // const currentAudioTime = document.querySelector("audio").currentTime * 1000;
                 // const currentAudioTime = currentTime - this.drawTime;
-                const timestampNext = currentAudioTime * playbackRate;
-                this.lastTimestamp = timestamp;
-                return this.draw(timestampNext);
+                if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
+                    const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
+                    const timestampNext = currentAudioTime;
+                    this.lastTimestamp = timestamp;
+                    return this.draw(timestampNext);
+                }
+
+                // console.log(timestamp);
             });
     }
 
     render() {
         this.drawTime = new Date().getTime() - originalTime;
         window.requestAnimationFrame((currentTime) => {
-            const currentAudioTime = document.querySelector("audio").currentTime * 1000;
+            // const currentAudioTime = document.querySelector("audio").currentTime * 1000;
             // const currentAudioTime = currentTime - this.drawTime;
-            const timestamp = currentAudioTime * playbackRate;
+            const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
+            const timestamp = currentAudioTime;
             return this.draw(timestamp);
         });
     }

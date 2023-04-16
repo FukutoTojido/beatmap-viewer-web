@@ -4,6 +4,8 @@ class BeatmapFile {
     audioBlobURL;
     backgroundBlobURL;
     audio;
+    audioArrayBuffer;
+    audioNode;
     beatmapRenderData;
 
     constructor(mapId) {
@@ -14,6 +16,17 @@ class BeatmapFile {
     async getOsuFile() {
         const rawOsuFile = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}/osu`)).data;
         this.osuFile = rawOsuFile;
+    }
+
+    async readBlobAsBuffer(blob) {
+        const res = await new Promise((resolve) => {
+            let fileReader = new FileReader();
+            fileReader.onload = (event) => resolve(fileReader.result);
+            fileReader.readAsArrayBuffer(blob);
+        });
+
+        // console.log(res);
+        return res;
     }
 
     async getOsz() {
@@ -59,6 +72,7 @@ class BeatmapFile {
         const audioFile = (await zipReader.getEntries()).filter((e) => e.filename === audioFilename).shift();
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
         this.audioBlobURL = URL.createObjectURL(audioBlob);
+        this.audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
 
         const backgroundFile = (await zipReader.getEntries()).filter((e) => e.filename === backgroundFilename).shift();
         const backgroundBlob =
@@ -100,7 +114,9 @@ class BeatmapFile {
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
             document.querySelector("#loadingText").innerText = `Setting up Audio`;
-            this.audio = new Audio(this.audioBlobURL);
+            // this.audio = new Audio(this.audioBlobURL);
+            this.audioNode = new PAudio(this.audioArrayBuffer);
+
             document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
             document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
@@ -146,7 +162,7 @@ class BeatmapFile {
                 }
             };
 
-            this.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+            this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime() * 1000, true);
         } catch (err) {
             console.log(err);
         }

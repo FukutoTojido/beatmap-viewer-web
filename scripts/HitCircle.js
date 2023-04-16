@@ -89,8 +89,8 @@ class HitCircle {
 
         pseudoCtx.beginPath();
         pseudoCtx.strokeStyle = "white";
-        pseudoCtx.lineWidth = 4;
-        pseudoCtx.arc(center, center, currentDrawSize / 2, 0, Math.PI * 2, 0);
+        pseudoCtx.lineWidth = !sliderAppearance.legacy ? 4 : 10;
+        pseudoCtx.arc(center, center, !sliderAppearance.legacy ? currentDrawSize / 2 : ((currentDrawSize - 5) / 2) * (236 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.stroke();
         pseudoCtx.closePath();
 

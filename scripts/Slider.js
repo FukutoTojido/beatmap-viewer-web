@@ -250,11 +250,11 @@ class Slider {
             if (sliderBallPosition !== undefined) {
                 pseudoCtx.beginPath();
                 pseudoCtx.strokeStyle = colour;
-                pseudoCtx.lineWidth = (currentSliderBorderThickness * 2) / currentScaleFactor;
+                pseudoCtx.lineWidth = (currentSliderBorderThickness * 2);
                 pseudoCtx.arc(
                     sliderBallPosition.x + shiftOffsetX,
                     sliderBallPosition.y + shiftOffsetY,
-                    (objectSizeWithoutScale / 2) * (150 / 272),
+                    !sliderAppearance.legacy ? (objectSizeWithoutScale / 2) * (150 / 272) : (objectSizeWithoutScale / 2) * (236 / 272),
                     0,
                     Math.PI * 2,
                     0

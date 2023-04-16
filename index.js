@@ -1,8 +1,14 @@
 document.querySelector(".loading").style.display = "none";
 
 const canvas = document.querySelector("#canvas");
-canvas.width = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
-canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
+
+let oldPlayerContainerHeight = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+let oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+
+canvas.width =
+    (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+    parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+canvas.height = 1080;
 
 const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
@@ -117,43 +123,54 @@ function handleCheckBox(checkbox) {
     const HTMultiplier = !mods.HT ? 1 : 0.75;
 
     canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
-    if (document.querySelector("audio")) document.querySelector("audio").playbackRate = 1 * DTMultiplier * HTMultiplier;
-
-    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    if (beatmapFile !== undefined) {
+        const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+        if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+        playbackRate = 1 * DTMultiplier * HTMultiplier;
+        if (originalIsPlaying) beatmapFile.audioNode.play();
+        if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    }
 }
 
 function setSliderTime() {
-    if (!document.querySelector("audio")) return;
-    if (!sliderOnChange) document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
+    // if (!document.querySelector("audio")) return;
+    if (beatmapFile === undefined) return;
+    if (!sliderOnChange) document.querySelector("#progress").value = beatmapFile.audioNode.getCurrentTime();
 
     // if (beatmapFile !== undefined && !playingFlag)
     //     beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
 }
 
-function setAudioTime() {
+function setAudioTime(callFromDraw) {
     // if (playingFlag) playToggle();
 
     const slider = document.querySelector("#progress");
-    if (!document.querySelector("audio")) {
+    // if (!document.querySelector("audio")) {
+    //     slider.value = 0;
+    //     return;
+    // }
+
+    if (beatmapFile === undefined) {
         slider.value = 0;
         return;
     }
 
-    document.querySelector("audio").currentTime = slider.value / 10;
+    // console.log(slider.value);
+    beatmapFile.audioNode.seekTo(parseFloat(slider.value));
 
-    if (beatmapFile !== undefined && !playingFlag)
-        beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function setProgressMax() {
-    document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
+    // document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
+    document.querySelector("#progress").max = beatmapFile.audioNode.buf.duration * 1000;
 }
 
 function playToggle() {
     if (isPlaying) {
-        if (document.querySelector("audio").currentTime >= document.querySelector("audio").duration) {
-            document.querySelector("audio").currentTime = 0;
-        }
+        // if (document.querySelector("audio").currentTime >= document.querySelector("audio").duration) {
+        //     document.querySelector("audio").currentTime = 0;
+        // }
 
         // if (document.querySelector("audio").currentTime * 1000 === 1) {
         //     console.log(document.querySelector("audio").currentTime);
@@ -163,16 +180,27 @@ function playToggle() {
         document.querySelector("#playButton").style.backgroundImage =
             document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
 
-        if (document.querySelector("audio").paused) {
+        // if (document.querySelector("audio").paused) {
+        //     playingFlag = true;
+        //     document.querySelector("audio").play();
+        //     beatmapFile.beatmapRenderData.render();
+        // } else {
+        //     playingFlag = false;
+        //     document.querySelector("audio").pause();
+        //     beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+        // }
+
+        if (!beatmapFile.audioNode.isPlaying) {
             playingFlag = true;
-            document.querySelector("audio").play();
+            beatmapFile.audioNode.play();
             beatmapFile.beatmapRenderData.render();
         } else {
             playingFlag = false;
-            document.querySelector("audio").pause();
-            beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+            beatmapFile.audioNode.pause();
+            beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }
     } else {
+        beatmapFile.audioNode.play();
         beatmapFile.beatmapRenderData.render();
     }
 }
@@ -203,12 +231,18 @@ function submitMap() {
 
     const bID = inputValue.split("/").at(-1);
 
+    if (beatmapFile !== undefined) {
+        playingFlag = false;
+        beatmapFile.audioNode.pause();
+        beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    }
+
     beatmapFile = undefined;
     beatmapFile = new BeatmapFile(bID);
 
     document.querySelector("#mapInput").value = "";
     document.querySelector("#progress").value = 0;
-    if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
+    // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
 
 function setBackgroundDim(slider) {
@@ -217,11 +251,15 @@ function setBackgroundDim(slider) {
 }
 
 function setAudioVolume(slider) {
-    if (!document.querySelector("audio")) {
+    if (beatmapFile === undefined) {
         slider.value = 0.1;
         return;
     }
-    document.querySelector("audio").volume = slider.value;
+
+    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    musicVol = slider.value;
+    if (originalIsPlaying) beatmapFile.audioNode.play();
 }
 
 function updateTime(timestamp) {
@@ -248,22 +286,29 @@ function updateTime(timestamp) {
         document.querySelector(`#minute${idx + 1}digit`).innerText = val;
         animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
     });
+
+    // console.log(mDigits.reverse(), sDigits.reverse(), msDigits.reverse());
 }
 
 function goNext() {
-    document.querySelector("audio").currentTime += 10 / 1000;
-    document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
-    setAudioTime();
+    if (beatmapFile !== undefined) {
+        beatmapFile.audioNode.seekTo(beatmapFile.audioNode.getCurrentTime() + 10);
+        // console.log(beatmapFile.audioNode.currentTime);
+        document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
+        setAudioTime();
+    }
 }
 
 function goBack() {
-    document.querySelector("audio").currentTime -= 10 / 1000;
-    document.querySelector("#progress").value = document.querySelector("audio").currentTime * 10;
-    setAudioTime();
+    if (beatmapFile !== undefined) {
+        beatmapFile.audioNode.seekTo(beatmapFile.audioNode.getCurrentTime() - 10);
+        document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
+        setAudioTime();
+    }
 }
 
 screen.orientation.onchange = () => {
-    beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 };
 
 let beatmapFile;
