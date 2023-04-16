@@ -119,7 +119,7 @@ body {
     color: white;
 
     border: none;
-    background-color: rgba(0 0 0 /.5);
+    background-color: rgba(0 0 0 /0.5);
     border-radius: 10px;
     outline: solid 2px #4c566a;
 }
@@ -131,10 +131,10 @@ body {
     left: 10px;
 
     font-weight: 500;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
 
     /* height: 10px; */
-    color: #D8DEE9;
+    color: #d8dee9;
 
     padding: 2px 5px;
 
@@ -145,11 +145,12 @@ body {
 }
 
 #inputWrapper:has(input[type="text"]:placeholder-shown)::before {
-    top: 10px;
+    top: 12px;
     font-size: 0.7rem;
 }
 
-#inputWrapper:has(input[type="text"]:not(:placeholder-shown))::before, #inputWrapper:has(input[type="text"]:focus)::before {
+#inputWrapper:has(input[type="text"]:not(:placeholder-shown))::before,
+#inputWrapper:has(input[type="text"]:focus)::before {
     top: -10px;
     font-size: 0.6rem;
     background-color: #171a1f;
@@ -202,6 +203,8 @@ canvas {
     inset: 0 0 0 0;
 
     margin: auto;
+
+    width: 100%;
 
     /* transform: scaleY(-1); */
     /* z-index: 0; */
@@ -885,14 +888,11 @@ input[type="checkbox"]:checked {
     }
 }
 
-@media screen and (max-width: 1024px) {
-    #canvas {
-        width: 100%;
-    }
-}
+/* @media screen and (max-width: 1024px) {
+} */
 
 @media screen and (min-width: 1024px) {
     #inputWrapper {
-        width: 500px
+        width: 500px;
     }
 }
