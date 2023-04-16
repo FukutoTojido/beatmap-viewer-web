@@ -187,7 +187,7 @@ function checkEnter(e) {
 }
 
 function submitMap() {
-    const inputValue = document.querySelector("#mapInput").value;
+    const inputValue = document.querySelector("#mapInput").value.trim();
     if (!/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
         document.querySelector("#mapInput").value = "";
         alert("This is not a valid URL or Beatmap ID");

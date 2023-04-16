@@ -148,8 +148,8 @@ class Beatmap {
 
                 if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12") {
                     let hitsoundList = ["hitnormal"];
-                    const sampleSet = hitsampleEnum[params[5].split(":")[0]];
-                    const additional = hitsampleEnum[params[5].split(":")[1]];
+                    const sampleSet = params[5] !== undefined && params[5] !== "" ? hitsampleEnum[params[5].split(":")[0]] : "normal";
+                    const additional = params[5] !== undefined && params[5] !== "" ? hitsampleEnum[params[5].split(":")[1]] : "normal";
                     // console.log(parseInt(params[3]).toString(2)[2]);
                     parseInt(params[4])
                         .toString(2)
@@ -214,14 +214,25 @@ class Beatmap {
                         const tailHs = params[8].split("|").at(-1);
 
                         let headSs = {
-                            default: hitsampleEnum[params[9].split("|")[0].split(":")[0]],
-                            additional: hitsampleEnum[params[9].split("|")[0].split(":")[1]],
+                            default: "normal",
+                            additional: "normal",
+                        };
+                        let tailSs = {
+                            default: "normal",
+                            additional: "normal",
                         };
 
-                        let tailSs = {
-                            default: hitsampleEnum[params[9].split("|").at(-1).split(":")[0]],
-                            additional: hitsampleEnum[params[9].split("|").at(-1).split(":")[1]],
-                        };
+                        if (params[9] !== undefined) {
+                            headSs = {
+                                default: hitsampleEnum[params[9].split("|")[0].split(":")[0]],
+                                additional: hitsampleEnum[params[9].split("|")[0].split(":")[1]],
+                            };
+
+                            tailSs = {
+                                default: hitsampleEnum[params[9].split("|").at(-1).split(":")[0]],
+                                additional: hitsampleEnum[params[9].split("|").at(-1).split(":")[1]],
+                            };
+                        }
 
                         parseInt(headHs)
                             .toString(2)
