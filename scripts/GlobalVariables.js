@@ -31,7 +31,7 @@ async function loadSampleSound(sample) {
     ).data;
 
     const buffer = await audioCtx.decodeAudioData(res);
-    console.log(`${sample} decoded`);
+    // console.log(`${sample} decoded`);
     hitsoundsBuffer[sample] = buffer;
 }
 

@@ -102,7 +102,7 @@ class Beatmap {
                       .split("\r\n")
                       .filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
                       .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`)
-                : ["#eb4034", "#ebc034", "#34eb65", "#347deb"];
+                : ["rgb(235,64,52)", "rgb(235,192,52)", "rgb(52,235,101)", "rgb(52,125,235)"];
         let objectLists = rawBeatmap
             .slice(hitObjectsPosition)
             .split("\r\n")

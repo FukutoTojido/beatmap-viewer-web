@@ -140,6 +140,8 @@ body {
 
     transition: ease-in-out 200ms;
     pointer-events: none;
+
+    border-radius: 5px;
 }
 
 #inputWrapper:has(input[type="text"]:placeholder-shown)::before {
@@ -151,6 +153,8 @@ body {
     top: -10px;
     font-size: 0.6rem;
     background-color: #171a1f;
+
+    outline: solid 2px #4c566a;
 }
 
 #inputContainer input[type="text"]:focus {
@@ -884,5 +888,11 @@ input[type="checkbox"]:checked {
 @media screen and (max-width: 1024px) {
     #canvas {
         width: 100%;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    #inputWrapper {
+        width: 500px
     }
 }
