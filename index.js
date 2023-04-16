@@ -10,6 +10,19 @@ canvas.width =
     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
 canvas.height = 1080;
 
+window.onresize = () => {
+    if (!playingFlag) {
+        canvas.width =
+            (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+        canvas.height = 1080;
+
+        if (beatmapFile !== undefined) {
+            beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+        }
+    }
+};
+
 const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
