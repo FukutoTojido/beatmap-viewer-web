@@ -131,6 +131,8 @@ function setSliderTime() {
 }
 
 function setAudioTime() {
+    // if (playingFlag) playToggle();
+
     const slider = document.querySelector("#progress");
     if (!document.querySelector("audio")) {
         slider.value = 0;
