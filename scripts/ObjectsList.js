@@ -67,12 +67,12 @@ class ObjectsList {
         // if (!staticDraw) setAudioTime();
         setSliderTime();
 
-        if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== oldPlayerContainerWidth) {
-            oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-            canvas.width =
-                (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-                parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-        }
+        // if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== oldPlayerContainerWidth) {
+        //     oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+        //     canvas.width =
+        //         (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+        //         parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+        // }
 
         // if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) !== oldPlayerContainerHeight) {
         //     oldPlayerContainerHeight = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);

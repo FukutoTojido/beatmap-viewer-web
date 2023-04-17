@@ -201,14 +201,10 @@ body {
 canvas {
     position: absolute;
     inset: 0 0 0 0;
-
     margin: auto;
-
     height: 100%;
-
     /* transform: scaleY(-1); */
     /* z-index: 0; */
-
     /* background-color: rgba(255, 255, 255, 0.1); */
     /* transition: ease-in-out 200ms; */
 }
@@ -825,13 +821,13 @@ input[type="checkbox"]:checked {
     }
 
     #inputContainer {
-        padding: 0 10px;
+        padding: 10px;
         margin: 0;
         background-color: rgb(0 0 0 /0.5);
     }
 
     #settingsButton {
-        margin: 0;
+        margin-right: auto;
     }
 
     #inputContainer input[type="text"] {
@@ -847,7 +843,7 @@ input[type="checkbox"]:checked {
     }
 
     #playerContainer {
-        padding-top: 50px;
+        /* padding-top: 50px; */
         border-radius: 0;
     }
 

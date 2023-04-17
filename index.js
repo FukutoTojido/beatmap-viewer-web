@@ -321,10 +321,17 @@ function goBack() {
 }
 
 screen.orientation.onchange = () => {
+    console.log("Orientation Changed");
     canvas.width =
         (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
         parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-    canvas.height = 1080;
+
+    console.log(
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
+        canvas.width,
+        canvas.height
+    );
     if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 };
 
