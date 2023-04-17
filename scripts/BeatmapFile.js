@@ -139,6 +139,7 @@ class BeatmapFile {
 
     async constructMap() {
         try {
+            currentMapId = this.mapId;
             audioCtx = new AudioContext();
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
@@ -152,7 +153,7 @@ class BeatmapFile {
 
             document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
-            document.querySelector("#playerContainer").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             document.querySelector(".loading").style.opacity = 0;
@@ -195,7 +196,12 @@ class BeatmapFile {
                 }
             };
 
-            this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime() * 1000, true);
+            if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
+                updateTime(parseInt(urlParams.get("t")));
+                this.beatmapRenderData.objectsList.draw(parseInt(urlParams.get("t")), true);
+            } else {
+                this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
+            }
         } catch (err) {
             console.log(err);
         }

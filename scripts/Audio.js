@@ -46,6 +46,11 @@ class PAudio {
     async createBufferNode(buf) {
         this.buf = await audioCtx.decodeAudioData(buf);
         setProgressMax();
+
+        if (urlParams.get("b") && urlParams.get("t") && urlParams.get("b") === currentMapId) {
+            this.seekTo(parseInt(urlParams.get("t")));
+            setSliderTime();
+        }
     }
 
     constructor(buf) {
@@ -53,6 +58,8 @@ class PAudio {
     }
 
     seekTo(time) {
+        if (!time) return;
+
         if (this.buf === undefined || time > this.buf.duration * 1000) return;
 
         const originalIsPlaying = this.isPlaying;
@@ -68,7 +75,7 @@ class PAudio {
             this.src = audioCtx.createBufferSource();
 
             const gainNode = audioCtx.createGain();
-            gainNode.gain.value = musicVol;
+            gainNode.gain.value = musicVol * masterVol;
             gainNode.connect(audioCtx.destination);
 
             this.src.buffer = this.buf;
@@ -121,7 +128,7 @@ class HitSample {
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
             const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.25;
+            gainNode.gain.value = hsVol * masterVol;
             gainNode.connect(audioCtx.destination);
 
             src.buffer = hitsoundsBuffer[Object.keys(hitsoundsBuffer).includes(hs) ? hs : `${hs.replaceAll(/\d/g, "")}0`];

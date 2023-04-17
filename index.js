@@ -1,3 +1,31 @@
+if (localStorage.getItem("settings")) {
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+
+    document.querySelector("#dim").value = currentLocalStorage.background.dim;
+    document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
+    document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
+
+    document.querySelector("#blur").value = currentLocalStorage.background.blur;
+    document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
+    document.querySelector("#overlay").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
+
+    document.querySelector("#master").value = currentLocalStorage.volume.master;
+    document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;
+    // masterVol = currentLocalStorage.volume.master;
+
+    document.querySelector("#music").value = currentLocalStorage.volume.music;
+    document.querySelector("#musicVal").innerHTML = `${parseInt((currentLocalStorage.volume.music / 0.4) * 100)}%`;
+    // musicVol = currentLocalStorage.volume.music;
+
+    document.querySelector("#effect").value = currentLocalStorage.volume.hs;
+    document.querySelector("#effectVal").innerHTML = `${parseInt((currentLocalStorage.volume.hs / 0.4) * 100)}%`;
+    // hsVol = currentLocalStorage.volume.hs;
+
+    Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
+        document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
+    });
+}
+
 document.querySelector(".loading").style.display = "none";
 
 const canvas = document.querySelector("#canvas");
@@ -17,7 +45,7 @@ window.onresize = () => {
             parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
         canvas.height = 1080;
 
-        if (beatmapFile !== undefined) {
+        if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
             beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }
     }
@@ -134,6 +162,10 @@ function handleCheckBox(checkbox) {
 
     const DTMultiplier = !mods.DT ? 1 : 1.5;
     const HTMultiplier = !mods.HT ? 1 : 0.75;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.sliderAppearance[checkbox.name] = sliderAppearance[checkbox.name];
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
     canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
     if (beatmapFile !== undefined) {
@@ -260,18 +292,66 @@ function submitMap() {
 
 function setBackgroundDim(slider) {
     // console.log(slider.value);
-    document.querySelector("#overlay").style.opacity = slider.value;
+    document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
+    document.querySelector("#bgDimVal").innerHTML = `${parseInt(slider.value * 100)}%`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.background.dim = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
 
-function setAudioVolume(slider) {
-    if (beatmapFile === undefined) {
-        slider.value = 0.1;
-        return;
-    }
+function setBackgroundBlur(slider) {
+    // console.log(slider.value);
+    document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
+    document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.background.blur = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+}
+
+function setMasterVolume(slider) {
+    masterVol = slider.value;
+    document.querySelector("#masterVal").innerHTML = `${parseInt(slider.value * 100)}%`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.volume.master = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    if (beatmapFile === undefined) return;
 
     const originalIsPlaying = beatmapFile.audioNode.isPlaying;
     if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    if (originalIsPlaying) beatmapFile.audioNode.play();
+}
+
+function setAudioVolume(slider) {
     musicVol = slider.value;
+    document.querySelector("#musicVal").innerHTML = `${parseInt((slider.value / 0.4) * 100)}%`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.volume.music = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    if (beatmapFile === undefined) return;
+
+    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    if (originalIsPlaying) beatmapFile.audioNode.play();
+}
+
+function setEffectVolume(slider) {
+    hsVol = slider.value;
+    document.querySelector("#effectVal").innerHTML = `${parseInt((slider.value / 0.4) * 100)}%`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.volume.hs = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    if (beatmapFile === undefined) return;
+
+    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
     if (originalIsPlaying) beatmapFile.audioNode.play();
 }
 
@@ -338,4 +418,8 @@ screen.orientation.onchange = () => {
 let beatmapFile;
 document.querySelector("#submit").addEventListener("click", submitMap);
 
+if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
+    beatmapFile = new BeatmapFile(urlParams.get("b"));
+    document.querySelector("#mapInput").value = urlParams.get("b");
+}
 // beatmapFile = new BeatmapFile(mapId);

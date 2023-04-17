@@ -121,7 +121,7 @@ body {
     border: none;
     background-color: rgba(0 0 0 /0.5);
     border-radius: 10px;
-    outline: solid 2px #4c566a;
+    outline: solid 2px #88c0d0;
 }
 
 #inputWrapper::before {
@@ -136,7 +136,7 @@ body {
     /* height: 10px; */
     color: #d8dee9;
 
-    padding: 2px 5px;
+    padding: 2px 10px;
 
     transition: ease-in-out 200ms;
     pointer-events: none;
@@ -155,11 +155,11 @@ body {
     font-size: 0.6rem;
     background-color: #171a1f;
 
-    outline: solid 2px #4c566a;
+    /* outline: solid 2px #88c0d0; */
 }
 
 #inputContainer input[type="text"]:focus {
-    outline: solid 3px #4c566a;
+    outline: solid 3px #88c0d0;
 }
 
 #inputContainer button:nth-child(3) {
@@ -193,7 +193,7 @@ body {
     border-radius: 20px 20px 0 0;
     background-size: cover;
     background-position: center;
-    /* overflow: hidden; */
+    overflow: hidden;
     transition: ease-in-out 300ms;
     /* z-index: 1; */
 }
@@ -214,8 +214,15 @@ canvas {
     width: 100%;
     height: 100%;
 
-    background-color: black;
-    opacity: 0.8;
+    background-color: rgba(0 0 0 /0.8);
+
+    border-radius: 20px 20px 0 0;
+}
+
+#background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
 
     border-radius: 20px 20px 0 0;
 }
@@ -353,6 +360,7 @@ svg {
 
 #progress {
     width: 80%;
+    padding-right: 20px;
 }
 
 #volumeSlider {
@@ -362,31 +370,38 @@ svg {
 }
 
 #playerController input[type="range"]::-webkit-slider-runnable-track {
-    background: #2e3440;
+    background: #88c0d0;
     height: 4px;
 
-    margin: 10px;
+    margin: 20px 0;
     border-radius: 20px;
 }
 
 #playerController input[type="range"]::-webkit-slider-thumb {
     appearance: none;
 
-    width: 5px;
-    height: 20px;
+    width: 40px;
+    height: 10px;
 
-    background: white;
+    background: #434c5e;
     border-radius: 20px;
 
-    margin-top: -8px;
+    margin-top: -3px;
 
-    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
+    transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 150ms;
     transform-origin: center;
+
+    outline: solid 3px #88c0d0;
 }
 
 #playerController input[type="range"]::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 5px 0px white;
-    filter: brightness(1.2);
+    box-shadow: 0 0 10px 0px #88c0d0;
+    filter: brightness(2);
+}
+
+#playerController input[type="range"]::-webkit-slider-thumb:active {
+    background: #88c0d0;
+    width: 50px;
 }
 
 button {
@@ -536,7 +551,7 @@ button:hover {
     margin: 0;
     width: 100%;
 
-    padding-right: 20px;
+    /* padding-right: 20px; */
 
     appearance: none;
     background: transparent;
@@ -576,6 +591,10 @@ button:hover {
 .slider input::-webkit-slider-thumb:active {
     background: #88c0d0;
     width: 50px;
+}
+
+.val {
+    font-weight: 600;
 }
 
 input[type="checkbox"] {

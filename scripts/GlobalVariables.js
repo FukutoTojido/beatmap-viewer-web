@@ -1,3 +1,29 @@
+if (!localStorage.getItem("settings")) {
+    localStorage.setItem(
+        "settings",
+        JSON.stringify({
+            background: {
+                dim: 0.8,
+                blur: 0,
+            },
+            volume: {
+                master: 1,
+                music: 0.2,
+                hs: 0.2,
+            },
+            sliderAppearance: {
+                snaking: true,
+                untint: false,
+                legacy: false,
+            },
+        })
+    );
+}
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+let currentMapId;
+
 const originalTime = new Date().getTime();
 const axios = window.axios;
 
@@ -62,8 +88,9 @@ let debugPosition = 52029;
 const mapId = 3939123;
 
 let playbackRate = 1;
-let musicVol = 0.1;
-let hsVol = 0.2;
+let masterVol = JSON.parse(localStorage.getItem("settings")).volume.master;
+let musicVol = JSON.parse(localStorage.getItem("settings")).volume.music;
+let hsVol = JSON.parse(localStorage.getItem("settings")).volume.hs;
 
 let stackLeniency;
 let stackOffset;
@@ -81,11 +108,7 @@ let mods = {
     HT: false,
 };
 
-let sliderAppearance = {
-    snaking: true,
-    untint: false,
-    legacy: false,
-};
+let sliderAppearance = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
 
 let animation = {
     ms1digit: new CountUp("millisecond1digit", 0, 0, 0, 0.2, {
