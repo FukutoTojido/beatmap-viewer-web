@@ -9,7 +9,7 @@ class HitCircle {
     originalY;
     stackHeight = 0;
 
-    draw(opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
+    draw(opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
         const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
@@ -31,11 +31,13 @@ class HitCircle {
 
         const inverse = mods.HR ? -1 : 1;
 
+        const stackHeight = sliderStackHeight === undefined ? this.stackHeight : sliderStackHeight;
+
         this.positionX =
-            (this.originalX + stackOffset * this.stackHeight) * currentScaleFactor +
+            (this.originalX + stackOffset * stackHeight) * currentScaleFactor +
             (canvas.width - 512 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
         this.positionY =
-            (this.originalY + inverse * stackOffset * this.stackHeight) * currentScaleFactor +
+            (this.originalY + inverse * stackOffset * stackHeight) * currentScaleFactor +
             (canvas.height - 384 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
 
         const currentDrawSize = (currentHitCircleSize * currentScaleFactor * normalizedExpandRate * 272) / 256;

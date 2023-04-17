@@ -276,35 +276,35 @@ class Slider {
         }
 
         // const sliderOffset = ((objectSize / 2) * (236 / 272)) / (128 / 118);
-        pseudoCtx.lineWidth = 2;
+        // pseudoCtx.lineWidth = 2;
 
-        pseudoCtx.beginPath();
-        pseudoCtx.strokeStyle = "white";
-        pseudoCtx.moveTo(0, 0);
-        pseudoCtx.arc(0, 0, 6, 0, Math.PI * 2, 0);
-        pseudoCtx.stroke();
-        pseudoCtx.closePath();
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "white";
+        // pseudoCtx.moveTo(0, 0);
+        // pseudoCtx.arc(0, 0, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
 
-        pseudoCtx.beginPath();
-        pseudoCtx.strokeStyle = "blue";
-        pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, 0);
-        pseudoCtx.arc(this.maxX - this.minX + sliderOffset, 0, 6, 0, Math.PI * 2, 0);
-        pseudoCtx.stroke();
-        pseudoCtx.closePath();
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "blue";
+        // pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, 0);
+        // pseudoCtx.arc(this.maxX - this.minX + sliderOffset, 0, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
 
-        pseudoCtx.beginPath();
-        pseudoCtx.strokeStyle = "red";
-        pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
-        pseudoCtx.arc(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset, 6, 0, Math.PI * 2, 0);
-        pseudoCtx.stroke();
-        pseudoCtx.closePath();
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "red";
+        // pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
+        // pseudoCtx.arc(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
 
-        pseudoCtx.beginPath();
-        pseudoCtx.strokeStyle = "green";
-        pseudoCtx.moveTo(0, this.maxY - this.minY + sliderOffset);
-        pseudoCtx.arc(0, this.maxY - this.minY + sliderOffset, 6, 0, Math.PI * 2, 0);
-        pseudoCtx.stroke();
-        pseudoCtx.closePath();
+        // pseudoCtx.beginPath();
+        // pseudoCtx.strokeStyle = "green";
+        // pseudoCtx.moveTo(0, this.maxY - this.minY + sliderOffset);
+        // pseudoCtx.arc(0, this.maxY - this.minY + sliderOffset, 6, 0, Math.PI * 2, 0);
+        // pseudoCtx.stroke();
+        // pseudoCtx.closePath();
 
         pseudoCtx.closePath();
 
@@ -320,7 +320,7 @@ class Slider {
 
     draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
         this.drawBorder(opacity, percentage, colour, currentScaleFactor);
-        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor);
+        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, this.stackHeight);
     }
 
     getAngleList(pointArr, ascaleFactor) {
