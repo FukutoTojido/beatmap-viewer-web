@@ -61,6 +61,7 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
+        timestamp += HARD_OFFSET + SOFT_OFFSET;
         updateTime(timestamp);
 
         // if (!staticDraw) setAudioTime();
@@ -109,27 +110,19 @@ class ObjectsList {
                     );
 
                     if (timestamp - this.lastTimestamp >= 2) {
-                        // console.log(timestamp - this.lastTimestamp, timestamp >= object.time && this.lastTimestamp <= object.time);
                         if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
-                            if (
-                                timestamp >= object.time + HARD_OFFSET + SOFT_OFFSET &&
-                                this.lastTimestamp <= object.time + HARD_OFFSET + SOFT_OFFSET &&
-                                !staticDraw
-                            )
+                            if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                                // console.log(object.time, timestamp, this.lastTimestamp);
                                 object.hitsounds.play();
+                            }
                         } else {
-                            if (
-                                timestamp >= object.time + HARD_OFFSET + SOFT_OFFSET &&
-                                this.lastTimestamp <= object.time + HARD_OFFSET + SOFT_OFFSET &&
-                                !staticDraw
-                            )
+                            if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                                // console.log(object.time, timestamp, this.lastTimestamp);
                                 object.hitsounds.sliderHead.play();
+                            }
 
-                            if (
-                                timestamp >= object.obj.endTime - (240 + HARD_OFFSET + SOFT_OFFSET) &&
-                                this.lastTimestamp <= object.obj.endTime - (240 + HARD_OFFSET + SOFT_OFFSET) &&
-                                !staticDraw
-                            ) {
+                            if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
+                                // console.log(object.time, timestamp, this.lastTimestamp);
                                 object.hitsounds.sliderTail.play();
                             }
                         }

@@ -321,6 +321,10 @@ function goBack() {
 }
 
 screen.orientation.onchange = () => {
+    canvas.width =
+        (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+    canvas.height = 1080;
     if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 };
 
