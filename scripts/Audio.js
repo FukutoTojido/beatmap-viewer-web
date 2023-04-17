@@ -121,7 +121,7 @@ class HitSample {
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
             const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.2;
+            gainNode.gain.value = 0.25;
             gainNode.connect(audioCtx.destination);
 
             src.buffer = hitsoundsBuffer[Object.keys(hitsoundsBuffer).includes(hs) ? hs : `${hs.replaceAll(/\d/g, "")}0`];
