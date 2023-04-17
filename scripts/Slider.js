@@ -153,19 +153,13 @@ class Slider {
                 if (sliderAppearance.snaking) {
                     if (this.repeat % 2 === 0 && currentPointCalcLengthRatio >= 1 - ((percentage - 1) * this.repeat + 1)) return;
                     if (this.repeat % 2 !== 0 && currentPointCalcLengthRatio <= (percentage - 1) * this.repeat + 1) {
-                        pseudoCtx.moveTo(
-                            point.x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor,
-                            point.y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor
-                        );
+                        pseudoCtx.moveTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
                         return;
                     }
                 }
             }
 
-            pseudoCtx.lineTo(
-                point.x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor,
-                point.y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor
-            );
+            pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
         });
 
         pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
@@ -215,18 +209,12 @@ class Slider {
         }
 
         if (this.repeat > 1 && percentage <= 1 - 1 / this.repeat) {
-            let x = this.angleList[endPosition].x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor;
-            let y = this.angleList[endPosition].y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor;
+            let x = this.angleList[endPosition].x + shiftOffsetX;
+            let y = this.angleList[endPosition].y + shiftOffsetY;
 
             if (percentage > 0) {
-                x =
-                    this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].x +
-                    shiftOffsetX +
-                    stackOffset * this.stackHeight * currentScaleFactor;
-                y =
-                    this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y +
-                    shiftOffsetY +
-                    inverse * stackOffset * this.stackHeight * currentScaleFactor;
+                x = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].x + shiftOffsetX;
+                y = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y + shiftOffsetY;
             }
 
             const revArrowSize = !sliderAppearance.snaking
@@ -268,8 +256,8 @@ class Slider {
                 pseudoCtx.strokeStyle = colour;
                 pseudoCtx.lineWidth = currentSliderBorderThickness * 2;
                 pseudoCtx.arc(
-                    sliderBallPosition.x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor,
-                    sliderBallPosition.y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor,
+                    sliderBallPosition.x + shiftOffsetX,
+                    sliderBallPosition.y + shiftOffsetY,
                     !sliderAppearance.legacy ? (objectSizeWithoutScale / 2) * (150 / 272) : (objectSizeWithoutScale / 2) * (236 / 272),
                     0,
                     Math.PI * 2,
@@ -288,40 +276,44 @@ class Slider {
         }
 
         // const sliderOffset = ((objectSize / 2) * (236 / 272)) / (128 / 118);
-        // pseudoCtx.lineWidth = 2;
+        pseudoCtx.lineWidth = 2;
 
-        // pseudoCtx.beginPath();
-        // pseudoCtx.strokeStyle = "white";
-        // pseudoCtx.moveTo(0, 0);
-        // pseudoCtx.arc(0, 0, 6, 0, Math.PI * 2, 0);
-        // pseudoCtx.stroke();
-        // pseudoCtx.closePath();
+        pseudoCtx.beginPath();
+        pseudoCtx.strokeStyle = "white";
+        pseudoCtx.moveTo(0, 0);
+        pseudoCtx.arc(0, 0, 6, 0, Math.PI * 2, 0);
+        pseudoCtx.stroke();
+        pseudoCtx.closePath();
 
-        // pseudoCtx.beginPath();
-        // pseudoCtx.strokeStyle = "blue";
-        // pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, 0);
-        // pseudoCtx.arc(maxX - minX + sliderOffset, 0, 6, 0, Math.PI * 2, 0);
-        // pseudoCtx.stroke();
-        // pseudoCtx.closePath();
+        pseudoCtx.beginPath();
+        pseudoCtx.strokeStyle = "blue";
+        pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, 0);
+        pseudoCtx.arc(this.maxX - this.minX + sliderOffset, 0, 6, 0, Math.PI * 2, 0);
+        pseudoCtx.stroke();
+        pseudoCtx.closePath();
 
-        // pseudoCtx.beginPath();
-        // pseudoCtx.strokeStyle = "red";
-        // pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
-        // pseudoCtx.arc(maxX - minX + sliderOffset, maxY - minY + sliderOffset, 6, 0, Math.PI * 2, 0);
-        // pseudoCtx.stroke();
-        // pseudoCtx.closePath();
+        pseudoCtx.beginPath();
+        pseudoCtx.strokeStyle = "red";
+        pseudoCtx.moveTo(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
+        pseudoCtx.arc(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset, 6, 0, Math.PI * 2, 0);
+        pseudoCtx.stroke();
+        pseudoCtx.closePath();
 
-        // pseudoCtx.beginPath();
-        // pseudoCtx.strokeStyle = "green";
-        // pseudoCtx.moveTo(0, maxY - minY + sliderOffset);
-        // pseudoCtx.arc(0, maxY - minY + sliderOffset, 6, 0, Math.PI * 2, 0);
-        // pseudoCtx.stroke();
-        // pseudoCtx.closePath();
+        pseudoCtx.beginPath();
+        pseudoCtx.strokeStyle = "green";
+        pseudoCtx.moveTo(0, this.maxY - this.minY + sliderOffset);
+        pseudoCtx.arc(0, this.maxY - this.minY + sliderOffset, 6, 0, Math.PI * 2, 0);
+        pseudoCtx.stroke();
+        pseudoCtx.closePath();
 
-        // pseudoCtx.closePath();
+        pseudoCtx.closePath();
 
         // console.log(minX, minY)
-        ctx.drawImage(pseudoCanvas, this.minX - sliderOffset / 2, this.minY - sliderOffset / 2);
+        ctx.drawImage(
+            pseudoCanvas,
+            this.minX - sliderOffset / 2 + stackOffset * this.stackHeight * currentScaleFactor,
+            this.minY - sliderOffset / 2 + inverse * stackOffset * this.stackHeight * currentScaleFactor
+        );
         ctx.globalAlpha = 1;
         ctx.closePath();
     }
