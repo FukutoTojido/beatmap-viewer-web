@@ -107,36 +107,6 @@ class Beatmap {
             .slice(hitObjectsPosition)
             .split("\r\n")
             .filter((s) => s !== "");
-        objectLists = objectLists.map((currentObj, i) => {
-            const params = currentObj.split(",");
-            let endTime;
-
-            if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) endTime = parseInt(params[2]);
-            if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
-                const currentbeatStep =
-                    beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
-                        ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
-                        : beatStepsList[0].beatstep;
-                const currentSVMultiplier =
-                    timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
-                        ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
-                        : timingPointsList[0];
-                const initialSliderLen = params[6] * params[7];
-
-                endTime = parseInt(params[2]) + (initialSliderLen / initialSliderVelocity) * currentSVMultiplier.svMultiplier * currentbeatStep;
-            }
-
-            const stackHeight = objectLists.filter((object, idx) => {
-                const inParams = object.split(",");
-                return idx > i && parseInt(inParams[2]) - endTime <= stackThreshold && params[0] === inParams[0] && params[1] === inParams[1];
-            }).length;
-
-            // console.log(parseInt(params[2]), stackHeight);
-
-            const x = Math.round(parseInt(params[0]) + stackOffset * stackHeight);
-            const y = Math.round(parseInt(params[1]) + stackOffset * stackHeight);
-            return [x, y, ...params.slice(2)].join(",");
-        });
 
         // console.log(objectLists);
         const hitsampleEnum = ["normal", "normal", "soft", "drum"];
@@ -173,6 +143,7 @@ class Beatmap {
                             ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1
                         ),
                         time: parseInt(params[2]) + delay,
+                        endTime: parseInt(params[2]) + delay,
                         hitsounds: new HitSample(hitsoundList),
                     };
                 }
@@ -267,22 +238,33 @@ class Beatmap {
                     }
 
                     // console.log(headHitsoundList, tailHitsoundList);
+                    const sliderObj = new Slider(
+                        `${params[0]}:${params[1]}|${params[5].slice(2)}`,
+                        params[5][0],
+                        params[6] * params[7],
+                        initialSliderVelocity * currentSVMultiplier.svMultiplier,
+                        initialSliderVelocity,
+                        beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
+                            ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
+                            : beatStepsList[0].beatstep,
+                        parseInt(params[2]),
+                        ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1,
+                        parseInt(params[6])
+                    );
+
+                    const currentbeatStep =
+                        beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay) !== undefined
+                            ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay).beatstep
+                            : beatStepsList[0].beatstep;
+                    const endTime =
+                        parseInt(params[2]) +
+                        delay +
+                        (sliderObj.initialSliderLen / currentSVMultiplier.svMultiplier / sliderObj.baseSliderVelocity) * currentbeatStep;
 
                     return {
-                        obj: new Slider(
-                            `${params[0]}:${params[1]}|${params[5].slice(2)}`,
-                            params[5][0],
-                            params[6] * params[7],
-                            initialSliderVelocity * currentSVMultiplier.svMultiplier,
-                            initialSliderVelocity,
-                            beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
-                                ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
-                                : beatStepsList[0].beatstep,
-                            parseInt(params[2]),
-                            ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1,
-                            parseInt(params[6])
-                        ),
+                        obj: sliderObj,
                         time: parseInt(params[2]) + delay,
+                        endTime: endTime,
                         hitsounds: {
                             sliderHead: new HitSample(headHitsoundList),
                             sliderTail: new HitSample(tailHitsoundList),
@@ -293,7 +275,113 @@ class Beatmap {
             .filter((s) => s);
 
         this.objectsList = new ObjectsList(hitCircleList, slidersList, coloursList);
+
+        // Ported from Lazer
+        let extendedEndIndex = this.objectsList.objectsList.length - 1;
+        let extendedStartIndex = 0;
+        const stackDistance = 3;
+
         // console.log(this.objectsList);
+
+        for (let i = extendedEndIndex; i > 0; i--) {
+            let n = i;
+            let currentObj = this.objectsList.objectsList[i];
+
+            if (currentObj.obj.stackHeight != 0) continue;
+
+            if (currentObj.obj instanceof HitCircle) {
+                while (--n >= 0) {
+                    const nObj = this.objectsList.objectsList[n];
+                    const endTime = nObj.endTime;
+
+                    if (currentObj.time - endTime > stackThreshold) break;
+                    if (n < extendedStartIndex) {
+                        nObj.obj.stackHeight = 0;
+                        extendedStartIndex = n;
+                    }
+
+                    // console.log(nObj.time);
+
+                    if (
+                        nObj.obj instanceof Slider &&
+                        this.calculateDistance(
+                            [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y],
+                            [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
+                        ) < stackDistance
+                    ) {
+                        let offset = currentObj.obj.stackHeight - nObj.obj.stackHeight + 1;
+
+                        for (let j = n + 1; j <= i; j++) {
+                            const jObj = this.objectsList.objectsList[j];
+
+                            if (
+                                this.calculateDistance(
+                                    [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y],
+                                    jObj.obj instanceof Slider
+                                        ? [jObj.obj.originalAngleList[0].x, jObj.obj.originalAngleList[0].y]
+                                        : [parseInt(jObj.obj.originalX), parseInt(jObj.obj.originalY)]
+                                )
+                            ) {
+                                jObj.obj.stackHeight -= offset;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    if (
+                        this.calculateDistance(
+                            nObj.obj instanceof Slider
+                                ? [nObj.obj.originalAngleList[0].x, nObj.obj.originalAngleList[0].y]
+                                : [parseInt(nObj.obj.originalX), parseInt(nObj.obj.originalY)],
+                            [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
+                        ) < stackDistance
+                    ) {
+                        nObj.obj.stackHeight = currentObj.obj.stackHeight + 1;
+                        currentObj = nObj;
+                    }
+                }
+            } else if (currentObj.obj instanceof Slider) {
+                while (--n >= 0) {
+                    // console.log(currentObj);
+                    const nObj = this.objectsList.objectsList[n];
+                    // console.log(nObj);
+                    if (currentObj.time - nObj.time > stackThreshold) break;
+
+                    if (
+                        this.calculateDistance(
+                            nObj.obj instanceof Slider
+                                ? [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y]
+                                : [parseInt(nObj.obj.originalX), parseInt(nObj.obj.originalY)],
+                            currentObj.obj instanceof Slider
+                                ? [currentObj.obj.originalAngleList[0].x, currentObj.obj.originalAngleList[0].y]
+                                : [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
+                        ) < stackDistance
+                    ) {
+                        nObj.obj.stackHeight = currentObj.obj.stackHeight + 1;
+                        currentObj = nObj;
+                    }
+                }
+            }
+        }
+
+        // this.objectsList.objectsList.reverse().forEach((currentObj, i) => {
+        //     let stackBaseIndex = i;
+        //     const stackHeight = objectLists.filter((object, idx) => {
+        //         const inParams = object.split(",");
+        //         return idx > i && parseInt(inParams[2]) - endTime <= stackThreshold && params[0] === inParams[0] && params[1] === inParams[1];
+        //     }).length;
+        //     // console.log(parseInt(params[2]), stackHeight);
+        //     const x = Math.round(parseInt(params[0]) + stackOffset * stackHeight);
+        //     const y = Math.round(parseInt(params[1]) + stackOffset * stackHeight);
+        //     return [x, y, ...params.slice(2)].join(",");
+        // });
+    }
+
+    calculateDistance(vec1, vec2) {
+        const xDistance = vec1[0] - vec2[0];
+        const yDistance = vec1[1] - vec2[1];
+        return Math.sqrt(xDistance ** 2 + yDistance ** 2);
     }
 
     render() {

@@ -2,7 +2,8 @@ class Slider {
     originalArr = [];
     pointArr = [];
     angleList = [];
-    breakPoints = [];
+    originalAngleList = [];
+    originalBreakPoints = [];
     sliderLen = 0;
     initialSliderLen;
     initialSliderVelocity;
@@ -30,6 +31,7 @@ class Slider {
     minY;
     maxX;
     maxY;
+    stackHeight = 0;
 
     binom(n, k) {
         var coeff = 1;
@@ -62,6 +64,8 @@ class Slider {
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
 
+        const inverse = mods.HR ? -1 : 1;
+
         const dark1 = colour
             .replaceAll("rgb(", "")
             .replaceAll(")", "")
@@ -90,7 +94,7 @@ class Slider {
                 };
             });
 
-            this.getAngleList(newPointArr, currentScaleFactor);
+            this.angleList = this.getAngleList(newPointArr, currentScaleFactor).angleList;
 
             this.minX = this.angleList.reduce((prev, curr) => (prev.x >= curr.x ? curr : prev)).x;
             this.minY = this.angleList.reduce((prev, curr) => (prev.y >= curr.y ? curr : prev)).y;
@@ -149,13 +153,19 @@ class Slider {
                 if (sliderAppearance.snaking) {
                     if (this.repeat % 2 === 0 && currentPointCalcLengthRatio >= 1 - ((percentage - 1) * this.repeat + 1)) return;
                     if (this.repeat % 2 !== 0 && currentPointCalcLengthRatio <= (percentage - 1) * this.repeat + 1) {
-                        pseudoCtx.moveTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
+                        pseudoCtx.moveTo(
+                            point.x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor,
+                            point.y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor
+                        );
                         return;
                     }
                 }
             }
 
-            pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
+            pseudoCtx.lineTo(
+                point.x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor,
+                point.y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor
+            );
         });
 
         pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
@@ -205,12 +215,18 @@ class Slider {
         }
 
         if (this.repeat > 1 && percentage <= 1 - 1 / this.repeat) {
-            let x = this.angleList[endPosition].x + shiftOffsetX;
-            let y = this.angleList[endPosition].y + shiftOffsetY;
+            let x = this.angleList[endPosition].x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor;
+            let y = this.angleList[endPosition].y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor;
 
             if (percentage > 0) {
-                x = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].x + shiftOffsetX;
-                y = this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y + shiftOffsetY;
+                x =
+                    this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].x +
+                    shiftOffsetX +
+                    stackOffset * this.stackHeight * currentScaleFactor;
+                y =
+                    this.angleList[Math.floor(percentage / (1 / this.repeat)) % 2 === 0 ? endPosition : 0].y +
+                    shiftOffsetY +
+                    inverse * stackOffset * this.stackHeight * currentScaleFactor;
             }
 
             const revArrowSize = !sliderAppearance.snaking
@@ -250,10 +266,10 @@ class Slider {
             if (sliderBallPosition !== undefined) {
                 pseudoCtx.beginPath();
                 pseudoCtx.strokeStyle = colour;
-                pseudoCtx.lineWidth = (currentSliderBorderThickness * 2);
+                pseudoCtx.lineWidth = currentSliderBorderThickness * 2;
                 pseudoCtx.arc(
-                    sliderBallPosition.x + shiftOffsetX,
-                    sliderBallPosition.y + shiftOffsetY,
+                    sliderBallPosition.x + shiftOffsetX + stackOffset * this.stackHeight * currentScaleFactor,
+                    sliderBallPosition.y + shiftOffsetY + inverse * stackOffset * this.stackHeight * currentScaleFactor,
                     !sliderAppearance.legacy ? (objectSizeWithoutScale / 2) * (150 / 272) : (objectSizeWithoutScale / 2) * (236 / 272),
                     0,
                     Math.PI * 2,
@@ -316,8 +332,10 @@ class Slider {
     }
 
     getAngleList(pointArr, ascaleFactor) {
-        this.angleList = [];
-        this.breakPoints = [];
+        // console.log(`${this.startTime} called`)
+        let angleList = [];
+        let breakPoints = [];
+        let sliderLen = 0;
 
         let lengthAB, lengthBC, lengthAC, angleA, angleB, angleC, radius, innerAngle, upper, lower, angleIndex, b, centerX, centerY;
 
@@ -366,19 +384,19 @@ class Slider {
             this.b = b;
         }
 
-        this.breakPoints.push(0);
+        breakPoints.push(0);
         for (let i = 0; i < pointArr.length - 1; i++) {
-            if (pointArr[i].x === pointArr[i + 1].x && pointArr[i].y === pointArr[i + 1].y) this.breakPoints.push(i);
+            if (pointArr[i].x === pointArr[i + 1].x && pointArr[i].y === pointArr[i + 1].y) breakPoints.push(i);
         }
-        this.breakPoints.push(pointArr.length - 1);
-        // console.log(this.breakPoints);
+        breakPoints.push(pointArr.length - 1);
+        // console.log(this.startTime, breakPoints);
 
         // console.log(this.sliderAccuracy);
         // console.log(pointArr);
 
-        const calculatedAngleLength = this.breakPoints
+        const calculatedAngleLength = breakPoints
             .map((bP, idx) => {
-                if (idx === this.breakPoints.length - 1) return;
+                if (idx === breakPoints.length - 1) return;
 
                 const sectionAngleList = [];
                 let sectionLength = 0;
@@ -389,8 +407,8 @@ class Slider {
                             ? this.bezier(
                                   i,
                                   bP === 0
-                                      ? pointArr.slice(this.breakPoints[idx], this.breakPoints[idx + 1] + 1)
-                                      : pointArr.slice(this.breakPoints[idx] + 1, this.breakPoints[idx + 1] + 1)
+                                      ? pointArr.slice(breakPoints[idx], breakPoints[idx + 1] + 1)
+                                      : pointArr.slice(breakPoints[idx] + 1, breakPoints[idx + 1] + 1)
                               )
                             : {
                                   x:
@@ -411,8 +429,8 @@ class Slider {
                                 ? this.bezier(
                                       i + sliderAccuracy,
                                       bP === 0
-                                          ? pointArr.slice(this.breakPoints[idx], this.breakPoints[idx + 1] + 1)
-                                          : pointArr.slice(this.breakPoints[idx] + 1, this.breakPoints[idx + 1] + 1)
+                                          ? pointArr.slice(breakPoints[idx], breakPoints[idx + 1] + 1)
+                                          : pointArr.slice(breakPoints[idx] + 1, breakPoints[idx + 1] + 1)
                                   )
                                 : {
                                       x:
@@ -434,7 +452,7 @@ class Slider {
                     }
                 }
 
-                this.sliderLen += sectionLength;
+                sliderLen += sectionLength;
                 // console.log(sectionAngleList);
 
                 return {
@@ -444,13 +462,13 @@ class Slider {
             })
             .filter((section) => section);
 
-        // console.log(calculatedAngleLength);
+        // console.log(this.startTime, calculatedAngleLength);
 
         if (calculatedAngleLength.length > 1)
             calculatedAngleLength.forEach((section) => {
-                const increment = this.sliderLen / section.sliderLen;
+                const increment = sliderLen / section.sliderLen;
                 // console.log(section);
-                // console.log(increment);
+                // console.log(this.startTime, sliderLen, section.sliderLen, increment);
 
                 const reducedArr = [];
 
@@ -458,35 +476,42 @@ class Slider {
                     reducedArr.push(section.angleList[Math.floor(i)]);
                 }
 
+                // console.log(this.startTime, reducedArr);
+
                 // if (this.startTime + preempt === 179067) {
                 //     console.log(section);
                 //     console.log(reducedArr);
                 //     // console.log(increment);
                 // }
 
-                this.angleList.push(...reducedArr);
+                angleList.push(...reducedArr);
             });
         else {
-            this.angleList = calculatedAngleLength[0].angleList;
+            angleList = calculatedAngleLength[0].angleList;
         }
 
         // if (this.startTime + preempt === 179067) console.log(this.startTime + preempt, this.angleList, calculatedAngleLength);
 
-        this.angleList = this.angleList.filter((s) => s);
+        angleList = angleList.filter((s) => s);
 
-        this.sliderLen = 0;
-        this.angleList.forEach((point, idx) => {
-            if (idx === this.angleList.length - 1) return;
-            this.sliderLen += Math.sqrt(
-                ((this.angleList[idx + 1].x - point.x) / ascaleFactor) ** 2 + ((this.angleList[idx + 1].y - point.y) / ascaleFactor) ** 2
-            );
+        sliderLen = 0;
+        angleList.forEach((point, idx) => {
+            if (idx === angleList.length - 1) return;
+            sliderLen += Math.sqrt(((angleList[idx + 1].x - point.x) / ascaleFactor) ** 2 + ((angleList[idx + 1].y - point.y) / ascaleFactor) ** 2);
         });
 
         if (!isPlaying && this.startTime + preempt === debugPosition) {
-            console.log(this.angleList);
-            console.log(this.sliderLen);
+            console.log(angleList);
+            console.log(sliderLen);
             console.log(innerAngle);
         }
+
+        // console.log(this.breakPoints)
+        // passedBreakPoints = breakPoints;
+        return {
+            angleList: angleList,
+            sliderLen: sliderLen,
+        };
     }
 
     constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, baseSliderVelocity, beatStep, time, isNewCombo, repeat) {
@@ -522,7 +547,9 @@ class Slider {
         this.startTime = time - preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
-        this.getAngleList(pointArr, scaleFactor);
+        const calculatedAngleList = this.getAngleList(pointArr, scaleFactor, this.originalBreakPoints);
+        this.angleList = calculatedAngleList.angleList;
+        this.sliderLen = calculatedAngleList.sliderLen;
 
         this.minX = this.angleList.reduce((prev, curr) => (prev.x >= curr.x ? curr : prev)).x;
         this.minY = this.angleList.reduce((prev, curr) => (prev.y >= curr.y ? curr : prev)).y;
@@ -539,6 +566,8 @@ class Slider {
             Math.ceil((this.initialSliderLen / repeat / this.sliderLen) * this.angleList.length - 1),
             this.angleList.length - 1
         );
+
+        this.originalAngleList = this.getAngleList(this.originalArr, 1, []).angleList;
 
         // console.log(this.repeat % 2);
 

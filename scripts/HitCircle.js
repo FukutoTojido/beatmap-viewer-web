@@ -7,6 +7,7 @@ class HitCircle {
     isSliderHead;
     originalX;
     originalY;
+    stackHeight = 0;
 
     draw(opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
         const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
@@ -28,14 +29,14 @@ class HitCircle {
             .map((val) => Math.round((val / 256) * (154 / 256) * 256))
             .join(",");
 
+        const inverse = mods.HR ? -1 : 1;
+
         this.positionX =
-            this.originalX * currentScaleFactor +
+            (this.originalX + stackOffset * this.stackHeight) * currentScaleFactor +
             (canvas.width - 512 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
         this.positionY =
-            this.originalY * currentScaleFactor +
+            (this.originalY + inverse * stackOffset * this.stackHeight) * currentScaleFactor +
             (canvas.height - 384 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
-
-        // console.log(this.positionX, this.positionY)
 
         const currentDrawSize = (currentHitCircleSize * currentScaleFactor * normalizedExpandRate * 272) / 256;
         const baseDrawSize = (currentHitCircleSize * currentScaleFactor * sampleApproachCircle.width.baseVal.value) / 256;
@@ -144,8 +145,8 @@ class HitCircle {
     }
 
     constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
-        this.originalX = positionX;
-        this.originalY = positionY;
+        this.originalX = parseInt(positionX);
+        this.originalY = parseInt(positionY);
 
         this.startTime = time - preempt;
         this.endTime = time + 240;
