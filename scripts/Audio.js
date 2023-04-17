@@ -117,14 +117,14 @@ class HitSample {
         // console.log(this.audioObj);
     }
     play() {
-        // console.log("Played");
+        // console.log(this.audioObj, "Played");
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
             const gainNode = audioCtx.createGain();
             gainNode.gain.value = 0.2;
             gainNode.connect(audioCtx.destination);
 
-            src.buffer = hitsoundsBuffer[hs];
+            src.buffer = hitsoundsBuffer[Object.keys(hitsoundsBuffer).includes(hs) ? hs : `${hs.replaceAll(/\d/g, "")}0`];
             src.connect(gainNode);
 
             // const audioOffset = -document.querySelector("audio").currentTime + time;

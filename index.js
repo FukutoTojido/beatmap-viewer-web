@@ -280,7 +280,7 @@ function updateTime(timestamp) {
     const msDigits = [currentMiliseconds % 10, Math.floor((currentMiliseconds % 100) / 10), Math.floor((currentMiliseconds % 1000) / 100)];
 
     msDigits.forEach((val, idx) => {
-        document.querySelector(`#millisecond${idx + 1}digit`).innerText = val;
+        document.querySelector(`#millisecond${idx + 1}digit`).innerText = Math.max(0, val);
         animation[`ms${idx + 1}digit`].update(document.querySelector(`#millisecond${idx + 1}digit`).innerText);
     });
 
@@ -288,7 +288,7 @@ function updateTime(timestamp) {
     const sDigits = [currentSeconds % 10, Math.floor((currentSeconds % 100) / 10)];
 
     sDigits.forEach((val, idx) => {
-        document.querySelector(`#second${idx + 1}digit`).innerText = val;
+        document.querySelector(`#second${idx + 1}digit`).innerText = Math.max(0, val);
         animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
     });
 
@@ -296,7 +296,7 @@ function updateTime(timestamp) {
     const mDigits = [currentMinute % 10, Math.floor((currentMinute % 100) / 10)];
 
     mDigits.forEach((val, idx) => {
-        document.querySelector(`#minute${idx + 1}digit`).innerText = val;
+        document.querySelector(`#minute${idx + 1}digit`).innerText = Math.max(0, val);
         animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
     });
 

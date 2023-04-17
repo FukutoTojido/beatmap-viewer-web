@@ -23,16 +23,21 @@ let audioCtx;
 let hitsoundsBuffer = {};
 let defaultHitsoundsList = {};
 
-async function loadSampleSound(sample) {
-    const res = (
-        await axios.get(`./static/sample/${sample}.wav`, {
-            responseType: "arraybuffer",
-        })
-    ).data;
+async function loadSampleSound(sample, idx, buf) {
+    if (buf === undefined) {
+        const res = (
+            await axios.get(`./static/sample/${sample}${idx === 0 ? "" : idx}.wav`, {
+                responseType: "arraybuffer",
+            })
+        ).data;
 
-    const buffer = await audioCtx.decodeAudioData(res);
-    // console.log(`${sample} decoded`);
-    hitsoundsBuffer[sample] = buffer;
+        const buffer = await audioCtx.decodeAudioData(res);
+        // console.log(`${sample} decoded`);
+        hitsoundsBuffer[`${sample}${idx}`] = buffer;
+    } else {
+        const buffer = await audioCtx.decodeAudioData(buf);
+        hitsoundsBuffer[`${sample}${idx}`] = buffer;
+    }
 }
 
 // console.log(defaultHitsoundsList);

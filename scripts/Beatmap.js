@@ -149,7 +149,11 @@ class Beatmap {
                             if (flag === "1") hitsoundList.push(hitsoundEnum[idx]);
                         });
 
-                    hitsoundList = hitsoundList.map((hs) => (hs === "hitnormal" ? `${sampleSet}-${hs}` : `${additional}-${hs}`));
+                    hitsoundList = hitsoundList.map((hs) =>
+                        hs === "hitnormal"
+                            ? `${sampleSet}-${hs}${currentSVMultiplier.sampleIdx}`
+                            : `${additional}-${hs}${currentSVMultiplier.sampleIdx}`
+                    );
                     // console.log(hitsoundList);
 
                     return {
@@ -175,10 +179,24 @@ class Beatmap {
                     timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
                         ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
                         : timingPointsList[0];
+
+                const currentbeatStep =
+                    beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay) !== undefined
+                        ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay).beatstep
+                        : beatStepsList[0].beatstep;
                 // console.log(("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1);
 
                 // console.log(initialSliderVelocity, currentSVMultiplier.svMultiplier);
                 if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
+                    const calculatedEndTime =
+                        parseInt(params[2]) + ((params[6] * params[7]) / currentSVMultiplier.svMultiplier / initialSliderVelocity) * currentbeatStep;
+                    // console.log(params[2], calculatedEndTime);
+
+                    const sliderEndSVMultiplier =
+                        timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedEndTime) !== undefined
+                            ? timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedEndTime)
+                            : timingPointsList[0];
+
                     let headHitsoundList = ["hitnormal"];
                     let tailHitsoundList = ["hitnormal"];
 
@@ -220,7 +238,7 @@ class Beatmap {
                             const defaultTailSampleSet =
                                 params[9].split("|").at(-1).split(":")[0] !== "0"
                                     ? hitsampleEnum[params[9].split("|").at(-1).split(":")[0]]
-                                    : hitsampleEnum[currentSVMultiplier.sampleSet];
+                                    : hitsampleEnum[sliderEndSVMultiplier.sampleSet];
 
                             headSs = {
                                 default: defaultHeadSampleSet,
@@ -251,7 +269,6 @@ class Beatmap {
                                 }
                             });
 
-
                         parseInt(tailHs)
                             .toString(2)
                             .padStart(4, "0")
@@ -265,10 +282,14 @@ class Beatmap {
                             });
 
                         headHitsoundList = headHitsoundList.map((hs) =>
-                            hs === "hitnormal" ? `${headSs.default}-${hs}` : `${headSs.additional}-${hs}`
+                            hs === "hitnormal"
+                                ? `${headSs.default}-${hs}${currentSVMultiplier.sampleIdx}`
+                                : `${headSs.additional}-${hs}${currentSVMultiplier.sampleIdx}`
                         );
                         tailHitsoundList = tailHitsoundList.map((hs) =>
-                            hs === "hitnormal" ? `${tailSs.default}-${hs}` : `${tailSs.additional}-${hs}`
+                            hs === "hitnormal"
+                                ? `${tailSs.default}-${hs}${sliderEndSVMultiplier.sampleIdx}`
+                                : `${tailSs.additional}-${hs}${sliderEndSVMultiplier.sampleIdx}`
                         );
                     }
 
@@ -287,10 +308,6 @@ class Beatmap {
                         parseInt(params[6])
                     );
 
-                    const currentbeatStep =
-                        beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay) !== undefined
-                            ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay).beatstep
-                            : beatStepsList[0].beatstep;
                     const endTime =
                         parseInt(params[2]) +
                         delay +

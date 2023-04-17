@@ -7,6 +7,7 @@ class BeatmapFile {
     audioArrayBuffer;
     audioNode;
     beatmapRenderData;
+    hitsoundList = [];
 
     constructor(mapId) {
         this.mapId = mapId;
@@ -40,8 +41,9 @@ class BeatmapFile {
         const requestClient = axios.create({
             // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
             // baseURL: `https://chimu.moe/d/`,
-            baseURL: `https://subapi.nerinyan.moe/d/`,
-            params: { nv: 1, nh: 1, nsb: 1 },
+            // baseURL: `https://subapi.nerinyan.moe/d/`,
+            baseURL: `https://proxy.nerinyan.moe/d/`,
+            // params: { nv: 1, nh: 0, nsb: 1 },
         });
         const mapFileBlob = (
             await requestClient.get(`${setId}?server=auto`, {
@@ -74,6 +76,25 @@ class BeatmapFile {
         this.audioBlobURL = URL.createObjectURL(audioBlob);
         this.audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
 
+        const hitsoundFiles = (await zipReader.getEntries()).filter((file) => {
+            // console.log(file.filename);
+            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap)([1-9][0-9]*)?/.test(file.filename);
+        });
+
+        const hitsoundArrayBuffer = [];
+        for (const file of hitsoundFiles) {
+            const fileBlob = await file.getData(new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`));
+            const fileArrayBuffer = await this.readBlobAsBuffer(fileBlob);
+
+            hitsoundArrayBuffer.push({
+                filename: file.filename,
+                buf: fileArrayBuffer,
+            });
+        }
+
+        this.hitsoundList = hitsoundArrayBuffer;
+        // console.log(this.hitsoundList);
+
         const backgroundFile = (await zipReader.getEntries()).filter((e) => e.filename === backgroundFilename).shift();
         const backgroundBlob =
             backgroundFile !== undefined ? await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)) : "";
@@ -83,12 +104,23 @@ class BeatmapFile {
     }
 
     async loadHitsounds() {
-        audioCtx = new AudioContext();
-
         for (const sampleset of ["normal", "soft", "drum"]) {
             for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap"]) {
-                await loadSampleSound(`${sampleset}-${hs}`);
+                await loadSampleSound(`${sampleset}-${hs}`, 0);
             }
+        }
+
+        for (const hs of this.hitsoundList) {
+            // console.log(hs);
+            const idx = hs.filename
+                .replace(hs.filename.match(/normal|soft|drum/)[0], "")
+                .replaceAll(hs.filename.match(/hitnormal|hitwhistle|hitfinish|hitclap/), "")
+                .replace("-", "")
+                .split(".")[0];
+
+            // console.log(hs.filename.split(".")[0].replaceAll(`${idx}`, ""), idx);
+
+            await loadSampleSound(hs.filename.split(".")[0].replaceAll(`${idx}`, ""), idx === "" ? 1 : parseInt(idx), hs.buf);
         }
 
         // console.log(hitsoundsBuffer);
@@ -107,15 +139,16 @@ class BeatmapFile {
 
     async constructMap() {
         try {
+            audioCtx = new AudioContext();
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
-            await this.loadHitsounds();
             await this.getOsz();
+            this.audioNode = new PAudio(this.audioArrayBuffer);
+            await this.loadHitsounds();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
             document.querySelector("#loadingText").innerText = `Setting up Audio`;
             // this.audio = new Audio(this.audioBlobURL);
-            this.audioNode = new PAudio(this.audioArrayBuffer);
 
             document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
