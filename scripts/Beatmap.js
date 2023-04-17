@@ -91,6 +91,9 @@ class Beatmap {
                 return {
                     time: parseInt(params[0]),
                     svMultiplier: params[1] > 0 ? 1 : parseFloat(((-1 / params[1]) * 100).toFixed(2)),
+                    sampleSet: parseInt(params[3]),
+                    sampleIdx: parseInt(params[4]),
+                    sampleVol: parseInt(params[5]),
                 };
             });
 
@@ -109,17 +112,32 @@ class Beatmap {
             .filter((s) => s !== "");
 
         // console.log(objectLists);
-        const hitsampleEnum = ["normal", "normal", "soft", "drum"];
+        const hitsampleEnum = ["", "normal", "soft", "drum"];
         const hitsoundEnum = ["hitwhistle", "hitfinish", "hitclap"];
 
         const hitCircleList = objectLists
             .map((object) => {
                 const params = object.split(",");
 
+                const currentSVMultiplier =
+                    timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
+                        ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
+                        : timingPointsList[0];
+
                 if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12") {
                     let hitsoundList = ["hitnormal"];
-                    const sampleSet = params[5] !== undefined && params[5] !== "" ? hitsampleEnum[params[5].split(":")[0]] : "normal";
-                    const additional = params[5] !== undefined && params[5] !== "" ? hitsampleEnum[params[5].split(":")[1]] : "normal";
+                    const sampleSet =
+                        params[5] !== undefined && params[5] !== ""
+                            ? params[5].split(":")[0] !== "0"
+                                ? hitsampleEnum[params[5].split(":")[0]]
+                                : hitsampleEnum[currentSVMultiplier.sampleSet]
+                            : hitsampleEnum[currentSVMultiplier.sampleSet];
+                    const additional =
+                        params[5] !== undefined && params[5] !== ""
+                            ? params[5].split(":")[1] !== "0"
+                                ? hitsampleEnum[params[5].split(":")[1]]
+                                : sampleSet
+                            : sampleSet;
                     // console.log(parseInt(params[3]).toString(2)[2]);
                     parseInt(params[4])
                         .toString(2)
@@ -194,14 +212,30 @@ class Beatmap {
                         };
 
                         if (params[9] !== undefined) {
+                            const defaultHeadSampleSet =
+                                params[9].split("|")[0].split(":")[0] !== "0"
+                                    ? hitsampleEnum[params[9].split("|")[0].split(":")[0]]
+                                    : hitsampleEnum[currentSVMultiplier.sampleSet];
+
+                            const defaultTailSampleSet =
+                                params[9].split("|").at(-1).split(":")[0] !== "0"
+                                    ? hitsampleEnum[params[9].split("|").at(-1).split(":")[0]]
+                                    : hitsampleEnum[currentSVMultiplier.sampleSet];
+
                             headSs = {
-                                default: hitsampleEnum[params[9].split("|")[0].split(":")[0]],
-                                additional: hitsampleEnum[params[9].split("|")[0].split(":")[1]],
+                                default: defaultHeadSampleSet,
+                                additional:
+                                    params[9].split("|")[0].split(":")[1] !== "0"
+                                        ? hitsampleEnum[params[9].split("|")[0].split(":")[1]]
+                                        : defaultHeadSampleSet,
                             };
 
                             tailSs = {
-                                default: hitsampleEnum[params[9].split("|").at(-1).split(":")[0]],
-                                additional: hitsampleEnum[params[9].split("|").at(-1).split(":")[1]],
+                                default: defaultTailSampleSet,
+                                additional:
+                                    params[9].split("|").at(-1).split(":")[1] !== "0"
+                                        ? hitsampleEnum[params[9].split("|").at(-1).split(":")[1]]
+                                        : defaultTailSampleSet,
                             };
                         }
 
@@ -217,6 +251,7 @@ class Beatmap {
                                 }
                             });
 
+
                         parseInt(tailHs)
                             .toString(2)
                             .padStart(4, "0")
@@ -225,7 +260,7 @@ class Beatmap {
                             .slice(1)
                             .forEach((flag, idx) => {
                                 if (flag === "1") {
-                                    headHitsoundList.push(hitsoundEnum[idx]);
+                                    tailHitsoundList.push(hitsoundEnum[idx]);
                                 }
                             });
 
@@ -237,7 +272,7 @@ class Beatmap {
                         );
                     }
 
-                    // console.log(headHitsoundList, tailHitsoundList);
+                    // console.log(parseInt(params[2]), headHitsoundList, tailHitsoundList);
                     const sliderObj = new Slider(
                         `${params[0]}:${params[1]}|${params[5].slice(2)}`,
                         params[5][0],
