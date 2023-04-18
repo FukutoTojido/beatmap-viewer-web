@@ -61,8 +61,8 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
-        timestamp += HARD_OFFSET + SOFT_OFFSET;
         updateTime(timestamp);
+        timestamp += HARD_OFFSET + SOFT_OFFSET;
 
         // if (!staticDraw) setAudioTime();
         setSliderTime();

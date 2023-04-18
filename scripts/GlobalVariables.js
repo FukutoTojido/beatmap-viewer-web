@@ -1,24 +1,37 @@
+const settingsTemplate = {
+    mapping: {
+        beatsnap: 4,
+    },
+    background: {
+        dim: 0.8,
+        blur: 0,
+    },
+    volume: {
+        master: 1,
+        music: 0.2,
+        hs: 0.2,
+    },
+    sliderAppearance: {
+        snaking: true,
+        untint: false,
+        legacy: false,
+        hitAnim: true,
+    },
+};
+
 if (!localStorage.getItem("settings")) {
-    localStorage.setItem(
-        "settings",
-        JSON.stringify({
-            background: {
-                dim: 0.8,
-                blur: 0,
-            },
-            volume: {
-                master: 1,
-                music: 0.2,
-                hs: 0.2,
-            },
-            sliderAppearance: {
-                snaking: true,
-                untint: false,
-                legacy: false,
-                hitAnim: true,
-            },
-        })
-    );
+    localStorage.setItem("settings", JSON.stringify(settingsTemplate));
+} else {
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    Object.keys(settingsTemplate).forEach((k) => {
+        if (currentLocalStorage[k] === undefined) currentLocalStorage[k] = settingsTemplate[k];
+
+        Object.keys(settingsTemplate[k]).forEach((k2) => {
+            if (currentLocalStorage[k][k2] === undefined) currentLocalStorage[k][k2] = settingsTemplate[k][k2];
+        });
+    });
+
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
 
 const queryString = window.location.search;
@@ -68,7 +81,7 @@ async function loadSampleSound(sample, idx, buf) {
 }
 
 // console.log(defaultHitsoundsList);
-const HARD_OFFSET = -25;
+const HARD_OFFSET = 0;
 let SOFT_OFFSET = 0;
 
 let circleSize = 4;
@@ -93,6 +106,8 @@ let playbackRate = 1;
 let masterVol = JSON.parse(localStorage.getItem("settings")).volume.master;
 let musicVol = JSON.parse(localStorage.getItem("settings")).volume.music;
 let hsVol = JSON.parse(localStorage.getItem("settings")).volume.hs;
+let beatsnap = JSON.parse(localStorage.getItem("settings")).mapping.beatsnap;
+let beatsteps = [];
 
 let stackLeniency;
 let stackOffset;

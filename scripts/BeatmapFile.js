@@ -230,6 +230,13 @@ class BeatmapFile {
             canvas.addEventListener("click", (event) => {
                 handleCanvasClick(event);
             });
+
+            document.querySelector("#playerContainer").addEventListener("wheel", (event) => {
+                event.preventDefault();
+
+                if (event.deltaY > 0) goNext();
+                if (event.deltaY < 0) goBack();
+            });
         } catch (err) {
             alert(err);
             console.log(err);

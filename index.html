@@ -215,6 +215,17 @@
             </div>
         </div> -->
         <div class="section">
+            <div id="title">mapping related</div>
+            <div class="list">
+                <div class="selection slider">
+                    <label for="beat">beatsnap divisor</label>
+                    <div id="beatVal" class="val">1/4</div>
+                    <input type="range" id="beat" name="beat" min="1" max="16" step="1"
+                        oninput='setBeatsnapDivisor(this);' value="4">
+                </div>
+            </div>
+        </div>
+        <div class="section">
             <div id="title">audio</div>
             <div class="list">
                 <div class="selection slider">

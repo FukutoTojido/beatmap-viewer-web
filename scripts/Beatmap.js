@@ -79,6 +79,9 @@ class Beatmap {
                     beatstep: parseFloat(params[1]),
                 };
             });
+
+        beatsteps = beatStepsList;
+
         const timingPointsList = rawBeatmap
             .slice(
                 timingPosition,

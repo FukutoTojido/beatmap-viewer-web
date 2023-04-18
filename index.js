@@ -26,6 +26,9 @@ if (localStorage.getItem("settings")) {
             document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
         }
     });
+
+    document.querySelector("#beat").value = currentLocalStorage.mapping.beatsnap;
+    document.querySelector("#beatVal").innerHTML = `1/${currentLocalStorage.mapping.beatsnap}`;
 }
 
 document.querySelector(".loading").style.display = "none";
@@ -186,8 +189,7 @@ function setSliderTime() {
     if (beatmapFile === undefined) return;
     if (!sliderOnChange) document.querySelector("#progress").value = beatmapFile.audioNode.getCurrentTime();
 
-    // if (beatmapFile !== undefined && !playingFlag)
-    //     beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
+    // if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function setAudioTime(callFromDraw) {
@@ -359,7 +361,17 @@ function setEffectVolume(slider) {
     if (originalIsPlaying) beatmapFile.audioNode.play();
 }
 
+function setBeatsnapDivisor(slider) {
+    beatsnap = slider.value;
+    document.querySelector("#beatVal").innerHTML = `1/${slider.value}`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.mapping.beatsnap = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+}
+
 function updateTime(timestamp) {
+    // console.log(timestamp);
     const currentMiliseconds = Math.floor(timestamp);
     const msDigits = [currentMiliseconds % 10, Math.floor((currentMiliseconds % 100) / 10), Math.floor((currentMiliseconds % 1000) / 100)];
 
@@ -389,18 +401,60 @@ function updateTime(timestamp) {
 
 function goNext() {
     if (beatmapFile !== undefined) {
-        beatmapFile.audioNode.seekTo(beatmapFile.audioNode.getCurrentTime() + 10);
+        let step = 10;
+        let currentBeatstep;
+
+        if (beatsteps.length) {
+            currentBeatstep =
+                beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime()) !== undefined
+                    ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
+                    : beatsteps[0];
+
+            step = currentBeatstep.beatstep / beatsnap;
+        }
+
+        const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
+        const goTo = Math.min(
+            Math.max(localOffset + (Math.floor(beatmapFile.audioNode.getCurrentTime() / step) + 1) * step, 0),
+            beatmapFile.audioNode.buf.duration * 1000
+        );
+
+        // console.log(currentBeatstep, localOffset, goTo);
+        beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
+        beatmapFile.audioNode.seekTo(goTo);
         // console.log(beatmapFile.audioNode.currentTime);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        setAudioTime();
+        // setAudioTime();
     }
 }
 
 function goBack() {
     if (beatmapFile !== undefined) {
-        beatmapFile.audioNode.seekTo(beatmapFile.audioNode.getCurrentTime() - 10);
+        let step = 10;
+        let currentBeatstep;
+
+        if (beatsteps.length) {
+            currentBeatstep =
+                beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime()) !== undefined
+                    ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
+                    : beatsteps[0];
+
+            step = currentBeatstep.beatstep / beatsnap;
+        }
+
+        const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
+        const goTo = Math.min(
+            Math.max(localOffset + (Math.floor(beatmapFile.audioNode.getCurrentTime() / step) - 1) * step, 0),
+            beatmapFile.audioNode.buf.duration * 1000
+        );
+
+        
+        // console.log(currentBeatstep, localOffset, goTo);
+        beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
+        beatmapFile.audioNode.seekTo(goTo);
+        // console.log(beatmapFile.audioNode.currentTime);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        setAudioTime();
+        // setAudioTime();
     }
 }
 
