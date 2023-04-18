@@ -95,58 +95,58 @@ class ObjectsList {
         this.objectsList
             .filter(
                 (object) =>
-                    object.time - currentPreempt < timestamp &&
-                    (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
+                    selectedHitObject.includes(object.time) ||
+                    (object.time - currentPreempt < timestamp &&
+                        (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp)
             )
             .reverse()
             .forEach((object) => {
-                const objStartTime = object.time - currentPreempt;
-                if (timestamp >= objStartTime) {
-                    const opacity =
-                        timestamp < object.time
-                            ? (timestamp - objStartTime) / currentFadeIn
-                            : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
+                if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
+                if (
+                    object.time - currentPreempt < timestamp &&
+                    (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
+                ) {
+                    const objStartTime = object.time - currentPreempt;
+                    if (timestamp >= objStartTime) {
+                        const opacity =
+                            timestamp < object.time
+                                ? (timestamp - objStartTime) / currentFadeIn
+                                : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
 
-                    // console.log(object.time, timestamp, timestamp < object.time);
+                        // console.log(object.time, timestamp, timestamp < object.time);
 
-                    object.obj.draw(
-                        timestamp,
-                        opacity,
-                        (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
-                        1 - (timestamp - object.time) / 240,
-                        (timestamp - objStartTime) / currentPreempt,
-                        object.colour,
-                        object.colourIdx,
-                        object.comboIdx,
-                        currentScaleFactor
-                    );
+                        object.obj.draw(
+                            timestamp,
+                            opacity,
+                            (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
+                            1 - (timestamp - object.time) / 240,
+                            (timestamp - objStartTime) / currentPreempt,
+                            object.colour,
+                            object.colourIdx,
+                            object.comboIdx,
+                            currentScaleFactor
+                        );
 
-                    if (timestamp - this.lastTimestamp >= 2) {
-                        if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
-                            if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
-                                // console.log(object.time, timestamp, this.lastTimestamp);
-                                object.hitsounds.play();
-                            }
-                        } else {
-                            if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
-                                // console.log(object.time, timestamp, this.lastTimestamp);
-                                object.hitsounds.sliderHead.play();
-                            }
+                        if (timestamp - this.lastTimestamp >= 2) {
+                            if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
+                                if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                                    // console.log(object.time, timestamp, this.lastTimestamp);
+                                    object.hitsounds.play();
+                                }
+                            } else {
+                                if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                                    // console.log(object.time, timestamp, this.lastTimestamp);
+                                    object.hitsounds.sliderHead.play();
+                                }
 
-                            if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
-                                // console.log(object.time, timestamp, this.lastTimestamp);
-                                object.hitsounds.sliderTail.play();
+                                if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
+                                    // console.log(object.time, timestamp, this.lastTimestamp);
+                                    object.hitsounds.sliderTail.play();
+                                }
                             }
                         }
                     }
                 }
-            });
-
-        this.objectsList
-            .filter((object) => selectedHitObject.includes(object.time))
-            .reverse()
-            .forEach((object) => {
-                object.obj.drawSelected();
             });
 
         if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)
