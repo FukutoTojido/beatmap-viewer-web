@@ -52,7 +52,7 @@ class ObjectsList {
             }
             return {
                 ...object,
-                comboIdx: this.comboIdx++ % 10,
+                comboIdx: this.comboIdx++,
                 colour: coloursList[this.currentColor],
                 colourIdx: this.currentColor,
             };

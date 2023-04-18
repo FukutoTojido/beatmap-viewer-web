@@ -100,7 +100,7 @@ class HitCircle {
         ctx.drawImage(
             pseudoCanvas,
             this.positionX - drawOffset * normalizedExpandRate - 2,
-            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate - 2 : drawOffset - 2
+            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate - 2 : drawOffset - 4
         );
 
         if (mods.HR) {
@@ -131,13 +131,34 @@ class HitCircle {
             ctx.translate(0, this.positionY + (currentHitCircleSize * currentScaleFactor * 276) / 256);
             ctx.scale(1, -1);
         }
-        ctx.drawImage(
-            defaultArr[comboIdx],
-            this.positionX - drawOffset,
-            !mods.HR ? this.positionY - drawOffset : drawOffset,
-            (currentHitCircleSize * currentScaleFactor * 276) / 256,
-            (currentHitCircleSize * currentScaleFactor * 276) / 256
-        );
+
+        const numberCanvas = new OffscreenCanvas(drawOffset * 2, drawOffset * 2);
+        const numberCtx = numberCanvas.getContext("2d");
+
+        const numberCenter = drawOffset;
+        const comboStr = comboIdx.toString().split("");
+        const digitCounts = comboStr.length - 1;
+        const numberOffset = 30;
+
+        // numberCtx.moveTo(0, 0);
+        // numberCtx.fillStyle = "red";
+        // numberCtx.arc(0, 0, 10, 0, Math.PI * 2, 0);
+        // numberCtx.fill();
+
+        // console.log(this.startTime, comboStr);
+
+        comboStr.forEach((num, idx) => {
+            numberCtx.drawImage(
+                defaultArr[num],
+                numberCenter - drawOffset + (idx - digitCounts / 2) * numberOffset,
+                numberCenter - drawOffset,
+                (currentHitCircleSize * currentScaleFactor * 276) / 256,
+                (currentHitCircleSize * currentScaleFactor * 276) / 256
+            );
+        });
+
+        ctx.drawImage(numberCanvas, this.positionX - drawOffset, !mods.HR ? this.positionY - drawOffset : drawOffset);
+
         if (mods.HR) {
             ctx.restore();
         }

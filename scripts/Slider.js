@@ -238,7 +238,9 @@ class Slider {
             pseudoCtx.globalAlpha = 1;
         }
 
-        if (opacity < 0 && percentage >= 0) {
+        // console.log(this.startTime, percentage);
+
+        if (opacity < 0 && percentage >= 0 && percentage <= 1) {
             const endPosition = Math.min(
                 Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
                 this.angleList.length - 1
