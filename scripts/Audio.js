@@ -58,7 +58,7 @@ class PAudio {
     }
 
     seekTo(time) {
-        if (!time) return;
+        if (time !== 0 && !time) return;
 
         if (this.buf === undefined || time > this.buf.duration * 1000) return;
 
