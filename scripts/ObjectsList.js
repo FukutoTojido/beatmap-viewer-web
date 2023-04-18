@@ -61,7 +61,7 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
-        if (isDragging) {
+        if (isDragging && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
             handleCanvasDrag();
         }

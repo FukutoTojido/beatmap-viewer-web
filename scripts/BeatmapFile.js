@@ -275,7 +275,7 @@ class BeatmapFile {
             document.querySelector("#playerContainer").addEventListener("wheel", (event) => {
                 event.preventDefault();
 
-                if (isDragging) {
+                if (isDragging && currentX !== -1 && currentY !== -1) {
                     draggingEndTime = this.audioNode.getCurrentTime();
                     handleCanvasDrag();
                 }
