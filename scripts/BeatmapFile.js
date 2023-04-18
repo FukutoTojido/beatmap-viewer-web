@@ -32,6 +32,12 @@ class BeatmapFile {
 
     async getOsz() {
         const mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
+        // console.log(mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId)));
+
+        if (mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].mode !== "osu") {
+            throw new Error("Not a standard map!");
+        }
+
         document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
         document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
             mapsetData.beatmaps.find((map) => map.id == this.mapId).version
@@ -203,7 +209,11 @@ class BeatmapFile {
                 this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
             }
         } catch (err) {
+            alert(err);
             console.log(err);
+
+            document.querySelector(".loading").style.opacity = 0;
+            document.querySelector(".loading").style.display = "none";
         }
     }
 }
