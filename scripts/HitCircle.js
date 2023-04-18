@@ -9,6 +9,59 @@ class HitCircle {
     originalY;
     stackHeight = 0;
 
+    drawSelected(passedStackHeight) {
+        const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
+
+        let currentSliderBorderThickness = !sliderAppearance.legacy
+            ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
+            : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
+
+        const drawOffset = (currentHitCircleSize * currentScaleFactor) / 2;
+        const inverse = mods.HR ? -1 : 1;
+        const stackHeight = passedStackHeight ? passedStackHeight : this.stackHeight;
+        const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
+
+        this.positionX =
+            (this.originalX + stackOffset * stackHeight) * currentScaleFactor +
+            (canvas.width - 512 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
+        this.positionY =
+            (this.originalY + inverse * stackOffset * stackHeight) * currentScaleFactor +
+            (canvas.height - 384 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
+
+        ctx.beginPath();
+        if (mods.HR) {
+            ctx.save();
+            ctx.translate(0, this.positionY - drawOffset);
+            ctx.scale(1, -1);
+        }
+
+        const pseudoCanvas = new OffscreenCanvas(drawOffset * 2 + 6, drawOffset * 2 + 6);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+
+        const center = (drawOffset * 2 + 3) / 2;
+        // console.log(drawOffset);
+
+        pseudoCtx.beginPath();
+        pseudoCtx.strokeStyle = "rgb(255, 123, 0)";
+        pseudoCtx.fillStyle = "rgba(252, 186, 3, 0.2)";
+        pseudoCtx.lineWidth = (objectSize - (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128)) / 2;
+        pseudoCtx.arc(center, center, drawOffset * (236 / 272) - 2, 0, Math.PI * 2, 0);
+        pseudoCtx.fill();
+        pseudoCtx.stroke();
+        pseudoCtx.closePath();
+
+        ctx.drawImage(pseudoCanvas, this.positionX - drawOffset - 2, !mods.HR ? this.positionY - drawOffset - 2 : -drawOffset * 2 - 2);
+
+        if (mods.HR) {
+            ctx.restore();
+        }
+
+        ctx.closePath();
+    }
+
     draw(opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
         const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
@@ -16,6 +69,7 @@ class HitCircle {
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         const drawOffset = (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
+
         const dark1 = colour
             .replaceAll("rgb(", "")
             .replaceAll(")", "")

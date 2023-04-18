@@ -199,6 +199,24 @@ class BeatmapFile {
                             playToggle();
                             break;
                     }
+
+                    if (e.key === "c" && e.ctrlKey) {
+                        // console.log("Copied");
+                        if (selectedHitObject !== -1) {
+                            const obj = this.beatmapRenderData.objectsList.objectsList.filter((o) => o.time === selectedHitObject)[0];
+                            const currentMiliseconds = Math.floor(obj.time % 1000)
+                                .toString()
+                                .padStart(3, "0");
+                            const currentSeconds = Math.floor((obj.time / 1000) % 60)
+                                .toString()
+                                .padStart(2, "0");
+                            const currentMinute = Math.floor(obj.time / 1000 / 60)
+                                .toString()
+                                .padStart(2, "0");
+
+                            navigator.clipboard.writeText(`${currentMinute}:${currentSeconds}:${currentMiliseconds} (${obj.comboIdx}) - `);
+                        }
+                    }
                 }
             };
 
@@ -208,6 +226,10 @@ class BeatmapFile {
             } else {
                 this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
             }
+
+            canvas.addEventListener("click", (event) => {
+                handleCanvasClick(event);
+            });
         } catch (err) {
             alert(err);
             console.log(err);

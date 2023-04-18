@@ -57,6 +57,90 @@ class Slider {
         };
     }
 
+    drawSelected() {
+        if (!this.minX || !this.minY) return;
+
+        const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+
+        const inverse = mods.HR ? -1 : 1;
+        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
+        let currentSliderBorderThickness = !sliderAppearance.legacy
+            ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
+            : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
+
+        const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
+
+        if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
+            tempScaleFactor = currentScaleFactor;
+            // console.log(tempScaleFactor, "->", currentScaleFactor);
+            tempScaleFactor = currentScaleFactor;
+            this.tempCanvasWidth = canvas.width;
+            const newPointArr = this.originalArr.map((point) => {
+                return {
+                    x: point.x * currentScaleFactor + (canvas.width - 512 * currentScaleFactor) / 2,
+                    y: point.y * currentScaleFactor + (canvas.height - 384 * currentScaleFactor) / 2,
+                };
+            });
+
+            this.angleList = this.getAngleList(newPointArr, currentScaleFactor).angleList;
+
+            this.minX = this.angleList.reduce((prev, curr) => (prev.x >= curr.x ? curr : prev)).x;
+            this.minY = this.angleList.reduce((prev, curr) => (prev.y >= curr.y ? curr : prev)).y;
+            this.maxX = this.angleList.reduce((prev, curr) => (prev.x <= curr.x ? curr : prev)).x;
+            this.maxY = this.angleList.reduce((prev, curr) => (prev.y <= curr.y ? curr : prev)).y;
+        }
+
+        ctx.beginPath();
+        const sliderOffset = objectSize;
+        const shiftOffsetX = -this.minX + sliderOffset / 2;
+        const shiftOffsetY = -this.minY + sliderOffset / 2;
+
+        const pseudoCanvas = new OffscreenCanvas(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
+        const pseudoCtx = pseudoCanvas.getContext("2d");
+        pseudoCtx.lineJoin = "round";
+        pseudoCtx.lineCap = "round";
+
+        pseudoCtx.beginPath();
+        pseudoCtx.moveTo(this.angleList[0].x + shiftOffsetX, this.angleList[0].y + shiftOffsetY);
+
+        const endPosition = Math.min(
+            Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
+            this.angleList.length - 1
+        );
+
+        this.angleList.forEach((point, idx) => {
+            const currentPointFullLengthRatio = idx / this.angleList.length;
+            if (currentPointFullLengthRatio > this.INITIAL_CALCULATED_RATIO) return;
+
+            pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
+        });
+
+        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
+        pseudoCtx.stroke();
+
+        pseudoCtx.globalCompositeOperation = "source-out";
+
+        pseudoCtx.lineWidth = objectSize;
+        pseudoCtx.strokeStyle = `rgb(255, 123, 0)`;
+        pseudoCtx.stroke();
+
+        pseudoCtx.globalCompositeOperation = "source-over";
+        pseudoCtx.closePath();
+
+        // console.log(minX, minY)
+        ctx.drawImage(
+            pseudoCanvas,
+            this.minX - sliderOffset / 2 + stackOffset * this.stackHeight * currentScaleFactor,
+            this.minY - sliderOffset / 2 + inverse * stackOffset * this.stackHeight * currentScaleFactor
+        );
+        ctx.closePath();
+        this.hitCircle.drawSelected(this.stackHeight);
+    }
+
     drawBorder(opacity, percentage, colour, currentScaleFactor) {
         // console.log(this.angleList);
         if (!this.minX || !this.minY) return;

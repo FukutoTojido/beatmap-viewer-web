@@ -429,6 +429,106 @@ screen.orientation.onchange = () => {
 let beatmapFile;
 document.querySelector("#submit").addEventListener("click", submitMap);
 
+const handleCanvasClick = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+    const y = !mods.HR
+        ? (event.clientY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
+        : 1080 - (event.clientY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+
+    const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+    const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+    const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+    let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
+
+    let currentAR = !mods.EZ ? approachRate : approachRate / 2;
+    currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+    const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+
+    const currentTime = beatmapFile.audioNode.getCurrentTime();
+
+    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
+        const lowerBound = o.time - currentPreempt;
+        const upperBound = o.endTime + 240;
+        const drawOffset =
+            o.obj instanceof HitCircle
+                ? (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2
+                : (((currentHitCircleSize * currentScaleFactor * 276) / 256 / 2) * 236) / 272;
+
+        const coordLowerBound = {
+            x: x - drawOffset,
+            y: y - drawOffset,
+        };
+
+        const coordUpperBound = {
+            x: x + drawOffset,
+            y: y + drawOffset,
+        };
+
+        const inverse = mods.HR ? -1 : 1;
+
+        if (o.obj instanceof HitCircle) {
+            const positionX =
+                (o.obj.originalX + stackOffset * o.obj.stackHeight) * currentScaleFactor + (canvas.width - 512 * currentScaleFactor) / 2;
+            const positionY =
+                (o.obj.originalY + inverse * stackOffset * o.obj.stackHeight) * currentScaleFactor + (canvas.height - 384 * currentScaleFactor) / 2;
+
+            // console.log(
+            //     o.time,
+            //     lowerBound <= currentTime,
+            //     upperBound >= currentTime,
+            //     { x: positionX, y: positionY },
+            //     coordLowerBound,
+            //     coordUpperBound
+            // );
+
+            return (
+                lowerBound <= currentTime &&
+                upperBound >= currentTime &&
+                positionX >= coordLowerBound.x &&
+                positionX <= coordUpperBound.x &&
+                positionY >= coordLowerBound.y &&
+                positionY <= coordUpperBound.y
+            );
+        }
+
+        if (o.obj instanceof Slider) {
+            if (lowerBound <= currentTime && upperBound >= currentTime) {
+                const renderableAngleList = o.obj.angleList.slice(0, o.obj.endPosition);
+
+                const res = renderableAngleList.some((point) => {
+                    return (
+                        point.x >= coordLowerBound.x && point.x <= coordUpperBound.x && point.y >= coordLowerBound.y && point.y <= coordUpperBound.y
+                    );
+                });
+
+                // console.log(o.time, res);
+                return res;
+            }
+        }
+
+        return false;
+    });
+
+    const selectedObj = selectedObjList.length
+        ? selectedObjList.reduce((prev, curr) => {
+              const prevOffset = Math.abs(prev.time - currentTime);
+              const currOffset = Math.abs(curr.time - currentTime);
+
+              return prevOffset > currOffset ? curr : prev;
+          })
+        : undefined;
+    // console.log("x: " + x + " y: " + y, selectedObj);
+
+    if (selectedObj) {
+        selectedHitObject = selectedObj.time;
+    } else {
+        selectedHitObject = -1;
+    }
+
+    beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+};
+
 if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
     beatmapFile = new BeatmapFile(urlParams.get("b"));
     document.querySelector("#mapInput").value = urlParams.get("b");

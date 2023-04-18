@@ -82,6 +82,7 @@ const sliderBorderColor = "#ffffff";
 let approachRate;
 let preempt;
 let fadeIn;
+let selectedHitObject = -1;
 
 let isPlaying = true;
 let debugPosition = 52029;

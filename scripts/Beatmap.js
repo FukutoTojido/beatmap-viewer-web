@@ -167,6 +167,7 @@ class Beatmap {
                         time: parseInt(params[2]) + delay,
                         endTime: parseInt(params[2]) + delay,
                         hitsounds: new HitSample(hitsoundList),
+                        raw: object,
                     };
                 }
             })
@@ -321,6 +322,7 @@ class Beatmap {
                             sliderHead: new HitSample(headHitsoundList),
                             sliderTail: new HitSample(tailHitsoundList),
                         },
+                        raw: object,
                     };
                 }
             })

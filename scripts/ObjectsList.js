@@ -130,6 +130,13 @@ class ObjectsList {
                 }
             });
 
+        this.objectsList
+            .filter((object) => object.time === selectedHitObject)
+            .reverse()
+            .forEach((object) => {
+                object.obj.drawSelected();
+            });
+
         if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)
             window.requestAnimationFrame((currentTime) => {
                 // if (!document.querySelector("audio")) return;
