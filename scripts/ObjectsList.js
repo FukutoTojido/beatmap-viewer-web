@@ -88,17 +88,24 @@ class ObjectsList {
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.objectsList
-            .filter((object) => object.time - currentPreempt < timestamp && object.obj.endTime > timestamp)
+            .filter(
+                (object) =>
+                    object.time - currentPreempt < timestamp &&
+                    (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
+            )
             .reverse()
             .forEach((object) => {
                 const objStartTime = object.time - currentPreempt;
                 if (timestamp >= objStartTime) {
                     const opacity =
-                        timestamp < object.time ? (timestamp - objStartTime) / currentFadeIn : (timestamp - (object.obj.endTime - 240)) / 240 - 1;
+                        timestamp < object.time
+                            ? (timestamp - objStartTime) / currentFadeIn
+                            : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
 
                     // console.log(object.time, timestamp, timestamp < object.time);
 
                     object.obj.draw(
+                        timestamp,
                         opacity,
                         (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
                         1 - (timestamp - object.time) / 240,

@@ -15,6 +15,7 @@ if (!localStorage.getItem("settings")) {
                 snaking: true,
                 untint: false,
                 legacy: false,
+                hitAnim: true,
             },
         })
     );

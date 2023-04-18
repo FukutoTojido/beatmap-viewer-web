@@ -32,6 +32,7 @@ class Slider {
     maxX;
     maxY;
     stackHeight = 0;
+    time;
 
     binom(n, k) {
         var coeff = 1;
@@ -404,9 +405,20 @@ class Slider {
         ctx.closePath();
     }
 
-    draw(opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
+    draw(timestamp, opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
         this.drawBorder(opacity, percentage, colour, currentScaleFactor);
-        this.hitCircle.draw(opacity, 0, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, this.stackHeight);
+        this.hitCircle.draw(
+            timestamp,
+            opacity,
+            0,
+            hitCircleExpandRate,
+            preemptRate,
+            colour,
+            colourIdx,
+            comboIdx,
+            currentScaleFactor,
+            this.stackHeight
+        );
     }
 
     getAngleList(pointArr, ascaleFactor) {
@@ -622,6 +634,7 @@ class Slider {
         this.baseSliderVelocity = baseSliderVelocity;
         this.beatStep = parseFloat(beatStep);
 
+        this.time = time;
         this.startTime = time - preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 

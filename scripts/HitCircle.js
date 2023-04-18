@@ -8,6 +8,7 @@ class HitCircle {
     originalX;
     originalY;
     stackHeight = 0;
+    time;
 
     drawSelected(passedStackHeight) {
         const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
@@ -62,8 +63,9 @@ class HitCircle {
         ctx.closePath();
     }
 
-    draw(opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
-        const normalizedExpandRate = opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5;
+    draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
+        // console.log(this.time, opacity);
+        const normalizedExpandRate = sliderAppearance.hitAnim ? (opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5) : 1;
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 0;
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
@@ -98,7 +100,8 @@ class HitCircle {
         const baseDrawSize = (currentHitCircleSize * currentScaleFactor * sampleApproachCircle.width.baseVal.value) / 256;
 
         ctx.beginPath();
-        ctx.globalAlpha = opacity >= 0 ? opacity : expandRate >= 0 ? expandRate : 0;
+        ctx.globalAlpha =
+            opacity >= 0 ? opacity : sliderAppearance.hitAnim ? (expandRate >= 0 ? expandRate : 0) : 1 - Math.min((timestamp - this.time) / 800, 1);
 
         ctx.drawImage(
             approachCircleArr[colourIdx],
@@ -127,19 +130,19 @@ class HitCircle {
         const center = (currentDrawSize + 6) / 2;
 
         pseudoCtx.beginPath();
-        pseudoCtx.fillStyle = colour;
+        pseudoCtx.fillStyle = sliderAppearance.hitAnim ? colour : opacity >= 0 ? colour : "white";
         pseudoCtx.arc(center, center, (currentDrawSize / 2) * (236 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.fill();
         pseudoCtx.closePath();
 
         pseudoCtx.beginPath();
-        pseudoCtx.fillStyle = `rgb(${dark2})`;
+        pseudoCtx.fillStyle = sliderAppearance.hitAnim ? `rgb(${dark2})` : opacity >= 0 ? `rgb(${dark2})` : `rgb(154,154,154)`;
         pseudoCtx.arc(center, center, (currentDrawSize / 2) * (186 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.fill();
         pseudoCtx.closePath();
 
         pseudoCtx.beginPath();
-        pseudoCtx.fillStyle = `rgb(${dark1})`;
+        pseudoCtx.fillStyle = sliderAppearance.hitAnim ? `rgb(${dark1})` : opacity >= 0 ? `rgb(${dark1})` : `rgb(47,47,47)`;
         pseudoCtx.arc(center, center, (currentDrawSize / 2) * (140 / 272), 0, Math.PI * 2, 0);
         pseudoCtx.fill();
         pseudoCtx.closePath();
@@ -177,7 +180,7 @@ class HitCircle {
         // ctx.closePath();
 
         if (opacity < 0) {
-            ctx.globalAlpha = Math.max((expandRate - 0.6) / 0.4, 0);
+            ctx.globalAlpha = sliderAppearance.hitAnim ? Math.max((expandRate - 0.6) / 0.4, 0) : 1 - Math.min((timestamp - this.time) / 800, 1);
         }
 
         if (mods.HR) {
@@ -225,6 +228,7 @@ class HitCircle {
         this.originalX = parseInt(positionX);
         this.originalY = parseInt(positionY);
 
+        this.time = time;
         this.startTime = time - preempt;
         this.endTime = time + 240;
 

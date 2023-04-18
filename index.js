@@ -22,7 +22,7 @@ if (localStorage.getItem("settings")) {
     // hsVol = currentLocalStorage.volume.hs;
 
     Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
-        if (["snaking", "untint", "legacy"].includes(k)) {
+        if (["snaking", "untint", "legacy", "hitAnim"].includes(k)) {
             document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
         }
     });
@@ -165,7 +165,7 @@ function handleCheckBox(checkbox) {
     const DTMultiplier = !mods.DT ? 1 : 1.5;
     const HTMultiplier = !mods.HT ? 1 : 0.75;
 
-    if (["snaking", "untint", "legacy"].includes(checkbox.name)) {
+    if (["snaking", "untint", "legacy", "hitAnim"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = sliderAppearance[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
