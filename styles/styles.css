@@ -307,6 +307,10 @@ svg {
     text-align: center;
 }
 
+#timeContainer span {
+    pointer-events: none;
+}
+
 #playButton {
     /* position: absolute; */
 

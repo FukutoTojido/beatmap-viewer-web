@@ -404,6 +404,13 @@ function goBack() {
     }
 }
 
+function copyUrlToClipboard() {
+    const origin = window.location.origin;
+    const currentTimestamp = beatmapFile !== undefined ? beatmapFile.audioNode.getCurrentTime() : 0;
+    const mapId = currentMapId || "";
+    navigator.clipboard.writeText(`${origin}?b=${mapId}&t=${currentTimestamp}`);
+}
+
 screen.orientation.onchange = () => {
     console.log("Orientation Changed");
     canvas.width =
