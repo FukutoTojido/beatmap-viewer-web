@@ -406,7 +406,7 @@ function goBack() {
 
 function copyUrlToClipboard() {
     const origin = window.location.origin;
-    const currentTimestamp = beatmapFile !== undefined ? beatmapFile.audioNode.getCurrentTime() : 0;
+    const currentTimestamp = beatmapFile !== undefined ? parseInt(beatmapFile.audioNode.getCurrentTime()) : 0;
     const mapId = currentMapId || "";
     navigator.clipboard.writeText(`${origin}?b=${mapId}&t=${currentTimestamp}`);
 }
