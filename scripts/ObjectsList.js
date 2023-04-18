@@ -101,7 +101,6 @@ class ObjectsList {
             )
             .reverse()
             .forEach((object) => {
-                if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
                 if (
                     object.time - currentPreempt < timestamp &&
                     (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
@@ -147,6 +146,7 @@ class ObjectsList {
                         }
                     }
                 }
+                if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
             });
 
         if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)

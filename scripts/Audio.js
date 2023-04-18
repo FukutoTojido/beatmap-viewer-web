@@ -44,6 +44,7 @@ class PAudio {
     isPlaying = false;
 
     async createBufferNode(buf) {
+        // console.log(buf);
         this.buf = await audioCtx.decodeAudioData(buf);
         setProgressMax();
 

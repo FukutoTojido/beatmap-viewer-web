@@ -80,7 +80,7 @@ class BeatmapFile {
         const audioFile = (await zipReader.getEntries()).filter((e) => e.filename === audioFilename).shift();
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
         this.audioBlobURL = URL.createObjectURL(audioBlob);
-        this.audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
+        const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
 
         const hitsoundFiles = (await zipReader.getEntries()).filter((file) => {
             // console.log(file.filename);
@@ -107,6 +107,7 @@ class BeatmapFile {
         this.backgroundBlobURL = backgroundBlob !== "" ? URL.createObjectURL(backgroundBlob) : "";
 
         zipReader.close();
+        return audioArrayBuffer;
     }
 
     async loadHitsounds() {
@@ -149,8 +150,10 @@ class BeatmapFile {
             audioCtx = new AudioContext();
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
-            await this.getOsz();
-            this.audioNode = new PAudio(this.audioArrayBuffer);
+            const audioArrayBuffer = await this.getOsz();
+            this.audioArrayBuffer = audioArrayBuffer;
+            // console.log(this.audioArrayBuffer, audioArrayBuffer);
+            this.audioNode = new PAudio(audioArrayBuffer);
             await this.loadHitsounds();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
