@@ -96,7 +96,7 @@ const sliderBorderColor = "#ffffff";
 let approachRate;
 let preempt;
 let fadeIn;
-let selectedHitObject = -1;
+let selectedHitObject = [];
 
 let isPlaying = true;
 let debugPosition = 52029;
@@ -150,3 +150,13 @@ let animation = {
         separator: "",
     }),
 };
+
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+
+let currentX = -1;
+let currentY = -1;
+
+let draggingStartTime = 0;
+let draggingEndTime = 0;

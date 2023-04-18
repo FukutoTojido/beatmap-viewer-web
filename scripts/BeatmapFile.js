@@ -202,8 +202,9 @@ class BeatmapFile {
 
                     if (e.key === "c" && e.ctrlKey) {
                         // console.log("Copied");
-                        if (selectedHitObject !== -1) {
-                            const obj = this.beatmapRenderData.objectsList.objectsList.filter((o) => o.time === selectedHitObject)[0];
+                        if (selectedHitObject.length) {
+                            const objs = this.beatmapRenderData.objectsList.objectsList.filter((o) => selectedHitObject.includes(o.time));
+                            const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
                             const currentMiliseconds = Math.floor(obj.time % 1000)
                                 .toString()
                                 .padStart(3, "0");
@@ -214,7 +215,9 @@ class BeatmapFile {
                                 .toString()
                                 .padStart(2, "0");
 
-                            navigator.clipboard.writeText(`${currentMinute}:${currentSeconds}:${currentMiliseconds} (${obj.comboIdx}) - `);
+                            navigator.clipboard.writeText(
+                                `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.comboIdx).join(",")}) - `
+                            );
                         }
                     }
                 }
@@ -228,11 +231,54 @@ class BeatmapFile {
             }
 
             canvas.addEventListener("click", (event) => {
-                handleCanvasClick(event);
+                if (currentX === -1 && currentY === -1) handleCanvasClick(event);
+                currentX = -1;
+                currentY = -1;
+                // console.log(isDragging);
+            });
+
+            canvas.addEventListener("mousedown", (event) => {
+                isDragging = true;
+                draggingStartTime = this.audioNode.getCurrentTime();
+
+                startX = event.clientX;
+                startY = event.clientY;
+
+                window.requestAnimationFrame((currentTime) => {
+                    return drawStatic();
+                });
+            });
+
+            canvas.addEventListener("mouseup", (event) => {
+                if (currentX !== -1 && currentY !== -1) {
+                    handleCanvasDrag();
+                    // console.log(selectedHitObject);
+                    // console.log(startX, startY, currentX, currentY);
+                }
+                // currentX = -1;
+                // currentY = -1;
+                isDragging = false;
+            });
+
+            canvas.addEventListener("mousemove", (event) => {
+                if (isDragging) {
+                    draggingEndTime = this.audioNode.getCurrentTime();
+
+                    currentX = event.clientX;
+                    currentY = event.clientY;
+
+                    handleCanvasDrag();
+                    // console.log(startX, startY, currentX, currentY);
+                }
             });
 
             document.querySelector("#playerContainer").addEventListener("wheel", (event) => {
                 event.preventDefault();
+
+                if (isDragging) {
+                    draggingEndTime = this.audioNode.getCurrentTime();
+                    handleCanvasDrag();
+                }
 
                 if (event.deltaY > 0) goNext();
                 if (event.deltaY < 0) goBack();

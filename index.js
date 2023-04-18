@@ -144,8 +144,12 @@ toDataUrl("./static/sliderb0@2x.png", (base64) => {
 function openMenu() {
     // console.log(ele);
     const settingsPanel = document.querySelector("#settingsPanel");
+    const block = document.querySelector("#block");
+
     settingsPanel.style.left = settingsPanel.style.left === "" ? "0px" : "";
     settingsPanel.style.opacity = settingsPanel.style.opacity === "" ? "1" : "";
+
+    block.style.display = settingsPanel.style.opacity === "1" ? "block" : "";
 }
 
 document.body.addEventListener("click", (e) => {
@@ -157,6 +161,7 @@ document.body.addEventListener("click", (e) => {
         if (!settingsPanelIsClick) {
             settingsPanel.style.left = "";
             settingsPanel.style.opacity = "";
+            block.style.display = settingsPanel.style.opacity === "1" ? "block" : "";
         }
     }
 });
@@ -448,7 +453,6 @@ function goBack() {
             beatmapFile.audioNode.buf.duration * 1000
         );
 
-        
         // console.log(currentBeatstep, localOffset, goTo);
         beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
         beatmapFile.audioNode.seekTo(goTo);
@@ -503,7 +507,7 @@ const handleCanvasClick = (event) => {
 
     const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
         const lowerBound = o.time - currentPreempt;
-        const upperBound = o.endTime + 240;
+        const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
         const drawOffset =
             o.obj instanceof HitCircle
                 ? (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2
@@ -575,12 +579,137 @@ const handleCanvasClick = (event) => {
     // console.log("x: " + x + " y: " + y, selectedObj);
 
     if (selectedObj) {
-        selectedHitObject = selectedObj.time;
+        selectedHitObject = [selectedObj.time];
     } else {
-        selectedHitObject = -1;
+        selectedHitObject = [];
     }
 
     beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+};
+
+const handleCanvasDrag = () => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (currentX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+    const y = !mods.HR
+        ? (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
+        : 1080 - (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+
+    const start_X = (startX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+    const start_Y = !mods.HR
+        ? (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
+        : 1080 - (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+
+    const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+
+    let currentAR = !mods.EZ ? approachRate : approachRate / 2;
+    currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+    const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+
+    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
+        const lowerBound = o.time - currentPreempt;
+        const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
+        // console.log(Math.min(draggingStartTime, draggingEndTime), Math.max(draggingStartTime, draggingEndTime), o.time, lowerBound, upperBound);
+
+        const coordLowerBound = {
+            x: Math.min(x, start_X),
+            y: Math.min(y, start_Y),
+        };
+
+        const coordUpperBound = {
+            x: Math.max(x, start_X),
+            y: Math.max(y, start_Y),
+        };
+
+        const inverse = mods.HR ? -1 : 1;
+        const timeWindowOverlapCheck =
+            (lowerBound <= Math.min(draggingStartTime, draggingEndTime) && upperBound >= Math.max(draggingStartTime, draggingEndTime)) ||
+            (lowerBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime)) ||
+            (lowerBound >= Math.min(draggingStartTime, draggingEndTime) && lowerBound <= Math.max(draggingStartTime, draggingEndTime)) ||
+            (upperBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime));
+
+        if (o.obj instanceof HitCircle) {
+            const positionX =
+                (o.obj.originalX + stackOffset * o.obj.stackHeight) * currentScaleFactor + (canvas.width - 512 * currentScaleFactor) / 2;
+            const positionY =
+                (o.obj.originalY + inverse * stackOffset * o.obj.stackHeight) * currentScaleFactor + (canvas.height - 384 * currentScaleFactor) / 2;
+
+            // console.log(
+            //     o.time,
+            //     lowerBound <= currentTime,
+            //     upperBound >= currentTime,
+            //     { x: positionX, y: positionY },
+            //     coordLowerBound,
+            //     coordUpperBound
+            // );
+
+            return (
+                timeWindowOverlapCheck &&
+                positionX >= coordLowerBound.x &&
+                positionX <= coordUpperBound.x &&
+                positionY >= coordLowerBound.y &&
+                positionY <= coordUpperBound.y
+            );
+        }
+
+        if (o.obj instanceof Slider) {
+            if (timeWindowOverlapCheck) {
+                const renderableAngleList = o.obj.angleList.slice(0, o.obj.endPosition);
+
+                const res = renderableAngleList.some((point) => {
+                    return (
+                        point.x >= coordLowerBound.x && point.x <= coordUpperBound.x && point.y >= coordLowerBound.y && point.y <= coordUpperBound.y
+                    );
+                });
+
+                // console.log(o.time, res);
+                return res;
+            }
+        }
+
+        return false;
+    });
+
+    // console.log("x: " + x + " y: " + y, selectedObj);
+
+    if (selectedObjList.length) {
+        selectedHitObject = selectedObjList.map((o) => o.time);
+    } else {
+        selectedHitObject = [];
+    }
+};
+
+const drawStatic = () => {
+    const currentTime = beatmapFile.audioNode.getCurrentTime();
+    beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+
+    if (currentX !== -1 && currentY !== -1) {
+        const rect = canvas.getBoundingClientRect();
+
+        const x = (currentX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+        const y = !mods.HR
+            ? (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
+            : 1080 - (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+
+        const start_X = (startX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+        const start_Y = !mods.HR
+            ? (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
+            : 1080 - (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "white";
+        ctx.fillStyle = `rgba(255 255 255 / .1)`;
+        ctx.rect(Math.min(x, start_X), Math.min(y, start_Y), Math.abs(x - start_X), Math.abs(y - start_Y));
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    if (isDragging) {
+        window.requestAnimationFrame((currentTime) => {
+            return drawStatic();
+        });
+    }
 };
 
 if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {

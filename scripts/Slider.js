@@ -59,6 +59,8 @@ class Slider {
     }
 
     drawSelected() {
+        this.hitCircle.drawSelected(this.stackHeight);
+
         if (!this.minX || !this.minY) return;
 
         const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
@@ -72,7 +74,7 @@ class Slider {
             ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
             : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
 
-        const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
+        const objectSize = currentHitCircleSize * currentScaleFactor * (236 / 272);
 
         if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
             tempScaleFactor = currentScaleFactor;
@@ -95,7 +97,7 @@ class Slider {
         }
 
         ctx.beginPath();
-        const sliderOffset = objectSize;
+        const sliderOffset = (objectSize * 128) / 118;
         const shiftOffsetX = -this.minX + sliderOffset / 2;
         const shiftOffsetY = -this.minY + sliderOffset / 2;
 
@@ -119,13 +121,13 @@ class Slider {
             pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
         });
 
-        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor;
         pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
         pseudoCtx.stroke();
 
         pseudoCtx.globalCompositeOperation = "source-out";
 
-        pseudoCtx.lineWidth = objectSize;
+        pseudoCtx.lineWidth = objectSize * (128 / 118);
         pseudoCtx.strokeStyle = `rgb(255, 123, 0)`;
         pseudoCtx.stroke();
 
@@ -139,7 +141,6 @@ class Slider {
             this.minY - sliderOffset / 2 + inverse * stackOffset * this.stackHeight * currentScaleFactor
         );
         ctx.closePath();
-        this.hitCircle.drawSelected(this.stackHeight);
     }
 
     drawBorder(opacity, percentage, colour, currentScaleFactor) {
@@ -163,8 +164,8 @@ class Slider {
             ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
             : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
 
-        const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
-        const objectSizeWithoutBorder = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        const objectSize = currentHitCircleSize * currentScaleFactor * (236 / 272);
+        const objectSizeWithoutBorder = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor;
         const objectSizeWithoutScale = currentHitCircleSize * currentScaleFactor;
 
         if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
@@ -190,7 +191,7 @@ class Slider {
         ctx.beginPath();
         ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) : Math.abs(opacity);
 
-        const sliderOffset = objectSize;
+        const sliderOffset = objectSize * (128 / 118);
         const shiftOffsetX = -this.minX + sliderOffset / 2;
         const shiftOffsetY = -this.minY + sliderOffset / 2;
 
@@ -247,13 +248,13 @@ class Slider {
             pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
         });
 
-        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128);
+        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor;
         pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
         pseudoCtx.stroke();
 
         pseudoCtx.globalCompositeOperation = "source-out";
 
-        pseudoCtx.lineWidth = objectSize;
+        pseudoCtx.lineWidth = objectSize * (128 / 118);
         pseudoCtx.strokeStyle = sliderAppearance.untint ? "#ccc" : colour;
         pseudoCtx.stroke();
 

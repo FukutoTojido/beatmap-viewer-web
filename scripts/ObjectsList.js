@@ -61,6 +61,11 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
+        if (isDragging) {
+            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+            handleCanvasDrag();
+        }
+
         updateTime(timestamp);
         timestamp += HARD_OFFSET + SOFT_OFFSET;
 
@@ -138,7 +143,7 @@ class ObjectsList {
             });
 
         this.objectsList
-            .filter((object) => object.time === selectedHitObject)
+            .filter((object) => selectedHitObject.includes(object.time))
             .reverse()
             .forEach((object) => {
                 object.obj.drawSelected();

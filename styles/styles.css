@@ -485,6 +485,13 @@ button:hover {
     animation: linear osuSpinnerKurwa 2s infinite;
 }
 
+#block {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 #settingsPanel {
     position: absolute;
     top: 0;
