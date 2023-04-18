@@ -408,7 +408,7 @@ function copyUrlToClipboard() {
     const origin = window.location.origin;
     const currentTimestamp = beatmapFile !== undefined ? parseInt(beatmapFile.audioNode.getCurrentTime()) : 0;
     const mapId = currentMapId || "";
-    navigator.clipboard.writeText(`${origin}?b=${mapId}&t=${currentTimestamp}`);
+    navigator.clipboard.writeText(`${origin}beatmap-viewer-how?b=${mapId}&t=${currentTimestamp}`);
 }
 
 screen.orientation.onchange = () => {
