@@ -94,7 +94,7 @@ class PAudio {
             this.src.connect(gainNode);
 
             this.startTime = audioCtx.currentTime * 1000;
-            this.src.start(audioCtx.currentTime, time !== undefined ? time / 1000 : this.currentTime / 1000);
+            this.src.start(audioCtx.currentTime, time !== undefined ? time / 1000 + 25 / 1000 : this.currentTime / 1000 + 25 / 1000);
 
             document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
         }

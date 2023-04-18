@@ -67,7 +67,7 @@ class ObjectsList {
         }
 
         updateTime(timestamp);
-        timestamp += HARD_OFFSET + SOFT_OFFSET;
+        // timestamp += HARD_OFFSET + SOFT_OFFSET;
 
         // if (!staticDraw) setAudioTime();
         setSliderTime();

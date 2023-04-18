@@ -81,7 +81,7 @@ async function loadSampleSound(sample, idx, buf) {
 }
 
 // console.log(defaultHitsoundsList);
-const HARD_OFFSET = 0;
+// const HARD_OFFSET = 0;
 let SOFT_OFFSET = 0;
 
 let circleSize = 4;
