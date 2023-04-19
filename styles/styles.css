@@ -503,7 +503,7 @@ button:hover {
 
     background-color: #2e3440;
 
-    transition: ease-in-out 200ms;
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
     opacity: 0;
 
     display: flex;
