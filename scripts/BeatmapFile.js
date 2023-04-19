@@ -192,11 +192,11 @@ class BeatmapFile {
                     switch (e.key) {
                         case "ArrowLeft":
                             // Left pressed
-                            goBack();
+                            goBack(e.shiftKey);
                             break;
                         case "ArrowRight":
                             // Right pressed
-                            goNext();
+                            goNext(e.shiftKey);
                             break;
                         case " ":
                             playToggle();
@@ -283,8 +283,8 @@ class BeatmapFile {
                     handleCanvasDrag();
                 }
 
-                if (event.deltaY > 0) goNext();
-                if (event.deltaY < 0) goBack();
+                if (event.deltaY > 0) goNext(event.shiftKey);
+                if (event.deltaY < 0) goBack(event.shiftKey);
             });
         } catch (err) {
             alert(err);

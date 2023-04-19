@@ -162,7 +162,7 @@ class Slider {
         let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
         let currentSliderBorderThickness = !sliderAppearance.legacy
             ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
-            : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
+            : (currentHitCircleSize * (236 - 170)) / 2 / 256 / 2;
 
         const objectSize = currentHitCircleSize * currentScaleFactor * (236 / 272);
         const objectSizeWithoutBorder = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor;
@@ -189,7 +189,7 @@ class Slider {
         }
 
         ctx.beginPath();
-        ctx.globalAlpha = opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) : Math.abs(opacity);
+        ctx.globalAlpha = opacity < 0 && Math.abs(opacity) + 0.003 < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) / 0.998 : Math.abs(opacity);
 
         const sliderOffset = objectSize * (128 / 118);
         const shiftOffsetX = -this.minX + sliderOffset / 2;
@@ -237,9 +237,10 @@ class Slider {
 
             if (!(opacity < 0 && (percentage - 1) * this.repeat + 1 < 0)) {
                 if (sliderAppearance.snaking) {
-                    if (this.repeat % 2 === 0 && currentPointCalcLengthRatio >= 1 - ((percentage - 1) * this.repeat + 1)) return;
-                    if (this.repeat % 2 !== 0 && currentPointCalcLengthRatio <= (percentage - 1) * this.repeat + 1) {
+                    if (this.repeat % 2 === 0 && currentPointCalcLengthRatio > 1 - ((percentage - 1) * this.repeat + 1)) return;
+                    if (this.repeat % 2 !== 0 && currentPointCalcLengthRatio < (((percentage - 1) * this.repeat + 1) * 1) / 1.005) {
                         pseudoCtx.moveTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
+                        // console.log(this.time, currentPointCalcLengthRatio, (percentage - 1) * this.repeat + 1);
                         return;
                     }
                 }
@@ -247,6 +248,12 @@ class Slider {
 
             pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
         });
+        // console.log(
+        //     this.time,
+        //     opacity,
+        //     opacity < 0 && Math.abs(opacity) < 1 ? Math.max(Math.abs(opacity) - 0.5, 0) / 0.998 : Math.abs(opacity),
+        //     "rendered"
+        // );
 
         pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor;
         pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
@@ -327,6 +334,7 @@ class Slider {
         // console.log(this.startTime, percentage);
 
         if (opacity < 0 && percentage >= 0 && percentage <= 1) {
+            // console.log(this.time, percentage);
             const endPosition = Math.min(
                 Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
                 this.angleList.length - 1
