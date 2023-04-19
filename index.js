@@ -444,7 +444,7 @@ function goNext(precise) {
                     ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
                     : beatsteps[0];
 
-            step = currentBeatstep.beatstep / (precise ? 24 : beatsnap);
+            step = currentBeatstep.beatstep / (precise ? 48 : beatsnap);
         }
 
         const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
@@ -482,7 +482,7 @@ function goBack(precise) {
                     ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
                     : beatsteps[0];
 
-            step = currentBeatstep.beatstep / (precise ? 24 : beatsnap);
+            step = currentBeatstep.beatstep / (precise ? 48 : beatsnap);
         }
 
         const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
