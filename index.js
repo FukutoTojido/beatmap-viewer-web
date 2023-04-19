@@ -413,7 +413,7 @@ function updateTime(timestamp) {
 
     msDigits.forEach((val, idx) => {
         document.querySelector(`#millisecond${idx + 1}digit`).innerText = Math.max(0, val);
-        animation[`ms${idx + 1}digit`].update(document.querySelector(`#millisecond${idx + 1}digit`).innerText);
+        // animation[`ms${idx + 1}digit`].update(document.querySelector(`#millisecond${idx + 1}digit`).innerText);
     });
 
     const currentSeconds = Math.floor((timestamp / 1000) % 60);
@@ -421,7 +421,7 @@ function updateTime(timestamp) {
 
     sDigits.forEach((val, idx) => {
         document.querySelector(`#second${idx + 1}digit`).innerText = Math.max(0, val);
-        animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
+        // animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
     });
 
     const currentMinute = Math.floor(timestamp / 1000 / 60);
@@ -429,7 +429,7 @@ function updateTime(timestamp) {
 
     mDigits.forEach((val, idx) => {
         document.querySelector(`#minute${idx + 1}digit`).innerText = Math.max(0, val);
-        animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
+        // animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
     });
 
     // console.log(mDigits.reverse(), sDigits.reverse(), msDigits.reverse());
