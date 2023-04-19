@@ -1,6 +1,7 @@
 const settingsTemplate = {
     mapping: {
         beatsnap: 4,
+        offset: 0,
     },
     background: {
         dim: 0.8,
@@ -82,7 +83,7 @@ async function loadSampleSound(sample, idx, buf) {
 
 // console.log(defaultHitsoundsList);
 // const HARD_OFFSET = 0;
-let SOFT_OFFSET = 0;
+let SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset;
 
 let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);

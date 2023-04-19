@@ -546,6 +546,7 @@ button:hover {
 }
 
 .selection {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -608,6 +609,54 @@ button:hover {
 
 .val {
     font-weight: 600;
+}
+
+.note {
+    position: absolute;
+    top: -2.5px;
+    left: 0;
+    right: 0;
+
+    width: 300px;
+
+    background-color: #2e3440;
+    padding: 5px 15px;
+    border-radius: 20px;
+
+    font-size: 0.8em;
+    font-weight: 900;
+    text-align: center;
+    font-family: monospace;
+    margin-inline: auto;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* align-content: center; */
+}
+
+.sign {
+    aspect-ratio: 1/1;
+    height: 1em;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.divider {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    align-content: center;
 }
 
 input[type="checkbox"] {

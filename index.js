@@ -32,6 +32,9 @@ if (localStorage.getItem("settings")) {
 
     document.querySelector("#effect").value = currentLocalStorage.volume.hs;
     document.querySelector("#effectVal").innerHTML = `${parseInt((currentLocalStorage.volume.hs / 0.4) * 100)}%`;
+
+    document.querySelector("#softoffset").value = currentLocalStorage.mapping.offset;
+    document.querySelector("#softoffsetVal").innerHTML = `${parseInt(currentLocalStorage.mapping.offset)}ms`;
     // hsVol = currentLocalStorage.volume.hs;
 
     Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
@@ -370,6 +373,21 @@ function setEffectVolume(slider) {
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.volume.hs = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    if (beatmapFile === undefined) return;
+
+    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    if (originalIsPlaying) beatmapFile.audioNode.play();
+}
+
+function setOffset(slider) {
+    SOFT_OFFSET = slider.value;
+    document.querySelector("#softoffsetVal").innerHTML = `${parseInt(slider.value)}ms`;
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.mapping.offset = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
     if (beatmapFile === undefined) return;
