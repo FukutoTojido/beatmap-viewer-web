@@ -90,7 +90,7 @@ let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
 let tempHR = false;
 
 let sliderBorderThickness = (hitCircleSize * 2) / 58;
-const sliderAccuracy = 0.005;
+// const sliderAccuracy = 0.005;
 const sliderSnaking = true;
 const sliderBorderColor = "#ffffff";
 

@@ -10,12 +10,14 @@
     <script src="./deps/canvas-bezier-multipoint.js"></script>
     <script src="./deps/countUp.js"></script>
     <script src="./lib/zip-fs-full.min.js"></script>
+    <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Cursor.js"></script>
     <script src="./scripts/HitCircle.js"></script>
     <script src="./scripts/Slider.js"></script>
+    <script src="./scripts/SliderMesh.js"></script>
     <script src="./scripts/ObjectsList.js"></script>
     <script src="./scripts/Beatmap.js"></script>
     <script src="./scripts/BeatmapFile.js"></script>
@@ -172,7 +174,7 @@
             <div id="artistTitle"></div>
             <div id="versionCreator"></div>
         </div>
-        <canvas id="canvas" width="512" height="384"></canvas>
+        <!-- <canvas id="canvas" width="512" height="384"></canvas> -->
     </div>
     <div id="playerController">
         <div id="timeContainer" onclick="copyUrlToClipboard()">
@@ -231,7 +233,7 @@
                     </div>
                     <div id="softoffsetVal" class="val">0ms</div>
                     <input type="range" id="softoffset" name="softoffset" min="-100" max="100" step="1"
-                        oninput='setOffset(this);' value="0" >
+                        oninput='setOffset(this);' value="0">
                 </div>
             </div>
         </div>

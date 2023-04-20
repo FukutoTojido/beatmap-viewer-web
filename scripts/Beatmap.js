@@ -362,7 +362,7 @@ class Beatmap {
                     if (
                         nObj.obj instanceof Slider &&
                         this.calculateDistance(
-                            [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y],
+                            [nObj.obj.angleList.at(-1).x, nObj.obj.angleList.at(-1).y],
                             [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
                         ) < stackDistance
                     ) {
@@ -373,9 +373,9 @@ class Beatmap {
 
                             if (
                                 this.calculateDistance(
-                                    [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y],
+                                    [nObj.obj.angleList.at(-1).x, nObj.obj.angleList.at(-1).y],
                                     jObj.obj instanceof Slider
-                                        ? [jObj.obj.originalAngleList[0].x, jObj.obj.originalAngleList[0].y]
+                                        ? [jObj.obj.angleList.at(0).x, jObj.obj.angleList.at(0).y]
                                         : [parseInt(jObj.obj.originalX), parseInt(jObj.obj.originalY)]
                                 )
                             ) {
@@ -389,7 +389,7 @@ class Beatmap {
                     if (
                         this.calculateDistance(
                             nObj.obj instanceof Slider
-                                ? [nObj.obj.originalAngleList[0].x, nObj.obj.originalAngleList[0].y]
+                                ? [nObj.obj.angleList.at(0).x, nObj.obj.angleList.at(0).y]
                                 : [parseInt(nObj.obj.originalX), parseInt(nObj.obj.originalY)],
                             [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
                         ) < stackDistance
@@ -408,10 +408,10 @@ class Beatmap {
                     if (
                         this.calculateDistance(
                             nObj.obj instanceof Slider
-                                ? [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y]
+                                ? [nObj.obj.angleList.at(-1).x, nObj.obj.angleList.at(-1).y]
                                 : [parseInt(nObj.obj.originalX), parseInt(nObj.obj.originalY)],
                             currentObj.obj instanceof Slider
-                                ? [currentObj.obj.originalAngleList[0].x, currentObj.obj.originalAngleList[0].y]
+                                ? [currentObj.obj.angleList.at(0).x, currentObj.obj.angleList.at(0).y]
                                 : [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
                         ) < stackDistance
                     ) {

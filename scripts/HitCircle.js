@@ -103,13 +103,13 @@ class HitCircle {
         ctx.globalAlpha =
             opacity >= 0 ? opacity : sliderAppearance.hitAnim ? (expandRate >= 0 ? expandRate : 0) : 1 - Math.min((timestamp - this.time) / 800, 1);
 
-        ctx.drawImage(
-            approachCircleArr[colourIdx],
-            this.positionX - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
-            this.positionY - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
-            baseDrawSize * approachRateExpandRate,
-            baseDrawSize * approachRateExpandRate
-        );
+        // ctx.drawImage(
+        //     approachCircleArr[colourIdx],
+        //     this.positionX - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
+        //     this.positionY - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
+        //     baseDrawSize * approachRateExpandRate,
+        //     baseDrawSize * approachRateExpandRate
+        // );
 
         if (mods.HR) {
             ctx.save();
@@ -232,8 +232,8 @@ class HitCircle {
         this.startTime = time - preempt;
         this.endTime = time + 240;
 
-        this.positionX = positionX * scaleFactor + (canvas.width - 512 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
-        this.positionY = positionY * scaleFactor + (canvas.height - 384 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
+        // this.positionX = positionX * scaleFactor + (canvas.width - 512 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
+        // this.positionY = positionY * scaleFactor + (canvas.height - 384 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
 
         this.isNewCombo = isNewCombo;
     }

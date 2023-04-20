@@ -200,9 +200,9 @@ body {
 
 canvas {
     position: absolute;
-    inset: 0 0 0 0;
-    margin: auto;
-    height: 100%;
+    /* inset: 0 0 0 0; */
+    /* margin: auto; */
+    /* height: 100%; */
     /* transform: scaleY(-1); */
     /* z-index: 0; */
     /* background-color: rgba(255, 255, 255, 0.1); */

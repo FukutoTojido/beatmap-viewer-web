@@ -11,6 +11,66 @@ window.requestAnimationFrame((currentTime) => {
     return checkFrameRate(0, currentTime);
 });
 
+// Alias
+PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL2;
+
+const Application = PIXI.Application,
+    Sprite = PIXI.Sprite,
+    Assets = PIXI.Assets,
+    Graphics = PIXI.Graphics,
+    Container = PIXI.Container;
+
+const sliderAccuracy = 1 / 400;
+const scaleFactor = Math.max(window.innerWidth / 640, window.innerHeight / 480);
+const cs = 54.4 - 4.48 * 4;
+
+// Init
+let type = "WebGL";
+
+if (!PIXI.utils.isWebGLSupported()) {
+    type = "canvas";
+}
+
+const app = new Application({
+    width: parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
+    height: parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
+    antialias: true,
+    autoDensity: true,
+});
+
+let elapsed = 0.0;
+const container = new Container();
+app.stage.addChild(container);
+
+let w = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+let h = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+
+if (w / 512 > h / 384) w = (h / 384) * 512;
+else h = (w / 512) * 384;
+
+w *= 0.8;
+h *= 0.8;
+
+const offsetX = (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) - w) / 2;
+const offsetY = (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) - h) / 2;
+
+container.x = offsetX;
+container.y = offsetY;
+
+document.querySelector("#playerContainer").appendChild(app.view);
+
+const addToContainer = (list) => {
+    list.forEach((o) => {
+        container.addChild(o.obj);
+    });
+};
+
+const removeFromContainer = (list) => {
+    list.forEach((o) => {
+        container.removeChild(o.obj);
+    });
+};
+
 if (localStorage.getItem("settings")) {
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
 
@@ -54,17 +114,17 @@ const canvas = document.querySelector("#canvas");
 let oldPlayerContainerHeight = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
 let oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
 
-canvas.width =
-    (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-    parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-canvas.height = 1080;
+// canvas.width =
+//     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+//     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+// canvas.height = 1080;
 
 window.onresize = () => {
     if (!playingFlag) {
-        canvas.width =
-            (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-        canvas.height = 1080;
+        // canvas.width =
+        //     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+        //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+        // canvas.height = 1080;
 
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
             beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
@@ -72,12 +132,12 @@ window.onresize = () => {
     }
 };
 
-const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
+// const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+// let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+// const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
 
-const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = true;
+// const ctx = canvas.getContext("2d");
+// ctx.imageSmoothingEnabled = true;
 
 const sampleHitCircle = document.querySelector("#sampleHitCircle");
 const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
@@ -195,7 +255,7 @@ function handleCheckBox(checkbox) {
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
-    canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
+    // canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
     if (beatmapFile !== undefined) {
         const originalIsPlaying = beatmapFile.audioNode.isPlaying;
         if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
@@ -535,9 +595,9 @@ function copyUrlToClipboard() {
 
 screen.orientation.onchange = () => {
     console.log("Orientation Changed");
-    canvas.width =
-        (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+    // canvas.width =
+    //     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
 
     console.log(
         parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
