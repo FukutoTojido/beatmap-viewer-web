@@ -36,6 +36,7 @@ const app = new Application({
     height: parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
     antialias: true,
     autoDensity: true,
+    backgroundAlpha: 0,
 });
 
 let elapsed = 0.0;
