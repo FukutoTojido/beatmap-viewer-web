@@ -108,7 +108,7 @@ class HitCircle {
         this.approachCircleObj.obj.y = y;
         this.approachCircleObj.draw(
             sliderAppearance.hitAnim ? (timestamp > this.time ? 0 : currentOpacity) : currentOpacity,
-            approachRateExpandRate,
+            approachRateExpandRate * circleModScale,
             convertedColor
         );
         // console.log(this.time, currentExpand, timestamp - this.time > 0, timestamp);

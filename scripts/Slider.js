@@ -233,15 +233,20 @@ class Slider {
 
             if (currentRepeat < this.repeat) {
                 this.sliderBall.x = (this.angleList[pos].x * w) / 512;
-                this.sliderBall.y = (this.angleList[pos].y * w) / 512;
+                this.sliderBall.y = ((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) * w) / 512;
             }
 
             this.sliderBall.alpha = timestamp > this.endTime - 240 ? 0 : Math.abs(opacity);
         } else {
             this.sliderBall.alpha = 0;
             this.sliderBall.x = (this.angleList[0].x * w) / 512;
-            this.sliderBall.y = (this.angleList[0].y * w) / 512;
+            this.sliderBall.y = ((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) * w) / 512;
         }
+
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+        this.sliderBall.scale.set(circleModScale);
 
         // console.log(currentStackOffset * this.stackHeight);
 
