@@ -141,7 +141,7 @@ class HitCircle {
 
         const numberSprite = new PIXI.Text("0", {
             fontFamily: "Torus",
-            fontSize: 40,
+            fontSize: (40 * 4) / circleSize,
             fontWeight: 600,
             fill: 0xffffff,
             align: "center",

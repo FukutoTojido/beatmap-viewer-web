@@ -8,6 +8,9 @@ function darken(color, amount) {
     return (color * (47 + (100 - 47) * amount)) / 255;
 }
 
+// Ported from https://github.com/111116/webosu/blob/master/scripts/SliderMesh.js
+// Also have a visit at http://osugame.online/ , very cool tbh
+
 const vertexSrc = `
 precision mediump float;
 attribute vec4 position;

@@ -37,7 +37,7 @@ class Beatmap {
               )
             : 0.7;
 
-        hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
+        hitCircleSize = (2 * (54.4 - 4.48 * circleSize) * 236) / 256;
         hitCircleTemplate = createHitCircleTemplate();
         hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
         approachCircleTemplate = createApproachCircleTemplate();

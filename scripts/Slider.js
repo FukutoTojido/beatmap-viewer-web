@@ -186,6 +186,10 @@ class Slider {
             this.SliderMesh.endt = 1;
         }
 
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+
         if (this.repeat > 1) {
             if (!(opacity < 0)) {
                 this.reverseArrow.x = (this.angleList.at(-1).x * w) / 512;
@@ -220,7 +224,7 @@ class Slider {
             const offset = this.time % this.beatStep;
             const revExpand = (timestamp - offset - Math.floor((timestamp - offset) / this.beatStep) * this.beatStep) / this.beatStep;
             const revExpandRate = (1 - Clamp(Math.abs(revExpand), 0, 1)) * 0.7 + 0.8;
-            this.reverseArrow.scale.set(revExpandRate);
+            this.reverseArrow.scale.set(revExpandRate * circleModScale);
         }
 
         if (opacity < 0) {
@@ -243,9 +247,6 @@ class Slider {
             this.sliderBall.y = ((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) * w) / 512;
         }
 
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
         this.sliderBall.scale.set(circleModScale);
 
         // console.log(currentStackOffset * this.stackHeight);

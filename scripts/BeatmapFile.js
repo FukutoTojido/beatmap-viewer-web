@@ -69,7 +69,7 @@ class BeatmapFile {
         const backgroundFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/0,0,"*.*"/g))[0]
-            .match(/"[;\+\/\\\!\(\)\[\]\{\}a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
+            .match(/"[;\+\/\\\!\(\)\[\]\{\}\&a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
 
         console.log(audioFilename, backgroundFilename);
@@ -77,13 +77,14 @@ class BeatmapFile {
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
         const zipReader = new zip.ZipReader(mapFileBlobReader);
         const allEntries = await zipReader.getEntries();
+        // console.log(allEntries);
 
         document.querySelector(
             "#loadingText"
-        ).innerHTML = `Setting up Audio<br>In case this takes too long, please refresh the page. I'm having issue with files not being able to read randomly`;
+        ).innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
         const audioFile = allEntries.filter((e) => e.filename === audioFilename).shift();
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
-        console.log("Audio Blob Generated");
+        // console.log("Audio Blob Generated");
         this.audioBlobURL = URL.createObjectURL(audioBlob);
         const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
         console.log("Audio Loaded");
@@ -96,13 +97,13 @@ class BeatmapFile {
         const hitsoundArrayBuffer = [];
         document.querySelector(
             "#loadingText"
-        ).innerHTML = `Setting up Hitsounds<br>In case this takes too long, please refresh the page. I'm having issue with files not being able to read randomly`;
+        ).innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
         for (const file of hitsoundFiles) {
             const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
             const fileBlob = await file.getData(writer);
-            console.log(`Hitsound ${file.filename} Blob Generated`);
+            // console.log(`Hitsound ${file.filename} Blob Generated`);
             const fileArrayBuffer = await this.readBlobAsBuffer(fileBlob);
-            console.log(`Hitsound ${file.filename} ArrayBuffer Generated`);
+            // console.log(`Hitsound ${file.filename} ArrayBuffer Generated`);
 
             hitsoundArrayBuffer.push({
                 filename: file.filename,
@@ -118,13 +119,13 @@ class BeatmapFile {
         // ).innerHTML = `Setting up Background<br>In case this takes too long, please refresh the page. I'm having issue with files not being able to read randomly`;
         const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).shift();
         if (backgroundFile) {
-            backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)).then(data => {
-                console.log("Background Blob Generated");
+            backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)).then((data) => {
+                // console.log("Background Blob Generated");
                 this.backgroundBlobURL = URL.createObjectURL(data);
                 console.log("Background Loaded");
                 document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
                 document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
-            })
+            });
         }
 
         zipReader.close();
