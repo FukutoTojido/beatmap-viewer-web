@@ -65,19 +65,23 @@ let hitsoundsBuffer = {};
 let defaultHitsoundsList = {};
 
 async function loadSampleSound(sample, idx, buf) {
-    if (buf === undefined) {
-        const res = (
-            await axios.get(`./static/sample/${sample}${idx === 0 ? "" : idx}.wav`, {
-                responseType: "arraybuffer",
-            })
-        ).data;
+    try {
+        if (buf === undefined) {
+            const res = (
+                await axios.get(`./static/sample/${sample}${idx === 0 ? "" : idx}.wav`, {
+                    responseType: "arraybuffer",
+                })
+            ).data;
 
-        const buffer = await audioCtx.decodeAudioData(res);
-        // console.log(`${sample} decoded`);
-        hitsoundsBuffer[`${sample}${idx}`] = buffer;
-    } else {
-        const buffer = await audioCtx.decodeAudioData(buf);
-        hitsoundsBuffer[`${sample}${idx}`] = buffer;
+            const buffer = await audioCtx.decodeAudioData(res);
+            // console.log(`${sample} decoded`);
+            hitsoundsBuffer[`${sample}${idx}`] = buffer;
+        } else {
+            const buffer = await audioCtx.decodeAudioData(buf);
+            hitsoundsBuffer[`${sample}${idx}`] = buffer;
+        }
+    } catch {
+        console.log("Unable to decode " + `${sample}${idx}`);
     }
 }
 
@@ -87,7 +91,6 @@ let SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset;
 
 let circleSize = 4;
 let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
-let tempHR = false;
 
 let sliderBorderThickness = (hitCircleSize * 2) / 58;
 // const sliderAccuracy = 0.005;
@@ -126,6 +129,9 @@ let mods = {
     HT: false,
 };
 
+let tempHR = false;
+let tempEZ = false;
+
 let sliderAppearance = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
 
 let animation = {
@@ -161,3 +167,9 @@ let currentY = -1;
 
 let draggingStartTime = 0;
 let draggingEndTime = 0;
+
+function Clamp(val, from, to) {
+    return Math.max(Math.min(val, to), from);
+}
+
+let SliderTexture, colorsLength;

@@ -21,8 +21,8 @@ class ObjectsList {
     constructor(hitCirclesList, slidersList, coloursList) {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
-        // this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
-        this.objectsList = this.slidersList;
+        this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
+        // this.objectsList = this.slidersList;
         this.currentColor = 1 % coloursList.length;
         this.comboIdx = 1;
 
@@ -101,6 +101,12 @@ class ObjectsList {
             )
             .reverse();
 
+        const approachCircleList = filtered.map((o) => {
+            if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
+
+            if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
+        });
+
         const noRender = this.objectsList.filter(
             (object) =>
                 !(
@@ -109,10 +115,22 @@ class ObjectsList {
                 )
         );
 
-        addToContainer(filtered.map((o) => o.obj));
-        removeFromContainer(noRender.map((o) => o.obj));
+        const noRenderApproachCircleList = noRender.map((o) => {
+            if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
+
+            if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
+        });
+
+        addToContainer(filtered.map((o) => o.obj).concat(approachCircleList));
+        removeFromContainer(noRender.map((o) => o.obj).concat(noRenderApproachCircleList));
 
         // console.log(filtered);
+
+        if (filtered.length === 0) {
+            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
+        } else {
+            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
+        }
 
         filtered.forEach((object) => {
             const objStartTime = object.time - currentPreempt;
@@ -122,7 +140,7 @@ class ObjectsList {
                         ? (timestamp - objStartTime) / currentFadeIn
                         : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
 
-                // console.log(object.time, timestamp, timestamp < object.time);
+                // console.log(object.time, object.colourIdx);
 
                 object.obj.draw(
                     timestamp,
@@ -137,7 +155,7 @@ class ObjectsList {
                 );
 
                 if (timestamp - this.lastTimestamp >= 2) {
-                    if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
+                    if (object.obj instanceof HitCircle) {
                         if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
                             // console.log(object.time, timestamp, this.lastTimestamp);
                             object.hitsounds.play();
@@ -152,11 +170,62 @@ class ObjectsList {
                             // console.log(object.time, timestamp, this.lastTimestamp);
                             object.hitsounds.sliderTail.play();
                         }
+
+                        if (object.hitsounds.sliderReverse.length > 0) {
+                            const currentOffsetFromStart = timestamp - object.time;
+                            const lastOffsetFromStart = this.lastTimestamp - object.time;
+                            const totalLength = object.endTime - object.time;
+
+                            const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
+                            const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
+
+                            if (currentRepeatIdx > lastRepeatIdx && currentRepeatIdx < object.obj.repeat && currentRepeatIdx >= 1 && !staticDraw) {
+                                object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
+                            }
+                        }
                     }
                 }
             }
             // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
         });
+
+        if (tempHR !== mods.HR || tempEZ !== mods.EZ) {
+            tempHR = mods.HR;
+            tempEZ = mods.EZ;
+
+            const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+            const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+            const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+            const inverse = mods.HR ? -1 : 1;
+            const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+            const dx = (2 * w) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 512;
+            const dy = (inverse * (-2 * h)) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 384;
+            // console.log(
+            //     (2 * w) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 512,
+            //     (-2 * h) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 384
+            // );
+
+            this.objectsList.forEach((o) => {
+                if (o.obj instanceof Slider)
+                    o.obj.SliderMesh.initiallize(
+                        [0x000000, 0xc8132e],
+                        (hitCircleSize / 2) * circleModScale,
+                        {
+                            dx: dx,
+                            ox:
+                                -1 +
+                                (2 * offsetX) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) +
+                                dx * o.obj.stackHeight * currentStackOffset,
+                            dy: dy,
+                            oy:
+                                inverse * (1 - (2 * offsetY) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height)) +
+                                inverse * (dy * o.obj.stackHeight * currentStackOffset),
+                        },
+                        undefined,
+                        0xffffff
+                    );
+            });
+        }
 
         if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)
             window.requestAnimationFrame((currentTime) => {

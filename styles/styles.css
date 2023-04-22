@@ -217,6 +217,7 @@ canvas {
     background-color: rgba(0 0 0 /0.8);
 
     border-radius: 20px 20px 0 0;
+    transition: ease-in-out 500ms;
 }
 
 #background {
@@ -232,7 +233,6 @@ canvas {
 #metadata {
     position: absolute;
     /* width: 100%; */
-
     font-size: 1rem;
     padding: 30px;
 }
@@ -465,6 +465,7 @@ button:hover {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    text-align: center;
 
     opacity: 0;
 }

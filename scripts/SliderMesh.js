@@ -3,6 +3,11 @@ function lighten(color, amount) {
     return Math.min(1, color * (1 + 0.5 * amount) + 1 * amount);
 }
 
+function darken(color, amount) {
+    // amount = 1 - amount;
+    return (color * (47 + (100 - 47) * amount)) / 255;
+}
+
 const vertexSrc = `
 precision mediump float;
 attribute vec4 position;
@@ -27,69 +32,98 @@ void main() {
 }`;
 
 function newTexture(colors, SliderTrackOverride, SliderBorder) {
+    // console.log(colors);
     const borderwidth = 0.128;
-    const innerPortion = 1 - borderwidth;
     const edgeOpacity = 1;
     const centerOpacity = 1;
-    const blurrate = 0.015;
+    const blurrate = 0.03;
     const width = 200;
 
-    let buff = new Uint8Array(colors.length * width * 4);
+    const roundedLength = 2 ** Math.ceil(Math.log2(colors.length));
 
-    for (let k = 0; k < colors.length; ++k) {
-        let tint = typeof SliderTrackOverride != "undefined" ? SliderTrackOverride : colors[k];
-        let bordertint = typeof SliderBorder != "undefined" ? SliderBorder : 0xffffff;
-        let borderR = (bordertint >> 16) / 255;
-        let borderG = ((bordertint >> 8) & 255) / 255;
-        let borderB = (bordertint & 255) / 255;
-        let borderA = 1.0;
-        let innerR = (tint >> 16) / 255;
-        let innerG = ((tint >> 8) & 255) / 255;
-        let innerB = (tint & 255) / 255;
-        let innerA = 1.0;
-        for (let i = 0; i < width; i++) {
-            let position = i / width;
-            let R, G, B, A;
-            if (position >= innerPortion) {
-                // draw border color
-                R = borderR;
-                G = borderG;
-                B = borderB;
-                A = borderA;
-            } // draw inner color
-            else {
-                R = lighten(innerR, (1 - position) / innerPortion);
-                G = lighten(innerG, (1 - position) / innerPortion);
-                B = lighten(innerB, (1 - position) / innerPortion);
-                // TODO: tune this to make opacity transition smoother at center
-                A = innerA * (((edgeOpacity - centerOpacity) * position) / innerPortion + centerOpacity) * 0.7;
+    let buff = new Uint8Array(roundedLength * width * 4 * 2);
+
+    for (let s = 0; s < 2; s++)
+        for (let k = 0; k < roundedLength; ++k) {
+            if (k <= colors.length) {
+                const innerPortion = 1 - (s === 0 ? borderwidth * 1.65 : borderwidth);
+                let tint = typeof SliderTrackOverride != "undefined" ? SliderTrackOverride : colors[k];
+                let bordertint = typeof SliderBorder != "undefined" ? SliderBorder : colors[k];
+                let borderR = (bordertint >> 16) / 255;
+                let borderG = ((bordertint >> 8) & 255) / 255;
+                let borderB = (bordertint & 255) / 255;
+                let borderA = 1.0;
+                let innerR = (tint >> 16) / 255;
+                let innerG = ((tint >> 8) & 255) / 255;
+                let innerB = (tint & 255) / 255;
+                let innerA = 1.0;
+                for (let i = 0; i < width; i++) {
+                    let position = i / width;
+                    let R, G, B, A;
+                    if (position >= innerPortion) {
+                        // draw border color
+                        R = borderR;
+                        G = borderG;
+                        B = borderB;
+                        A = borderA;
+                    } // draw inner color
+                    else {
+                        // R = lighten(innerR, (1 - position) / innerPortion);
+                        // G = lighten(innerG, (1 - position) / innerPortion);
+                        // B = lighten(innerB, (1 - position) / innerPortion);
+                        R = darken(innerR, s === 0 ? 0 : (1 - position) / innerPortion);
+                        G = darken(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
+                        B = darken(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
+                        // TODO: tune this to make opacity transition smoother at center
+                        A = innerA * (((edgeOpacity - centerOpacity) * position) / innerPortion + centerOpacity) * (s === 0 ? 1 : 0.7);
+                    }
+                    // pre-multiply alpha
+                    R *= A;
+                    G *= A;
+                    B *= A;
+                    // blur at edge for "antialiasing" without supersampling
+                    if (1 - position < blurrate) {
+                        // outer edge
+                        R *= (1 - position) / blurrate;
+                        G *= (1 - position) / blurrate;
+                        B *= (1 - position) / blurrate;
+                        A *= (1 - position) / blurrate;
+                    }
+                    if (innerPortion - position > 0 && innerPortion - position < blurrate) {
+                        let mu = (innerPortion - position) / blurrate;
+                        R = mu * R + (1 - mu) * borderR * borderA;
+                        G = mu * G + (1 - mu) * borderG * borderA;
+                        B = mu * B + (1 - mu) * borderB * borderA;
+                        A = mu * innerA + (1 - mu) * borderA;
+                    }
+                    buff[(k * width + i) * 4 + s * roundedLength * width * 4] = R * 255;
+                    buff[(k * width + i) * 4 + 1 + s * roundedLength * width * 4] = G * 255;
+                    buff[(k * width + i) * 4 + 2 + s * roundedLength * width * 4] = B * 255;
+                    buff[(k * width + i) * 4 + 3 + s * roundedLength * width * 4] = A * 255;
+                }
+            } else {
+                for (let i = 0; i < width; i++) {
+                    buff[(k * width + i) * 4 + s * roundedLength * width * 4] = 0;
+                    buff[(k * width + i) * 4 + 1 + s * roundedLength * width * 4] = 0;
+                    buff[(k * width + i) * 4 + 2 + s * roundedLength * width * 4] = 0;
+                    buff[(k * width + i) * 4 + 3 + s * roundedLength * width * 4] = 0;
+                }
             }
-            // pre-multiply alpha
-            R *= A;
-            G *= A;
-            B *= A;
-            // blur at edge for "antialiasing" without supersampling
-            if (1 - position < blurrate) {
-                // outer edge
-                R *= (1 - position) / blurrate;
-                G *= (1 - position) / blurrate;
-                B *= (1 - position) / blurrate;
-                A *= (1 - position) / blurrate;
-            }
-            if (innerPortion - position > 0 && innerPortion - position < blurrate) {
-                let mu = (innerPortion - position) / blurrate;
-                R = mu * R + (1 - mu) * borderR * borderA;
-                G = mu * G + (1 - mu) * borderG * borderA;
-                B = mu * B + (1 - mu) * borderB * borderA;
-                A = mu * innerA + (1 - mu) * borderA;
-            }
-            buff[(k * width + i) * 4] = R * 255;
-            buff[(k * width + i) * 4 + 1] = G * 255;
-            buff[(k * width + i) * 4 + 2] = B * 255;
-            buff[(k * width + i) * 4 + 3] = A * 255;
+
+            // console.log(
+            //     buff[k * width * 4 + s * roundedLength * width * 4],
+            //     buff[k * width * 4 + 1 + s * roundedLength * width * 4],
+            //     buff[k * width * 4 + 2 + s * roundedLength * width * 4],
+            //     buff[k * width * 4 + 3 + s * roundedLength * width * 4]
+            // );
         }
-    }
-    return PIXI.Texture.fromBuffer(buff, width, colors.length);
+
+    // for (let i = 0; i < buff.length; i += 4) {
+    //     console.log(buff[i], buff[i + 1], buff[i + 2], buff[i + 3]);
+    // }
+    // console.log(buff);
+
+    return PIXI.Texture.fromBuffer(buff, width, roundedLength * 2);
 }
 
 const DIVIDES = 64;
@@ -178,9 +212,10 @@ function circleGeometry(radius) {
     let vert = new Array();
     let index = new Array();
     vert.push(0.0, 0.0, 0.0, 0.0); // center
+    // radius *= 0.978;xx
     for (let i = 0; i < DIVIDES; ++i) {
         let theta = ((2 * Math.PI) / DIVIDES) * i;
-        vert.push(radius * Math.cos(theta) * 0.98, radius * Math.sin(theta) * 0.98, 0.0, 1.0);
+        vert.push(radius * Math.cos(theta), radius * Math.sin(theta), 0.0, 1.0);
         index.push(0, i + 1, ((i + 1) % DIVIDES) + 1);
     }
     return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
@@ -205,9 +240,12 @@ class SliderMesh extends PIXI.Container {
     }
 
     initiallize(colors, radius, transform, SliderTrackOverride, SliderBorder) {
-        this.ncolors = colors.length;
-        this.uSampler2 = newTexture(colors, SliderTrackOverride, SliderBorder);
+        // this.ncolors = colors.length;
+        // this.uSampler2 = newTexture(colors, SliderTrackOverride, SliderBorder);
+        this.ncolors = 2 ** Math.ceil(Math.log2(colorsLength)) * 2;
+        this.uSampler2 = SliderTexture;
         this.circle = circleGeometry(radius);
+        this.geometry = curveGeometry(this.curve, radius);
         this.uniforms = {
             uSampler2: this.uSampler2,
             alpha: 1.0,
@@ -234,6 +272,7 @@ class SliderMesh extends PIXI.Container {
         renderer.batch.flush();
 
         // upload color info to shared shader uniform
+        // console.log(this.tintid / this.ncolors);
         this.uniforms.alpha = this.alpha;
         this.uniforms.texturepos = this.tintid / this.ncolors;
         this.uniforms.dt = 0;

@@ -5,22 +5,25 @@
     <title>JoSu!</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'> -->
     <link rel="stylesheet" href="./styles/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="./deps/canvas-bezier-multipoint.js"></script>
     <script src="./deps/countUp.js"></script>
-    <script src="./lib/zip-fs-full.min.js"></script>
     <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Cursor.js"></script>
+    <script src="./scripts/ApproachCircle.js"></script>
     <script src="./scripts/HitCircle.js"></script>
     <script src="./scripts/Slider.js"></script>
     <script src="./scripts/SliderMesh.js"></script>
     <script src="./scripts/ObjectsList.js"></script>
     <script src="./scripts/Beatmap.js"></script>
     <script src="./scripts/BeatmapFile.js"></script>
+    <script src="./lib/zip-fs-full.min.js"></script>
     <script src="./index.js" defer></script>
 </head>
 
@@ -199,7 +202,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
             <circle cx="45" cy="45" r="30" strokeLinecap="round" />
         </svg>
-        <div id="loadingText">Loading: 0.00%</div>
+        <div id="loadingText">Getting map information</div>
     </div>
     <div id="block"></div>
     <div id="settingsPanel">
