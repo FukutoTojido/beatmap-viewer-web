@@ -55,7 +55,7 @@ class BeatmapFile {
             await requestClient.get(`${setId}?server=auto`, {
                 responseType: "blob",
                 onDownloadProgress: (progressEvent) => {
-                    document.querySelector("#loadingText").innerText = `Loading: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                    document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
                     // console.log(progressEvent);
                 },
             })
@@ -69,28 +69,41 @@ class BeatmapFile {
         const backgroundFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/0,0,"*.*"/g))[0]
-            .match(/"[;\+\/\\\!\(\)\[\]\{\}a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
+            .match(/"[;\+\/\\\!\(\)\[\]\{\}\&a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
 
         console.log(audioFilename, backgroundFilename);
 
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
         const zipReader = new zip.ZipReader(mapFileBlobReader);
+        const allEntries = await zipReader.getEntries();
+        // console.log(allEntries);
 
-        const audioFile = (await zipReader.getEntries()).filter((e) => e.filename === audioFilename).shift();
+        document.querySelector(
+            "#loadingText"
+        ).innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
+        const audioFile = allEntries.filter((e) => e.filename === audioFilename).shift();
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
+        // console.log("Audio Blob Generated");
         this.audioBlobURL = URL.createObjectURL(audioBlob);
         const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
+        console.log("Audio Loaded");
 
-        const hitsoundFiles = (await zipReader.getEntries()).filter((file) => {
+        const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);
             return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap)([1-9][0-9]*)?/.test(file.filename);
         });
 
         const hitsoundArrayBuffer = [];
+        document.querySelector(
+            "#loadingText"
+        ).innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
         for (const file of hitsoundFiles) {
-            const fileBlob = await file.getData(new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`));
+            const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
+            const fileBlob = await file.getData(writer);
+            // console.log(`Hitsound ${file.filename} Blob Generated`);
             const fileArrayBuffer = await this.readBlobAsBuffer(fileBlob);
+            // console.log(`Hitsound ${file.filename} ArrayBuffer Generated`);
 
             hitsoundArrayBuffer.push({
                 filename: file.filename,
@@ -99,14 +112,25 @@ class BeatmapFile {
         }
 
         this.hitsoundList = hitsoundArrayBuffer;
-        // console.log(this.hitsoundList);
+        console.log("Hitsound Loaded");
 
-        const backgroundFile = (await zipReader.getEntries()).filter((e) => e.filename === backgroundFilename).shift();
-        const backgroundBlob =
-            backgroundFile !== undefined ? await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)) : "";
-        this.backgroundBlobURL = backgroundBlob !== "" ? URL.createObjectURL(backgroundBlob) : "";
+        // document.querySelector(
+        //     "#loadingText"
+        // ).innerHTML = `Setting up Background<br>In case this takes too long, please refresh the page. I'm having issue with files not being able to read randomly`;
+        const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).shift();
+        if (backgroundFile) {
+            backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)).then((data) => {
+                // console.log("Background Blob Generated");
+                this.backgroundBlobURL = URL.createObjectURL(data);
+                console.log("Background Loaded");
+                document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+                document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            });
+        }
 
         zipReader.close();
+        document.querySelector("#loadingText").innerHTML = `Map data loaded`;
+        console.log("Get .osz completed");
         return audioArrayBuffer;
     }
 
@@ -146,6 +170,12 @@ class BeatmapFile {
 
     async constructMap() {
         try {
+            app.stage.removeChild(container);
+            container = new Container();
+            app.stage.addChild(container);
+            container.x = offsetX;
+            container.y = offsetY;
+
             currentMapId = this.mapId;
             audioCtx = new AudioContext();
             document.querySelector(".loading").style.display = "";
@@ -157,73 +187,54 @@ class BeatmapFile {
             await this.loadHitsounds();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
-            document.querySelector("#loadingText").innerText = `Setting up Audio`;
             // this.audio = new Audio(this.audioBlobURL);
 
             document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
-            document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
-            document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
+            document.querySelector("#loadingText").innerText = `Getting map data`;
+
             // document.querySelector("#playButton").addEventListener("click", playToggle);
 
             document.onkeydown = (e) => {
-                if (!isPlaying) {
-                    e = e || window.event;
-                    switch (e.key) {
-                        case "ArrowLeft":
-                            // Left pressed
-                            debugPosition -= 1;
-                            // console.log("->");
-                            break;
-                        case "ArrowRight":
-                            // Right pressed
-                            debugPosition += 1;
-                            // console.log("<-");
-                            break;
-                    }
-
-                    this.beatmapRenderData.render();
-                } else {
-                    e = e || window.event;
-                    switch (e.key) {
-                        case "ArrowLeft":
-                            // Left pressed
-                            goBack(e.shiftKey);
-                            break;
-                        case "ArrowRight":
-                            // Right pressed
-                            goNext(e.shiftKey);
-                            break;
-                        case " ":
-                            playToggle();
-                            break;
-                    }
-
-                    if (e.key === "c" && e.ctrlKey) {
-                        // console.log("Copied");
-                        if (selectedHitObject.length) {
-                            const objs = this.beatmapRenderData.objectsList.objectsList.filter((o) => selectedHitObject.includes(o.time));
-                            const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
-                            const currentMiliseconds = Math.floor(obj.time % 1000)
-                                .toString()
-                                .padStart(3, "0");
-                            const currentSeconds = Math.floor((obj.time / 1000) % 60)
-                                .toString()
-                                .padStart(2, "0");
-                            const currentMinute = Math.floor(obj.time / 1000 / 60)
-                                .toString()
-                                .padStart(2, "0");
-
-                            navigator.clipboard.writeText(
-                                `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.comboIdx).join(",")}) - `
-                            );
-                        }
-                    }
+                e = e || window.event;
+                switch (e.key) {
+                    case "ArrowLeft":
+                        // Left pressed
+                        goBack(e.shiftKey);
+                        break;
+                    case "ArrowRight":
+                        // Right pressed
+                        goNext(e.shiftKey);
+                        break;
+                    case " ":
+                        playToggle();
+                        break;
                 }
+
+                // if (e.key === "c" && e.ctrlKey) {
+                //     // console.log("Copied");
+                //     if (selectedHitObject.length) {
+                //         const objs = this.beatmapRenderData.objectsList.objectsList.filter((o) => selectedHitObject.includes(o.time));
+                //         const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
+                //         const currentMiliseconds = Math.floor(obj.time % 1000)
+                //             .toString()
+                //             .padStart(3, "0");
+                //         const currentSeconds = Math.floor((obj.time / 1000) % 60)
+                //             .toString()
+                //             .padStart(2, "0");
+                //         const currentMinute = Math.floor(obj.time / 1000 / 60)
+                //             .toString()
+                //             .padStart(2, "0");
+
+                //         navigator.clipboard.writeText(
+                //             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.comboIdx).join(",")}) - `
+                //         );
+                //     }
+                // }
             };
 
             if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
@@ -233,55 +244,55 @@ class BeatmapFile {
                 this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
             }
 
-            canvas.addEventListener("click", (event) => {
-                if (currentX === -1 && currentY === -1) handleCanvasClick(event);
-                currentX = -1;
-                currentY = -1;
-                // console.log(isDragging);
-            });
+            // canvas.addEventListener("click", (event) => {
+            //     if (currentX === -1 && currentY === -1) handleCanvasClick(event);
+            //     currentX = -1;
+            //     currentY = -1;
+            //     // console.log(isDragging);
+            // });
 
-            canvas.addEventListener("mousedown", (event) => {
-                isDragging = true;
-                draggingStartTime = this.audioNode.getCurrentTime();
+            // canvas.addEventListener("mousedown", (event) => {
+            //     isDragging = true;
+            //     draggingStartTime = this.audioNode.getCurrentTime();
 
-                startX = event.clientX;
-                startY = event.clientY;
+            //     startX = event.clientX;
+            //     startY = event.clientY;
 
-                window.requestAnimationFrame((currentTime) => {
-                    return drawStatic();
-                });
-            });
+            //     window.requestAnimationFrame((currentTime) => {
+            //         return drawStatic();
+            //     });
+            // });
 
-            canvas.addEventListener("mouseup", (event) => {
-                if (currentX !== -1 && currentY !== -1) {
-                    handleCanvasDrag();
-                    // console.log(selectedHitObject);
-                    // console.log(startX, startY, currentX, currentY);
-                }
-                // currentX = -1;
-                // currentY = -1;
-                isDragging = false;
-            });
+            // canvas.addEventListener("mouseup", (event) => {
+            //     if (currentX !== -1 && currentY !== -1) {
+            //         handleCanvasDrag();
+            //         // console.log(selectedHitObject);
+            //         // console.log(startX, startY, currentX, currentY);
+            //     }
+            //     // currentX = -1;
+            //     // currentY = -1;
+            //     isDragging = false;
+            // });
 
-            canvas.addEventListener("mousemove", (event) => {
-                if (isDragging) {
-                    draggingEndTime = this.audioNode.getCurrentTime();
+            // canvas.addEventListener("mousemove", (event) => {
+            //     if (isDragging) {
+            //         draggingEndTime = this.audioNode.getCurrentTime();
 
-                    currentX = event.clientX;
-                    currentY = event.clientY;
+            //         currentX = event.clientX;
+            //         currentY = event.clientY;
 
-                    handleCanvasDrag();
-                    // console.log(startX, startY, currentX, currentY);
-                }
-            });
+            //         handleCanvasDrag();
+            //         // console.log(startX, startY, currentX, currentY);
+            //     }
+            // });
 
             document.querySelector("#playerContainer").addEventListener("wheel", (event) => {
                 event.preventDefault();
 
-                if (isDragging && currentX !== -1 && currentY !== -1) {
-                    draggingEndTime = this.audioNode.getCurrentTime();
-                    handleCanvasDrag();
-                }
+                // if (isDragging && currentX !== -1 && currentY !== -1) {
+                //     draggingEndTime = this.audioNode.getCurrentTime();
+                //     handleCanvasDrag();
+                // }
 
                 if (event.deltaY > 0) goNext(event.shiftKey);
                 if (event.deltaY < 0) goBack(event.shiftKey);

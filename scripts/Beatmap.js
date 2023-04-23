@@ -37,7 +37,11 @@ class Beatmap {
               )
             : 0.7;
 
-        hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
+        hitCircleSize = (2 * (54.4 - 4.48 * circleSize) * 236) / 256;
+        hitCircleTemplate = createHitCircleTemplate();
+        hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
+        approachCircleTemplate = createApproachCircleTemplate();
+        sliderBallTemplate = createSliderBallTemplate();
         sliderBorderThickness = (hitCircleSize * (236 - 190)) / 2 / 256;
 
         // console.log(hitCircleSize, sliderBorderThickness);
@@ -101,14 +105,30 @@ class Beatmap {
             });
 
         // console.log(beatStepsList, timingPointsList);
-        const coloursList =
+        const coloursList = (
             rawBeatmap.indexOf("[Colours]") !== -1
                 ? rawBeatmap
                       .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
                       .split("\r\n")
                       .filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
                       .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`)
-                : ["rgb(235,64,52)", "rgb(235,192,52)", "rgb(52,235,101)", "rgb(52,125,235)"];
+                : ["rgb(235,64,52)", "rgb(235,192,52)", "rgb(52,235,101)", "rgb(52,125,235)"]
+        ).map((colour) =>
+            parseInt(
+                colour
+                    .replaceAll("rgb(", "")
+                    .replaceAll(")", "")
+                    .split(",")
+                    .map((val) => parseInt(val).toString(16).padStart(2, "0"))
+                    .join(""),
+                16
+            )
+        );
+
+        colorsLength = coloursList.length;
+        // console.log(colorsLength);
+        SliderTexture = newTexture(coloursList);
+
         let objectLists = rawBeatmap
             .slice(hitObjectsPosition)
             .split("\r\n")
@@ -203,8 +223,12 @@ class Beatmap {
 
                     let headHitsoundList = ["hitnormal"];
                     let tailHitsoundList = ["hitnormal"];
+                    let reverseList = [];
 
                     if (params[8] === undefined) {
+                        const defaultHeadSampleSet = hitsampleEnum[currentSVMultiplier.sampleSet];
+                        const defaultTailSampleSet = hitsampleEnum[sliderEndSVMultiplier.sampleSet];
+
                         parseInt(params[4])
                             .toString(2)
                             .padStart(4, "0")
@@ -218,8 +242,11 @@ class Beatmap {
                                 }
                             });
 
-                        headHitsoundList = headHitsoundList.map((hs) => `normal-${hs}`);
-                        tailHitsoundList = tailHitsoundList.map((hs) => `normal-${hs}`);
+                        headHitsoundList = headHitsoundList.map((hs) => `${defaultHeadSampleSet}-${hs}`);
+                        tailHitsoundList = tailHitsoundList.map((hs) => `${defaultTailSampleSet}-${hs}`);
+                        for (let i = 0; i < parseInt(params[6]) - 1; i++) {
+                            reverseList.push(new HitSample(headHitsoundList));
+                        }
                     } else {
                         const headHs = params[8].split("|")[0];
                         const tailHs = params[8].split("|").at(-1);
@@ -295,6 +322,60 @@ class Beatmap {
                                 ? `${tailSs.default}-${hs}${sliderEndSVMultiplier.sampleIdx}`
                                 : `${tailSs.additional}-${hs}${sliderEndSVMultiplier.sampleIdx}`
                         );
+
+                        const reverseHs = params[8].split("|").slice(1, -1);
+                        // console.log(params[2], reverseHs);
+                        reverseList = reverseHs.map((edge, idx) => {
+                            const calculatedTime =
+                                parseInt(params[2]) +
+                                (((idx + 1) * params[7]) / currentSVMultiplier.svMultiplier / initialSliderVelocity) * currentbeatStep;
+
+                            const edgeSVMultiplier =
+                                timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedTime) !== undefined
+                                    ? timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedTime)
+                                    : timingPointsList[0];
+                            let hitsoundList = ["hitnormal"];
+
+                            let ss = {
+                                default: "normal",
+                                additional: "normal",
+                            };
+
+                            if (params[9] !== undefined) {
+                                const defaultSampleSet =
+                                    params[9].split("|")[idx + 1].split(":")[0] !== "0"
+                                        ? hitsampleEnum[params[9].split("|")[idx + 1].split(":")[0]]
+                                        : hitsampleEnum[edgeSVMultiplier.sampleSet];
+
+                                ss = {
+                                    default: defaultSampleSet,
+                                    additional:
+                                        params[9].split("|")[idx + 1].split(":")[1] !== "0"
+                                            ? hitsampleEnum[params[9].split("|")[idx + 1].split(":")[1]]
+                                            : defaultSampleSet,
+                                };
+                            }
+
+                            parseInt(edge)
+                                .toString(2)
+                                .padStart(4, "0")
+                                .split("")
+                                .reverse()
+                                .slice(1)
+                                .forEach((flag, idx) => {
+                                    if (flag === "1") {
+                                        hitsoundList.push(hitsoundEnum[idx]);
+                                    }
+                                });
+
+                            hitsoundList = hitsoundList.map((hs) =>
+                                hs === "hitnormal"
+                                    ? `${ss.default}-${hs}${edgeSVMultiplier.sampleIdx}`
+                                    : `${ss.additional}-${hs}${edgeSVMultiplier.sampleIdx}`
+                            );
+
+                            return new HitSample(hitsoundList);
+                        });
                     }
 
                     // console.log(parseInt(params[2]), headHitsoundList, tailHitsoundList);
@@ -324,6 +405,7 @@ class Beatmap {
                         hitsounds: {
                             sliderHead: new HitSample(headHitsoundList),
                             sliderTail: new HitSample(tailHitsoundList),
+                            sliderReverse: reverseList,
                         },
                         raw: object,
                     };
@@ -362,7 +444,7 @@ class Beatmap {
                     if (
                         nObj.obj instanceof Slider &&
                         this.calculateDistance(
-                            [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y],
+                            [nObj.obj.angleList.at(-1).x, nObj.obj.angleList.at(-1).y],
                             [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
                         ) < stackDistance
                     ) {
@@ -373,9 +455,9 @@ class Beatmap {
 
                             if (
                                 this.calculateDistance(
-                                    [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y],
+                                    [nObj.obj.angleList.at(-1).x, nObj.obj.angleList.at(-1).y],
                                     jObj.obj instanceof Slider
-                                        ? [jObj.obj.originalAngleList[0].x, jObj.obj.originalAngleList[0].y]
+                                        ? [jObj.obj.angleList.at(0).x, jObj.obj.angleList.at(0).y]
                                         : [parseInt(jObj.obj.originalX), parseInt(jObj.obj.originalY)]
                                 )
                             ) {
@@ -389,7 +471,7 @@ class Beatmap {
                     if (
                         this.calculateDistance(
                             nObj.obj instanceof Slider
-                                ? [nObj.obj.originalAngleList[0].x, nObj.obj.originalAngleList[0].y]
+                                ? [nObj.obj.angleList.at(0).x, nObj.obj.angleList.at(0).y]
                                 : [parseInt(nObj.obj.originalX), parseInt(nObj.obj.originalY)],
                             [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
                         ) < stackDistance
@@ -408,10 +490,10 @@ class Beatmap {
                     if (
                         this.calculateDistance(
                             nObj.obj instanceof Slider
-                                ? [nObj.obj.originalAngleList[nObj.obj.endPosition].x, nObj.obj.originalAngleList[nObj.obj.endPosition].y]
+                                ? [nObj.obj.angleList.at(-1).x, nObj.obj.angleList.at(-1).y]
                                 : [parseInt(nObj.obj.originalX), parseInt(nObj.obj.originalY)],
                             currentObj.obj instanceof Slider
-                                ? [currentObj.obj.originalAngleList[0].x, currentObj.obj.originalAngleList[0].y]
+                                ? [currentObj.obj.angleList.at(0).x, currentObj.obj.angleList.at(0).y]
                                 : [parseInt(currentObj.obj.originalX), parseInt(currentObj.obj.originalY)]
                         ) < stackDistance
                     ) {
@@ -421,6 +503,10 @@ class Beatmap {
                 }
             }
         }
+
+        this.objectsList.objectsList.forEach((o) => {
+            if (o.obj instanceof Slider) o.obj.reInitialize();
+        });
 
         // this.objectsList.objectsList.reverse().forEach((currentObj, i) => {
         //     let stackBaseIndex = i;

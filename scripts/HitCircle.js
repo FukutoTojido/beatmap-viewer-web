@@ -9,6 +9,15 @@ class HitCircle {
     originalY;
     stackHeight = 0;
     time;
+    obj;
+    hitCircleSprite;
+    hitCircleOverlaySprite;
+    numberSprite;
+    approachCircleObj;
+    tempModsHR = mods.HR;
+    tempModsEZ = mods.EZ;
+    tempW = w;
+    tempH = h;
 
     drawSelected(passedStackHeight) {
         const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
@@ -65,163 +74,63 @@ class HitCircle {
 
     draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
         // console.log(this.time, opacity);
-        const normalizedExpandRate = sliderAppearance.hitAnim ? (opacity >= 0 ? 1 : 1 + (1 - expandRate) * 0.5) : 1;
-        const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 1;
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
-        const drawOffset = (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2;
+        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
 
-        const dark1 = colour
-            .replaceAll("rgb(", "")
-            .replaceAll(")", "")
-            .split(",")
-            .map((val) => Math.round((val / 256) * (47 / 256) * 256))
-            .join(",");
-        const dark2 = colour
-            .replaceAll("rgb(", "")
-            .replaceAll(")", "")
-            .split(",")
-            .map((val) => Math.round((val / 256) * (154 / 256) * 256))
-            .join(",");
+        if (this.tempW !== w || this.tempH !== h) {
+            this.tempW = w;
+            this.tempH = h;
 
-        const inverse = mods.HR ? -1 : 1;
+            this.hitCircleOverlaySprite.texture = hitCircleOverlayTemplate;
+            this.hitCircleSprite.texture = hitCircleTemplate;
+            this.approachCircleObj.obj.texture = approachCircleTemplate;
+
+            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+        }
+
+        if (this.tempModsHR !== mods.HR || this.tempModsEZ !== mods.EZ) {
+            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+        }
+
+        const currentOpacity = Clamp(
+            timestamp - this.time < 0 ? opacity : 1 - Math.abs(timestamp - this.time) / (sliderAppearance.hitAnim ? 240 : 800),
+            0,
+            1
+        );
+        const currentExpand = sliderAppearance.hitAnim ? (timestamp - this.time < 0 ? 1 : 1 - currentOpacity + 1) : 1;
 
         const stackHeight = sliderStackHeight === undefined ? this.stackHeight : sliderStackHeight;
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
-        this.positionX =
-            (this.originalX + stackOffset * stackHeight) * currentScaleFactor +
-            (canvas.width - 512 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
-        this.positionY =
-            (this.originalY + inverse * stackOffset * stackHeight) * currentScaleFactor +
-            (canvas.height - 384 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
+        const convertedColor = colour;
+        this.hitCircleSprite.tint = sliderAppearance.hitAnim ? convertedColor : timestamp - this.time < 0 ? convertedColor : 0xffffff;
 
-        const currentDrawSize = (currentHitCircleSize * currentScaleFactor * normalizedExpandRate * 272) / 256;
-        const baseDrawSize = (currentHitCircleSize * currentScaleFactor * sampleApproachCircle.width.baseVal.value) / 256;
+        this.obj.alpha = currentOpacity;
+        this.obj.scale.set(currentExpand * circleModScale);
 
-        ctx.beginPath();
-        ctx.globalAlpha =
-            opacity >= 0 ? opacity : sliderAppearance.hitAnim ? (expandRate >= 0 ? expandRate : 0) : 1 - Math.min((timestamp - this.time) / 800, 1);
+        const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
+        const y = !mods.HR
+            ? ((this.originalY + stackHeight * currentStackOffset) * w) / 512
+            : ((384 - this.originalY + stackHeight * currentStackOffset) * w) / 512;
 
-        ctx.drawImage(
-            approachCircleArr[colourIdx],
-            this.positionX - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
-            this.positionY - (baseDrawSize * approachRateExpandRate - baseDrawSize) / 2 - drawOffset,
-            baseDrawSize * approachRateExpandRate,
-            baseDrawSize * approachRateExpandRate
+        this.obj.x = x;
+        this.obj.y = y;
+
+        this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 256 : 1);
+
+        this.numberSprite.text = comboIdx.toString();
+        this.numberSprite.alpha = timestamp > this.time ? 0 : 1;
+
+        const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 1;
+        this.approachCircleObj.obj.x = x;
+        this.approachCircleObj.obj.y = y;
+        this.approachCircleObj.draw(
+            sliderAppearance.hitAnim ? (timestamp > this.time ? 0 : currentOpacity) : currentOpacity,
+            approachRateExpandRate * circleModScale,
+            convertedColor
         );
-
-        if (mods.HR) {
-            ctx.save();
-            ctx.translate(0, this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 + currentDrawSize);
-            ctx.scale(1, -1);
-        }
-        // ctx.drawImage(
-        //     hitCircleArr[colourIdx],
-        //     this.positionX - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2,
-        //     !mods.HR ? this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 : 0,
-        //     currentDrawSize,
-        //     currentDrawSize
-        // );
-
-        const pseudoCanvas = new OffscreenCanvas(currentDrawSize + 6, currentDrawSize + 6);
-        const pseudoCtx = pseudoCanvas.getContext("2d");
-
-        const center = (currentDrawSize + 6) / 2;
-
-        pseudoCtx.beginPath();
-        pseudoCtx.fillStyle = sliderAppearance.hitAnim ? colour : opacity >= 0 ? colour : "white";
-        pseudoCtx.arc(center, center, (currentDrawSize / 2) * (236 / 272), 0, Math.PI * 2, 0);
-        pseudoCtx.fill();
-        pseudoCtx.closePath();
-
-        pseudoCtx.beginPath();
-        pseudoCtx.fillStyle = sliderAppearance.hitAnim ? `rgb(${dark2})` : opacity >= 0 ? `rgb(${dark2})` : `rgb(154,154,154)`;
-        pseudoCtx.arc(center, center, (currentDrawSize / 2) * (186 / 272), 0, Math.PI * 2, 0);
-        pseudoCtx.fill();
-        pseudoCtx.closePath();
-
-        pseudoCtx.beginPath();
-        pseudoCtx.fillStyle = sliderAppearance.hitAnim ? `rgb(${dark1})` : opacity >= 0 ? `rgb(${dark1})` : `rgb(47,47,47)`;
-        pseudoCtx.arc(center, center, (currentDrawSize / 2) * (140 / 272), 0, Math.PI * 2, 0);
-        pseudoCtx.fill();
-        pseudoCtx.closePath();
-
-        pseudoCtx.beginPath();
-        pseudoCtx.strokeStyle = "white";
-        pseudoCtx.lineWidth = !sliderAppearance.legacy ? 4 : 6;
-        pseudoCtx.arc(center, center, !sliderAppearance.legacy ? currentDrawSize / 2 : ((currentDrawSize - 5) / 2) * (236 / 272), 0, Math.PI * 2, 0);
-        pseudoCtx.stroke();
-        pseudoCtx.closePath();
-
-        ctx.drawImage(
-            pseudoCanvas,
-            this.positionX - drawOffset * normalizedExpandRate - 2,
-            !mods.HR ? this.positionY - drawOffset * normalizedExpandRate - 2 : drawOffset - 4
-        );
-
-        if (mods.HR) {
-            ctx.restore();
-        }
-
-        // ctx.beginPath();
-        // ctx.fillStyle = "yellow";
-        // ctx.strokeStyle = "yellow";
-        // ctx.arc(
-        //     this.positionX,
-        //     this.positionY - (currentDrawSize - currentDrawSize / normalizedExpandRate) / 2 + currentDrawSize / 2,
-        //     2,
-        //     0,
-        //     Math.PI * 2,
-        //     0
-        // );
-        // ctx.stroke();
-        // ctx.fill();
-        // ctx.closePath();
-
-        if (opacity < 0) {
-            ctx.globalAlpha = sliderAppearance.hitAnim ? Math.max((expandRate - 0.6) / 0.4, 0) : 1 - Math.min((timestamp - this.time) / 800, 1);
-        }
-
-        if (mods.HR) {
-            ctx.save();
-            ctx.translate(0, this.positionY + (currentHitCircleSize * currentScaleFactor * 276) / 256);
-            ctx.scale(1, -1);
-        }
-
-        const numberCanvas = new OffscreenCanvas(drawOffset * 2, drawOffset * 2);
-        const numberCtx = numberCanvas.getContext("2d");
-
-        const numberCenter = drawOffset;
-        const comboStr = comboIdx.toString().split("");
-        const digitCounts = comboStr.length - 1;
-        const numberOffset = 30;
-
-        // numberCtx.moveTo(0, 0);
-        // numberCtx.fillStyle = "red";
-        // numberCtx.arc(0, 0, 10, 0, Math.PI * 2, 0);
-        // numberCtx.fill();
-
-        // console.log(this.startTime, comboStr);
-
-        comboStr.forEach((num, idx) => {
-            numberCtx.drawImage(
-                defaultArr[num],
-                numberCenter - drawOffset + (idx - digitCounts / 2) * numberOffset,
-                numberCenter - drawOffset,
-                (currentHitCircleSize * currentScaleFactor * 276) / 256,
-                (currentHitCircleSize * currentScaleFactor * 276) / 256
-            );
-        });
-
-        ctx.drawImage(numberCanvas, this.positionX - drawOffset, !mods.HR ? this.positionY - drawOffset : drawOffset);
-
-        if (mods.HR) {
-            ctx.restore();
-        }
-
-        ctx.globalAlpha = 1;
-        ctx.closePath();
+        // console.log(this.time, currentExpand, timestamp - this.time > 0, timestamp);
     }
 
     constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
@@ -232,9 +141,44 @@ class HitCircle {
         this.startTime = time - preempt;
         this.endTime = time + 240;
 
-        this.positionX = positionX * scaleFactor + (canvas.width - 512 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
-        this.positionY = positionY * scaleFactor + (canvas.height - 384 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
+        // this.positionX = positionX * scaleFactor + (canvas.width - 512 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
+        // this.positionY = positionY * scaleFactor + (canvas.height - 384 * scaleFactor) / 2 - (hitCircleSize * scaleFactor * 276) / 256 / 2;
 
         this.isNewCombo = isNewCombo;
+
+        const hitCircleOverlaySprite = new Sprite(hitCircleOverlayTemplate);
+        // hitCircleOverlaySprite.x = x;
+        // hitCircleOverlaySprite.y = y;
+        hitCircleOverlaySprite.anchor.set(0.5);
+        this.hitCircleOverlaySprite = hitCircleOverlaySprite;
+
+        const hitCircleSprite = new Sprite(hitCircleTemplate);
+        // hitCircleSprite.x = x;
+        // hitCircleSprite.y = y;
+        hitCircleSprite.anchor.set(0.5);
+        this.hitCircleSprite = hitCircleSprite;
+
+        const numberSprite = new PIXI.Text("0", {
+            fontFamily: "Torus",
+            fontSize: 40,
+            fontWeight: 600,
+            fill: 0xffffff,
+            align: "center",
+        });
+        numberSprite.anchor.set(0.5);
+        numberSprite.y = (-1 * w) / 512;
+        numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+        this.numberSprite = numberSprite;
+
+        const hitCircleContainer = new Container();
+        hitCircleContainer.addChild(hitCircleSprite);
+        hitCircleContainer.addChild(hitCircleOverlaySprite);
+        hitCircleContainer.addChild(numberSprite);
+        hitCircleContainer.x = (this.originalX * w) / 512;
+        hitCircleContainer.y = (this.originalY * w) / 512;
+
+        this.approachCircleObj = new ApproachCircle(this.originalX, this.originalY);
+
+        this.obj = hitCircleContainer;
     }
 }

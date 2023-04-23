@@ -7,6 +7,8 @@ class ObjectsList {
     currentColor;
     coloursObject;
     lastTimestamp = 0;
+    tempW = w;
+    tempH = h;
 
     compare(a, b) {
         if (a.time < b.time) {
@@ -22,28 +24,9 @@ class ObjectsList {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
+        // this.objectsList = this.slidersList;
         this.currentColor = 1 % coloursList.length;
         this.comboIdx = 1;
-
-        if (coloursList.length !== 0) {
-            hitCircleArr = [];
-            coloursList.forEach((colour, idx) => {
-                document.querySelector("#hitCircleColor").style.backgroundColor = colour;
-                const base64_hitCircle = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
-                const hitCircleImgData = `data:image/svg+xml;base64,${base64_hitCircle}`;
-                const hitCircleImg = new Image();
-                hitCircleImg.src = hitCircleImgData;
-
-                document.querySelector("#approachCircleColor").style.backgroundColor = colour;
-                const base64_approachCircle = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
-                const approachCircleImgData = `data:image/svg+xml;base64,${base64_approachCircle}`;
-                const approachCircleImg = new Image();
-                approachCircleImg.src = approachCircleImgData;
-
-                hitCircleArr[idx] = hitCircleImg;
-                approachCircleArr[idx] = approachCircleImg;
-            });
-        }
 
         this.objectsList = this.objectsList.map((object, idx) => {
             if (object.obj.isNewCombo && idx !== 0) {
@@ -61,10 +44,19 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
-        if (isDragging && currentX !== -1 && currentY !== -1) {
-            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-            handleCanvasDrag();
+        if (this.tempW !== w || this.tempH !== h) {
+            this.tempW = w;
+            this.tempH = h;
+
+            hitCircleTemplate = createHitCircleTemplate();
+            hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
+            approachCircleTemplate = createApproachCircleTemplate();
+            sliderBallTemplate = createSliderBallTemplate();
         }
+        // if (isDragging && currentX !== -1 && currentY !== -1) {
+        //     draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+        //     handleCanvasDrag();
+        // }
 
         updateTime(timestamp);
         // timestamp += HARD_OFFSET + SOFT_OFFSET;
@@ -84,72 +76,117 @@ class ObjectsList {
         //     canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
         // }
 
-        const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+        // const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 
         let currentAR = !mods.EZ ? approachRate : approachRate / 2;
         currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
         const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
         const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.objectsList
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const filtered = this.objectsList
             .filter(
                 (object) =>
-                    selectedHitObject.includes(object.time) ||
-                    (object.time - currentPreempt < timestamp &&
-                        (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp)
-            )
-            .reverse()
-            .forEach((object) => {
-                if (
                     object.time - currentPreempt < timestamp &&
                     (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
-                ) {
-                    const objStartTime = object.time - currentPreempt;
-                    if (timestamp >= objStartTime) {
-                        const opacity =
-                            timestamp < object.time
-                                ? (timestamp - objStartTime) / currentFadeIn
-                                : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
+            )
+            .reverse();
 
-                        // console.log(object.time, timestamp, timestamp < object.time);
+        const approachCircleList = filtered.map((o) => {
+            if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
 
-                        object.obj.draw(
-                            timestamp,
-                            opacity,
-                            (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
-                            1 - (timestamp - object.time) / 240,
-                            (timestamp - objStartTime) / currentPreempt,
-                            object.colour,
-                            object.colourIdx,
-                            object.comboIdx,
-                            currentScaleFactor
-                        );
+            if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
+        });
 
-                        if (timestamp - this.lastTimestamp >= 2) {
-                            if (object.hitsounds.sliderHead === false || object.hitsounds.sliderTail === false) {
-                                if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
-                                    // console.log(object.time, timestamp, this.lastTimestamp);
-                                    object.hitsounds.play();
-                                }
-                            } else {
-                                if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
-                                    // console.log(object.time, timestamp, this.lastTimestamp);
-                                    object.hitsounds.sliderHead.play();
-                                }
+        const noRender = this.objectsList.filter(
+            (object) =>
+                !(
+                    object.time - currentPreempt < timestamp &&
+                    (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
+                )
+        );
 
-                                if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
-                                    // console.log(object.time, timestamp, this.lastTimestamp);
-                                    object.hitsounds.sliderTail.play();
-                                }
+        const noRenderApproachCircleList = noRender.map((o) => {
+            if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
+
+            if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
+        });
+
+        addToContainer(filtered.map((o) => o.obj).concat(approachCircleList));
+        removeFromContainer(noRender.map((o) => o.obj).concat(noRenderApproachCircleList));
+
+        // console.log(filtered);
+
+        if (filtered.length === 0) {
+            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
+        } else {
+            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
+        }
+
+        filtered.forEach((object) => {
+            const objStartTime = object.time - currentPreempt;
+            if (timestamp >= objStartTime) {
+                const opacity =
+                    timestamp < object.time
+                        ? (timestamp - objStartTime) / currentFadeIn
+                        : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
+
+                // console.log(object.time, object.colourIdx);
+
+                object.obj.draw(
+                    timestamp,
+                    opacity,
+                    (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
+                    1 - (timestamp - object.time) / 240,
+                    (timestamp - objStartTime) / currentPreempt,
+                    object.colour,
+                    object.colourIdx,
+                    object.comboIdx,
+                    1
+                );
+
+                if (timestamp - this.lastTimestamp >= 2) {
+                    if (object.obj instanceof HitCircle) {
+                        if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                            // console.log(object.time, timestamp, this.lastTimestamp);
+                            object.hitsounds.play();
+                        }
+                    } else {
+                        if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                            // console.log(object.time, timestamp, this.lastTimestamp);
+                            object.hitsounds.sliderHead.play();
+                        }
+
+                        if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
+                            // console.log(object.time, timestamp, this.lastTimestamp);
+                            object.hitsounds.sliderTail.play();
+                        }
+
+                        if (object.hitsounds.sliderReverse.length > 0) {
+                            const currentOffsetFromStart = timestamp - object.time;
+                            const lastOffsetFromStart = this.lastTimestamp - object.time;
+                            const totalLength = object.endTime - object.time;
+
+                            const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
+                            const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
+
+                            if (currentRepeatIdx > lastRepeatIdx && currentRepeatIdx < object.obj.repeat && currentRepeatIdx >= 1 && !staticDraw) {
+                                object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
                             }
                         }
                     }
                 }
-                if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
-            });
+            }
+            // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
+        });
 
-        if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)
+        if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying) {
+            if (beatmapFile.audioNode.getCurrentTime() > beatmapFile.audioNode.buf.duration * 1000) {
+                if (playingFlag) {
+                    playToggle();
+                    beatmapFile.audioNode.play(beatmapFile.audioNode.getCurrentTime());
+                }
+            }
             window.requestAnimationFrame((currentTime) => {
                 // if (!document.querySelector("audio")) return;
                 // const currentAudioTime = document.querySelector("audio").currentTime * 1000;
@@ -163,6 +200,7 @@ class ObjectsList {
 
                 // console.log(timestamp);
             });
+        }
     }
 
     render() {

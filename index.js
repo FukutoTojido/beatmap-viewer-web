@@ -11,6 +11,235 @@ window.requestAnimationFrame((currentTime) => {
     return checkFrameRate(0, currentTime);
 });
 
+// Alias
+PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL2;
+
+const Application = PIXI.Application,
+    Sprite = PIXI.Sprite,
+    Assets = PIXI.Assets,
+    Graphics = PIXI.Graphics,
+    Container = PIXI.Container;
+
+const sliderAccuracy = 1 / 1000;
+const scaleFactor = Math.max(window.innerWidth / 640, window.innerHeight / 480);
+// const cs = 54.4 - 4.48 * 4;
+
+// Init
+let type = "WebGL";
+
+if (!PIXI.utils.isWebGLSupported()) {
+    type = "canvas";
+}
+
+const app = new Application({
+    width: parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
+    height: parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
+    antialias: true,
+    autoDensity: true,
+    backgroundAlpha: 0,
+});
+
+let elapsed = 0.0;
+let container = new Container();
+app.stage.addChild(container);
+
+let w = (w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width));
+let h = (h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+
+if (w / 512 > h / 384) w = w_z = (h / 384) * 512;
+else h = h_z = (w / 512) * 384;
+
+document.querySelector("#playerContainer").appendChild(app.view);
+
+if (w < 480) {
+    // console.log("Alo", w, h);
+    app.renderer.resize(
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+    );
+    w *= 2;
+    h *= 2;
+
+    document.querySelector("canvas").style.transform = `scale(0.5)`;
+} else {
+    document.querySelector("canvas").style.transform = ``;
+}
+
+w *= 0.8;
+h *= 0.8;
+
+let offsetX = (document.querySelector("canvas").width - w) / 2;
+let offsetY = (document.querySelector("canvas").height - h) / 2;
+
+container.x = offsetX;
+container.y = offsetY;
+
+const addToContainer = (list) => {
+    list.forEach((o) => {
+        container.addChild(o.obj);
+    });
+};
+
+const removeFromContainer = (list) => {
+    list.forEach((o) => {
+        container.removeChild(o.obj);
+    });
+};
+
+const createHitCircleTemplate = () => {
+    const hitCircle = new Graphics();
+
+    const circle_1 = new Graphics();
+    circle_1.beginFill(0xffffff);
+    circle_1.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
+    circle_1.endFill();
+
+    const circle_2 = new Graphics();
+    circle_2.beginFill(0x9a9a9a);
+    circle_2.drawCircle(0, 0, ((((hitCircleSize / 2) * 186) / 236) * w) / 512);
+    circle_2.endFill();
+
+    const circle_3 = new Graphics();
+    circle_3.beginFill(0x2f2f2f);
+    circle_3.drawCircle(0, 0, ((((hitCircleSize / 2) * 140) / 236) * w) / 512);
+    circle_3.endFill();
+
+    hitCircle.addChild(circle_1);
+    hitCircle.addChild(circle_2);
+    hitCircle.addChild(circle_3);
+    // hitCircleContainer.addChild(hitCircleOverlay);
+
+    // console.log(hitCircle.width);
+    const { width, height } = hitCircle;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.HIGH,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(hitCircle, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    hitCircle.destroy(true);
+
+    return renderTexture;
+};
+
+const createHitCircleOverlayTemplate = () => {
+    const hitCircleOverlay = new Graphics()
+        .lineStyle({
+            width: (4 * w) / 1024,
+            color: 0xffffff,
+            alpha: 1,
+            cap: "round",
+            alignment: 0,
+        })
+        .arc(0, 0, ((((hitCircleSize / 2) * 272) / 236) * w) / 512, 0, Math.PI * 2);
+    const { width, height } = hitCircleOverlay;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.MEDIUM,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(hitCircleOverlay, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    hitCircleOverlay.destroy(true);
+
+    return renderTexture;
+};
+
+const createApproachCircleTemplate = () => {
+    const approachCircle = new Graphics()
+        .lineStyle({
+            width: (4 * w) / 1024,
+            color: 0xffffff,
+            alpha: 1,
+            cap: "round",
+            alignment: 1,
+        })
+        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
+    const { width, height } = approachCircle;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.MEDIUM,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(approachCircle, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    approachCircle.destroy(true);
+
+    return renderTexture;
+};
+
+const createSliderBallTemplate = () => {
+    const sliderBallOutLine = new Graphics()
+        .lineStyle({
+            width: (20 * w) / 1024,
+            color: 0xffffff,
+            alpha: 1,
+            cap: "round",
+            alignment: 0,
+        })
+        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
+
+    const sliderBallBG = new Graphics();
+    sliderBallBG.beginFill(0x000000);
+    sliderBallBG.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
+    sliderBallBG.endFill();
+    sliderBallBG.alpha = 0.7;
+
+    const sliderBallContainer = new Container();
+    sliderBallContainer.addChild(sliderBallBG);
+    sliderBallContainer.addChild(sliderBallOutLine);
+
+    const { width, height } = sliderBallContainer;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.MEDIUM,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(sliderBallContainer, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    sliderBallContainer.destroy(true);
+
+    return renderTexture;
+};
+
+let hitCircleTemplate;
+let hitCircleOverlayTemplate;
+let approachCircleTemplate;
+let sliderBallTemplate;
+
 if (localStorage.getItem("settings")) {
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
 
@@ -54,30 +283,57 @@ const canvas = document.querySelector("#canvas");
 let oldPlayerContainerHeight = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
 let oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
 
-canvas.width =
-    (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-    parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-canvas.height = 1080;
+// canvas.width =
+//     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+//     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+// canvas.height = 1080;
 
 window.onresize = () => {
-    if (!playingFlag) {
-        canvas.width =
-            (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-        canvas.height = 1080;
+    w = w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+    h = h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+    app.renderer.resize(w, h);
 
+    if (w / 512 > h / 384) {
+        w = (h / 384) * 512;
+    } else {
+        h = (w / 512) * 384;
+    }
+
+    if (w < 480) {
+        // console.log("Alo", w, h);
+        app.renderer.resize(
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+        );
+        w *= 2;
+        h *= 2;
+        document.querySelector("canvas").style.transform = `scale(0.5)`;
+    } else {
+        document.querySelector("canvas").style.transform = ``;
+    }
+
+    w *= 0.8;
+    h *= 0.8;
+
+    offsetX = (document.querySelector("canvas").width - w) / 2;
+    offsetY = (document.querySelector("canvas").height - h) / 2;
+
+    container.x = offsetX;
+    container.y = offsetY;
+
+    if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
             beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }
     }
 };
 
-const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
+// const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+// let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+// const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
 
-const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = true;
+// const ctx = canvas.getContext("2d");
+// ctx.imageSmoothingEnabled = true;
 
 const sampleHitCircle = document.querySelector("#sampleHitCircle");
 const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
@@ -195,7 +451,7 @@ function handleCheckBox(checkbox) {
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
-    canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
+    // canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
     if (beatmapFile !== undefined) {
         const originalIsPlaying = beatmapFile.audioNode.isPlaying;
         if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
@@ -474,17 +730,18 @@ function goNext(precise) {
         const current = beatmapFile.audioNode.getCurrentTime();
         // console.log(current, goTo);
 
-        if (!playingFlag) {
-            if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
+        // if (!playingFlag) {
+        //     if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
 
-            currentFrameReq = window.requestAnimationFrame((currentTime) => {
-                return pushFrame(current, goTo, Math.abs(current - goTo));
-            });
-        }
+        //     currentFrameReq = window.requestAnimationFrame((currentTime) => {
+        //         return pushFrame(current, goTo, Math.abs(current - goTo));
+        //     });
+        // }
 
         beatmapFile.audioNode.seekTo(goTo);
         // console.log(beatmapFile.audioNode.currentTime);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
+        beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
         // setAudioTime();
     }
 }
@@ -511,17 +768,19 @@ function goBack(precise) {
 
         const current = beatmapFile.audioNode.getCurrentTime();
         // console.log(currentBeatstep, localOffset, goTo);
-        if (!playingFlag) {
-            if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
+        // if (!playingFlag) {
+        //     if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
 
-            currentFrameReq = window.requestAnimationFrame((currentTime) => {
-                return pushFrame(current, goTo, Math.abs(current - goTo));
-            });
-        }
+        //     currentFrameReq = window.requestAnimationFrame((currentTime) => {
+        //         return pushFrame(current, goTo, Math.abs(current - goTo));
+        //     });
+        // }
 
         beatmapFile.audioNode.seekTo(goTo);
         // console.log(beatmapFile.audioNode.currentTime);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
+        beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
+
         // setAudioTime();
     }
 }
@@ -535,16 +794,16 @@ function copyUrlToClipboard() {
 
 screen.orientation.onchange = () => {
     console.log("Orientation Changed");
-    canvas.width =
-        (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+    // canvas.width =
+    //     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
+    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
 
-    console.log(
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
-        canvas.width,
-        canvas.height
-    );
+    // console.log(
+    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
+    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
+    //     canvas.width,
+    //     canvas.height
+    // );
     if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 };
 
