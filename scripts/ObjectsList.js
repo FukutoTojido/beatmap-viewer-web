@@ -7,6 +7,8 @@ class ObjectsList {
     currentColor;
     coloursObject;
     lastTimestamp = 0;
+    tempW = w;
+    tempH = h;
 
     compare(a, b) {
         if (a.time < b.time) {
@@ -26,26 +28,6 @@ class ObjectsList {
         this.currentColor = 1 % coloursList.length;
         this.comboIdx = 1;
 
-        if (coloursList.length !== 0) {
-            hitCircleArr = [];
-            coloursList.forEach((colour, idx) => {
-                document.querySelector("#hitCircleColor").style.backgroundColor = colour;
-                const base64_hitCircle = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
-                const hitCircleImgData = `data:image/svg+xml;base64,${base64_hitCircle}`;
-                const hitCircleImg = new Image();
-                hitCircleImg.src = hitCircleImgData;
-
-                document.querySelector("#approachCircleColor").style.backgroundColor = colour;
-                const base64_approachCircle = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
-                const approachCircleImgData = `data:image/svg+xml;base64,${base64_approachCircle}`;
-                const approachCircleImg = new Image();
-                approachCircleImg.src = approachCircleImgData;
-
-                hitCircleArr[idx] = hitCircleImg;
-                approachCircleArr[idx] = approachCircleImg;
-            });
-        }
-
         this.objectsList = this.objectsList.map((object, idx) => {
             if (object.obj.isNewCombo && idx !== 0) {
                 this.currentColor = (this.currentColor + 1) % coloursList.length;
@@ -62,10 +44,19 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
-        if (isDragging && currentX !== -1 && currentY !== -1) {
-            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-            handleCanvasDrag();
+        if (this.tempW !== w || this.tempH !== h) {
+            this.tempW = w;
+            this.tempH = h;
+
+            hitCircleTemplate = createHitCircleTemplate();
+            hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
+            approachCircleTemplate = createApproachCircleTemplate();
+            sliderBallTemplate = createSliderBallTemplate();
         }
+        // if (isDragging && currentX !== -1 && currentY !== -1) {
+        //     draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+        //     handleCanvasDrag();
+        // }
 
         updateTime(timestamp);
         // timestamp += HARD_OFFSET + SOFT_OFFSET;
@@ -189,45 +180,13 @@ class ObjectsList {
             // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
         });
 
-        if (tempHR !== mods.HR || tempEZ !== mods.EZ) {
-            tempHR = mods.HR;
-            tempEZ = mods.EZ;
-
-            const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-            const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-            const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
-            const inverse = mods.HR ? -1 : 1;
-            const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
-            const dx = (2 * w) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 512;
-            const dy = (inverse * (-2 * h)) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 384;
-            // console.log(
-            //     (2 * w) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 512,
-            //     (-2 * h) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 384
-            // );
-
-            this.objectsList.forEach((o) => {
-                if (o.obj instanceof Slider)
-                    o.obj.SliderMesh.initiallize(
-                        [0x000000, 0xc8132e],
-                        (hitCircleSize / 2) * circleModScale,
-                        {
-                            dx: dx,
-                            ox:
-                                -1 +
-                                (2 * offsetX) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) +
-                                dx * o.obj.stackHeight * currentStackOffset,
-                            dy: dy,
-                            oy:
-                                inverse * (1 - (2 * offsetY) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height)) +
-                                inverse * (dy * o.obj.stackHeight * currentStackOffset),
-                        },
-                        undefined,
-                        0xffffff
-                    );
-            });
-        }
-
-        if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying)
+        if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying) {
+            if (beatmapFile.audioNode.getCurrentTime() > beatmapFile.audioNode.buf.duration * 1000) {
+                if (playingFlag) {
+                    playToggle();
+                    beatmapFile.audioNode.play(beatmapFile.audioNode.getCurrentTime());
+                }
+            }
             window.requestAnimationFrame((currentTime) => {
                 // if (!document.querySelector("audio")) return;
                 // const currentAudioTime = document.querySelector("audio").currentTime * 1000;
@@ -241,6 +200,7 @@ class ObjectsList {
 
                 // console.log(timestamp);
             });
+        }
     }
 
     render() {

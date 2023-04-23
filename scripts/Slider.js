@@ -1,36 +1,21 @@
 class Slider {
     originalArr = [];
-    pointArr = [];
     angleList = [];
-    originalAngleList = [];
-    originalBreakPoints = [];
-    sliderLen = 0;
     initialSliderLen;
     initialSliderVelocity;
     baseSliderVelocity;
     beatStep;
-    // time;
     startTime;
     endTime;
     preempt;
     fadeIn;
-    hitCircle;
-    angleIndex;
-    b;
     isNewCombo;
+    hitCircle;
     repeat;
-    sliderAccuracy;
     tempCanvasWidth;
     reverseArrow;
-    headReverseArrow;
     sliderType;
     endPosition;
-    INITIAL_CALCULATED_RATIO;
-    STEP;
-    minX;
-    minY;
-    maxX;
-    maxY;
     stackHeight = 0;
     tempStackHeight = 0;
     time;
@@ -40,6 +25,10 @@ class Slider {
     angleE;
     angleS;
     sliderBall;
+    tempModsHR = mods.HR;
+    tempModsEZ = mods.EZ;
+    tempW = w;
+    tempH = h;
 
     binom(n, k) {
         if (k < 0 || k > n) return 0;
@@ -68,93 +57,22 @@ class Slider {
         };
     }
 
-    drawSelected() {
-        this.hitCircle.drawSelected(this.stackHeight);
-
-        if (!this.minX || !this.minY) return;
-
-        const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-
-        const inverse = mods.HR ? -1 : 1;
-        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
-        let currentSliderBorderThickness = !sliderAppearance.legacy
-            ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
-            : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
-
-        const objectSize = currentHitCircleSize * currentScaleFactor * (236 / 272);
-
-        if (currentScaleFactor !== tempScaleFactor || this.tempCanvasWidth !== canvas.width) {
-            tempScaleFactor = currentScaleFactor;
-            // console.log(tempScaleFactor, "->", currentScaleFactor);
-            tempScaleFactor = currentScaleFactor;
-            this.tempCanvasWidth = canvas.width;
-            const newPointArr = this.originalArr.map((point) => {
-                return {
-                    x: point.x * currentScaleFactor + (canvas.width - 512 * currentScaleFactor) / 2,
-                    y: point.y * currentScaleFactor + (canvas.height - 384 * currentScaleFactor) / 2,
-                };
-            });
-
-            this.angleList = this.getAngleList(newPointArr, currentScaleFactor).angleList;
-
-            this.minX = this.angleList.reduce((prev, curr) => (prev.x >= curr.x ? curr : prev)).x;
-            this.minY = this.angleList.reduce((prev, curr) => (prev.y >= curr.y ? curr : prev)).y;
-            this.maxX = this.angleList.reduce((prev, curr) => (prev.x <= curr.x ? curr : prev)).x;
-            this.maxY = this.angleList.reduce((prev, curr) => (prev.y <= curr.y ? curr : prev)).y;
-        }
-
-        ctx.beginPath();
-        const sliderOffset = (objectSize * 128) / 118;
-        const shiftOffsetX = -this.minX + sliderOffset / 2;
-        const shiftOffsetY = -this.minY + sliderOffset / 2;
-
-        const pseudoCanvas = new OffscreenCanvas(this.maxX - this.minX + sliderOffset, this.maxY - this.minY + sliderOffset);
-        const pseudoCtx = pseudoCanvas.getContext("2d");
-        pseudoCtx.lineJoin = "round";
-        pseudoCtx.lineCap = "round";
-
-        pseudoCtx.beginPath();
-        pseudoCtx.moveTo(this.angleList[0].x + shiftOffsetX, this.angleList[0].y + shiftOffsetY);
-
-        const endPosition = Math.min(
-            Math.ceil((this.initialSliderLen / this.repeat / this.sliderLen) * this.angleList.length - 1),
-            this.angleList.length - 1
-        );
-
-        this.angleList.forEach((point, idx) => {
-            const currentPointFullLengthRatio = idx / this.angleList.length;
-            if (currentPointFullLengthRatio > this.INITIAL_CALCULATED_RATIO) return;
-
-            pseudoCtx.lineTo(point.x + shiftOffsetX, point.y + shiftOffsetY);
-        });
-
-        pseudoCtx.lineWidth = (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor;
-        pseudoCtx.strokeStyle = `rgb(0 0 0 / 1)`;
-        pseudoCtx.stroke();
-
-        pseudoCtx.globalCompositeOperation = "source-out";
-
-        pseudoCtx.lineWidth = objectSize * (128 / 118);
-        pseudoCtx.strokeStyle = `rgb(255, 123, 0)`;
-        pseudoCtx.stroke();
-
-        pseudoCtx.globalCompositeOperation = "source-over";
-        pseudoCtx.closePath();
-
-        // console.log(minX, minY)
-        ctx.drawImage(
-            pseudoCanvas,
-            this.minX - sliderOffset / 2 + stackOffset * this.stackHeight * currentScaleFactor,
-            this.minY - sliderOffset / 2 + inverse * stackOffset * this.stackHeight * currentScaleFactor
-        );
-        ctx.closePath();
-    }
+    drawSelected() {}
 
     drawBorder(timestamp, opacity, percentage, colourIdx, currentScaleFactor) {
         // console.log(this.time, opacity, percentage);
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== w || this.tempH !== h) {
+            this.tempModsEZ = mods.EZ;
+            this.tempModsHR = mods.HR;
+            this.tempW = w;
+            this.tempH = h;
+            this.reInitialize();
+            this.sliderBall.texture = sliderBallTemplate;
+        }
+
         this.SliderMesh.alpha = Clamp(
             timestamp < this.time
                 ? Math.abs(opacity)
@@ -185,10 +103,6 @@ class Slider {
             this.SliderMesh.startt = 0;
             this.SliderMesh.endt = 1;
         }
-
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
 
         if (this.repeat > 1) {
             if (!(opacity < 0)) {
@@ -224,7 +138,7 @@ class Slider {
             const offset = this.time % this.beatStep;
             const revExpand = (timestamp - offset - Math.floor((timestamp - offset) / this.beatStep) * this.beatStep) / this.beatStep;
             const revExpandRate = (1 - Clamp(Math.abs(revExpand), 0, 1)) * 0.7 + 0.8;
-            this.reverseArrow.scale.set(revExpandRate * circleModScale);
+            this.reverseArrow.scale.set(((revExpandRate * circleModScale * w) / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
         }
 
         if (opacity < 0) {
@@ -276,21 +190,23 @@ class Slider {
         const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
         const inverse = mods.HR ? -1 : 1;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
-        const dx = (2 * w) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 512;
-        const dy = (inverse * (-2 * h)) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 384;
+
+        let w_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+        let h_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+
+        if (w_z / 512 > h_z / 384) w_z = (h_z / 384) * 512;
+        else h_z = (w_z / 512) * 384;
+
+        const dx = (2 * w) / document.querySelector("canvas").width / 512;
+        const dy = (inverse * (-2 * h)) / document.querySelector("canvas").height / 384;
         this.SliderMesh.initiallize(
             [0x000000, 0xc8132e],
             (hitCircleSize / 2) * circleModScale,
             {
                 dx: dx,
-                ox:
-                    -1 +
-                    (2 * offsetX) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) +
-                    dx * this.stackHeight * currentStackOffset,
+                ox: -1 + (2 * offsetX) / document.querySelector("canvas").width + dx * this.stackHeight * currentStackOffset,
                 dy: dy,
-                oy:
-                    inverse * (1 - (2 * offsetY) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height)) +
-                    dy * this.stackHeight * currentStackOffset,
+                oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + dy * this.stackHeight * currentStackOffset,
             },
             undefined,
             0xffffff
@@ -429,17 +345,13 @@ class Slider {
         }
 
         // if (upper === 0) console.log(this.startTime, pointArr[2].y - pointArr[0].y, absoluteAngle);
-
-        this.angleIndex = angleIndex;
-        this.b = b;
-
         // console.log(this.time, (absoluteAngle * 180) / Math.PI, (innerAngle * 180) / Math.PI, upper, lower, angleIndex, b);
 
         const points = [];
         let length = 0;
 
         // console.log(this.time, innerAngle, centerX, centerY, pointArr[0]);
-        for (let i = 0; i < 1; i += this.sliderAccuracy) {
+        for (let i = 0; i < 1; i += sliderAccuracy) {
             const toPush = {
                 x: centerX + (pointArr[0].x - centerX) * Math.cos(innerAngle * i) - (pointArr[0].y - centerY) * Math.sin(innerAngle * i),
                 y: centerY + (pointArr[0].x - centerX) * Math.sin(innerAngle * i) + (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
@@ -509,8 +421,9 @@ class Slider {
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time, false);
         this.initialSliderLen = initialSliderLen;
         this.initialSliderVelocity = initialSliderVelocity;
-        this.sliderAccuracy = sliderAccuracy / (initialSliderLen / baseSliderVelocity);
         this.repeat = repeat;
+
+        this.isNewCombo = isNewCombo;
 
         this.baseSliderVelocity = baseSliderVelocity;
         this.beatStep = parseFloat(beatStep);
@@ -521,11 +434,7 @@ class Slider {
 
         this.angleList = this.getAngleList(originalArr);
 
-        this.isNewCombo = isNewCombo;
         // this.draw(0.5);
-
-        this.endPosition = this.angleList.length - 1;
-
         // console.log(this.repeat % 2);
 
         if (this.repeat > 1) {
@@ -547,26 +456,30 @@ class Slider {
             this.angleS = angleS;
 
             const revEndSprite = Sprite.from("static/reversearrow@2x.png");
+            revEndSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
             revEndSprite.anchor.set(0.5);
             revEndSprite.alpha = 0;
 
             this.reverseArrow = revEndSprite;
         }
 
-        this.INITIAL_CALCULATED_RATIO = this.initialSliderLen / this.repeat / this.sliderLen;
-        this.STEP = 1 / this.repeat;
-
         // console.log(this.time, this.angleList);
+
+        let w_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+        let h_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+
+        if (w_z / 512 > h_z / 384) w_z = (h_z / 384) * 512;
+        else h_z = (w_z / 512) * 384;
 
         this.SliderMesh = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
         this.SliderMesh.initiallize(
             [0x000000, 0xc8132e],
             hitCircleSize / 2,
             {
-                dx: (2 * w) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) / 512,
-                ox: -1 + (2 * offsetX) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
-                dy: (-2 * h) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) / 384,
-                oy: 1 - (2 * offsetY) / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
+                dx: (2 * w_z) / document.querySelector("canvas").width / 512,
+                ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
+                dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
+                oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
             },
             undefined,
             0xffffff

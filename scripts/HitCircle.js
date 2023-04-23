@@ -14,6 +14,10 @@ class HitCircle {
     hitCircleOverlaySprite;
     numberSprite;
     approachCircleObj;
+    tempModsHR = mods.HR;
+    tempModsEZ = mods.EZ;
+    tempW = w;
+    tempH = h;
 
     drawSelected(passedStackHeight) {
         const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
@@ -70,16 +74,31 @@ class HitCircle {
 
     draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
         // console.log(this.time, opacity);
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+
+        if (this.tempW !== w || this.tempH !== h) {
+            this.tempW = w;
+            this.tempH = h;
+
+            this.hitCircleOverlaySprite.texture = hitCircleOverlayTemplate;
+            this.hitCircleSprite.texture = hitCircleTemplate;
+            this.approachCircleObj.obj.texture = approachCircleTemplate;
+
+            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+        }
+
+        if (this.tempModsHR !== mods.HR || this.tempModsEZ !== mods.EZ) {
+            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+        }
+
         const currentOpacity = Clamp(
             timestamp - this.time < 0 ? opacity : 1 - Math.abs(timestamp - this.time) / (sliderAppearance.hitAnim ? 240 : 800),
             0,
             1
         );
         const currentExpand = sliderAppearance.hitAnim ? (timestamp - this.time < 0 ? 1 : 1 - currentOpacity + 1) : 1;
-
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
 
         const stackHeight = sliderStackHeight === undefined ? this.stackHeight : sliderStackHeight;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
@@ -141,13 +160,14 @@ class HitCircle {
 
         const numberSprite = new PIXI.Text("0", {
             fontFamily: "Torus",
-            fontSize: (40 * 4) / circleSize,
+            fontSize: 40,
             fontWeight: 600,
             fill: 0xffffff,
             align: "center",
         });
         numberSprite.anchor.set(0.5);
         numberSprite.y = (-1 * w) / 512;
+        numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
         this.numberSprite = numberSprite;
 
         const hitCircleContainer = new Container();

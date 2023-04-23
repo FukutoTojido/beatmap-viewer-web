@@ -43,22 +43,36 @@ let elapsed = 0.0;
 let container = new Container();
 app.stage.addChild(container);
 
-let w = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-let h = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+let w = (w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width));
+let h = (h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
 
-if (w / 512 > h / 384) w = (h / 384) * 512;
-else h = (w / 512) * 384;
+if (w / 512 > h / 384) w = w_z = (h / 384) * 512;
+else h = h_z = (w / 512) * 384;
+
+document.querySelector("#playerContainer").appendChild(app.view);
+
+if (w < 480) {
+    // console.log("Alo", w, h);
+    app.renderer.resize(
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+    );
+    w *= 2;
+    h *= 2;
+
+    document.querySelector("canvas").style.transform = `scale(0.5)`;
+} else {
+    document.querySelector("canvas").style.transform = ``;
+}
 
 w *= 0.8;
 h *= 0.8;
 
-const offsetX = (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) - w) / 2;
-const offsetY = (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) - h) / 2;
+let offsetX = (document.querySelector("canvas").width - w) / 2;
+let offsetY = (document.querySelector("canvas").height - h) / 2;
 
 container.x = offsetX;
 container.y = offsetY;
-
-document.querySelector("#playerContainer").appendChild(app.view);
 
 const addToContainer = (list) => {
     list.forEach((o) => {
@@ -275,12 +289,39 @@ let oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("
 // canvas.height = 1080;
 
 window.onresize = () => {
-    if (!playingFlag) {
-        // canvas.width =
-        //     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-        //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-        // canvas.height = 1080;
+    w = w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
+    h = h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+    app.renderer.resize(w, h);
 
+    if (w / 512 > h / 384) {
+        w = (h / 384) * 512;
+    } else {
+        h = (w / 512) * 384;
+    }
+
+    if (w < 480) {
+        // console.log("Alo", w, h);
+        app.renderer.resize(
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+        );
+        w *= 2;
+        h *= 2;
+        document.querySelector("canvas").style.transform = `scale(0.5)`;
+    } else {
+        document.querySelector("canvas").style.transform = ``;
+    }
+
+    w *= 0.8;
+    h *= 0.8;
+
+    offsetX = (document.querySelector("canvas").width - w) / 2;
+    offsetY = (document.querySelector("canvas").height - h) / 2;
+
+    container.x = offsetX;
+    container.y = offsetY;
+
+    if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
             beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }

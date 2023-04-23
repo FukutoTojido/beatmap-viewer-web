@@ -193,7 +193,7 @@ body {
     border-radius: 20px 20px 0 0;
     background-size: cover;
     background-position: center;
-    overflow: hidden;
+    /* overflow: hidden; */
     transition: ease-in-out 300ms;
     /* z-index: 1; */
 }
@@ -207,6 +207,7 @@ canvas {
     /* z-index: 0; */
     /* background-color: rgba(255, 255, 255, 0.1); */
     /* transition: ease-in-out 200ms; */
+    transform-origin: top left;
 }
 
 #overlay {
