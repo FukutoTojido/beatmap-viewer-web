@@ -910,6 +910,13 @@ const handleCanvasClick = (event) => {
     beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
 };
 
+const cvClick = () => {
+    // const rect = canvas.getBoundingClientRect();
+    // const x = currentX - rect.left;
+    // const y = currentY - rect.top;
+    // console.log(x, y);
+};
+
 const handleCanvasDrag = () => {
     const rect = canvas.getBoundingClientRect();
     const x = (currentX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));

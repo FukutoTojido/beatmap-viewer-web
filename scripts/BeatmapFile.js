@@ -79,9 +79,7 @@ class BeatmapFile {
         const allEntries = await zipReader.getEntries();
         // console.log(allEntries);
 
-        document.querySelector(
-            "#loadingText"
-        ).innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
+        document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
         const audioFile = allEntries.filter((e) => e.filename === audioFilename).shift();
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
         // console.log("Audio Blob Generated");
@@ -95,9 +93,7 @@ class BeatmapFile {
         });
 
         const hitsoundArrayBuffer = [];
-        document.querySelector(
-            "#loadingText"
-        ).innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
+        document.querySelector("#loadingText").innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
         for (const file of hitsoundFiles) {
             const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
             const fileBlob = await file.getData(writer);
@@ -244,12 +240,12 @@ class BeatmapFile {
                 this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
             }
 
-            // canvas.addEventListener("click", (event) => {
-            //     if (currentX === -1 && currentY === -1) handleCanvasClick(event);
-            //     currentX = -1;
-            //     currentY = -1;
-            //     // console.log(isDragging);
-            // });
+            document.querySelector("canvas").addEventListener("click", (event) => {
+                if (currentX === -1 && currentY === -1) cvClick(event);
+                currentX = -1;
+                currentY = -1;
+                // console.log(isDragging);
+            });
 
             // canvas.addEventListener("mousedown", (event) => {
             //     isDragging = true;

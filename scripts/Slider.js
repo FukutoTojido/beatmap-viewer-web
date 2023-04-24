@@ -64,6 +64,8 @@ class Slider {
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+
         if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== w || this.tempH !== h) {
             this.tempModsEZ = mods.EZ;
             this.tempModsHR = mods.HR;
@@ -106,8 +108,9 @@ class Slider {
 
         if (this.repeat > 1) {
             if (!(opacity < 0)) {
-                this.reverseArrow.x = (this.angleList.at(-1).x * w) / 512;
-                this.reverseArrow.y = ((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) * w) / 512;
+                this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * w) / 512;
+                this.reverseArrow.y =
+                    (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * w) / 512;
                 // this.reverseArrow.alpha = Math.abs(opacity);
                 this.reverseArrow.rotation = this.angleE + (!mods.HR ? 0 : Math.PI * 2 - this.angleE * 2);
 
@@ -120,13 +123,16 @@ class Slider {
                 const currentRepeat = Math.floor(percentage * this.repeat);
                 if (currentRepeat < this.repeat - 1)
                     if (currentRepeat % 2 === 0) {
-                        this.reverseArrow.x = (this.angleList.at(-1).x * w) / 512;
-                        this.reverseArrow.y = ((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) * w) / 512;
+                        this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * w) / 512;
+                        this.reverseArrow.y =
+                            (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * w) /
+                            512;
                         this.reverseArrow.rotation = this.angleE + (!mods.HR ? 0 : Math.PI * 2 - this.angleE * 2);
                         this.reverseArrow.alpha = Math.abs(opacity);
                     } else {
-                        this.reverseArrow.x = (this.angleList[0].x * w) / 512;
-                        this.reverseArrow.y = ((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) * w) / 512;
+                        this.reverseArrow.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * w) / 512;
+                        this.reverseArrow.y =
+                            (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * w) / 512;
                         this.reverseArrow.rotation = this.angleS + (!mods.HR ? 0 : Math.PI * 2 - this.angleS * 2);
                         this.reverseArrow.alpha = Math.abs(opacity);
                     }
@@ -150,15 +156,16 @@ class Slider {
                     : Math.ceil((this.angleList.length - 1) * (1 - repeatPercentage));
 
             if (currentRepeat < this.repeat) {
-                this.sliderBall.x = (this.angleList[pos].x * w) / 512;
-                this.sliderBall.y = ((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) * w) / 512;
+                this.sliderBall.x = ((this.angleList[pos].x + this.stackHeight * currentStackOffset) * w) / 512;
+                this.sliderBall.y =
+                    (((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) + this.stackHeight * currentStackOffset) * w) / 512;
             }
 
             this.sliderBall.alpha = timestamp > this.endTime - 240 ? 0 : Math.abs(opacity);
         } else {
             this.sliderBall.alpha = 0;
-            this.sliderBall.x = (this.angleList[0].x * w) / 512;
-            this.sliderBall.y = ((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) * w) / 512;
+            this.sliderBall.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * w) / 512;
+            this.sliderBall.y = (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * w) / 512;
         }
 
         this.sliderBall.scale.set(circleModScale);
@@ -206,7 +213,7 @@ class Slider {
                 dx: dx,
                 ox: -1 + (2 * offsetX) / document.querySelector("canvas").width + dx * this.stackHeight * currentStackOffset,
                 dy: dy,
-                oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + dy * this.stackHeight * currentStackOffset,
+                oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + inverse * dy * this.stackHeight * currentStackOffset,
             },
             undefined,
             0xffffff
