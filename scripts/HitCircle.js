@@ -10,6 +10,7 @@ class HitCircle {
     stackHeight = 0;
     time;
     obj;
+    selected;
     hitCircleSprite;
     hitCircleOverlaySprite;
     numberSprite;
@@ -20,56 +21,22 @@ class HitCircle {
     tempH = h;
 
     drawSelected(passedStackHeight) {
-        const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        let currentHitCircleSize = 2 * (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier);
+        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
 
-        let currentSliderBorderThickness = !sliderAppearance.legacy
-            ? (currentHitCircleSize * (236 - 140)) / 2 / 256 / 2
-            : (currentHitCircleSize * (236 - 190)) / 2 / 256 / 2;
+        const stackHeight = !passedStackHeight ? this.stackHeight : passedStackHeight;
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
-        const drawOffset = (currentHitCircleSize * currentScaleFactor) / 2;
-        const inverse = mods.HR ? -1 : 1;
-        const stackHeight = passedStackHeight ? passedStackHeight : this.stackHeight;
-        const objectSize = currentHitCircleSize * currentScaleFactor * (118 / 128);
+        const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
+        const y = !mods.HR
+            ? ((this.originalY + stackHeight * currentStackOffset) * w) / 512
+            : ((384 - this.originalY + stackHeight * currentStackOffset) * w) / 512;
 
-        this.positionX =
-            (this.originalX + stackOffset * stackHeight) * currentScaleFactor +
-            (canvas.width - 512 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
-        this.positionY =
-            (this.originalY + inverse * stackOffset * stackHeight) * currentScaleFactor +
-            (canvas.height - 384 * currentScaleFactor) / 2; /* - (currentHitCircleSize * currentScaleFactor * 276) / 256 / 2; */
+        this.selected.x = x;
+        this.selected.y = y;
 
-        ctx.beginPath();
-        if (mods.HR) {
-            ctx.save();
-            ctx.translate(0, this.positionY - drawOffset);
-            ctx.scale(1, -1);
-        }
-
-        const pseudoCanvas = new OffscreenCanvas(drawOffset * 2 + 6, drawOffset * 2 + 6);
-        const pseudoCtx = pseudoCanvas.getContext("2d");
-
-        const center = (drawOffset * 2 + 3) / 2;
-        // console.log(drawOffset);
-
-        pseudoCtx.beginPath();
-        pseudoCtx.strokeStyle = "rgb(255, 123, 0)";
-        pseudoCtx.fillStyle = "rgba(252, 186, 3, 0.2)";
-        pseudoCtx.lineWidth = (objectSize - (currentHitCircleSize - currentSliderBorderThickness * 2.5) * currentScaleFactor * (118 / 128)) / 2;
-        pseudoCtx.arc(center, center, drawOffset * (236 / 272) - 2, 0, Math.PI * 2, 0);
-        pseudoCtx.fill();
-        pseudoCtx.stroke();
-        pseudoCtx.closePath();
-
-        ctx.drawImage(pseudoCanvas, this.positionX - drawOffset - 2, !mods.HR ? this.positionY - drawOffset - 2 : -drawOffset * 2 - 2);
-
-        if (mods.HR) {
-            ctx.restore();
-        }
-
-        ctx.closePath();
+        this.selected.scale.set(circleModScale);
     }
 
     draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
@@ -146,15 +113,15 @@ class HitCircle {
 
         this.isNewCombo = isNewCombo;
 
+        const selected = new Sprite(selectedHitCircleTemplate);
+        selected.anchor.set(0.5);
+        this.selected = selected;
+
         const hitCircleOverlaySprite = new Sprite(hitCircleOverlayTemplate);
-        // hitCircleOverlaySprite.x = x;
-        // hitCircleOverlaySprite.y = y;
         hitCircleOverlaySprite.anchor.set(0.5);
         this.hitCircleOverlaySprite = hitCircleOverlaySprite;
 
         const hitCircleSprite = new Sprite(hitCircleTemplate);
-        // hitCircleSprite.x = x;
-        // hitCircleSprite.y = y;
         hitCircleSprite.anchor.set(0.5);
         this.hitCircleSprite = hitCircleSprite;
 

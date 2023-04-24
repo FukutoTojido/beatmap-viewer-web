@@ -159,6 +159,7 @@ let animation = {
 };
 
 let isDragging = false;
+let didMove = false;
 let startX = 0;
 let startY = 0;
 
@@ -172,4 +173,4 @@ function Clamp(val, from, to) {
     return Math.max(Math.min(val, to), from);
 }
 
-let SliderTexture, colorsLength;
+let SliderTexture, colorsLength, SelectedTexture;

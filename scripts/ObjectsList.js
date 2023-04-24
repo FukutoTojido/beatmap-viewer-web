@@ -48,15 +48,16 @@ class ObjectsList {
             this.tempW = w;
             this.tempH = h;
 
+            selectedHitCircleTemplate = createSelectedHitCircleTemplate();
             hitCircleTemplate = createHitCircleTemplate();
             hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
             approachCircleTemplate = createApproachCircleTemplate();
             sliderBallTemplate = createSliderBallTemplate();
         }
-        // if (isDragging && currentX !== -1 && currentY !== -1) {
-        //     draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-        //     handleCanvasDrag();
-        // }
+        if (didMove && currentX !== -1 && currentY !== -1) {
+            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+            handleCanvasDrag(false, true);
+        }
 
         updateTime(timestamp);
         // timestamp += HARD_OFFSET + SOFT_OFFSET;
@@ -92,9 +93,11 @@ class ObjectsList {
             )
             .reverse();
 
+        const selected = this.objectsList.filter((object) => selectedHitObject.includes(object.time)).reverse();
+        const noSelected = this.objectsList.filter((object) => !selectedHitObject.includes(object.time)).reverse();
+
         const approachCircleList = filtered.map((o) => {
             if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
-
             if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
         });
 
@@ -108,12 +111,51 @@ class ObjectsList {
 
         const noRenderApproachCircleList = noRender.map((o) => {
             if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
-
             if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
         });
 
-        addToContainer(filtered.map((o) => o.obj).concat(approachCircleList));
-        removeFromContainer(noRender.map((o) => o.obj).concat(noRenderApproachCircleList));
+        addToContainer(
+            filtered
+                .map((o) => o.obj)
+                .concat(approachCircleList)
+                .concat(
+                    selected.map((o) => {
+                        return {
+                            obj: o.obj.selected,
+                        };
+                    })
+                )
+                .concat(
+                    selected
+                        .filter((o) => o.obj instanceof Slider)
+                        .map((o) => {
+                            return {
+                                obj: o.obj.hitCircle.selected,
+                            };
+                        })
+                )
+        );
+        removeFromContainer(
+            noRender
+                .map((o) => o.obj)
+                .concat(noRenderApproachCircleList)
+                .concat(
+                    noSelected.map((o) => {
+                        return {
+                            obj: o.obj.selected,
+                        };
+                    })
+                )
+                .concat(
+                    noSelected
+                        .filter((o) => o.obj instanceof Slider)
+                        .map((o) => {
+                            return {
+                                obj: o.obj.hitCircle.selected,
+                            };
+                        })
+                )
+        );
 
         // console.log(filtered);
 
@@ -177,6 +219,11 @@ class ObjectsList {
                     }
                 }
             }
+
+            selected.forEach((o) => {
+                o.obj.drawSelected();
+                if (o.obj instanceof Slider) o.obj.hitCircle.drawSelected(o.obj.stackHeight);
+            });
             // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
         });
 
