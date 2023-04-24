@@ -41,7 +41,6 @@ const app = new Application({
 
 let elapsed = 0.0;
 let container = new Container();
-app.stage.addChild(container);
 
 let w = (w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width));
 let h = (h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
@@ -65,14 +64,34 @@ if (w < 480) {
     document.querySelector("canvas").style.transform = ``;
 }
 
-w *= 0.8;
-h *= 0.8;
+w *= 0.9;
+h *= 0.9;
 
 let offsetX = (document.querySelector("canvas").width - w) / 2;
 let offsetY = (document.querySelector("canvas").height - h) / 2;
 
 container.x = offsetX;
 container.y = offsetY;
+
+let gr = new Graphics()
+    .lineStyle({
+        width: 2,
+        color: 0xffffff,
+        alpha: 1,
+        alignment: 0,
+    })
+    .drawRect(0, 0, w, h);
+let tx = app.renderer.generateTexture(gr);
+
+let bg = new Sprite(tx);
+bg.width = w;
+bg.height = h;
+bg.x = offsetX;
+bg.y = offsetY;
+bg.alpha = 1;
+
+app.stage.addChild(bg);
+app.stage.addChild(container);
 
 const addToContainer = (list) => {
     list.forEach((o) => {
@@ -84,6 +103,37 @@ const removeFromContainer = (list) => {
     list.forEach((o) => {
         container.removeChild(o.obj);
     });
+};
+
+const createSelectedHitCircleTemplate = () => {
+    const hitCircleOverlay = new Graphics()
+        .lineStyle({
+            width: ((((hitCircleSize / 2) * 50) / 236) * w) / 512,
+            color: 0xf2cc0f,
+            alpha: 1,
+            cap: "round",
+            alignment: 0,
+        })
+        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
+    const { width, height } = hitCircleOverlay;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.MEDIUM,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(hitCircleOverlay, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    hitCircleOverlay.destroy(true);
+
+    return renderTexture;
 };
 
 const createHitCircleTemplate = () => {
@@ -235,6 +285,7 @@ const createSliderBallTemplate = () => {
     return renderTexture;
 };
 
+let selectedHitCircleTemplate;
 let hitCircleTemplate;
 let hitCircleOverlayTemplate;
 let approachCircleTemplate;
@@ -312,14 +363,30 @@ window.onresize = () => {
         document.querySelector("canvas").style.transform = ``;
     }
 
-    w *= 0.8;
-    h *= 0.8;
+    w *= 0.9;
+    h *= 0.9;
 
     offsetX = (document.querySelector("canvas").width - w) / 2;
     offsetY = (document.querySelector("canvas").height - h) / 2;
 
     container.x = offsetX;
     container.y = offsetY;
+
+    gr = new Graphics()
+        .lineStyle({
+            width: 2,
+            color: 0xffffff,
+            alpha: 1,
+            alignment: 0,
+        })
+        .drawRect(0, 0, w, h);
+    tx = app.renderer.generateTexture(gr);
+
+    bg.texture = tx;
+    // bg.width = w;
+    // bg.height = h;
+    bg.x = offsetX;
+    bg.y = offsetY;
 
     if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
@@ -1047,3 +1114,78 @@ if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
     document.querySelector("#mapInput").value = urlParams.get("b");
 }
 // beatmapFile = new BeatmapFile(mapId);
+
+bg.interactive = true;
+bg.on("click", (e) => {
+    let { x, y } = container.toLocal(e.global);
+    x /= w / 512;
+    y /= w / 512;
+
+    const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+    const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+    let currentHitCircleSize = 54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier;
+
+    let currentAR = !mods.EZ ? approachRate : approachRate / 2;
+    currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+    const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+    const currentTime = beatmapFile.audioNode.getCurrentTime();
+    const drawOffset = currentHitCircleSize;
+
+    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
+        const lowerBound = o.time - currentPreempt;
+        const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
+
+        if (o.obj instanceof HitCircle) {
+            const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
+            const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
+
+            // console.log(
+            //     o.time,
+            //     lowerBound <= currentTime,
+            //     upperBound >= currentTime,
+            //     { x: positionX, y: positionY },
+            //     coordLowerBound,
+            //     coordUpperBound
+            // );
+
+            return lowerBound <= currentTime && upperBound >= currentTime && (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
+        }
+
+        if (o.obj instanceof Slider) {
+            if (lowerBound <= currentTime && upperBound >= currentTime) {
+                const renderableAngleList = o.obj.angleList;
+
+                const res = renderableAngleList.some((point) => {
+                    const positionX = point.x + stackOffset * o.obj.stackHeight;
+                    const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+
+                    return (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
+                });
+
+                // console.log(o.time, res);
+                return res;
+            }
+        }
+
+        return false;
+    });
+
+    const selectedObj = selectedObjList.length
+        ? selectedObjList.reduce((prev, curr) => {
+              const prevOffset = Math.abs(prev.time - currentTime);
+              const currOffset = Math.abs(curr.time - currentTime);
+
+              return prevOffset > currOffset ? curr : prev;
+          })
+        : undefined;
+
+    // console.log("x: " + x + " y: " + y, selectedObj);
+
+    if (selectedObj) {
+        selectedHitObject = [selectedObj.time];
+    } else {
+        selectedHitObject = [];
+    }
+
+    beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+});

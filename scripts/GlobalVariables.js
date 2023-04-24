@@ -172,4 +172,4 @@ function Clamp(val, from, to) {
     return Math.max(Math.min(val, to), from);
 }
 
-let SliderTexture, colorsLength;
+let SliderTexture, colorsLength, SelectedTexture;

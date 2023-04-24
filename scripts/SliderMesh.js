@@ -34,6 +34,70 @@ void main() {
     gl_FragColor = alpha * texture2D(uSampler2, vec2(dist, texturepos));
 }`;
 
+function selectedTexture() {
+    // console.log(colors);
+    const borderwidth = 0.128;
+    const blurrate = 0.03;
+    const width = 200;
+
+    let buff = new Uint8Array(width * 4);
+
+    const innerPortion = 1 - borderwidth * 1.65;
+    let tint = 0xf2cc0f;
+    let bordertint = 0xf2cc0f;
+    let borderR = (bordertint >> 16) / 255;
+    let borderG = ((bordertint >> 8) & 255) / 255;
+    let borderB = (bordertint & 255) / 255;
+    let borderA = 1.0;
+    let innerR = (tint >> 16) / 255;
+    let innerG = ((tint >> 8) & 255) / 255;
+    let innerB = (tint & 255) / 255;
+    let innerA = 1.0;
+    for (let i = 0; i < width; i++) {
+        let position = i / width;
+        let R, G, B, A;
+        if (position >= innerPortion) {
+            // draw border color
+            R = borderR;
+            G = borderG;
+            B = borderB;
+            A = borderA;
+        } // draw inner color
+        else {
+            R = innerR;
+            G = innerG;
+            B = innerB;
+            // TODO: tune this to make opacity transition smoother at center
+            A = 0;
+        }
+        // pre-multiply alpha
+        R *= A;
+        G *= A;
+        B *= A;
+        // blur at edge for "antialiasing" without supersampling
+        if (1 - position < blurrate) {
+            // outer edge
+            R *= (1 - position) / blurrate;
+            G *= (1 - position) / blurrate;
+            B *= (1 - position) / blurrate;
+            A *= (1 - position) / blurrate;
+        }
+        if (innerPortion - position > 0 && innerPortion - position < blurrate) {
+            let mu = (innerPortion - position) / blurrate;
+            R = mu * R + (1 - mu) * borderR * borderA;
+            G = mu * G + (1 - mu) * borderG * borderA;
+            B = mu * B + (1 - mu) * borderB * borderA;
+            A = mu * innerA + (1 - mu) * borderA;
+        }
+        buff[i * 4] = R * 255;
+        buff[i * 4 + 1] = G * 255;
+        buff[i * 4 + 2] = B * 255;
+        buff[i * 4 + 3] = A * 255;
+    }
+
+    return PIXI.Texture.fromBuffer(buff, width, 1);
+}
+
 function newTexture(colors, SliderTrackOverride, SliderBorder) {
     // console.log(colors);
     const borderwidth = 0.128;
@@ -242,11 +306,11 @@ class SliderMesh extends PIXI.Container {
         this._roundPixels = PIXI.settings.ROUND_PIXELS;
     }
 
-    initiallize(colors, radius, transform, SliderTrackOverride, SliderBorder) {
+    initiallize(radius, transform, isSelected) {
         // this.ncolors = colors.length;
         // this.uSampler2 = newTexture(colors, SliderTrackOverride, SliderBorder);
-        this.ncolors = 2 ** Math.ceil(Math.log2(colorsLength)) * 2;
-        this.uSampler2 = SliderTexture;
+        this.ncolors = isSelected ? 1 : 2 ** Math.ceil(Math.log2(colorsLength)) * 2;
+        this.uSampler2 = isSelected ? SelectedTexture : SliderTexture;
         this.circle = circleGeometry(radius);
         this.geometry = curveGeometry(this.curve, radius);
         this.uniforms = {
