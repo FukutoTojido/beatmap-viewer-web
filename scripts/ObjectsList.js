@@ -54,9 +54,9 @@ class ObjectsList {
             approachCircleTemplate = createApproachCircleTemplate();
             sliderBallTemplate = createSliderBallTemplate();
         }
-        if (isDragging && currentX !== -1 && currentY !== -1) {
+        if (didMove && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-            handleCanvasDrag();
+            handleCanvasDrag(false, true);
         }
 
         updateTime(timestamp);

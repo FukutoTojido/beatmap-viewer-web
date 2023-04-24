@@ -892,13 +892,15 @@ screen.orientation.onchange = () => {
 let beatmapFile;
 document.querySelector("#submit").addEventListener("click", submitMap);
 
-const handleCanvasDrag = (e) => {
+const handleCanvasDrag = (e, calledFromDraw) => {
     // console.log(e);
     const x = currentX;
-    const y = !mods.HR ? currentY : 384 - currentY;
+    const y = currentY;
+
+    const currentTime = beatmapFile.audioNode.getCurrentTime();
 
     const start_X = startX;
-    const start_Y = !mods.HR ? startY : 384 - currentY;
+    const start_Y = startY;
 
     let currentAR = !mods.EZ ? approachRate : approachRate / 2;
     currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
@@ -928,7 +930,7 @@ const handleCanvasDrag = (e) => {
 
         if (o.obj instanceof HitCircle) {
             const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
-            const positionY = o.obj.originalY + inverse * stackOffset * o.obj.stackHeight;
+            const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
 
             // console.log(
             //     o.time,
@@ -953,11 +955,14 @@ const handleCanvasDrag = (e) => {
                 const renderableAngleList = o.obj.angleList;
 
                 const res = renderableAngleList.some((point) => {
+                    const positionX = point.x + stackOffset * o.obj.stackHeight;
+                    const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+
                     return (
-                        point.x + stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
-                        point.x + stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
-                        point.y + stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
-                        point.y + stackOffset * o.obj.stackHeight <= coordUpperBound.y
+                        positionX + stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
+                        positionX + stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
+                        positionY + stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
+                        positionY + stackOffset * o.obj.stackHeight <= coordUpperBound.y
                     );
                 });
 
@@ -976,6 +981,8 @@ const handleCanvasDrag = (e) => {
     } else if (e && !e.ctrlKey) {
         selectedHitObject = [];
     }
+
+    if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
 
     // console.log(selectedHitObject);
 };
