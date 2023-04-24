@@ -982,7 +982,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
         selectedHitObject = [];
     }
 
-    if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+    // if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
 
     // console.log(selectedHitObject);
 };
