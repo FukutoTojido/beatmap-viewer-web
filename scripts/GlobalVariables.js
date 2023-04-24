@@ -159,6 +159,7 @@ let animation = {
 };
 
 let isDragging = false;
+let didMove = false;
 let startX = 0;
 let startY = 0;
 

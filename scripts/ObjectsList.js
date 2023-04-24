@@ -54,10 +54,10 @@ class ObjectsList {
             approachCircleTemplate = createApproachCircleTemplate();
             sliderBallTemplate = createSliderBallTemplate();
         }
-        // if (isDragging && currentX !== -1 && currentY !== -1) {
-        //     draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-        //     handleCanvasDrag();
-        // }
+        if (isDragging && currentX !== -1 && currentY !== -1) {
+            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+            handleCanvasDrag();
+        }
 
         updateTime(timestamp);
         // timestamp += HARD_OFFSET + SOFT_OFFSET;

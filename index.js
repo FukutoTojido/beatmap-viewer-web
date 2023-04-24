@@ -90,7 +90,19 @@ bg.x = offsetX;
 bg.y = offsetY;
 bg.alpha = 1;
 
+let dragWindow = new Graphics().lineStyle({
+    width: 2,
+    color: 0xffffff,
+    alpha: 1,
+    alignment: 0,
+});
+
+dragWindow.alpha = 0;
+dragWindow.x = offsetX;
+dragWindow.y = offsetY;
+
 app.stage.addChild(bg);
+app.stage.addChild(dragWindow);
 app.stage.addChild(container);
 
 const addToContainer = (list) => {
@@ -387,6 +399,9 @@ window.onresize = () => {
     // bg.height = h;
     bg.x = offsetX;
     bg.y = offsetY;
+
+    dragWindow.x = offsetX;
+    dragWindow.y = offsetY;
 
     if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
@@ -877,19 +892,13 @@ screen.orientation.onchange = () => {
 let beatmapFile;
 document.querySelector("#submit").addEventListener("click", submitMap);
 
-const handleCanvasDrag = () => {
-    const rect = canvas.getBoundingClientRect();
-    const x = (currentX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-    const y = !mods.HR
-        ? (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
-        : 1080 - (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+const handleCanvasDrag = (e) => {
+    // console.log(e);
+    const x = currentX;
+    const y = !mods.HR ? currentY : 384 - currentY;
 
-    const start_X = (startX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-    const start_Y = !mods.HR
-        ? (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
-        : 1080 - (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-
-    const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
+    const start_X = startX;
+    const start_Y = !mods.HR ? startY : 384 - currentY;
 
     let currentAR = !mods.EZ ? approachRate : approachRate / 2;
     currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
@@ -918,10 +927,8 @@ const handleCanvasDrag = () => {
             (upperBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime));
 
         if (o.obj instanceof HitCircle) {
-            const positionX =
-                (o.obj.originalX + stackOffset * o.obj.stackHeight) * currentScaleFactor + (canvas.width - 512 * currentScaleFactor) / 2;
-            const positionY =
-                (o.obj.originalY + inverse * stackOffset * o.obj.stackHeight) * currentScaleFactor + (canvas.height - 384 * currentScaleFactor) / 2;
+            const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
+            const positionY = o.obj.originalY + inverse * stackOffset * o.obj.stackHeight;
 
             // console.log(
             //     o.time,
@@ -943,11 +950,14 @@ const handleCanvasDrag = () => {
 
         if (o.obj instanceof Slider) {
             if (timeWindowOverlapCheck) {
-                const renderableAngleList = o.obj.angleList.slice(0, o.obj.endPosition);
+                const renderableAngleList = o.obj.angleList;
 
                 const res = renderableAngleList.some((point) => {
                     return (
-                        point.x >= coordLowerBound.x && point.x <= coordUpperBound.x && point.y >= coordLowerBound.y && point.y <= coordUpperBound.y
+                        point.x + stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
+                        point.x + stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
+                        point.y + stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
+                        point.y + stackOffset * o.obj.stackHeight <= coordUpperBound.y
                     );
                 });
 
@@ -963,43 +973,11 @@ const handleCanvasDrag = () => {
 
     if (selectedObjList.length) {
         selectedHitObject = selectedObjList.map((o) => o.time);
-    } else {
+    } else if (e && !e.ctrlKey) {
         selectedHitObject = [];
     }
-};
 
-const drawStatic = () => {
-    const currentTime = beatmapFile.audioNode.getCurrentTime();
-    beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
-
-    if (currentX !== -1 && currentY !== -1) {
-        const rect = canvas.getBoundingClientRect();
-
-        const x = (currentX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-        const y = !mods.HR
-            ? (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
-            : 1080 - (currentY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-
-        const start_X = (startX - rect.left) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-        const start_Y = !mods.HR
-            ? (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height))
-            : 1080 - (startY - rect.top) * (canvas.height / parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
-
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "white";
-        ctx.fillStyle = `rgba(255 255 255 / .1)`;
-        ctx.rect(Math.min(x, start_X), Math.min(y, start_Y), Math.abs(x - start_X), Math.abs(y - start_Y));
-        ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
-    }
-
-    if (isDragging) {
-        window.requestAnimationFrame((currentTime) => {
-            return drawStatic();
-        });
-    }
+    // console.log(selectedHitObject);
 };
 
 if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
@@ -1010,66 +988,151 @@ if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
 
 bg.interactive = true;
 bg.on("click", (e) => {
-    let { x, y } = container.toLocal(e.global);
-    x /= w / 512;
-    y /= w / 512;
+    if (beatmapFile) {
+        const currentTime = beatmapFile.audioNode.getCurrentTime();
 
-    const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-    const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-    let currentHitCircleSize = 54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier;
+        // console.log(isDragging);
 
-    let currentAR = !mods.EZ ? approachRate : approachRate / 2;
-    currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
-    const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
-    const currentTime = beatmapFile.audioNode.getCurrentTime();
-    const drawOffset = currentHitCircleSize;
+        let { x, y } = container.toLocal(e.global);
+        x /= w / 512;
+        y /= w / 512;
 
-    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
-        const lowerBound = o.time - currentPreempt;
-        const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        let currentHitCircleSize = 54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier;
 
-        if (o.obj instanceof HitCircle) {
-            const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
-            const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
+        let currentAR = !mods.EZ ? approachRate : approachRate / 2;
+        currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+        const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+        const drawOffset = currentHitCircleSize;
 
-            return lowerBound <= currentTime && upperBound >= currentTime && (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
-        }
+        const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
+            const lowerBound = o.time - currentPreempt;
+            const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
 
-        if (o.obj instanceof Slider) {
-            if (lowerBound <= currentTime && upperBound >= currentTime) {
-                const renderableAngleList = o.obj.angleList;
+            if (o.obj instanceof HitCircle) {
+                const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
+                const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
 
-                const res = renderableAngleList.some((point) => {
-                    const positionX = point.x + stackOffset * o.obj.stackHeight;
-                    const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
-
-                    return (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
-                });
-
-                // console.log(o.time, res);
-                return res;
+                return (
+                    ((lowerBound <= currentTime && upperBound >= currentTime) || selectedHitObject.includes(o.time)) &&
+                    (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2
+                );
             }
+
+            if (o.obj instanceof Slider) {
+                if ((lowerBound <= currentTime && upperBound >= currentTime) || selectedHitObject.includes(o.time)) {
+                    const renderableAngleList = o.obj.angleList;
+
+                    const res = renderableAngleList.some((point) => {
+                        const positionX = point.x + stackOffset * o.obj.stackHeight;
+                        const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+
+                        return (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
+                    });
+
+                    // console.log(o.time, res);
+                    return res;
+                }
+            }
+
+            return false;
+        });
+
+        const selectedObj = selectedObjList.length
+            ? selectedObjList.reduce((prev, curr) => {
+                  const prevOffset = Math.abs(prev.time - currentTime);
+                  const currOffset = Math.abs(curr.time - currentTime);
+
+                  return prevOffset > currOffset ? curr : prev;
+              })
+            : undefined;
+
+        // console.log("x: " + x + " y: " + y, selectedObj);
+
+        if (selectedObj) {
+            if (!e.ctrlKey) selectedHitObject = [selectedObj.time];
+            else {
+                selectedHitObject = selectedHitObject.concat([selectedObj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
+            }
+        } else if (!didMove) {
+            selectedHitObject = [];
         }
 
-        return false;
-    });
-
-    const selectedObj = selectedObjList.length
-        ? selectedObjList.reduce((prev, curr) => {
-              const prevOffset = Math.abs(prev.time - currentTime);
-              const currOffset = Math.abs(curr.time - currentTime);
-
-              return prevOffset > currOffset ? curr : prev;
-          })
-        : undefined;
-
-    // console.log("x: " + x + " y: " + y, selectedObj);
-
-    if (selectedObj) {
-        selectedHitObject = [selectedObj.time];
-    } else {
-        selectedHitObject = [];
+        // console.log(selectedHitObject);
+        beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+        didMove = false;
+        // console.log("Mouse CLICK", didMove);
     }
+});
 
-    beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+bg.on("mousedown", (e) => {
+    if (beatmapFile) {
+        let { x, y } = container.toLocal(e.global);
+        x /= w / 512;
+        y /= w / 512;
+
+        isDragging = true;
+        draggingStartTime = beatmapFile.audioNode.getCurrentTime();
+        startX = x;
+        startY = y;
+
+        dragWindow.clear();
+        dragWindow.lineStyle({
+            width: 2,
+            color: 0xffffff,
+            alpha: 1,
+            alignment: 0,
+        });
+
+        dragWindow.drawRect(x, y, 0, 0);
+
+        dragWindow.alpha = 1;
+
+        // console.log("Mouse DOWN");
+    }
+});
+
+bg.on("mouseup", (e) => {
+    if (currentX !== -1 && currentY !== -1) {
+        // console.log(selectedHitObject);
+        // console.log(startX, startY, currentX, currentY);
+    }
+    // currentX = -1;
+    // currentY = -1;
+    isDragging = false;
+    dragWindow.alpha = 0;
+    // console.log("Mouse UP");
+});
+
+bg.on("mousemove", (e) => {
+    if (beatmapFile)
+        if (isDragging) {
+            didMove = true;
+            let { x, y } = container.toLocal(e.global);
+            x /= w / 512;
+            y /= w / 512;
+
+            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+            currentX = x;
+            currentY = y;
+            // console.log("Moving");
+            handleCanvasDrag(e);
+
+            dragWindow.clear();
+            dragWindow.lineStyle({
+                width: 2,
+                color: 0xffffff,
+                alpha: 1,
+                alignment: 0,
+            });
+
+            dragWindow.drawRect(
+                (Math.min(startX, x) * w) / 512,
+                (Math.min(startY, y) * w) / 512,
+                (Math.abs(x - startX) * w) / 512,
+                (Math.abs(y - startY) * w) / 512
+            );
+            // console.log(startX, startY, currentX, currentY);
+        }
 });

@@ -278,10 +278,10 @@ class BeatmapFile {
             document.querySelector("#playerContainer").addEventListener("wheel", (event) => {
                 event.preventDefault();
 
-                // if (isDragging && currentX !== -1 && currentY !== -1) {
-                //     draggingEndTime = this.audioNode.getCurrentTime();
-                //     handleCanvasDrag();
-                // }
+                if (isDragging && currentX !== -1 && currentY !== -1) {
+                    draggingEndTime = this.audioNode.getCurrentTime();
+                    handleCanvasDrag();
+                }
 
                 if (event.deltaY > 0) goNext(event.shiftKey);
                 if (event.deltaY < 0) goBack(event.shiftKey);
