@@ -56,7 +56,7 @@ class ObjectsList {
         }
         if (didMove && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-            handleCanvasDrag(false, true);
+            handleCanvasDrag();
         }
 
         updateTime(timestamp);
