@@ -211,26 +211,26 @@ class BeatmapFile {
                         break;
                 }
 
-                // if (e.key === "c" && e.ctrlKey) {
-                //     // console.log("Copied");
-                //     if (selectedHitObject.length) {
-                //         const objs = this.beatmapRenderData.objectsList.objectsList.filter((o) => selectedHitObject.includes(o.time));
-                //         const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
-                //         const currentMiliseconds = Math.floor(obj.time % 1000)
-                //             .toString()
-                //             .padStart(3, "0");
-                //         const currentSeconds = Math.floor((obj.time / 1000) % 60)
-                //             .toString()
-                //             .padStart(2, "0");
-                //         const currentMinute = Math.floor(obj.time / 1000 / 60)
-                //             .toString()
-                //             .padStart(2, "0");
+                if (e.key === "c" && e.ctrlKey) {
+                    // console.log("Copied");
+                    if (selectedHitObject.length) {
+                        const objs = this.beatmapRenderData.objectsList.objectsList.filter((o) => selectedHitObject.includes(o.time));
+                        const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
+                        const currentMiliseconds = Math.floor(obj.time % 1000)
+                            .toString()
+                            .padStart(3, "0");
+                        const currentSeconds = Math.floor((obj.time / 1000) % 60)
+                            .toString()
+                            .padStart(2, "0");
+                        const currentMinute = Math.floor(obj.time / 1000 / 60)
+                            .toString()
+                            .padStart(2, "0");
 
-                //         navigator.clipboard.writeText(
-                //             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.comboIdx).join(",")}) - `
-                //         );
-                //     }
-                // }
+                        navigator.clipboard.writeText(
+                            `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.comboIdx).join(",")}) - `
+                        );
+                    }
+                }
             };
 
             if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
@@ -239,13 +239,6 @@ class BeatmapFile {
             } else {
                 this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
             }
-
-            document.querySelector("canvas").addEventListener("click", (event) => {
-                if (currentX === -1 && currentY === -1) cvClick(event);
-                currentX = -1;
-                currentY = -1;
-                // console.log(isDragging);
-            });
 
             // canvas.addEventListener("mousedown", (event) => {
             //     isDragging = true;

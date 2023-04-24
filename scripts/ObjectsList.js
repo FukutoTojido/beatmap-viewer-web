@@ -222,7 +222,7 @@ class ObjectsList {
 
             selected.forEach((o) => {
                 o.obj.drawSelected();
-                if (o.obj instanceof Slider) o.obj.hitCircle.drawSelected();
+                if (o.obj instanceof Slider) o.obj.hitCircle.drawSelected(o.obj.stackHeight);
             });
             // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
         });

@@ -25,7 +25,7 @@ class HitCircle {
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
 
-        const stackHeight = !passedStackHeight ? this.stackHeight : sliderStackHeight;
+        const stackHeight = !passedStackHeight ? this.stackHeight : passedStackHeight;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
         const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
