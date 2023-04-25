@@ -284,17 +284,26 @@ class BeatmapFile {
             //     }
             // });
 
-            document.querySelector("#playerContainer").addEventListener("wheel", (event) => {
-                event.preventDefault();
+            document.querySelector("#playerContainer").addEventListener(
+                "wheel",
+                (event) => {
+                    // event.preventDefault();
 
-                if (isDragging && currentX !== -1 && currentY !== -1) {
-                    draggingEndTime = this.audioNode.getCurrentTime();
-                    handleCanvasDrag();
+                    if (isDragging && currentX !== -1 && currentY !== -1) {
+                        draggingEndTime = this.audioNode.getCurrentTime();
+                        handleCanvasDrag();
+                    }
+
+                    if (event.deltaY > 0) goNext(event.shiftKey);
+                    if (event.deltaY < 0) goBack(event.shiftKey);
+
+                    // console.log("Scrolled");
+                },
+                {
+                    capture: true,
+                    passive: true,
                 }
-
-                if (event.deltaY > 0) goNext(event.shiftKey);
-                if (event.deltaY < 0) goBack(event.shiftKey);
-            });
+            );
         } catch (err) {
             alert(err);
             console.log(err);

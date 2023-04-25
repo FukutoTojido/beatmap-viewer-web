@@ -830,23 +830,21 @@ function goNext(precise) {
     if (beatmapFile !== undefined) {
         let step = 10;
         let currentBeatstep;
+        const current = beatmapFile.audioNode.getCurrentTime();
 
         if (beatsteps.length) {
             currentBeatstep =
-                beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime()) !== undefined
-                    ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
+                beatsteps.findLast((timingPoint) => timingPoint.time <= current) !== undefined
+                    ? beatsteps.findLast((timingPoint) => timingPoint.time <= current)
                     : beatsteps[0];
 
-            step = currentBeatstep.beatstep / (precise ? 48 : beatsnap);
+            step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
-        const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
-        const goTo = Math.min(
-            Math.max(localOffset + (Math.floor(beatmapFile.audioNode.getCurrentTime() / step) + 1) * step, 0),
-            beatmapFile.audioNode.buf.duration * 1000
-        );
+        const localOffset = (currentBeatstep.time % step);
+        const goTo = Math.min(Math.max(localOffset + ((Math.floor(current / step) + 1) * step), 0), beatmapFile.audioNode.buf.duration * 1000);
+        // console.log(localOffset, step, goTo - current, Math.floor(current / step), beatsnap);
 
-        const current = beatmapFile.audioNode.getCurrentTime();
         // console.log(current, goTo);
 
         // if (!playingFlag) {
@@ -876,7 +874,7 @@ function goBack(precise) {
                     ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
                     : beatsteps[0];
 
-            step = currentBeatstep.beatstep / (precise ? 48 : beatsnap);
+            step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
         const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
