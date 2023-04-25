@@ -7,6 +7,8 @@ class ObjectsList {
     currentColor;
     coloursObject;
     lastTimestamp = 0;
+    lastTime = 0;
+    fpsArr = [];
     tempW = w;
     tempH = h;
 
@@ -44,6 +46,16 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(timestamp);
+        this.fpsArr.push(performance.now() - this.lastTime);
+        if (this.fpsArr.length > 50) {
+            this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 50);
+        }
+
+        fpsSprite.text = `${Math.round(
+            1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)
+        )}fps\n${(this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length).toFixed(2)}ms`;
+        this.lastTime = performance.now();
+
         if (this.tempW !== w || this.tempH !== h) {
             this.tempW = w;
             this.tempH = h;
@@ -60,6 +72,7 @@ class ObjectsList {
         }
 
         updateTime(timestamp);
+
         // timestamp += HARD_OFFSET + SOFT_OFFSET;
 
         // if (!staticDraw) setAudioTime();
@@ -247,6 +260,9 @@ class ObjectsList {
 
                 // console.log(timestamp);
             });
+        } else {
+            this.fpsArr = [];
+            fpsSprite.text = `0fps\nInfinite ms`;
         }
     }
 

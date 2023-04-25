@@ -1,17 +1,3 @@
-let currentFrameRate = 0;
-const checkFrameRate = (lastTime, currentTime) => {
-    if (lastTime !== 0) {
-        currentFrameRate = 1000 / (currentTime - lastTime);
-    }
-    window.requestAnimationFrame((nextTime) => {
-        return checkFrameRate(currentTime, nextTime);
-    });
-};
-window.requestAnimationFrame((currentTime) => {
-    return checkFrameRate(0, currentTime);
-});
-
-// Alias
 PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL2;
 
 const Application = PIXI.Application,
@@ -19,10 +5,6 @@ const Application = PIXI.Application,
     Assets = PIXI.Assets,
     Graphics = PIXI.Graphics,
     Container = PIXI.Container;
-
-const sliderAccuracy = 1 / 1000;
-const scaleFactor = Math.max(window.innerWidth / 640, window.innerHeight / 480);
-// const cs = 54.4 - 4.48 * 4;
 
 // Init
 let type = "WebGL";
@@ -38,6 +20,40 @@ const app = new Application({
     autoDensity: true,
     backgroundAlpha: 0,
 });
+
+const fpsSprite = new PIXI.Text(`0fps\nInfinite ms`, {
+    fontFamily: "Torus",
+    fontSize: 15,
+    fontWeight: 500,
+    fill: 0xffffff,
+    align: "right",
+});
+
+fpsSprite.anchor.set(1, 1);
+
+app.stage.addChild(fpsSprite);
+
+let currentFrameRate = 0;
+const checkFrameRate = (lastTime, currentTime) => {
+    if (lastTime !== 0) {
+        currentFrameRate = 1000 / (currentTime - lastTime);
+    }
+
+    // fpsSprite.text = `${currentFrameRate}fps`;
+
+    window.requestAnimationFrame((nextTime) => {
+        return checkFrameRate(currentTime, nextTime);
+    });
+};
+window.requestAnimationFrame((currentTime) => {
+    return checkFrameRate(0, currentTime);
+});
+
+// Alias
+
+const sliderAccuracy = 1 / 1000;
+const scaleFactor = Math.max(window.innerWidth / 640, window.innerHeight / 480);
+// const cs = 54.4 - 4.48 * 4;
 
 let elapsed = 0.0;
 let container = new Container();
@@ -100,6 +116,9 @@ let dragWindow = new Graphics().lineStyle({
 dragWindow.alpha = 0;
 dragWindow.x = offsetX;
 dragWindow.y = offsetY;
+
+fpsSprite.x = document.querySelector("canvas").width - 10;
+fpsSprite.y = document.querySelector("canvas").height - 10;
 
 app.stage.addChild(bg);
 app.stage.addChild(dragWindow);
@@ -362,12 +381,37 @@ window.onresize = () => {
         h = (w / 512) * 384;
     }
 
+    gr = new Graphics()
+        .lineStyle({
+            width: 2,
+            color: 0xffffff,
+            alpha: 1,
+            alignment: 0,
+        })
+        .drawRect(0, 0, w, h);
+
+    bg.width = w;
+    bg.height = h;
+
     if (w < 480) {
         // console.log("Alo", w, h);
         app.renderer.resize(
             parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
             parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
         );
+
+        gr = new Graphics()
+            .lineStyle({
+                width: 2,
+                color: 0xffffff,
+                alpha: 1,
+                alignment: 0,
+            })
+            .drawRect(0, 0, w * 2, h * 2);
+
+        bg.width = w * 2;
+        bg.height = h * 2;
+
         w *= 2;
         h *= 2;
         document.querySelector("canvas").style.transform = `scale(0.5)`;
@@ -384,24 +428,17 @@ window.onresize = () => {
     container.x = offsetX;
     container.y = offsetY;
 
-    gr = new Graphics()
-        .lineStyle({
-            width: 2,
-            color: 0xffffff,
-            alpha: 1,
-            alignment: 0,
-        })
-        .drawRect(0, 0, w, h);
     tx = app.renderer.generateTexture(gr);
 
     bg.texture = tx;
-    // bg.width = w;
-    // bg.height = h;
     bg.x = offsetX;
     bg.y = offsetY;
 
     dragWindow.x = offsetX;
     dragWindow.y = offsetY;
+
+    fpsSprite.x = document.querySelector("canvas").width - 10;
+    fpsSprite.y = document.querySelector("canvas").height - 10;
 
     if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
