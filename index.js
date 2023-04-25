@@ -98,7 +98,7 @@ let gr = new Graphics()
     })
     .drawRect(0, 0, w, h);
 
-for (let i = 0; i < w; i += (32 * w) / 512) for (let j = 0; j < h; j += (32 * w) / 512) gr.drawRect(i, j, (32 * w) / 512, (32 * w) / 512);
+for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += w / 16) gr.drawRect(i, j, w / 16, w / 16);
 
 let tx = app.renderer.generateTexture(gr);
 
@@ -393,7 +393,7 @@ window.onresize = () => {
         })
         .drawRect(0, 0, w, h);
 
-    for (let i = 0; i < w; i += (32 * w) / 512) for (let j = 0; j < h; j += (32 * w) / 512) gr.drawRect(i, j, (32 * w) / 512, (32 * w) / 512);
+    for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += w / 16) gr.drawRect(i, j, w / 16, w / 16);
 
     bg.width = w;
     bg.height = h;
