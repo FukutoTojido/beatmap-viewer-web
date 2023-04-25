@@ -91,12 +91,15 @@ container.y = offsetY;
 
 let gr = new Graphics()
     .lineStyle({
-        width: 2,
+        width: 1,
         color: 0xffffff,
-        alpha: 1,
-        alignment: 0,
+        alpha: 0.1,
+        alignment: 0.5,
     })
     .drawRect(0, 0, w, h);
+
+for (let i = 0; i < w; i += (32 * w) / 512) for (let j = 0; j < h; j += (32 * w) / 512) gr.drawRect(i, j, (32 * w) / 512, (32 * w) / 512);
+
 let tx = app.renderer.generateTexture(gr);
 
 let bg = new Sprite(tx);
@@ -389,6 +392,8 @@ window.onresize = () => {
             alignment: 0,
         })
         .drawRect(0, 0, w, h);
+
+    for (let i = 0; i < w; i += (32 * w) / 512) for (let j = 0; j < h; j += (32 * w) / 512) gr.drawRect(i, j, (32 * w) / 512, (32 * w) / 512);
 
     bg.width = w;
     bg.height = h;
@@ -841,9 +846,9 @@ function goNext(precise) {
             step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
-        const localOffset = (currentBeatstep.time % step);
-        const goTo = Math.min(Math.max(localOffset + ((Math.floor(current / step) + 1) * step), 0), beatmapFile.audioNode.buf.duration * 1000);
-        // console.log(localOffset, step, goTo - current, Math.floor(current / step), beatsnap);
+        const localOffset = currentBeatstep.time % step;
+        const goTo = Math.min(Math.max(localOffset + (Math.round(current / step) + 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
+        // console.log(localOffset, step, goTo - current, Math.floor(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
 
         // console.log(current, goTo);
 
@@ -867,6 +872,7 @@ function goBack(precise) {
     if (beatmapFile !== undefined) {
         let step = 10;
         let currentBeatstep;
+        const current = beatmapFile.audioNode.getCurrentTime();
 
         if (beatsteps.length) {
             currentBeatstep =
@@ -877,13 +883,9 @@ function goBack(precise) {
             step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
-        const localOffset = currentBeatstep.time - Math.floor(currentBeatstep.time / step) * step;
-        const goTo = Math.min(
-            Math.max(localOffset + (Math.floor(beatmapFile.audioNode.getCurrentTime() / step) - 1) * step, 0),
-            beatmapFile.audioNode.buf.duration * 1000
-        );
+        const localOffset = currentBeatstep.time % step;
+        const goTo = Math.min(Math.max(localOffset + (Math.round(current / step) - 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
 
-        const current = beatmapFile.audioNode.getCurrentTime();
         // console.log(currentBeatstep, localOffset, goTo);
         // if (!playingFlag) {
         //     if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
