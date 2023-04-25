@@ -931,95 +931,97 @@ document.querySelector("#submit").addEventListener("click", submitMap);
 
 const handleCanvasDrag = (e, calledFromDraw) => {
     // console.log(e);
-    const x = currentX;
-    const y = currentY;
+    if (!calledFromDraw) {
+        const x = currentX;
+        const y = currentY;
 
-    const currentTime = beatmapFile.audioNode.getCurrentTime();
+        const currentTime = beatmapFile.audioNode.getCurrentTime();
 
-    const start_X = startX;
-    const start_Y = startY;
+        const start_X = startX;
+        const start_Y = startY;
 
-    let currentAR = !mods.EZ ? approachRate : approachRate / 2;
-    currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
-    const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+        let currentAR = !mods.EZ ? approachRate : approachRate / 2;
+        currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+        const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
 
-    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
-        const lowerBound = o.time - currentPreempt;
-        const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
-        // console.log(Math.min(draggingStartTime, draggingEndTime), Math.max(draggingStartTime, draggingEndTime), o.time, lowerBound, upperBound);
+        const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList
+            .filter((o) => {
+                const lowerBound = o.time - currentPreempt;
+                const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
 
-        const coordLowerBound = {
-            x: Math.min(x, start_X),
-            y: Math.min(y, start_Y),
-        };
+                return (
+                    (lowerBound <= Math.min(draggingStartTime, draggingEndTime) && upperBound >= Math.max(draggingStartTime, draggingEndTime)) ||
+                    (lowerBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime)) ||
+                    (lowerBound >= Math.min(draggingStartTime, draggingEndTime) && lowerBound <= Math.max(draggingStartTime, draggingEndTime)) ||
+                    (upperBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime))
+                );
+            })
+            .filter((o) => {
+                // console.log(Math.min(draggingStartTime, draggingEndTime), Math.max(draggingStartTime, draggingEndTime), o.time, lowerBound, upperBound);
 
-        const coordUpperBound = {
-            x: Math.max(x, start_X),
-            y: Math.max(y, start_Y),
-        };
+                const coordLowerBound = {
+                    x: Math.min(x, start_X),
+                    y: Math.min(y, start_Y),
+                };
 
-        const inverse = mods.HR ? -1 : 1;
-        const timeWindowOverlapCheck =
-            (lowerBound <= Math.min(draggingStartTime, draggingEndTime) && upperBound >= Math.max(draggingStartTime, draggingEndTime)) ||
-            (lowerBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime)) ||
-            (lowerBound >= Math.min(draggingStartTime, draggingEndTime) && lowerBound <= Math.max(draggingStartTime, draggingEndTime)) ||
-            (upperBound >= Math.min(draggingStartTime, draggingEndTime) && upperBound <= Math.max(draggingStartTime, draggingEndTime));
+                const coordUpperBound = {
+                    x: Math.max(x, start_X),
+                    y: Math.max(y, start_Y),
+                };
 
-        if (o.obj instanceof HitCircle) {
-            const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
-            const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
+                if (o.obj instanceof HitCircle) {
+                    const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
+                    const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
 
-            // console.log(
-            //     o.time,
-            //     lowerBound <= currentTime,
-            //     upperBound >= currentTime,
-            //     { x: positionX, y: positionY },
-            //     coordLowerBound,
-            //     coordUpperBound
-            // );
-
-            return (
-                timeWindowOverlapCheck &&
-                positionX >= coordLowerBound.x &&
-                positionX <= coordUpperBound.x &&
-                positionY >= coordLowerBound.y &&
-                positionY <= coordUpperBound.y
-            );
-        }
-
-        if (o.obj instanceof Slider) {
-            if (timeWindowOverlapCheck) {
-                const renderableAngleList = o.obj.angleList;
-
-                const res = renderableAngleList.some((point) => {
-                    const positionX = point.x + stackOffset * o.obj.stackHeight;
-                    const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+                    // console.log(
+                    //     o.time,
+                    //     lowerBound <= currentTime,
+                    //     upperBound >= currentTime,
+                    //     { x: positionX, y: positionY },
+                    //     coordLowerBound,
+                    //     coordUpperBound
+                    // );
 
                     return (
-                        positionX + stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
-                        positionX + stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
-                        positionY + stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
-                        positionY + stackOffset * o.obj.stackHeight <= coordUpperBound.y
+                        positionX >= coordLowerBound.x &&
+                        positionX <= coordUpperBound.x &&
+                        positionY >= coordLowerBound.y &&
+                        positionY <= coordUpperBound.y
                     );
-                });
+                }
 
-                // console.log(o.time, res);
-                return res;
-            }
+                if (o.obj instanceof Slider) {
+                    const renderableAngleList = o.obj.angleList;
+
+                    const res = renderableAngleList.some((point) => {
+                        const positionX = point.x + stackOffset * o.obj.stackHeight;
+                        const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+
+                        return (
+                            positionX + stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
+                            positionX + stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
+                            positionY + stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
+                            positionY + stackOffset * o.obj.stackHeight <= coordUpperBound.y
+                        );
+                    });
+
+                    // console.log(o.time, res);
+                    return res;
+                }
+
+                return false;
+            });
+
+        // console.log("x: " + x + " y: " + y, selectedObj);
+
+        if (selectedObjList.length) {
+            selectedHitObject = selectedObjList.map((o) => o.time);
+        } else if (e && !e.ctrlKey) {
+            selectedHitObject = [];
         }
 
-        return false;
-    });
-
-    // console.log("x: " + x + " y: " + y, selectedObj);
-
-    if (selectedObjList.length) {
-        selectedHitObject = selectedObjList.map((o) => o.time);
-    } else if (e && !e.ctrlKey) {
-        selectedHitObject = [];
+        beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
     }
-
-    // if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
 
     // console.log(selectedHitObject);
 };
@@ -1050,22 +1052,22 @@ bg.on("click", (e) => {
         const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
         const drawOffset = currentHitCircleSize;
 
-        const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList.filter((o) => {
-            const lowerBound = o.time - currentPreempt;
-            const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
+        const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList
+            .filter((o) => {
+                const lowerBound = o.time - currentPreempt;
+                const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
 
-            if (o.obj instanceof HitCircle) {
-                const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
-                const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
+                return (lowerBound <= currentTime && upperBound >= currentTime) || selectedHitObject.includes(o.time);
+            })
+            .filter((o) => {
+                if (o.obj instanceof HitCircle) {
+                    const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
+                    const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
 
-                return (
-                    ((lowerBound <= currentTime && upperBound >= currentTime) || selectedHitObject.includes(o.time)) &&
-                    (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2
-                );
-            }
+                    return (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
+                }
 
-            if (o.obj instanceof Slider) {
-                if ((lowerBound <= currentTime && upperBound >= currentTime) || selectedHitObject.includes(o.time)) {
+                if (o.obj instanceof Slider) {
                     const renderableAngleList = o.obj.angleList;
 
                     const res = renderableAngleList.some((point) => {
@@ -1078,10 +1080,9 @@ bg.on("click", (e) => {
                     // console.log(o.time, res);
                     return res;
                 }
-            }
 
-            return false;
-        });
+                return false;
+            });
 
         const selectedObj = selectedObjList.length
             ? selectedObjList.reduce((prev, curr) => {
