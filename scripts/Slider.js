@@ -71,7 +71,7 @@ class Slider {
         this.selected.alpha = 1;
     }
 
-    drawBorder(timestamp, opacity, percentage, colourIdx, currentScaleFactor) {
+    drawBorder(timestamp, opacity, percentage, colourIdx, colour) {
         // console.log(this.time, opacity, percentage);
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
@@ -181,6 +181,7 @@ class Slider {
         }
 
         this.sliderBall.scale.set(circleModScale);
+        this.sliderBall.tint = colour;
 
         // console.log(currentStackOffset * this.stackHeight);
 
@@ -188,7 +189,7 @@ class Slider {
     }
 
     draw(timestamp, opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
-        this.drawBorder(timestamp, opacity, percentage, colourIdx);
+        this.drawBorder(timestamp, opacity, percentage, colourIdx, colour);
         this.hitCircle.draw(
             timestamp,
             opacity,

@@ -30,139 +30,6 @@
 
 <body>
     <div id="main">
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleHitCircle" width='276' height='276'
-            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <foreignObject x="0" y="0" width='100%' height='100%'>
-                <xhtml:div id="hitCircleSVG" style="
-                position: absolute; 
-                display: block;
-                top: 10px;
-                left: 10px;
-                width: 256px;
-                height: 256px;
-                background-image: url(./static/hitcircle@2x.png);
-                background-position: center;
-                ">
-                </xhtml:div>
-                <xhtml:div id="hitCircleColor" style="
-                position: absolute; 
-                display: block;
-                top: 9px;
-                left: 9px;
-                width: 257px;
-                height: 257px;
-                background-color: rgb(82, 180, 115);
-                mix-blend-mode: multiply;
-                -webkit-mask-image:url(./static/hitcircle@2x.png);
-                -webkit-mask-position: center;
-                mask-image:url(./static/hitcircle@2x.png);
-                mask-position: center;
-                ">
-                </xhtml:div>
-                <xhtml:div id="hitCircleOverlay" style="
-                position: absolute; 
-                display: block;
-                top: 10px;
-                left: 10px;
-                width: 256px;
-                height: 256px;
-                background-image: url(./static/hitcircleoverlay@2x.png);
-                background-position: center;
-                ">
-                </xhtml:div>
-                <!-- <xhtml:div id="hitCircleOverlay" style="
-                position: absolute; 
-                display: block;
-                width: 100%;
-                height: 100%;
-                background-image: url(./static/hitcircleoverlay@2x.png);
-                background-size: cover;">
-                </xhtml:div> -->
-            </foreignObject>
-        </svg>
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleDefault" width='276' height='276'
-            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <foreignObject x="0" y="0" width='100%' height='100%'>
-                <xhtml:div id="default" style="
-                position: absolute; 
-                display: block;
-                top: calc((100% - 100px) / 2);
-                left: calc((100% - 100px) / 2);
-                width: calc(100px);
-                height: calc(100px);
-                background-image: url(./static/default-1@2x.png);
-                background-size: 80%;
-                background-position: center;
-                ">
-                </xhtml:div>
-            </foreignObject>
-        </svg>
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleApproachCircle" width='276' height='276'
-            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <foreignObject x="0" y="0" width='100%' height='100%'>
-                <xhtml:div id="approachCircleSVG" style="
-                position: absolute; 
-                display: block;
-                width: 100%;
-                height: 100%;
-                background-image: url(./static/approachcircle@2x.png);
-                background-size: 97% 97%;
-                background-repeat: no-repeat;
-                background-position: center;
-                ">
-                </xhtml:div>
-                <xhtml:div id="approachCircleColor" style="
-                position: absolute; 
-                display: block;
-                width: 100%;
-                height: 100%;
-                background-color: rgb(82, 180, 115);
-                mix-blend-mode: multiply;
-                -webkit-mask-image:url(./static/approachcircle@2x.png);
-                -webkit-mask-size: 97% 97%;
-                -webkit-mask-repeat: no-repeat;
-                -webkit-mask-position: center;
-                mask-image:url(./static/approachcircle@2x.png);
-                mask-size: 95% 95%;
-                mask-repeat: no-repeat;
-                mask-position: center;
-                ">
-                </xhtml:div>
-            </foreignObject>
-        </svg>
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleReverseArrow" width='276' height='276'
-            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <foreignObject x="0" y="0" width='100%' height='100%'>
-                <xhtml:div id="reverseArrowSVG" style="
-                position: absolute; 
-                display: block;
-                width: 100%;
-                height: 100%;
-                background-image: url(./static/reversearrow@2x.png);
-                background-size: 95% 95%;
-                background-repeat: no-repeat;
-                background-position: center;
-                transform: rotate(0);
-                ">
-                </xhtml:div>
-            </foreignObject>
-        </svg>
-        <svg xmlns='http://www.w3.org/2000/svg' id="sampleSliderB" width='276' height='276'
-            xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <foreignObject x="0" y="0" width='100%' height='100%'>
-                <xhtml:div id="sliderBSVG" style="
-                position: absolute; 
-                display: block;
-                width: 100%;
-                height: 100%;
-                background-image: url(./static/sliderb0@2x.png);
-                background-repeat: no-repeat;
-                background-position: center;
-                ">
-                </xhtml:div>
-            </foreignObject>
-        </svg>
-        <img id="sampleDefault" src="./static/default-1@2x.png">
     </div>
     <div id="inputContainer">
         <button id="settingsButton" onclick="openMenu()"></button>
@@ -292,10 +159,10 @@
                     <label for="snaking">snaking sliders</label>
                     <input type="checkbox" id="snaking" name="snaking" onchange='handleCheckBox(this);' checked>
                 </div>
-                <div class="selection">
+                <!-- <div class="selection">
                     <label for="untint">un-tint sliders</label>
                     <input type="checkbox" id="untint" name="untint" onchange='handleCheckBox(this);' value="false">
-                </div>
+                </div> -->
                 <div class="selection">
                     <label for="legacy">use legacy slider render style</label>
                     <input type="checkbox" id="legacy" name="legacy" onchange='handleCheckBox(this);' value="false">

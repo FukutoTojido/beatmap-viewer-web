@@ -352,7 +352,7 @@ if (localStorage.getItem("settings")) {
     // hsVol = currentLocalStorage.volume.hs;
 
     Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
-        if (["snaking", "untint", "legacy", "hitAnim"].includes(k)) {
+        if (["snaking", "legacy", "hitAnim"].includes(k)) {
             document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
         }
     });
@@ -451,91 +451,6 @@ window.onresize = () => {
         }
     }
 };
-
-// const scaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-// let tempScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-// const textureScaleFactor = Math.min(canvas.height / 768, canvas.width / 1024) ** 2;
-
-// const ctx = canvas.getContext("2d");
-// ctx.imageSmoothingEnabled = true;
-
-const sampleHitCircle = document.querySelector("#sampleHitCircle");
-const sampleHitCircleOverlay = document.querySelector("#sampleHitCircleOverlay");
-const sampleApproachCircle = document.querySelector("#sampleApproachCircle");
-const sampleReverseArrow = document.querySelector("#sampleReverseArrow");
-const sampleSliderB = document.querySelector("#sampleSliderB");
-
-const defaultArr = [];
-for (let i = 0; i < 10; i++) {
-    toDataUrl(`./static/default-${i}@2x.png`, (base64) => {
-        document.querySelector("#default").style.backgroundImage = `url(${base64})`;
-        const base64_default = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleDefault")));
-        const defaultNumberImgData = `data:image/svg+xml;base64,${base64_default}`;
-        const defaultNumberImg = new Image();
-        defaultNumberImg.src = defaultNumberImgData;
-
-        defaultArr[i] = defaultNumberImg;
-    });
-}
-
-let hitCircleArr = [];
-let approachCircleArr = [];
-["#eb4034", "#ebc034", "#34eb65", "#347deb"].forEach((colour, idx) => {
-    document.querySelector("#hitCircleColor").style.backgroundColor = colour;
-    const base64_hitCircle = window.btoa(new XMLSerializer().serializeToString(sampleHitCircle));
-    const hitCircleImgData = `data:image/svg+xml;base64,${base64_hitCircle}`;
-    const hitCircleImg = new Image();
-    hitCircleImg.src = hitCircleImgData;
-
-    document.querySelector("#approachCircleColor").style.backgroundColor = colour;
-    const base64_approachCircle = window.btoa(new XMLSerializer().serializeToString(sampleApproachCircle));
-    const approachCircleImgData = `data:image/svg+xml;base64,${base64_approachCircle}`;
-    const approachCircleImg = new Image();
-    approachCircleImg.src = approachCircleImgData;
-
-    hitCircleArr[idx] = hitCircleImg;
-    approachCircleArr[idx] = approachCircleImg;
-});
-
-toDataUrl("./static/hitcircle@2x.png", (base64) => {
-    document.querySelector("#hitCircleSVG").style.backgroundImage = `url("${base64}")`;
-    document.querySelector("#hitCircleColor").style.webkitMaskImage = `url("${base64}")`;
-});
-
-toDataUrl("./static/hitcircleoverlay@2x.png", (base64) => {
-    document.querySelector("#hitCircleOverlay").style.backgroundImage = `url("${base64}")`;
-});
-
-toDataUrl("./static/approachcircle@2x.png", (base64) => {
-    document.querySelector("#approachCircleSVG").style.backgroundImage = `url("${base64}")`;
-    document.querySelector("#approachCircleColor").style.webkitMaskImage = `url("${base64}")`;
-});
-
-toDataUrl("./static/reversearrow@2x.png", (base64) => {
-    document.querySelector("#reverseArrowSVG").style.backgroundImage = `url("${base64}")`;
-});
-
-let sliderBElement;
-toDataUrl("./static/sliderb0@2x.png", (base64) => {
-    document.querySelector("#sliderBSVG").style.backgroundImage = `url("${base64}")`;
-
-    const base64_sliderB = window.btoa(new XMLSerializer().serializeToString(document.querySelector("#sampleSliderB")));
-    const sliderBImgData = `data:image/svg+xml;base64,${base64_sliderB}`;
-    const sliderBImg = new Image();
-    sliderBImg.src = sliderBImgData;
-
-    sliderBElement = sliderBImg;
-});
-
-// document.querySelector("#cursorContainer").style.width = `${512 * scaleFactor}px`;
-// document.querySelector("#cursorContainer").style.height = `${384 * scaleFactor}px`;
-
-// const sldrLists = ["192:160|128:96|224:96", "304:144|336:96|320:16", "304:240|336:288|320:368", "208:240|176:288|192:368"];
-// sldrLists.forEach((sl) => {
-//     const sldr = new Slider(sl, "B", 115, 230, 60000 / 170, 0);
-//     // sldr.draw(1);
-//     sldr.draw(1, 0.5, 0.2, 1, "red");
-// });
 
 function openMenu() {
     // console.log(ele);
