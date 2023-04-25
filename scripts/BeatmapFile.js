@@ -8,6 +8,9 @@ class BeatmapFile {
     audioNode;
     beatmapRenderData;
     hitsoundList = [];
+    title;
+    artist;
+    diff;
 
     constructor(mapId) {
         this.mapId = mapId;
@@ -32,6 +35,12 @@ class BeatmapFile {
 
     async getOsz() {
         const mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
+        this.artist = mapsetData.artist_unicode;
+        this.title = mapsetData.title_unicode;
+        this.diff = mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].version;
+
+        document.title = `${this.artist} - ${this.title} [${this.diff}] | JoSu!`;
+
         // console.log(mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId)));
 
         if (mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].mode !== "osu") {
