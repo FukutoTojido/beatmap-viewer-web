@@ -87,7 +87,7 @@ class HitCircle {
         this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 256 : 1);
 
         this.numberSprite.text = comboIdx.toString();
-        this.numberSprite.alpha = timestamp > this.time ? 0 : 1;
+        this.numberSprite.alpha = timestamp > this.time ? (sliderAppearance.hitAnim ? 1 : 0) : 1;
 
         const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 1;
         this.approachCircleObj.obj.x = x;
