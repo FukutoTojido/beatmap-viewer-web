@@ -369,7 +369,7 @@ class Slider {
                 return this.generatePointsList(pointArr);
             }
 
-            console.log(this.time, innerAngle, middle_start, center_start);
+            // console.log(this.time, innerAngle, middle_start, center_start);
         } else {
             const projectile = {
                 x: pointArr[1].x,
