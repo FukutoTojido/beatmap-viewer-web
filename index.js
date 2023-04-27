@@ -384,17 +384,6 @@ window.onresize = () => {
         h = (w / 512) * 384;
     }
 
-    gr = new Graphics()
-        .lineStyle({
-            width: 2,
-            color: 0xffffff,
-            alpha: 1,
-            alignment: 0,
-        })
-        .drawRect(0, 0, w, h);
-
-    for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += w / 16) gr.drawRect(i, j, w / 16, w / 16);
-
     bg.width = w;
     bg.height = h;
 
@@ -404,15 +393,6 @@ window.onresize = () => {
             parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
             parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
         );
-
-        gr = new Graphics()
-            .lineStyle({
-                width: 2,
-                color: 0xffffff,
-                alpha: 1,
-                alignment: 0,
-            })
-            .drawRect(0, 0, w * 2, h * 2);
 
         bg.width = w * 2;
         bg.height = h * 2;
@@ -427,15 +407,28 @@ window.onresize = () => {
     w *= 0.9;
     h *= 0.9;
 
+    const gr_2 = new Graphics()
+        .lineStyle({
+            width: 1,
+            color: 0xffffff,
+            alpha: 0.1,
+            alignment: 0.5,
+        })
+        .drawRect(0, 0, w, h);
+
+    for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += w / 16) gr_2.drawRect(i, j, w / 16, w / 16);
+
     offsetX = (document.querySelector("canvas").width - w) / 2;
     offsetY = (document.querySelector("canvas").height - h) / 2;
 
     container.x = offsetX;
     container.y = offsetY;
 
-    tx = app.renderer.generateTexture(gr);
+    const tx_2 = app.renderer.generateTexture(gr_2);
 
-    bg.texture = tx;
+    bg.texture = tx_2;
+    bg.width = w;
+    bg.height = h;
     bg.x = offsetX;
     bg.y = offsetY;
 
