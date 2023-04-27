@@ -755,7 +755,7 @@ function goNext(precise) {
         }
 
         const localOffset = currentBeatstep.time % step;
-        const goTo = Math.min(Math.max(localOffset + (Math.round(current / step) + 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
+        const goTo = Math.min(Math.max(localOffset + (Math.ceil(current / step) + 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
         // console.log(localOffset, step, goTo - current, Math.floor(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
 
         // console.log(current, goTo);
@@ -792,7 +792,8 @@ function goBack(precise) {
         }
 
         const localOffset = currentBeatstep.time % step;
-        const goTo = Math.min(Math.max(localOffset + (Math.round(current / step) - 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
+        const goTo = Math.min(Math.max(localOffset + (Math.floor(current / step) - 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
+        // console.log(localOffset, step, goTo - current, Math.round(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
 
         // console.log(currentBeatstep, localOffset, goTo);
         // if (!playingFlag) {
