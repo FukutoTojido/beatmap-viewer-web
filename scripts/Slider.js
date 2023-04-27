@@ -348,6 +348,15 @@ class Slider {
         // console.log(this.time, centerX, centerY, angleIndex, b, radius, absoluteAngle, pointArr[1], lengthAC / (2 * radius));
 
         if (upper === 0) {
+            if (lower === 0) {
+                const firstHalf = this.generatePointsList([pointArr[0], pointArr[1]]);
+                const secondHalf = this.generatePointsList([pointArr[1], pointArr[2]]);
+                return {
+                    points: firstHalf.points.concat(secondHalf.points),
+                    length: firstHalf.length + secondHalf.length,
+                };
+            }
+
             const middle_start = pointArr[1].x - pointArr[0].x;
             const center_start = centerX - pointArr[0].x;
 
@@ -360,7 +369,7 @@ class Slider {
                 return this.generatePointsList(pointArr);
             }
 
-            // console.log(this.time, innerAngle, middle_start, center_start);
+            console.log(this.time, innerAngle, middle_start, center_start);
         } else {
             const projectile = {
                 x: pointArr[1].x,
