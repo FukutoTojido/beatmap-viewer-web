@@ -343,8 +343,9 @@ class Slider {
 
         const absoluteAngle =
             Math.abs(angleIndex) === Infinity || (pointArr[1].y - (angleIndex * pointArr[1].x + b)) * (centerY - (angleIndex * centerX + b)) < 0
-                ? Math.asin(lengthAC / (2 * radius)) * 2
-                : Math.PI * 2 - Math.asin(lengthAC / (2 * radius)) * 2;
+                ? Math.asin(Clamp(lengthAC / (2 * radius), 0, 1)) * 2
+                : Math.PI * 2 - Math.asin(Clamp(lengthAC / (2 * radius), 0, 1)) * 2;
+        // console.log(this.time, centerX, centerY, angleIndex, b, radius, absoluteAngle, pointArr[1], lengthAC / (2 * radius));
 
         if (upper === 0) {
             const middle_start = pointArr[1].x - pointArr[0].x;
