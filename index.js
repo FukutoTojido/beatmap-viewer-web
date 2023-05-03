@@ -754,11 +754,11 @@ function goNext(precise) {
             step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
-        const localOffset = currentBeatstep.time % step;
-        const goTo = Math.min(Math.max(localOffset + (Math.ceil(current / step) + 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
+        const localOffset = (currentBeatstep.time % step) - step;
+        const goTo = Clamp(localOffset + (Math.ceil(current / step) + 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
         // console.log(localOffset, step, goTo - current, Math.floor(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
 
-        // console.log(current, goTo);
+        // console.log(current, goTo, localOffset, current / step, step);
 
         // if (!playingFlag) {
         //     if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
