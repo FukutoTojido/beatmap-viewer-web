@@ -15,6 +15,7 @@ An osu! beatmap viewer on the web.
 ## osu! mapping features
 - Snap scrolling to the current beatsnap divisor similar to the osu! beatmap editor
 - Change beatsnap divisor
+- Precise scrolling at 1/48 beatsnap divisor by hold `Shift` key while scrolling
 - Select hitobject(s) and copy their timestamp to the clipboard by pressing `Ctrl + C` similar to the osu! beatmap editor
 
 ## Usage
