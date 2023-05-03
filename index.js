@@ -597,10 +597,13 @@ function submitMap() {
         beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
 
+    const origin = window.location.origin;
+    window.history.pushState({}, "JoSu!", `${origin}${origin.includes("localhost") ? "" : "/beatmap-viewer-how"}/?b=${bID}`);
+
     beatmapFile = undefined;
     beatmapFile = new BeatmapFile(bID);
 
-    document.querySelector("#mapInput").value = "";
+    document.querySelector("#mapInput").value = bID;
     document.querySelector("#progress").value = 0;
     // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
@@ -817,7 +820,7 @@ function copyUrlToClipboard() {
     const origin = window.location.origin;
     const currentTimestamp = beatmapFile !== undefined ? parseInt(beatmapFile.audioNode.getCurrentTime()) : 0;
     const mapId = currentMapId || "";
-    navigator.clipboard.writeText(`${origin}/beatmap-viewer-how?b=${mapId}&t=${currentTimestamp}`);
+    navigator.clipboard.writeText(`${origin}${origin.includes("localhost") ? "" : "/beatmap-viewer-how"}?b=${mapId}&t=${currentTimestamp}`);
 }
 
 screen.orientation.onchange = () => {
