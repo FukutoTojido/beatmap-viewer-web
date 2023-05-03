@@ -33,3 +33,4 @@ An osu! beatmap viewer on the web.
 ## Issue
 - Should there be any issue happening on the site, please create a new issue on this repository.
 - Also, since I haven't tested this site on many different kinds of browsers (such as Firefox, Safari, Opera, etc), inconsistencies are expected to happen between each one of them.
+- Spinners never existSpinners never existSpinners never existSpinners never existSpinners never existSpinners never existSpinners never existSpinners never existSpinners never exist
