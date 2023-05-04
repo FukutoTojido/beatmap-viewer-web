@@ -84,7 +84,7 @@ class HitCircle {
         this.obj.x = x;
         this.obj.y = y;
 
-        this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 256 : 1);
+        this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 272 : 1);
 
         this.numberSprite.text = comboIdx.toString();
         this.numberSprite.alpha = timestamp > this.time ? (!sliderAppearance.hitAnim ? 1 : 0) : 1;
