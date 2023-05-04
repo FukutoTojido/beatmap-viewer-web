@@ -98,7 +98,7 @@ let gr = new Graphics()
     })
     .drawRect(0, 0, w, h);
 
-for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += w / 16) gr.drawRect(i, j, w / 16, w / 16);
+for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += h / 12) gr.drawRect(i, j, w / 16, h / 12);
 
 let tx = app.renderer.generateTexture(gr);
 
@@ -416,7 +416,7 @@ window.onresize = () => {
         })
         .drawRect(0, 0, w, h);
 
-    for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += w / 16) gr_2.drawRect(i, j, w / 16, w / 16);
+    for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += h / 12) gr_2.drawRect(i, j, w / 16, h / 12);
 
     offsetX = (document.querySelector("canvas").width - w) / 2;
     offsetY = (document.querySelector("canvas").height - h) / 2;
