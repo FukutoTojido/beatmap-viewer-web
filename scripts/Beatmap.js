@@ -131,6 +131,17 @@ class Beatmap {
         SliderTexture = newTexture(coloursList);
         SelectedTexture = selectedTexture();
 
+        const breakPeriods = rawBeatmap
+            .split("\r\n")
+            .filter((line) => /^2,[0-9]+,[0-9]+$/g.test(line))
+            .map((line) =>
+                line
+                    .split(",")
+                    .slice(1)
+                    .map((time) => parseInt(time))
+            );
+        // console.log(breakPeriods);
+
         let objectLists = rawBeatmap
             .slice(hitObjectsPosition)
             .split("\r\n")
@@ -415,7 +426,7 @@ class Beatmap {
             })
             .filter((s) => s);
 
-        this.objectsList = new ObjectsList(hitCircleList, slidersList, coloursList);
+        this.objectsList = new ObjectsList(hitCircleList, slidersList, coloursList, breakPeriods);
 
         // Ported from Lazer
         let extendedEndIndex = this.objectsList.objectsList.length - 1;

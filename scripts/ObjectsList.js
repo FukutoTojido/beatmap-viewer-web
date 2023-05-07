@@ -4,6 +4,7 @@ class ObjectsList {
     objectsList;
     drawTime;
     coloursList;
+    breakPeriods;
     currentColor;
     coloursObject;
     lastTimestamp = 0;
@@ -22,7 +23,7 @@ class ObjectsList {
         return 0;
     }
 
-    constructor(hitCirclesList, slidersList, coloursList) {
+    constructor(hitCirclesList, slidersList, coloursList, breakPeriods) {
         this.hitCirclesList = hitCirclesList;
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
@@ -42,6 +43,8 @@ class ObjectsList {
                 colourIdx: this.currentColor,
             };
         });
+
+        this.breakPeriods = breakPeriods;
     }
 
     draw(timestamp, staticDraw) {
@@ -172,7 +175,7 @@ class ObjectsList {
 
         // console.log(filtered);
 
-        if (filtered.length === 0) {
+        if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
             document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
         } else {
             document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;

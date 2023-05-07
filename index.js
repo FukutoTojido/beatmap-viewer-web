@@ -80,8 +80,8 @@ if (w < 480) {
     document.querySelector("canvas").style.transform = ``;
 }
 
-w *= 0.9;
-h *= 0.9;
+w *= 0.8;
+h *= 0.8;
 
 let offsetX = (document.querySelector("canvas").width - w) / 2;
 let offsetY = (document.querySelector("canvas").height - h) / 2;
@@ -404,8 +404,8 @@ window.onresize = () => {
         document.querySelector("canvas").style.transform = ``;
     }
 
-    w *= 0.9;
-    h *= 0.9;
+    w *= 0.8;
+    h *= 0.8;
 
     const gr_2 = new Graphics()
         .lineStyle({
