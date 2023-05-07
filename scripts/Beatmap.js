@@ -191,7 +191,7 @@ class Beatmap {
                         ),
                         time: parseInt(params[2]) + delay,
                         endTime: parseInt(params[2]) + delay,
-                        hitsounds: new HitSample(hitsoundList),
+                        hitsounds: new HitSample(hitsoundList, currentSVMultiplier.sampleVol / 100),
                         raw: object,
                     };
                 }
@@ -376,7 +376,7 @@ class Beatmap {
                                     : `${ss.additional}-${hs}${edgeSVMultiplier.sampleIdx}`
                             );
 
-                            return new HitSample(hitsoundList);
+                            return new HitSample(hitsoundList, edgeSVMultiplier.sampleVol / 100);
                         });
                     }
 
@@ -405,8 +405,8 @@ class Beatmap {
                         time: parseInt(params[2]) + delay,
                         endTime: endTime,
                         hitsounds: {
-                            sliderHead: new HitSample(headHitsoundList),
-                            sliderTail: new HitSample(tailHitsoundList),
+                            sliderHead: new HitSample(headHitsoundList, currentSVMultiplier.sampleVol / 100),
+                            sliderTail: new HitSample(tailHitsoundList, sliderEndSVMultiplier.sampleVol / 100),
                             sliderReverse: reverseList,
                         },
                         raw: object,

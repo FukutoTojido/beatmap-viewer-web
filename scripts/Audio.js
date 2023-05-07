@@ -123,8 +123,11 @@ class HitSample {
     audioObj;
     sliderHead = false;
     sliderTail = false;
-    constructor(hitsounds) {
+    vol = 1;
+
+    constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
+        this.vol = vol ?? 1;
         // console.log(this.audioObj);
     }
     play() {
@@ -132,7 +135,7 @@ class HitSample {
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
             const gainNode = audioCtx.createGain();
-            gainNode.gain.value = hsVol * masterVol;
+            gainNode.gain.value = hsVol * masterVol * this.vol;
             gainNode.connect(audioCtx.destination);
 
             src.buffer = hitsoundsBuffer[Object.keys(hitsoundsBuffer).includes(hs) ? hs : `${hs.replaceAll(/\d/g, "")}0`];
