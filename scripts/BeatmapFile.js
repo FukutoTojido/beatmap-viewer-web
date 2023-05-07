@@ -98,7 +98,7 @@ class BeatmapFile {
 
         const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);
-            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap)([1-9][0-9]*)?/.test(file.filename);
+            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
         });
 
         const hitsoundArrayBuffer = [];
