@@ -69,13 +69,13 @@ document.querySelector("#playerContainer").appendChild(app.view);
 if (w < 480) {
     // console.log("Alo", w, h);
     app.renderer.resize(
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 1.3,
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 1.3
     );
-    w *= 2;
-    h *= 2;
+    w *= 1.3;
+    h *= 1.3;
 
-    document.querySelector("canvas").style.transform = `scale(0.5)`;
+    document.querySelector("canvas").style.transform = `scale(0.76923076923076923076923076923077)`;
 } else {
     document.querySelector("canvas").style.transform = ``;
 }
@@ -390,16 +390,17 @@ window.onresize = () => {
     if (w < 480) {
         // console.log("Alo", w, h);
         app.renderer.resize(
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 1.3,
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 1.3
         );
 
-        bg.width = w * 2;
-        bg.height = h * 2;
+        bg.width = w * 1.3;
+        bg.height = h * 1.3;
 
-        w *= 2;
-        h *= 2;
-        document.querySelector("canvas").style.transform = `scale(0.5)`;
+        w *= 1.3;
+        h *= 1.3;
+    
+        document.querySelector("canvas").style.transform = `scale(0.76923076923076923076923076923077)`;
     } else {
         document.querySelector("canvas").style.transform = ``;
     }
