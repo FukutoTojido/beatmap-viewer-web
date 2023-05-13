@@ -97,7 +97,7 @@ class BeatmapFile {
         console.log("Audio Loaded");
 
         const hitsoundFiles = allEntries.filter((file) => {
-            console.log(file.filename);
+            // console.log(file.filename);
             return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
         });
 
