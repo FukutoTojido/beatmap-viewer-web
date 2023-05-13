@@ -58,7 +58,7 @@ class BeatmapFile {
             // baseURL: `https://chimu.moe/d/`,
             // baseURL: `https://subapi.nerinyan.moe/d/`,
             baseURL: `https://proxy.nerinyan.moe/d/`,
-            params: { nv: 1, nh: 0, nsb: 1 },
+            // params: { nv: 1, nh: 0, nsb: 1 },
         });
         const mapFileBlob = (
             await requestClient.get(`${setId}?server=auto`, {
@@ -97,7 +97,7 @@ class BeatmapFile {
         console.log("Audio Loaded");
 
         const hitsoundFiles = allEntries.filter((file) => {
-            // console.log(file.filename);
+            console.log(file.filename);
             return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
         });
 
