@@ -399,7 +399,7 @@ window.onresize = () => {
 
         w *= 1.3;
         h *= 1.3;
-    
+
         document.querySelector("canvas").style.transform = `scale(0.76923076923076923076923076923077)`;
     } else {
         document.querySelector("canvas").style.transform = ``;
@@ -758,9 +758,20 @@ function goNext(precise) {
             step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
-        const localOffset = (currentBeatstep.time % step) - step;
+        const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
         const goTo = Clamp(localOffset + (Math.ceil(current / step) + 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
-        // console.log(localOffset, step, goTo - current, Math.floor(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
+        // console.log(
+        //     current,
+        //     goTo,
+        //     localOffset,
+        //     step,
+        //     goTo - current,
+        //     Math.floor(current / step),
+        //     beatsnap,
+        //     localOffset + (Math.round(current / step) + 1) * step
+        // );
+
+        // console.log(currentBeatstep.time % step, step);
 
         // console.log(current, goTo, localOffset, current / step, step);
 
@@ -795,8 +806,8 @@ function goBack(precise) {
             step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
         }
 
-        const localOffset = currentBeatstep.time % step;
-        const goTo = Math.min(Math.max(localOffset + (Math.floor(current / step) - 1) * step, 0), beatmapFile.audioNode.buf.duration * 1000);
+        const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
+        const goTo = Clamp(localOffset + (Math.ceil(current / step) - 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
         // console.log(localOffset, step, goTo - current, Math.round(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
 
         // console.log(currentBeatstep, localOffset, goTo);
