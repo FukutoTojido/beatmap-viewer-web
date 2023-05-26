@@ -57,7 +57,8 @@ class BeatmapFile {
             // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
             // baseURL: `https://chimu.moe/d/`,
             // baseURL: `https://subapi.nerinyan.moe/d/`,
-            baseURL: `https://proxy.nerinyan.moe/d/`,
+            // baseURL: `https://proxy.nerinyan.moe/d/`,
+            baseURL: `https://api.nerinyan.moe/d/`,
             // params: { nv: 1, nh: 0, nsb: 1 },
         });
         const mapFileBlob = (
