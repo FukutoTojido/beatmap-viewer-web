@@ -15,7 +15,7 @@ const settingsTemplate = {
     sliderAppearance: {
         snaking: true,
         untint: false,
-        legacy: false,
+        legacy: true,
         hitAnim: true,
     },
 };

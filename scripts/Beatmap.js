@@ -40,7 +40,9 @@ class Beatmap {
         hitCircleSize = (2 * (54.4 - 4.48 * circleSize) * 236) / 256;
         selectedHitCircleTemplate = createSelectedHitCircleTemplate();
         hitCircleTemplate = createHitCircleTemplate();
+        hitCircleLegacyTemplate = createHitCircleLegacyTemplate();
         hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
+        hitCircleOverlayLegacyTemplate = createHitCircleOverlayLegacyTemplate();
         approachCircleTemplate = createApproachCircleTemplate();
         sliderBallTemplate = createSliderBallTemplate();
         sliderBorderThickness = (hitCircleSize * (236 - 190)) / 2 / 256;

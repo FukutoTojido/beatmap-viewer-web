@@ -98,7 +98,12 @@ let gr = new Graphics()
     })
     .drawRect(0, 0, w, h);
 
-for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += h / 12) gr.drawRect(i, j, w / 16, h / 12);
+for (let i = 0; i < 16; i++) {
+    for (let j = 0; j < 12; j++) {
+        // console.log(i, j);
+        gr.drawRect(i * (w / 16), j * (h / 12), w / 16, h / 12);
+    }
+}
 
 let tx = app.renderer.generateTexture(gr);
 
@@ -215,6 +220,39 @@ const createHitCircleTemplate = () => {
     return renderTexture;
 };
 
+const createHitCircleLegacyTemplate = () => {
+    const hitCircle = new Graphics();
+
+    const circle_1 = new Graphics();
+    circle_1.beginFill(0x2f2f2f);
+    circle_1.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
+    circle_1.endFill();
+
+    hitCircle.addChild(circle_1);
+    // hitCircleContainer.addChild(hitCircleOverlay);
+
+    // console.log(hitCircle.width);
+    const { width, height } = hitCircle;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.HIGH,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(hitCircle, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    hitCircle.destroy(true);
+
+    return renderTexture;
+};
+
 const createHitCircleOverlayTemplate = () => {
     const hitCircleOverlay = new Graphics()
         .lineStyle({
@@ -225,6 +263,37 @@ const createHitCircleOverlayTemplate = () => {
             alignment: 0,
         })
         .arc(0, 0, ((((hitCircleSize / 2) * 272) / 236) * w) / 512, 0, Math.PI * 2);
+    const { width, height } = hitCircleOverlay;
+
+    const renderTexture = PIXI.RenderTexture.create({
+        width: width,
+        height: height,
+        multisample: PIXI.MSAA_QUALITY.MEDIUM,
+        // resolution: window.devicePixelRatio,
+    });
+
+    app.renderer.render(hitCircleOverlay, {
+        renderTexture,
+        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
+    });
+
+    app.renderer.framebuffer.blit();
+
+    hitCircleOverlay.destroy(true);
+
+    return renderTexture;
+};
+
+const createHitCircleOverlayLegacyTemplate = () => {
+    const hitCircleOverlay = new Graphics()
+        .lineStyle({
+            width: (hitCircleSize / 2) * 0.128 * (w / 512),
+            color: 0xffffff,
+            alpha: 1,
+            cap: "round",
+            alignment: 0,
+        })
+        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
     const { width, height } = hitCircleOverlay;
 
     const renderTexture = PIXI.RenderTexture.create({
@@ -321,7 +390,9 @@ const createSliderBallTemplate = () => {
 
 let selectedHitCircleTemplate;
 let hitCircleTemplate;
+let hitCircleLegacyTemplate;
 let hitCircleOverlayTemplate;
+let hitCircleOverlayLegacyTemplate;
 let approachCircleTemplate;
 let sliderBallTemplate;
 
@@ -417,7 +488,12 @@ window.onresize = () => {
         })
         .drawRect(0, 0, w, h);
 
-    for (let i = 0; i < w; i += w / 16) for (let j = 0; j < h; j += h / 12) gr_2.drawRect(i, j, w / 16, h / 12);
+    for (let i = 0; i < 16; i++) {
+        for (let j = 0; j < 12; j++) {
+            // console.log(i, j);
+            gr.drawRect(i * (w / 16), j * (h / 12), w / 16, h / 12);
+        }
+    }
 
     offsetX = (document.querySelector("canvas").width - w) / 2;
     offsetY = (document.querySelector("canvas").height - h) / 2;

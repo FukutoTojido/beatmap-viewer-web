@@ -65,7 +65,9 @@ class ObjectsList {
 
             selectedHitCircleTemplate = createSelectedHitCircleTemplate();
             hitCircleTemplate = createHitCircleTemplate();
+            hitCircleLegacyTemplate = createHitCircleLegacyTemplate();
             hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
+            hitCircleOverlayLegacyTemplate = createHitCircleOverlayLegacyTemplate();
             approachCircleTemplate = createApproachCircleTemplate();
             sliderBallTemplate = createSliderBallTemplate();
         }

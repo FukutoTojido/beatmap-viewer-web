@@ -12,7 +12,9 @@ class HitCircle {
     obj;
     selected;
     hitCircleSprite;
+    hitCircleLegacySprite;
     hitCircleOverlaySprite;
+    hitCircleOverlayLegacySprite;
     numberSprite;
     approachCircleObj;
     tempModsHR = mods.HR;
@@ -50,7 +52,9 @@ class HitCircle {
             this.tempH = h;
 
             this.hitCircleOverlaySprite.texture = hitCircleOverlayTemplate;
+            this.hitCircleOverlayLegacySprite.texture = hitCircleOverlayLegacyTemplate;
             this.hitCircleSprite.texture = hitCircleTemplate;
+            this.hitCircleLegacySprite.texture = hitCircleLegacyTemplate;
             this.approachCircleObj.obj.texture = approachCircleTemplate;
 
             this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
@@ -72,6 +76,7 @@ class HitCircle {
 
         const convertedColor = colour;
         this.hitCircleSprite.tint = sliderAppearance.hitAnim ? convertedColor : timestamp - this.time < 0 ? convertedColor : 0xffffff;
+        this.hitCircleLegacySprite.tint = sliderAppearance.hitAnim ? convertedColor : timestamp - this.time < 0 ? convertedColor : 0xffffff;
 
         this.obj.alpha = currentOpacity;
         this.obj.scale.set(currentExpand * circleModScale);
@@ -84,7 +89,19 @@ class HitCircle {
         this.obj.x = x;
         this.obj.y = y;
 
-        this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 272 : 1);
+        if (sliderAppearance.legacy) {
+            this.hitCircleSprite.alpha = 0;
+            this.hitCircleLegacySprite.alpha = 0.9;
+            this.hitCircleOverlayLegacySprite.alpha = 1;
+            this.hitCircleOverlaySprite.alpha = 0;
+        } else {
+            this.hitCircleSprite.alpha = 1;
+            this.hitCircleLegacySprite.alpha = 0;
+            this.hitCircleOverlayLegacySprite.alpha = 0;
+            this.hitCircleOverlaySprite.alpha = 1;
+        }
+        
+        // this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 272 : 1);
 
         this.numberSprite.text = comboIdx.toString();
         this.numberSprite.alpha = timestamp > this.time ? (!sliderAppearance.hitAnim ? 1 : 0) : 1;
@@ -121,9 +138,17 @@ class HitCircle {
         hitCircleOverlaySprite.anchor.set(0.5);
         this.hitCircleOverlaySprite = hitCircleOverlaySprite;
 
+        const hitCircleOverlayLegacySprite = new Sprite(hitCircleOverlayLegacyTemplate);
+        hitCircleOverlayLegacySprite.anchor.set(0.5);
+        this.hitCircleOverlayLegacySprite = hitCircleOverlayLegacySprite;
+
         const hitCircleSprite = new Sprite(hitCircleTemplate);
         hitCircleSprite.anchor.set(0.5);
         this.hitCircleSprite = hitCircleSprite;
+
+        const hitCircleLegacySprite = new Sprite(hitCircleLegacyTemplate);
+        hitCircleLegacySprite.anchor.set(0.5);
+        this.hitCircleLegacySprite = hitCircleLegacySprite;
 
         const numberSprite = new PIXI.Text("0", {
             fontFamily: "Torus",
@@ -139,7 +164,9 @@ class HitCircle {
 
         const hitCircleContainer = new Container();
         hitCircleContainer.addChild(hitCircleSprite);
+        hitCircleContainer.addChild(hitCircleLegacySprite);
         hitCircleContainer.addChild(hitCircleOverlaySprite);
+        hitCircleContainer.addChild(hitCircleOverlayLegacySprite);
         hitCircleContainer.addChild(numberSprite);
         hitCircleContainer.x = (this.originalX * w) / 512;
         hitCircleContainer.y = (this.originalY * w) / 512;
