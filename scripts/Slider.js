@@ -357,8 +357,8 @@ class Slider {
                 };
             }
 
-            const middle_start = pointArr[1].x - pointArr[0].x;
-            const center_start = centerX - pointArr[0].x;
+            const middle_start = Math.round((pointArr[1].x - pointArr[0].x) * 1000) / 1000;
+            const center_start = Math.round((centerX - pointArr[0].x) * 1000) / 1000;
 
             if (middle_start < 0 && center_start >= 0) innerAngle = (lower > 0 ? -1 : 1) * absoluteAngle;
             if (middle_start > 0 && center_start <= 0) innerAngle = (lower > 0 ? 1 : -1) * absoluteAngle;
@@ -369,12 +369,14 @@ class Slider {
                 return this.generatePointsList(pointArr);
             }
 
-            // console.log(this.time, innerAngle, middle_start, center_start);
+            console.log("z", this.time, innerAngle, middle_start, center_start, centerX);
         } else {
             const projectile = {
                 x: pointArr[1].x,
                 y: pointArr[1].x * angleIndex + b,
             };
+
+            if (this.time === 130364) console.log(projectile);
             if (this.Dist(projectile, pointArr[1]) < 0.1) {
                 pointArr.splice(1, 1);
                 return this.generatePointsList(pointArr);
@@ -430,8 +432,6 @@ class Slider {
                   })
         ).filter((section) => section);
 
-        // console.log(this.time, this.sliderType, calculatedAngleLength);
-
         const calculatedAngle = calculatedAngleLength
             .map((ele) => ele.points)
             .reduce((prev, curr) => prev.concat(curr), [])
@@ -440,6 +440,11 @@ class Slider {
         const limit = Math.floor((this.initialSliderLen / this.repeat / sliderLen) * (calculatedAngle.length - 1));
 
         const sliced = calculatedAngle.slice(0, limit);
+
+        console.log(this.time, calculatedAngle.length, sliced.at(-1));
+
+        // if (this.time === 130364) console.log(calculatedAngleLength);
+
         return sliced.map((coord, idx) => {
             coord.t = idx / (sliced.length - 1);
             return coord;
