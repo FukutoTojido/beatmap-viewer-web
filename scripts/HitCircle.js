@@ -23,7 +23,7 @@ class HitCircle {
     tempH = h;
 
     drawSelected(passedStackHeight) {
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const HRMultiplier = !mods.HR ? 1 : 1.3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
 
@@ -41,8 +41,9 @@ class HitCircle {
         this.selected.scale.set(circleModScale);
     }
 
-    draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight) {
-        // console.log(this.time, opacity);
+    draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight, opacityHD) {
+        if (this.time === 468) console.log(this.time, opacity, opacityHD);
+
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
@@ -65,7 +66,11 @@ class HitCircle {
         }
 
         const currentOpacity = Clamp(
-            timestamp - this.time < 0 ? opacity : 1 - Math.abs(timestamp - this.time) / (sliderAppearance.hitAnim ? 240 : 800),
+            !mods.HD
+                ? timestamp - this.time < 0
+                    ? opacity
+                    : 1 - Math.abs(timestamp - this.time) / (sliderAppearance.hitAnim ? 240 : 800)
+                : opacityHD,
             0,
             1
         );
@@ -100,7 +105,7 @@ class HitCircle {
             this.hitCircleOverlayLegacySprite.alpha = 0;
             this.hitCircleOverlaySprite.alpha = 1;
         }
-        
+
         // this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 272 : 1);
 
         this.numberSprite.text = comboIdx.toString();
@@ -110,7 +115,7 @@ class HitCircle {
         this.approachCircleObj.obj.x = x;
         this.approachCircleObj.obj.y = y;
         this.approachCircleObj.draw(
-            sliderAppearance.hitAnim ? (timestamp > this.time ? 0 : currentOpacity) : currentOpacity,
+            sliderAppearance.hitAnim ? (!mods.HD ? (timestamp > this.time ? 0 : currentOpacity) : 0) : currentOpacity,
             approachRateExpandRate * circleModScale,
             convertedColor
         );

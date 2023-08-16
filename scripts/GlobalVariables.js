@@ -123,6 +123,7 @@ let sliderOnChange = false;
 const curve = new UnitBezier(0, 0.57, 0, 1.46);
 
 let mods = {
+    HD: false,
     HR: false,
     EZ: false,
     DT: false,

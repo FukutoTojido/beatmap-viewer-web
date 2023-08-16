@@ -71,9 +71,9 @@ class Slider {
         this.selected.alpha = 1;
     }
 
-    drawBorder(timestamp, opacity, percentage, colourIdx, colour) {
+    drawBorder(timestamp, opacity, percentage, colourIdx, colour, opacityHD) {
         // console.log(this.time, opacity, percentage);
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const HRMultiplier = !mods.HR ? 1 : 1.3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
         const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
@@ -90,11 +90,13 @@ class Slider {
         this.SliderMesh.alpha = Clamp(
             timestamp < this.time
                 ? Math.abs(opacity)
-                : timestamp > this.endTime - 239
-                ? sliderAppearance.snaking
-                    ? 0
-                    : 1 - (timestamp - (this.endTime - 239)) / 240
-                : 1,
+                : !mods.HD
+                ? timestamp > this.endTime - 239
+                    ? sliderAppearance.snaking
+                        ? 0
+                        : 1 - (timestamp - (this.endTime - 239)) / 240
+                    : 1
+                : 1 - (timestamp - this.time) / (this.endTime - 239 - this.time),
             0,
             1
         );
@@ -188,8 +190,20 @@ class Slider {
         this.SliderMesh.tintid = colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)));
     }
 
-    draw(timestamp, opacity, percentage, hitCircleExpandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor) {
-        this.drawBorder(timestamp, opacity, percentage, colourIdx, colour);
+    draw(
+        timestamp,
+        opacity,
+        percentage,
+        hitCircleExpandRate,
+        preemptRate,
+        colour,
+        colourIdx,
+        comboIdx,
+        currentScaleFactor,
+        sliderStackHeight,
+        opacityHD
+    ) {
+        this.drawBorder(timestamp, opacity, percentage, colourIdx, colour, opacityHD);
         this.hitCircle.draw(
             timestamp,
             opacity,
@@ -200,7 +214,8 @@ class Slider {
             colourIdx,
             comboIdx,
             currentScaleFactor,
-            this.stackHeight
+            this.stackHeight,
+            opacityHD
         );
     }
 

@@ -98,7 +98,7 @@ class ObjectsList {
         // const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
 
         let currentAR = !mods.EZ ? approachRate : approachRate / 2;
-        currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
+        currentAR = !mods.HR ? currentAR : Math.min(currentAR * 1.4, 10);
         const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
         const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
 
@@ -185,11 +185,16 @@ class ObjectsList {
 
         filtered.forEach((object) => {
             const objStartTime = object.time - currentPreempt;
+
             if (timestamp >= objStartTime) {
-                const opacity =
-                    timestamp < object.time
-                        ? (timestamp - objStartTime) / currentFadeIn
-                        : Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
+                let opacity = 0;
+                let opacityHD = 0;
+
+                if (timestamp < object.time) opacity = (timestamp - objStartTime) / currentFadeIn;
+                else opacity = Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
+
+                if (timestamp < objStartTime + currentFadeIn) opacityHD = (timestamp - objStartTime) / currentFadeIn;
+                else opacityHD = Math.max(1 - (timestamp - (objStartTime + currentFadeIn)) / (currentPreempt * 0.3), 0);
 
                 // console.log(object.time, object.colourIdx);
 
@@ -202,7 +207,9 @@ class ObjectsList {
                     object.colour,
                     object.colourIdx,
                     object.comboIdx,
-                    1
+                    1,
+                    undefined,
+                    opacityHD
                 );
 
                 if (timestamp - this.lastTimestamp >= 2) {
