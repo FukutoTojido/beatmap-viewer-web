@@ -369,7 +369,7 @@ class Slider {
                 return this.generatePointsList(pointArr);
             }
 
-            console.log("z", this.time, innerAngle, middle_start, center_start, centerX);
+            // console.log("z", this.time, innerAngle, middle_start, center_start, centerX);
         } else {
             const projectile = {
                 x: pointArr[1].x,
@@ -441,7 +441,7 @@ class Slider {
 
         const sliced = calculatedAngle.slice(0, limit);
 
-        console.log(this.time, calculatedAngle.length, sliced.at(-1));
+        // console.log(this.time, calculatedAngle.length, sliced.at(-1));
 
         // if (this.time === 130364) console.log(calculatedAngleLength);
 
