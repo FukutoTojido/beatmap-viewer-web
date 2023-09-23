@@ -99,11 +99,13 @@ class HitCircle {
             this.hitCircleLegacySprite.alpha = 0.9;
             this.hitCircleOverlayLegacySprite.alpha = 1;
             this.hitCircleOverlaySprite.alpha = 0;
+            this.numberSprite.scale.set(((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize)) / 1.3);
         } else {
             this.hitCircleSprite.alpha = 1;
             this.hitCircleLegacySprite.alpha = 0;
             this.hitCircleOverlayLegacySprite.alpha = 0;
             this.hitCircleOverlaySprite.alpha = 1;
+            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
         }
 
         // this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 272 : 1);

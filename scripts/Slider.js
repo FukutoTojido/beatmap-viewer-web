@@ -183,7 +183,7 @@ class Slider {
         }
 
         this.sliderBall.scale.set(circleModScale);
-        this.sliderBall.tint = colour;
+        // this.sliderBall.tint = colour;
 
         // console.log(currentStackOffset * this.stackHeight);
 

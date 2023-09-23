@@ -69,13 +69,13 @@ document.querySelector("#playerContainer").appendChild(app.view);
 if (w < 480) {
     // console.log("Alo", w, h);
     app.renderer.resize(
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 1.3,
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 1.3
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
     );
-    w *= 1.3;
-    h *= 1.3;
+    w *= 2;
+    h *= 2;
 
-    document.querySelector("canvas").style.transform = `scale(0.76923076923076923076923076923077)`;
+    document.querySelector("canvas").style.transform = `scale(0.5)`;
 } else {
     document.querySelector("canvas").style.transform = ``;
 }
@@ -223,12 +223,30 @@ const createHitCircleTemplate = () => {
 const createHitCircleLegacyTemplate = () => {
     const hitCircle = new Graphics();
 
+    const circle_0 = new Graphics();
+    circle_0.beginFill(0x202020);
+    circle_0.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
+    circle_0.endFill();
+
     const circle_1 = new Graphics();
-    circle_1.beginFill(0x2f2f2f);
-    circle_1.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
+    circle_1.beginFill(0xffffff);
+    circle_1.drawCircle(0, 0, ((((hitCircleSize / 2) * 200) / 236) * w) / 512);
     circle_1.endFill();
 
+    const circle_2 = new Graphics();
+    circle_2.beginFill(0x9a9a9a);
+    circle_2.drawCircle(0, 0, ((((hitCircleSize / 2) * 160) / 236) * w) / 512);
+    circle_2.endFill();
+
+    const circle_3 = new Graphics();
+    circle_3.beginFill(0x2f2f2f);
+    circle_3.drawCircle(0, 0, ((((hitCircleSize / 2) * 120) / 236) * w) / 512);
+    circle_3.endFill();
+
+    hitCircle.addChild(circle_0);
     hitCircle.addChild(circle_1);
+    hitCircle.addChild(circle_2);
+    hitCircle.addChild(circle_3);
     // hitCircleContainer.addChild(hitCircleOverlay);
 
     // console.log(hitCircle.width);
@@ -287,7 +305,7 @@ const createHitCircleOverlayTemplate = () => {
 const createHitCircleOverlayLegacyTemplate = () => {
     const hitCircleOverlay = new Graphics()
         .lineStyle({
-            width: (hitCircleSize / 2) * 0.128 * (w / 512),
+            width: (4 * w) / 1024,
             color: 0xffffff,
             alpha: 1,
             cap: "round",
@@ -349,7 +367,7 @@ const createApproachCircleTemplate = () => {
 const createSliderBallTemplate = () => {
     const sliderBallOutLine = new Graphics()
         .lineStyle({
-            width: (20 * w) / 1024,
+            width: (15 * w) / 1024,
             color: 0xffffff,
             alpha: 1,
             cap: "round",
@@ -357,14 +375,14 @@ const createSliderBallTemplate = () => {
         })
         .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
 
-    const sliderBallBG = new Graphics();
-    sliderBallBG.beginFill(0x000000);
-    sliderBallBG.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
-    sliderBallBG.endFill();
-    sliderBallBG.alpha = 0.7;
+    // const sliderBallBG = new Graphics();
+    // sliderBallBG.beginFill(0x000000);
+    // sliderBallBG.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 1.2 / 512);
+    // sliderBallBG.endFill();
+    // sliderBallBG.alpha = 0.7;
 
     const sliderBallContainer = new Container();
-    sliderBallContainer.addChild(sliderBallBG);
+    // sliderBallContainer.addChild(sliderBallBG);
     sliderBallContainer.addChild(sliderBallOutLine);
 
     const { width, height } = sliderBallContainer;
@@ -461,17 +479,17 @@ window.onresize = () => {
     if (w < 480) {
         // console.log("Alo", w, h);
         app.renderer.resize(
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 1.3,
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 1.3
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
         );
 
-        bg.width = w * 1.3;
-        bg.height = h * 1.3;
+        bg.width = w * 2;
+        bg.height = h * 2;
 
-        w *= 1.3;
-        h *= 1.3;
+        w *= 2;
+        h *= 2;
 
-        document.querySelector("canvas").style.transform = `scale(0.76923076923076923076923076923077)`;
+        document.querySelector("canvas").style.transform = `scale(0.5)`;
     } else {
         document.querySelector("canvas").style.transform = ``;
     }
