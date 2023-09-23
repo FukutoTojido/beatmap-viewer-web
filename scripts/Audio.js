@@ -41,6 +41,7 @@ class PAudio {
     src;
     currentTime = 0;
     startTime = 0;
+    absStartTime = 0;
     isPlaying = false;
 
     async createBufferNode(buf) {
@@ -94,6 +95,7 @@ class PAudio {
             this.src.connect(gainNode);
 
             this.startTime = audioCtx.currentTime * 1000;
+            this.absStartTime = performance.now();
             this.src.start(
                 audioCtx.currentTime - (SOFT_OFFSET < 0 ? SOFT_OFFSET / 1000 : 0),
                 this.currentTime / 1000 + 25 / 1000 + (SOFT_OFFSET >= 0 ? SOFT_OFFSET / 1000 : 0)
@@ -107,7 +109,8 @@ class PAudio {
         if (this.isPlaying) {
             this.src.stop();
             this.src.disconnect();
-            this.currentTime += (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
+            // this.currentTime += (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
+            this.currentTime += (performance.now() - this.absStartTime) * playbackRate;
             this.isPlaying = false;
             document.querySelector("#playButton").style.backgroundImage = "";
         }
@@ -115,7 +118,8 @@ class PAudio {
 
     getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
-        return this.currentTime + (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
+        // return this.currentTime + (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
+        return this.currentTime + (performance.now() - this.absStartTime) * playbackRate;
     }
 }
 

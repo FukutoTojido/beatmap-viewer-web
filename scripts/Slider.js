@@ -234,26 +234,18 @@ class Slider {
 
         const dx = (2 * w) / document.querySelector("canvas").width / 512;
         const dy = (inverse * (-2 * h)) / document.querySelector("canvas").height / 384;
-        this.SliderMesh.initiallize(
-            (hitCircleSize / 2) * circleModScale,
-            {
-                dx: dx,
-                ox: -1 + (2 * offsetX) / document.querySelector("canvas").width + dx * this.stackHeight * currentStackOffset,
-                dy: dy,
-                oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + inverse * dy * this.stackHeight * currentStackOffset,
-            },
-            false
-        );
-        this.selected.initiallize(
-            (hitCircleSize / 2) * circleModScale,
-            {
-                dx: dx,
-                ox: -1 + (2 * offsetX) / document.querySelector("canvas").width + dx * this.stackHeight * currentStackOffset,
-                dy: dy,
-                oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + inverse * dy * this.stackHeight * currentStackOffset,
-            },
-            true
-        );
+
+        const transform = {
+            dx: dx,
+            ox: -1 + (2 * offsetX) / document.querySelector("canvas").width + dx * this.stackHeight * currentStackOffset,
+            dy: dy,
+            oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + inverse * dy * this.stackHeight * currentStackOffset,
+        };
+
+        this.sliderGeometryContainer.initiallize((hitCircleSize / 2) * circleModScale, transform)
+
+        // this.SliderMesh.initiallize((hitCircleSize / 2) * circleModScale, transform, false);
+        // this.selected.initiallize((hitCircleSize / 2) * circleModScale, transform, true);
     }
 
     createEquiDistCurve(points, actualLength, calculatedLength) {
@@ -529,29 +521,33 @@ class Slider {
         if (w_z / 512 > h_z / 384) w_z = (h_z / 384) * 512;
         else h_z = (w_z / 512) * 384;
 
-        this.SliderMesh = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
-        this.SliderMesh.initiallize(
-            hitCircleSize / 2,
-            {
-                dx: (2 * w_z) / document.querySelector("canvas").width / 512,
-                ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
-                dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
-                oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
-            },
-            false
-        );
+        // this.SliderMesh = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
+        // this.SliderMesh.initiallize(
+        //     hitCircleSize / 2,
+        //     {
+        //         dx: (2 * w_z) / document.querySelector("canvas").width / 512,
+        //         ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
+        //         dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
+        //         oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
+        //     },
+        //     false
+        // );
 
-        this.selected = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
-        this.selected.initiallize(
-            hitCircleSize / 2,
-            {
-                dx: (2 * w_z) / document.querySelector("canvas").width / 512,
-                ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
-                dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
-                oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
-            },
-            true
-        );
+        // this.selected = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
+        // this.selected.initiallize(
+        //     hitCircleSize / 2,
+        //     {
+        //         dx: (2 * w_z) / document.querySelector("canvas").width / 512,
+        //         ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
+        //         dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
+        //         oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
+        //     },
+        //     true
+        // );
+
+        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, hitCircleSize / 2, 0);
+        this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
+        this.selected = this.sliderGeometryContainer.selSliderContainer;
 
         this.SliderMeshContainer = new Container();
         this.SliderMeshContainer.addChild(this.SliderMesh);

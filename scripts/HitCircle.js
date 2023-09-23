@@ -42,7 +42,7 @@ class HitCircle {
     }
 
     draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight, opacityHD) {
-        if (this.time === 468) console.log(this.time, opacity, opacityHD);
+        // if (this.time === 468) console.log(this.time, opacity, opacityHD);
 
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;

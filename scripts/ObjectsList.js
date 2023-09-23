@@ -48,7 +48,7 @@ class ObjectsList {
     }
 
     draw(timestamp, staticDraw) {
-        // console.log(timestamp);
+        // console.log(1000 / (timestamp - this.lastTimestamp));
         this.fpsArr.push(performance.now() - this.lastTime);
         if (this.fpsArr.length > 50) {
             this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 50);
@@ -267,6 +267,8 @@ class ObjectsList {
                     const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
                     const timestampNext = currentAudioTime;
                     this.lastTimestamp = timestamp;
+
+                    // console.log(timestampNext - timestamp);
                     return this.draw(timestampNext);
                 }
 

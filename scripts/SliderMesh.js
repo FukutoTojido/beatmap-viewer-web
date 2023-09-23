@@ -288,13 +288,37 @@ function circleGeometry(radius) {
     return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
 }
 
+class SliderGeometryContainers {
+    curve;
+    geometry;
+    tintid;
+
+    sliderContainer;
+    selSliderContainer;
+
+    constructor(curve, tintid) {
+        this.curve = curve;
+        this.tintid = tintid;
+
+        this.sliderContainer = new SliderMesh(curve, tintid);
+        this.selSliderContainer = new SliderMesh(curve, tintid);
+    }
+
+    initiallize(radius, transform) {
+        this.geometry = curveGeometry(this.curve, radius);
+        this.circle = circleGeometry(radius);
+
+        this.sliderContainer.initiallize(this.geometry, this.circle, transform, false);
+        this.selSliderContainer.initiallize(this.geometry, this.circle, transform, true);
+    }
+}
+
 class SliderMesh extends PIXI.Container {
-    constructor(curve, radius, tintid) {
+    constructor(curve, tintid) {
         super();
         this.curve = curve;
-        this.geometry = curveGeometry(curve, radius);
-        this.alpha = 1.0;
         this.tintid = tintid;
+        this.alpha = 1.0;
         this.startt = 0.0;
         this.endt = 1.0;
 
@@ -306,13 +330,13 @@ class SliderMesh extends PIXI.Container {
         this._roundPixels = PIXI.settings.ROUND_PIXELS;
     }
 
-    initiallize(radius, transform, isSelected) {
+    initiallize(geometry, circle, transform, isSelected) {
         // this.ncolors = colors.length;
         // this.uSampler2 = newTexture(colors, SliderTrackOverride, SliderBorder);
         this.ncolors = isSelected ? 1 : 2 ** Math.ceil(Math.log2(colorsLength)) * 2;
         this.uSampler2 = isSelected ? SelectedTexture : SliderTexture;
-        this.circle = circleGeometry(radius);
-        this.geometry = curveGeometry(this.curve, radius);
+        this.circle = circle;
+        this.geometry = geometry;
         this.uniforms = {
             uSampler2: this.uSampler2,
             alpha: 1.0,

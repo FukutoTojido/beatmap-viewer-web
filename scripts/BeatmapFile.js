@@ -33,6 +33,31 @@ class BeatmapFile {
         return res;
     }
 
+    async downloadOsz(setId) {
+        try {
+            const requestClient = axios.create({
+                // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
+                // baseURL: `https://chimu.moe/d/`,
+                // baseURL: `https://subapi.nerinyan.moe/d/`,
+                // baseURL: `https://proxy.nerinyan.moe/d/`,
+                baseURL: `https://ko2.nerinyan.moe/d/`,
+                // params: { nv: 1, nh: 0, nsb: 1 },
+            });
+
+            return (
+                await requestClient.get(`${setId}?server=auto`, {
+                    responseType: "blob",
+                    onDownloadProgress: (progressEvent) => {
+                        document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                        // console.log(progressEvent);
+                    },
+                })
+            ).data;
+        } catch {
+            return;
+        }
+    }
+
     async getOsz() {
         const mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
         this.artist = mapsetData.artist_unicode;
@@ -53,24 +78,7 @@ class BeatmapFile {
         }</span> - Mapset by <span>${mapsetData.creator}</span>`;
         const setId = mapsetData.id;
 
-        const requestClient = axios.create({
-            // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
-            // baseURL: `https://chimu.moe/d/`,
-            // baseURL: `https://subapi.nerinyan.moe/d/`,
-            // baseURL: `https://proxy.nerinyan.moe/d/`,
-            baseURL: `https://ko2.nerinyan.moe/d/`,
-            // params: { nv: 1, nh: 0, nsb: 1 },
-        });
-        const mapFileBlob = (
-            await requestClient.get(`${setId}?server=auto`, {
-                responseType: "blob",
-                onDownloadProgress: (progressEvent) => {
-                    document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                    // console.log(progressEvent);
-                },
-            })
-        ).data;
-
+        const mapFileBlob = await this.downloadOsz(setId);
         await this.getOsuFile();
         const audioFilename = this.osuFile
             .split("\r\n")
@@ -135,7 +143,7 @@ class BeatmapFile {
         }
 
         zipReader.close();
-        document.querySelector("#loadingText").innerHTML = `Map data loaded`;
+        document.querySelector("#loadingText").innerHTML = `Setting up HitObjects`;
         console.log("Get .osz completed");
         return audioArrayBuffer;
     }
