@@ -49,7 +49,8 @@ class ObjectsList {
 
     draw(timestamp, staticDraw) {
         // console.log(1000 / (timestamp - this.lastTimestamp));
-        this.fpsArr.push(performance.now() - this.lastTime);
+        // this.fpsArr.push(performance.now() - this.lastTime);
+        this.fpsArr.push(Math.max(0, timestamp - this.lastTimestamp));
         if (this.fpsArr.length > 50) {
             this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 50);
         }
