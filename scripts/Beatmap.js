@@ -162,7 +162,52 @@ class Beatmap {
                         ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
                         : timingPointsList[0];
 
-                if ((params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) && params[3] !== "12") {
+                if (params[3] === "12") {
+                    const startTime = parseInt(params[2]);
+                    const endTime = parseInt(params[5]);
+
+                    let hitsoundList = ["hitnormal"];
+                    const sampleSet =
+                        params[6] !== undefined && params[5] !== ""
+                            ? params[6].split(":")[0] !== "0"
+                                ? hitsampleEnum[params[6].split(":")[0]]
+                                : hitsampleEnum[currentSVMultiplier.sampleSet]
+                            : hitsampleEnum[currentSVMultiplier.sampleSet];
+                    const additional =
+                        params[6] !== undefined && params[5] !== ""
+                            ? params[6].split(":")[1] !== "0"
+                                ? hitsampleEnum[params[6].split(":")[1]]
+                                : sampleSet
+                            : sampleSet;
+                    // console.log(parseInt(params[3]).toString(2)[2]);
+                    parseInt(params[4])
+                        .toString(2)
+                        .padStart(4, "0")
+                        .split("")
+                        .reverse()
+                        .slice(1)
+                        .forEach((flag, idx) => {
+                            if (flag === "1") hitsoundList.push(hitsoundEnum[idx]);
+                        });
+
+                    hitsoundList = hitsoundList.map((hs) =>
+                        hs === "hitnormal"
+                            ? `${sampleSet}-${hs}${currentSVMultiplier.sampleIdx}`
+                            : `${additional}-${hs}${currentSVMultiplier.sampleIdx}`
+                    );
+
+                    // console.log(startTime, endTime, hitsoundList);
+
+                    return {
+                        obj: new Spinner(startTime, endTime),
+                        time: startTime,
+                        endTime,
+                        hitsounds: new HitSample(hitsoundList, currentSVMultiplier.sampleVol / 100),
+                        raw: object,
+                    };
+                }
+
+                if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) {
                     let hitsoundList = ["hitnormal"];
                     const sampleSet =
                         params[5] !== undefined && params[5] !== ""

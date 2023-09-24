@@ -13,6 +13,8 @@ class ObjectsList {
     tempW = w;
     tempH = h;
 
+    // static preempt = 0;
+
     compare(a, b) {
         if (a.time < b.time) {
             return -1;
@@ -153,7 +155,9 @@ class ObjectsList {
                             };
                         })
                 )
+                .filter((o) => o)
         );
+
         removeFromContainer(
             noRender
                 .map((o) => o.obj)
@@ -174,6 +178,7 @@ class ObjectsList {
                             };
                         })
                 )
+                .filter((o) => o)
         );
 
         // console.log(filtered);
@@ -219,7 +224,9 @@ class ObjectsList {
                             // console.log(object.time, timestamp, this.lastTimestamp);
                             object.hitsounds.play();
                         }
-                    } else {
+                    }
+
+                    if (object.obj instanceof Slider) {
                         if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
                             // console.log(object.time, timestamp, this.lastTimestamp);
                             object.hitsounds.sliderHead.play();
@@ -241,6 +248,13 @@ class ObjectsList {
                             if (currentRepeatIdx > lastRepeatIdx && currentRepeatIdx < object.obj.repeat && currentRepeatIdx >= 1 && !staticDraw) {
                                 object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
                             }
+                        }
+                    }
+
+                    if (object.obj instanceof Spinner) {
+                        if (timestamp >= object.endTime && this.lastTimestamp < object.endTime && !staticDraw) {
+                            // console.log(object.time, timestamp, this.lastTimestamp);
+                            object.hitsounds.play();
                         }
                     }
                 }
