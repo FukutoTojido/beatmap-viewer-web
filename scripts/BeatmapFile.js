@@ -1,4 +1,7 @@
+async function showSelector() {}
+
 class BeatmapFile {
+    isFromFile = false;
     osuFile;
     mapId;
     audioBlobURL;
@@ -12,8 +15,9 @@ class BeatmapFile {
     artist;
     diff;
 
-    constructor(mapId) {
+    constructor(mapId, isFromFile) {
         this.mapId = mapId;
+        this.isFromFile = isFromFile;
         this.constructMap();
     }
 
@@ -45,9 +49,8 @@ class BeatmapFile {
                 chimu: "https://chimu.moe/d/",
             };
 
-            if (!urls[selectedMirror] && customURL === "")
-                throw "You need a beatmap mirror download link first!";
-            
+            if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
+
             const requestClient = axios.create({
                 // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
                 // baseURL: `https://chimu.moe/d/`,
@@ -74,27 +77,72 @@ class BeatmapFile {
     }
 
     async getOsz() {
-        const mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
-        this.artist = mapsetData.artist_unicode;
-        this.title = mapsetData.title_unicode;
-        this.diff = mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].version;
+        let mapsetData;
+        if (!this.isFromFile) {
+            mapsetData = (await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)).data;
+            this.artist = mapsetData.artist_unicode;
+            this.title = mapsetData.title_unicode;
+            this.diff = mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].version;
 
-        document.title = `${this.artist} - ${this.title} [${this.diff}] | JoSu!`;
+            document.title = `${this.artist} - ${this.title} [${this.diff}] | JoSu!`;
 
-        // console.log(mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId)));
+            // console.log(mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId)));
 
-        if (mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].mode !== "osu") {
-            throw new Error("Not a standard map!");
+            if (mapsetData.beatmaps.filter((diff) => diff.id === parseInt(this.mapId))[0].mode !== "osu") {
+                throw new Error("Not a standard map!");
+            }
+
+            document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
+            document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
+                mapsetData.beatmaps.find((map) => map.id == this.mapId).version
+            }</span> - Mapset by <span>${mapsetData.creator}</span>`;
         }
 
-        document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
-        document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
-            mapsetData.beatmaps.find((map) => map.id == this.mapId).version
-        }</span> - Mapset by <span>${mapsetData.creator}</span>`;
-        const setId = mapsetData.id;
+        const setId = mapsetData?.id;
 
-        const mapFileBlob = await this.downloadOsz(setId);
-        await this.getOsuFile();
+        const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : dropBlob;
+        const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
+        const zipReader = new zip.ZipReader(mapFileBlobReader);
+        const allEntries = await zipReader.getEntries();
+
+        if (!this.isFromFile) await this.getOsuFile();
+        else {
+            const map = allEntries.filter((e) => e.filename === diffFileName).shift();
+            const blob = await map.getData(new zip.BlobWriter("text/plain"));
+            this.osuFile = await blob.text();
+
+            const splitted = this.osuFile.split("\r\n");
+
+            const artist = splitted
+                .filter((line) => /Artist:.+/g.test(line))
+                .shift()
+                ?.replace("Artist:", "");
+            const artistUnicode = splitted
+                .filter((line) => /ArtistUnicode:.+/g.test(line))
+                .shift()
+                ?.replace("ArtistUnicode:", "");
+            const title = splitted
+                .filter((line) => /Title:.+/g.test(line))
+                .shift()
+                ?.replace("Title:", "");
+            const titleUnicode = splitted
+                .filter((line) => /TitleUnicode:.+/g.test(line))
+                .shift()
+                ?.replace("TitleUnicode:", "");
+            const creator = splitted
+                .filter((line) => /Creator:.+/g.test(line))
+                .shift()
+                ?.replace("Creator:", "");
+            const version = splitted
+                .filter((line) => /Version:.+/g.test(line))
+                .shift()
+                ?.replace("Version:", "");
+
+            document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
+            document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
+            document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
+        }
+
         const audioFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/AudioFilename: /g))[0]
@@ -106,10 +154,6 @@ class BeatmapFile {
             .replaceAll('"', "");
 
         console.log(audioFilename, backgroundFilename);
-
-        const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
-        const zipReader = new zip.ZipReader(mapFileBlobReader);
-        const allEntries = await zipReader.getEntries();
         // console.log(allEntries);
 
         document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
@@ -272,41 +316,6 @@ class BeatmapFile {
             } else {
                 this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
             }
-
-            // canvas.addEventListener("mousedown", (event) => {
-            //     isDragging = true;
-            //     draggingStartTime = this.audioNode.getCurrentTime();
-
-            //     startX = event.clientX;
-            //     startY = event.clientY;
-
-            //     window.requestAnimationFrame((currentTime) => {
-            //         return drawStatic();
-            //     });
-            // });
-
-            // canvas.addEventListener("mouseup", (event) => {
-            //     if (currentX !== -1 && currentY !== -1) {
-            //         handleCanvasDrag();
-            //         // console.log(selectedHitObject);
-            //         // console.log(startX, startY, currentX, currentY);
-            //     }
-            //     // currentX = -1;
-            //     // currentY = -1;
-            //     isDragging = false;
-            // });
-
-            // canvas.addEventListener("mousemove", (event) => {
-            //     if (isDragging) {
-            //         draggingEndTime = this.audioNode.getCurrentTime();
-
-            //         currentX = event.clientX;
-            //         currentY = event.clientY;
-
-            //         handleCanvasDrag();
-            //         // console.log(startX, startY, currentX, currentY);
-            //     }
-            // });
 
             document.querySelector("#playerContainer").addEventListener(
                 "wheel",

@@ -397,7 +397,7 @@ function playToggle() {
 
 document.querySelector("#mapInput").onkeydown = (e) => {
     if (e.key === "Enter") {
-        submitMap();
+        submitMap(false);
         document.querySelector("#mapInput").blur();
     }
 };
@@ -406,9 +406,82 @@ function checkEnter(e) {
     console.log(e);
 }
 
-function submitMap() {
+document.querySelector("#playerContainer").addEventListener("dragover", function (e) {
+    e.preventDefault();
+});
+
+let dropBlob = null;
+let diffFileName = "";
+document.querySelector("#playerContainer").addEventListener("drop", function (e) {
+    e.preventDefault();
+    if (!e.dataTransfer.files.length) return;
+
+    const file = e.dataTransfer.files[0];
+    if (file.name.split(".").at(-1) !== "osz") return;
+
+    readZip(file);
+});
+
+function loadDiff() {
+    diffFileName = this.dataset.filename;
+    document.querySelector(".difficultySelector").style.display = "none";
+
+    submitMap(true);
+}
+
+const createDifficultyElement = (obj) => {
+    const ele = document.createElement("div");
+    ele.classList.add("diff");
+    ele.innerText = obj.name;
+    ele.dataset.filename = obj.fileName;
+    ele.onclick = loadDiff;
+
+    return ele;
+};
+
+async function readZip(file) {
+    dropBlob = null;
+    diffFileName = "";
+
+    const mapFileBlob = file;
+    const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
+    const zipReader = new zip.ZipReader(mapFileBlobReader);
+    const allEntries = await zipReader.getEntries();
+
+    const diffList = document.querySelector(".difficultyList");
+    diffList.innerHTML = "";
+    document.querySelector(".difficultySelector").style.display = "block";
+
+    for (const content of allEntries) {
+        if (content.filename.split(".").at(-1) !== "osu") continue;
+        const blob = await content.getData(new zip.BlobWriter("text/plain"));
+        const rawFile = await blob.text();
+        const mode = rawFile
+            .split("\r\n")
+            .filter((line) => /Mode:\s[0-9]+/g.test(line))
+            .shift()
+            ?.replace("Mode: ", "");
+        if (parseInt(mode) !== 0) continue;
+
+        const diffName = rawFile
+            .split("\r\n")
+            .filter((line) => /Version:.+/g.test(line))
+            .shift()
+            ?.replace("Version:", "");
+
+        const ele = createDifficultyElement({
+            name: diffName,
+            fileName: content.filename,
+        });
+        diffList.appendChild(ele);
+    }
+
+    dropBlob = file;
+}
+
+function submitMap(isDragAndDrop) {
     const inputValue = document.querySelector("#mapInput").value.trim();
-    if (!/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
+    if (!isDragAndDrop && !/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
         document.querySelector("#mapInput").value = "";
         alert("This is not a valid URL or Beatmap ID");
         return;
@@ -428,12 +501,13 @@ function submitMap() {
     }
 
     const origin = window.location.origin;
-    window.history.pushState({}, "JoSu!", `${origin}${origin.includes("localhost") ? "" : "/beatmap-viewer-how"}/?b=${bID}`);
+
+    if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}/?b=${bID}`);
 
     beatmapFile = undefined;
-    beatmapFile = new BeatmapFile(bID);
+    beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
 
-    document.querySelector("#mapInput").value = bID;
+    document.querySelector("#mapInput").value = bID ?? "";
     document.querySelector("#progress").value = 0;
     // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
@@ -632,7 +706,7 @@ screen.orientation.onchange = () => {
 };
 
 let beatmapFile;
-document.querySelector("#submit").addEventListener("click", submitMap);
+document.querySelector("#submit").addEventListener("click", () => submitMap(false));
 
 const handleCanvasDrag = (e, calledFromDraw) => {
     // console.log(e);

@@ -72,6 +72,16 @@
         </svg>
         <div id="loadingText">Getting map information</div>
     </div>
+    <div class="difficultySelector">
+        <div class="popup">
+            <div class="instruction">Choose a difficulty</div>
+            <div class="listWrapper">
+                <div class="difficultyList">
+                    <div class="diff"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="block"></div>
     <div id="settingsPanel">
         <div class="section">
@@ -95,7 +105,8 @@
                 </div>
                 <div class="radioSel">
                     <input type="radio" name="mirror" id="custom" value="custom">
-                    <input type="text" id="custom-mirror" placeholder="mirror download url format" onblur="setCustomMirror(this)">
+                    <input type="text" id="custom-mirror" placeholder="mirror download url format"
+                        onblur="setCustomMirror(this)">
                 </div>
             </div>
         </div>
