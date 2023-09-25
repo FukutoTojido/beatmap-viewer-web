@@ -144,268 +144,6 @@ const removeFromContainer = (list) => {
     });
 };
 
-const createSelectedHitCircleTemplate = () => {
-    const hitCircleOverlay = new Graphics()
-        .lineStyle({
-            width: ((((hitCircleSize / 2) * 50) / 236) * w) / 512,
-            color: 0xf2cc0f,
-            alpha: 1,
-            cap: "round",
-            alignment: 0,
-        })
-        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
-    const { width, height } = hitCircleOverlay;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.MEDIUM,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(hitCircleOverlay, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    hitCircleOverlay.destroy(true);
-
-    return renderTexture;
-};
-
-const createHitCircleTemplate = () => {
-    const hitCircle = new Graphics();
-
-    const circle_1 = new Graphics();
-    circle_1.beginFill(0xffffff);
-    circle_1.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
-    circle_1.endFill();
-
-    const circle_2 = new Graphics();
-    circle_2.beginFill(0x9a9a9a);
-    circle_2.drawCircle(0, 0, ((((hitCircleSize / 2) * 186) / 236) * w) / 512);
-    circle_2.endFill();
-
-    const circle_3 = new Graphics();
-    circle_3.beginFill(0x2f2f2f);
-    circle_3.drawCircle(0, 0, ((((hitCircleSize / 2) * 140) / 236) * w) / 512);
-    circle_3.endFill();
-
-    hitCircle.addChild(circle_1);
-    hitCircle.addChild(circle_2);
-    hitCircle.addChild(circle_3);
-    // hitCircleContainer.addChild(hitCircleOverlay);
-
-    // console.log(hitCircle.width);
-    const { width, height } = hitCircle;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.HIGH,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(hitCircle, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    hitCircle.destroy(true);
-
-    return renderTexture;
-};
-
-const createHitCircleLegacyTemplate = () => {
-    const hitCircle = new Graphics();
-
-    const circle_0 = new Graphics();
-    circle_0.beginFill(0x202020);
-    circle_0.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 512);
-    circle_0.endFill();
-
-    const circle_1 = new Graphics();
-    circle_1.beginFill(0xffffff);
-    circle_1.drawCircle(0, 0, ((((hitCircleSize / 2) * 200) / 236) * w) / 512);
-    circle_1.endFill();
-
-    const circle_2 = new Graphics();
-    circle_2.beginFill(0x9a9a9a);
-    circle_2.drawCircle(0, 0, ((((hitCircleSize / 2) * 160) / 236) * w) / 512);
-    circle_2.endFill();
-
-    const circle_3 = new Graphics();
-    circle_3.beginFill(0x2f2f2f);
-    circle_3.drawCircle(0, 0, ((((hitCircleSize / 2) * 120) / 236) * w) / 512);
-    circle_3.endFill();
-
-    hitCircle.addChild(circle_0);
-    hitCircle.addChild(circle_1);
-    hitCircle.addChild(circle_2);
-    hitCircle.addChild(circle_3);
-    // hitCircleContainer.addChild(hitCircleOverlay);
-
-    // console.log(hitCircle.width);
-    const { width, height } = hitCircle;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.HIGH,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(hitCircle, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    hitCircle.destroy(true);
-
-    return renderTexture;
-};
-
-const createHitCircleOverlayTemplate = () => {
-    const hitCircleOverlay = new Graphics()
-        .lineStyle({
-            width: (4 * w) / 1024,
-            color: 0xffffff,
-            alpha: 1,
-            cap: "round",
-            alignment: 0,
-        })
-        .arc(0, 0, ((((hitCircleSize / 2) * 272) / 236) * w) / 512, 0, Math.PI * 2);
-    const { width, height } = hitCircleOverlay;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.MEDIUM,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(hitCircleOverlay, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    hitCircleOverlay.destroy(true);
-
-    return renderTexture;
-};
-
-const createHitCircleOverlayLegacyTemplate = () => {
-    const hitCircleOverlay = new Graphics()
-        .lineStyle({
-            width: (4 * w) / 1024,
-            color: 0xffffff,
-            alpha: 1,
-            cap: "round",
-            alignment: 0,
-        })
-        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
-    const { width, height } = hitCircleOverlay;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.MEDIUM,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(hitCircleOverlay, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    hitCircleOverlay.destroy(true);
-
-    return renderTexture;
-};
-
-const createApproachCircleTemplate = () => {
-    const approachCircle = new Graphics()
-        .lineStyle({
-            width: (4 * w) / 1024,
-            color: 0xffffff,
-            alpha: 1,
-            cap: "round",
-            alignment: 1,
-        })
-        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
-    const { width, height } = approachCircle;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.MEDIUM,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(approachCircle, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    approachCircle.destroy(true);
-
-    return renderTexture;
-};
-
-const createSliderBallTemplate = () => {
-    const sliderBallOutLine = new Graphics()
-        .lineStyle({
-            width: (15 * w) / 1024,
-            color: 0xffffff,
-            alpha: 1,
-            cap: "round",
-            alignment: 0,
-        })
-        .arc(0, 0, ((hitCircleSize / 2) * w) / 512, 0, Math.PI * 2);
-
-    // const sliderBallBG = new Graphics();
-    // sliderBallBG.beginFill(0x000000);
-    // sliderBallBG.drawCircle(0, 0, ((hitCircleSize / 2) * w) / 1.2 / 512);
-    // sliderBallBG.endFill();
-    // sliderBallBG.alpha = 0.7;
-
-    const sliderBallContainer = new Container();
-    // sliderBallContainer.addChild(sliderBallBG);
-    sliderBallContainer.addChild(sliderBallOutLine);
-
-    const { width, height } = sliderBallContainer;
-
-    const renderTexture = PIXI.RenderTexture.create({
-        width: width,
-        height: height,
-        multisample: PIXI.MSAA_QUALITY.MEDIUM,
-        // resolution: window.devicePixelRatio,
-    });
-
-    app.renderer.render(sliderBallContainer, {
-        renderTexture,
-        transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-    });
-
-    app.renderer.framebuffer.blit();
-
-    sliderBallContainer.destroy(true);
-
-    return renderTexture;
-};
-
 let selectedHitCircleTemplate;
 let hitCircleTemplate;
 let hitCircleLegacyTemplate;
@@ -526,6 +264,10 @@ window.onresize = () => {
     bg.height = h;
     bg.x = offsetX;
     bg.y = offsetY;
+    bg.alpha = 1;
+
+    app.stage.removeChild(bg);
+    app.stage.addChild(bg);
 
     dragWindow.x = offsetX;
     dragWindow.y = offsetY;
@@ -578,7 +320,6 @@ function handleCheckBox(checkbox) {
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
-    // canvas.style.transform = !mods.HR ? "" : "scale(1, -1)";
     if (beatmapFile !== undefined) {
         const originalIsPlaying = beatmapFile.audioNode.isPlaying;
         if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
@@ -589,61 +330,31 @@ function handleCheckBox(checkbox) {
 }
 
 function setSliderTime() {
-    // if (!document.querySelector("audio")) return;
     if (beatmapFile === undefined) return;
     if (!sliderOnChange) document.querySelector("#progress").value = beatmapFile.audioNode.getCurrentTime();
-
-    // if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function setAudioTime(callFromDraw) {
-    // if (playingFlag) playToggle();
-
     const slider = document.querySelector("#progress");
-    // if (!document.querySelector("audio")) {
-    //     slider.value = 0;
-    //     return;
-    // }
 
     if (beatmapFile === undefined) {
         slider.value = 0;
         return;
     }
 
-    // console.log(slider.value);
     beatmapFile.audioNode.seekTo(parseFloat(slider.value));
 
     if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function setProgressMax() {
-    // document.querySelector("#progress").max = document.querySelector("audio").duration * 10;
     document.querySelector("#progress").max = beatmapFile.audioNode.buf.duration * 1000;
 }
 
 function playToggle() {
     if (isPlaying) {
-        // if (document.querySelector("audio").currentTime >= document.querySelector("audio").duration) {
-        //     document.querySelector("audio").currentTime = 0;
-        // }
-
-        // if (document.querySelector("audio").currentTime * 1000 === 1) {
-        //     console.log(document.querySelector("audio").currentTime);
-        //     document.querySelector("audio").ontimeupdate = setSliderTime;
-        // }
-
         document.querySelector("#playButton").style.backgroundImage =
             document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
-
-        // if (document.querySelector("audio").paused) {
-        //     playingFlag = true;
-        //     document.querySelector("audio").play();
-        //     beatmapFile.beatmapRenderData.render();
-        // } else {
-        //     playingFlag = false;
-        //     document.querySelector("audio").pause();
-        //     beatmapFile.beatmapRenderData.objectsList.draw(document.querySelector("audio").currentTime * 1000, true);
-        // }
 
         if (!beatmapFile.audioNode.isPlaying) {
             playingFlag = true;
@@ -824,7 +535,6 @@ function updateTime(timestamp) {
 let currentFrameReq;
 
 function pushFrame(current, to, delta) {
-    // console.log(Math.floor(current), Math.floor(to));
     beatmapFile.beatmapRenderData.objectsList.draw(current, true);
 
     if (current <= to) current += ((delta / currentFrameRate) * 1000) / 100;
@@ -854,34 +564,10 @@ function goNext(precise) {
 
         const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
         const goTo = Clamp(localOffset + (Math.ceil(current / step) + 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
-        // console.log(
-        //     current,
-        //     goTo,
-        //     localOffset,
-        //     step,
-        //     goTo - current,
-        //     Math.floor(current / step),
-        //     beatsnap,
-        //     localOffset + (Math.round(current / step) + 1) * step
-        // );
-
-        // console.log(currentBeatstep.time % step, step);
-
-        // console.log(current, goTo, localOffset, current / step, step);
-
-        // if (!playingFlag) {
-        //     if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
-
-        //     currentFrameReq = window.requestAnimationFrame((currentTime) => {
-        //         return pushFrame(current, goTo, Math.abs(current - goTo));
-        //     });
-        // }
 
         beatmapFile.audioNode.seekTo(goTo);
-        // console.log(beatmapFile.audioNode.currentTime);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
         beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
-        // setAudioTime();
     }
 }
 
@@ -902,23 +588,11 @@ function goBack(precise) {
 
         const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
         const goTo = Clamp(localOffset + (Math.ceil(current / step) - 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
-        // console.log(localOffset, step, goTo - current, Math.round(current / step), beatsnap, localOffset + (Math.round(current / step) + 1) * step);
 
-        // console.log(currentBeatstep, localOffset, goTo);
-        // if (!playingFlag) {
-        //     if (currentFrameReq) window.cancelAnimationFrame(currentFrameReq);
-
-        //     currentFrameReq = window.requestAnimationFrame((currentTime) => {
-        //         return pushFrame(current, goTo, Math.abs(current - goTo));
-        //     });
-        // }
 
         beatmapFile.audioNode.seekTo(goTo);
-        // console.log(beatmapFile.audioNode.currentTime);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
         beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
-
-        // setAudioTime();
     }
 }
 
@@ -931,16 +605,6 @@ function copyUrlToClipboard() {
 
 screen.orientation.onchange = () => {
     console.log("Orientation Changed");
-    // canvas.width =
-    //     (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-
-    // console.log(
-    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
-    //     parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
-    //     canvas.width,
-    //     canvas.height
-    // );
     if (beatmapFile !== undefined) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 };
 
@@ -958,9 +622,8 @@ const handleCanvasDrag = (e, calledFromDraw) => {
     const start_X = startX;
     const start_Y = startY;
 
-    let currentAR = !mods.EZ ? approachRate : approachRate / 2;
-    currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
-    const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+    let currentAR = Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1);
+    const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
     const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList
         .filter((o) => {
@@ -1062,11 +725,10 @@ bg.on("click", (e) => {
 
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        let currentHitCircleSize = 54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier;
+        let currentHitCircleSize = 54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier;
 
-        let currentAR = !mods.EZ ? approachRate : approachRate / 2;
-        currentAR = !mods.HR ? currentAR : Math.min((currentAR * 4) / 3, 10);
-        const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
+        let currentAR = Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1);
+        const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
         const drawOffset = currentHitCircleSize;
 
         const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList

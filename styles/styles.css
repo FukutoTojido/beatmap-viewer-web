@@ -83,7 +83,7 @@ body {
     background-color: rgb(0 0 0 /0.5);
     /* z-index: -1; */
 
-    backdrop-filter: blur(30px);
+    backdrop-filter: blur(5px);
 }
 #main img {
     display: none;
@@ -461,7 +461,7 @@ button:hover {
     width: 100vw;
     height: 100vh;
     background-color: rgba(0 0 0 / 0.5);
-    border-radius: 20px;
+    /* border-radius: 20px; */
     display: flex;
     justify-content: center;
     align-items: center;

@@ -75,8 +75,8 @@ class Slider {
         // console.log(this.time, opacity, percentage);
         const HRMultiplier = !mods.HR ? 1 : 1.3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
         if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== w || this.tempH !== h) {
             this.tempModsEZ = mods.EZ;
@@ -158,7 +158,7 @@ class Slider {
             const offset = this.time % this.beatStep;
             const revExpand = (timestamp - offset - Math.floor((timestamp - offset) / this.beatStep) * this.beatStep) / this.beatStep;
             const revExpandRate = (1 - Clamp(Math.abs(revExpand), 0, 1)) * 0.7 + 0.8;
-            this.reverseArrow.scale.set(((revExpandRate * circleModScale * w) / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+            this.reverseArrow.scale.set(((revExpandRate * circleModScale * w) / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
         if (opacity < 0) {
@@ -222,9 +222,9 @@ class Slider {
     reInitialize() {
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * circleSize);
+        const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
         const inverse = mods.HR ? -1 : 1;
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
         let w_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
         let h_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
@@ -242,10 +242,7 @@ class Slider {
             oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + inverse * dy * this.stackHeight * currentStackOffset,
         };
 
-        this.sliderGeometryContainer.initiallize((hitCircleSize / 2) * circleModScale, transform)
-
-        // this.SliderMesh.initiallize((hitCircleSize / 2) * circleModScale, transform, false);
-        // this.selected.initiallize((hitCircleSize / 2) * circleModScale, transform, true);
+        this.sliderGeometryContainer.initiallize((Beatmap.stats.circleDiameter / 2) * circleModScale, transform)
     }
 
     createEquiDistCurve(points, actualLength, calculatedLength) {
@@ -479,7 +476,7 @@ class Slider {
         this.beatStep = parseFloat(beatStep);
 
         this.time = time;
-        this.startTime = time - preempt;
+        this.startTime = time - Beatmap.stats.preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
 
         this.angleList = this.getAngleList(originalArr);
@@ -506,7 +503,7 @@ class Slider {
             this.angleS = angleS;
 
             const revEndSprite = Sprite.from("static/reversearrow@2x.png");
-            revEndSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * circleSize));
+            revEndSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
             revEndSprite.anchor.set(0.5);
             revEndSprite.alpha = 0;
 
@@ -521,31 +518,7 @@ class Slider {
         if (w_z / 512 > h_z / 384) w_z = (h_z / 384) * 512;
         else h_z = (w_z / 512) * 384;
 
-        // this.SliderMesh = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
-        // this.SliderMesh.initiallize(
-        //     hitCircleSize / 2,
-        //     {
-        //         dx: (2 * w_z) / document.querySelector("canvas").width / 512,
-        //         ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
-        //         dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
-        //         oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
-        //     },
-        //     false
-        // );
-
-        // this.selected = new SliderMesh(this.angleList, hitCircleSize / 2, 0);
-        // this.selected.initiallize(
-        //     hitCircleSize / 2,
-        //     {
-        //         dx: (2 * w_z) / document.querySelector("canvas").width / 512,
-        //         ox: -1 + (2 * offsetX) / document.querySelector("canvas").width,
-        //         dy: (-2 * h_z) / document.querySelector("canvas").height / 384,
-        //         oy: 1 - (2 * offsetY) / document.querySelector("canvas").height,
-        //     },
-        //     true
-        // );
-
-        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, hitCircleSize / 2, 0);
+        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, Beatmap.stats.circleDiameter / 2, 0);
         this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
         this.selected = this.sliderGeometryContainer.selSliderContainer;
 

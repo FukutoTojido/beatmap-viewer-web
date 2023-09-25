@@ -50,11 +50,9 @@ class ObjectsList {
     }
 
     draw(timestamp, staticDraw) {
-        // console.log(1000 / (timestamp - this.lastTimestamp));
-        // this.fpsArr.push(performance.now() - this.lastTime);
         this.fpsArr.push(Math.max(0, timestamp - this.lastTimestamp));
-        if (this.fpsArr.length > 50) {
-            this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 50);
+        if (this.fpsArr.length > 100) {
+            this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 100);
         }
 
         fpsSprite.text = `${Math.round(
@@ -66,13 +64,7 @@ class ObjectsList {
             this.tempW = w;
             this.tempH = h;
 
-            selectedHitCircleTemplate = createSelectedHitCircleTemplate();
-            hitCircleTemplate = createHitCircleTemplate();
-            hitCircleLegacyTemplate = createHitCircleLegacyTemplate();
-            hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
-            hitCircleOverlayLegacyTemplate = createHitCircleOverlayLegacyTemplate();
-            approachCircleTemplate = createApproachCircleTemplate();
-            sliderBallTemplate = createSliderBallTemplate();
+            generateSprites(Beatmap.stats.circleDiameter)
         }
         if (didMove && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
@@ -80,30 +72,11 @@ class ObjectsList {
         }
 
         updateTime(timestamp);
-
-        // timestamp += HARD_OFFSET + SOFT_OFFSET;
-
-        // if (!staticDraw) setAudioTime();
         setSliderTime();
 
-        // if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) !== oldPlayerContainerWidth) {
-        //     oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-        //     canvas.width =
-        //         (1080 * parseInt(getComputedStyle(document.querySelector("#playerContainer")).width)) /
-        //         parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-        // }
-
-        // if (parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) !== oldPlayerContainerHeight) {
-        //     oldPlayerContainerHeight = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-        //     canvas.height = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
-        // }
-
-        // const currentScaleFactor = Math.min(canvas.height / 480, canvas.width / 640);
-
-        let currentAR = !mods.EZ ? approachRate : approachRate / 2;
-        currentAR = !mods.HR ? currentAR : Math.min(currentAR * 1.4, 10);
-        const currentPreempt = currentAR < 5 ? 1200 + (600 * (5 - currentAR)) / 5 : currentAR > 5 ? 1200 - (750 * (currentAR - 5)) / 5 : 1200;
-        const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
+        let currentAR = Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1);
+        const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
+        const currentFadeIn = Beatmap.difficultyRange(currentAR, 1200, 800, 300);
 
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
         const filtered = this.objectsList

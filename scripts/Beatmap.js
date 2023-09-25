@@ -1,9 +1,34 @@
+function generateSprites(diameter) {
+    selectedHitCircleTemplate = HitObjectSprite.createSprite("SELECTED_HIT_CIRCLE", diameter);
+    hitCircleTemplate = HitObjectSprite.createSprite("HIT_CIRCLE", diameter);
+    hitCircleLegacyTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_LEGACY", diameter);
+    hitCircleOverlayTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_OVERLAY", diameter);
+    hitCircleOverlayLegacyTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_OVERLAY_LEGACY", diameter);
+    approachCircleTemplate = HitObjectSprite.createSprite("APPROACH_CIRCLE", diameter);
+    sliderBallTemplate = HitObjectSprite.createSprite("SLIDER_BALL", diameter);
+}
+
 class Beatmap {
     objectsList;
+    static stats = {
+        approachRate: 5,
+        circleSize: 5,
+        stackLeniency: 7,
+        circleDiameter: (2 * (54.4 - 4.48 * 5) * 236) / 256,
+        preempt: 1200,
+        fadeIn: 800,
+    };
+
+    static difficultyRange(val, min, mid, max) {
+        if (val > 5) return mid + ((max - mid) * (val - 5)) / 5;
+        if (val < 5) return mid - ((mid - min) * (5 - val)) / 5;
+        return mid;
+    }
 
     constructor(rawBeatmap, delay) {
+        // Get Approach Rate
         if (rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0) {
-            approachRate = parseFloat(
+            Beatmap.stats.approachRate = parseFloat(
                 rawBeatmap
                     .split("\r\n")
                     .filter((line) => line.includes("OverallDifficulty:"))
@@ -11,7 +36,7 @@ class Beatmap {
                     .replaceAll("OverallDifficulty:", "")
             );
         } else {
-            approachRate = parseFloat(
+            Beatmap.stats.approachRate = parseFloat(
                 rawBeatmap
                     .split("\r\n")
                     .filter((line) => line.includes("ApproachRate:"))
@@ -20,14 +45,17 @@ class Beatmap {
             );
         }
 
-        circleSize = parseFloat(
+        // Get Circle Size
+        Beatmap.stats.circleSize = parseFloat(
             rawBeatmap
                 .split("\r\n")
                 .filter((line) => line.includes("CircleSize:"))
                 .shift()
                 .replaceAll("CircleSize:", "")
         );
-        stackLeniency = rawBeatmap.includes("StackLeniency: ")
+
+        // Get Stack Leniency
+        Beatmap.stats.stackLeniency = rawBeatmap.includes("StackLeniency: ")
             ? parseFloat(
                   rawBeatmap
                       .split("\r\n")
@@ -37,22 +65,11 @@ class Beatmap {
               )
             : 0.7;
 
-        hitCircleSize = (2 * (54.4 - 4.48 * circleSize) * 236) / 256;
-        selectedHitCircleTemplate = createSelectedHitCircleTemplate();
-        hitCircleTemplate = createHitCircleTemplate();
-        hitCircleLegacyTemplate = createHitCircleLegacyTemplate();
-        hitCircleOverlayTemplate = createHitCircleOverlayTemplate();
-        hitCircleOverlayLegacyTemplate = createHitCircleOverlayLegacyTemplate();
-        approachCircleTemplate = createApproachCircleTemplate();
-        sliderBallTemplate = createSliderBallTemplate();
-        sliderBorderThickness = (hitCircleSize * (236 - 190)) / 2 / 256;
+        Beatmap.stats.circleDiameter = (2 * (54.4 - 4.48 * Beatmap.stats.circleSize) * 236) / 256;
+        generateSprites(Beatmap.stats.circleDiameter);
 
-        // console.log(hitCircleSize, sliderBorderThickness);
-
-        preempt = approachRate < 5 ? 1200 + (600 * (5 - approachRate)) / 5 : approachRate > 5 ? 1200 - (750 * (approachRate - 5)) / 5 : 1200;
-        fadeIn = approachRate < 5 ? 800 + (400 * (5 - approachRate)) / 5 : approachRate > 5 ? 800 - (500 * (approachRate - 5)) / 5 : 800;
-        stackOffset = (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2;
-        stackThreshold = preempt * stackLeniency;
+        stackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize - 5)) / 5)) / 2;
+        stackThreshold = Beatmap.stats.preempt * Beatmap.stats.stackLeniency;
 
         // console.log(approachRate, circleSize, stackLeniency, stackThreshold);
 

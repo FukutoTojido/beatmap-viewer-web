@@ -89,17 +89,9 @@ async function loadSampleSound(sample, idx, buf) {
 // const HARD_OFFSET = 0;
 let SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset;
 
-let circleSize = 4;
-let hitCircleSize = 2 * (54.4 - 4.48 * circleSize);
-
-let sliderBorderThickness = (hitCircleSize * 2) / 58;
-// const sliderAccuracy = 0.005;
 const sliderSnaking = true;
 const sliderBorderColor = "#ffffff";
 
-let approachRate;
-let preempt;
-let fadeIn;
 let selectedHitObject = [];
 
 let isPlaying = true;
@@ -113,7 +105,6 @@ let hsVol = JSON.parse(localStorage.getItem("settings")).volume.hs;
 let beatsnap = JSON.parse(localStorage.getItem("settings")).mapping.beatsnap;
 let beatsteps = [];
 
-let stackLeniency;
 let stackOffset;
 let stackThreshold;
 
