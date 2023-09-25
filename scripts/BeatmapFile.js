@@ -35,17 +35,30 @@ class BeatmapFile {
 
     async downloadOsz(setId) {
         try {
+            const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+            const selectedMirror = currentLocalStorage.mirror.val;
+            const customURL = document.querySelector("#custom-mirror").value;
+
+            const urls = {
+                nerinyan: "https://api.nerinyan.moe/d/",
+                sayobot: "https://dl.sayobot.cn/beatmaps/download/novideo/",
+                chimu: "https://chimu.moe/d/",
+            };
+
+            if (!urls[selectedMirror] && customURL === "")
+                throw "You need a beatmap mirror download link first!";
+            
             const requestClient = axios.create({
                 // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
                 // baseURL: `https://chimu.moe/d/`,
                 // baseURL: `https://subapi.nerinyan.moe/d/`,
                 // baseURL: `https://proxy.nerinyan.moe/d/`,
-                baseURL: `https://ko2.nerinyan.moe/d/`,
+                baseURL: urls[selectedMirror] ?? customURL,
                 // params: { nv: 1, nh: 0, nsb: 1 },
             });
 
             return (
-                await requestClient.get(`${setId}?server=auto`, {
+                await requestClient.get(`${setId}`, {
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
                         document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
@@ -53,8 +66,10 @@ class BeatmapFile {
                     },
                 })
             ).data;
-        } catch {
-            return;
+        } catch (e) {
+            // console.log(e);
+            // return;
+            throw "This map is not available on the selected beatmap provider\nPlease open the settings to choose another one.";
         }
     }
 

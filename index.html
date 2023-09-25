@@ -75,41 +75,49 @@
     <div id="block"></div>
     <div id="settingsPanel">
         <div class="section">
-            <div id="header">settings</div>
-            <div id="description">change the way the replayer behaves</div>
+            <div class="header">settings</div>
+            <div class="description">change the way the beatmap player behaves</div>
         </div>
-        <!-- <div class="section">
-            <div id="title">offset</div>
+        <div class="section">
+            <div class="title">beatmap provider</div>
+            <div class="list">
+                <div class="radioSel">
+                    <input type="radio" name="mirror" id="nerinyan" value="nerinyan" oncli>
+                    Nerinyan
+                </div>
+                <div class="radioSel">
+                    <input type="radio" name="mirror" id="sayobot" value="sayobot">
+                    SayoBot
+                </div>
+                <div class="radioSel">
+                    <input type="radio" name="mirror" id="chimu" value="chimu">
+                    Chimu.moe
+                </div>
+                <div class="radioSel">
+                    <input type="radio" name="mirror" id="custom" value="custom">
+                    <input type="text" id="custom-mirror" placeholder="mirror download url format" onblur="setCustomMirror(this)">
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <div class="title">background</div>
             <div class="list">
                 <div class="selection slider">
-                    <label for="dim">local beatmap offset</label>
+                    <label for="dim">background dim</label>
+                    <div id="bgDimVal" class="val">80%</div>
                     <input type="range" id="dim" name="dim" min="0" max="1" step="0.01"
                         oninput='setBackgroundDim(this);' value="0.8">
                 </div>
-            </div>
-        </div> -->
-        <div class="section">
-            <div id="title">mapping related</div>
-            <div class="list">
                 <div class="selection slider">
-                    <label for="beat">beatsnap divisor</label>
-                    <div id="beatVal" class="val">1/4</div>
-                    <input type="range" id="beat" name="beat" min="1" max="16" step="1"
-                        oninput='setBeatsnapDivisor(this);' value="4">
-                </div>
-                <div class="selection slider">
-                    <label for="softoffset">offset</label>
-                    <div class="note">
-                        <div class="sign">-</div> &nbsp;late --------- music --------- early <div class="sign">+</div>
-                    </div>
-                    <div id="softoffsetVal" class="val">0ms</div>
-                    <input type="range" id="softoffset" name="softoffset" min="-100" max="100" step="1"
-                        oninput='setOffset(this);' value="0">
+                    <label for="blur">background blur</label>
+                    <div id="bgBlurVal" class="val">0%</div>
+                    <input type="range" id="blur" name="blur" min="0" max="20" step="0.2"
+                        oninput='setBackgroundBlur(this);' value="0">
                 </div>
             </div>
         </div>
         <div class="section">
-            <div id="title">audio</div>
+            <div class="title">audio</div>
             <div class="list">
                 <div class="selection slider">
                     <label for="master">master volume</label>
@@ -132,7 +140,7 @@
             </div>
         </div>
         <div class="section">
-            <div id="title">mods</div>
+            <div class="title">mods</div>
             <div class="list">
                 <div class="selection">
                     <label for="HD">hidden</label>
@@ -157,7 +165,7 @@
             </div>
         </div>
         <div class="section">
-            <div id="title">visual</div>
+            <div class="title">visual</div>
             <div class="list">
                 <div class="selection">
                     <label for="snaking">snaking sliders</label>
@@ -178,19 +186,22 @@
             </div>
         </div>
         <div class="section">
-            <div id="title">background</div>
+            <div class="title">mapping</div>
             <div class="list">
                 <div class="selection slider">
-                    <label for="dim">background dim</label>
-                    <div id="bgDimVal" class="val">80%</div>
-                    <input type="range" id="dim" name="dim" min="0" max="1" step="0.01"
-                        oninput='setBackgroundDim(this);' value="0.8">
+                    <label for="beat">beatsnap divisor</label>
+                    <div id="beatVal" class="val">1/4</div>
+                    <input type="range" id="beat" name="beat" min="1" max="16" step="1"
+                        oninput='setBeatsnapDivisor(this);' value="4">
                 </div>
                 <div class="selection slider">
-                    <label for="blur">background blur</label>
-                    <div id="bgBlurVal" class="val">0%</div>
-                    <input type="range" id="blur" name="blur" min="0" max="20" step="0.2"
-                        oninput='setBackgroundBlur(this);' value="0">
+                    <label for="softoffset">offset</label>
+                    <div class="note">
+                        <div class="sign">-</div> &nbsp;late --------- music --------- early <div class="sign">+</div>
+                    </div>
+                    <div id="softoffsetVal" class="val">0ms</div>
+                    <input type="range" id="softoffset" name="softoffset" min="-100" max="100" step="1"
+                        oninput='setOffset(this);' value="0">
                 </div>
             </div>
         </div>

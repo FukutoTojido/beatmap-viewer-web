@@ -1,4 +1,8 @@
 const settingsTemplate = {
+    mirror: {
+        val: "nerinyan",
+        custom: ""
+    },
     mapping: {
         beatsnap: 4,
         offset: 0,

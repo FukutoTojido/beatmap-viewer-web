@@ -155,6 +155,12 @@ let sliderBallTemplate;
 if (localStorage.getItem("settings")) {
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
 
+    [...document.querySelectorAll('[name="mirror"]')].forEach((ele) => {
+        ele.checked = ele.value === currentLocalStorage.mirror.val;
+    });
+
+    document.querySelector("#custom-mirror").value = currentLocalStorage.mirror.custom;
+
     document.querySelector("#dim").value = currentLocalStorage.background.dim;
     document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
     document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
@@ -307,6 +313,24 @@ document.body.addEventListener("click", (e) => {
     }
 });
 
+document.body.addEventListener("change", (e) => {
+    const target = e.target;
+    if (!target.checked) return;
+
+    if (["nerinyan", "custom", "sayobot", "chimu"].includes(target.value)) {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.mirror.val = target.value;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    }
+});
+
+function setCustomMirror(input) {
+    // console.log(input.value);
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.mirror.custom = input.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+}
+
 function handleCheckBox(checkbox) {
     mods[checkbox.name] = !mods[checkbox.name];
     sliderAppearance[checkbox.name] = !sliderAppearance[checkbox.name];
@@ -399,8 +423,8 @@ function submitMap() {
 
     if (beatmapFile !== undefined) {
         playingFlag = false;
-        beatmapFile.audioNode.pause();
-        beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+        beatmapFile.audioNode?.pause();
+        beatmapFile.beatmapRenderData?.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
 
     const origin = window.location.origin;
@@ -588,7 +612,6 @@ function goBack(precise) {
 
         const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
         const goTo = Clamp(localOffset + (Math.ceil(current / step) - 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
-
 
         beatmapFile.audioNode.seekTo(goTo);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;

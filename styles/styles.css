@@ -525,16 +525,16 @@ button:hover {
     font-weight: 400;
 }
 
-#header {
+.header {
     font-size: 3em;
     font-weight: 600;
 }
 
-#description {
+.description {
     font-size: 1em;
 }
 
-#title {
+.title {
     font-size: 2em;
     font-weight: 600;
 }
@@ -686,10 +686,11 @@ input[type="checkbox"]:checked {
     appearance: none;
     box-sizing: border-box;
 
-    height: 40px;
+    width: 60%;
+    /* height: 40px; */
 
-    padding: 25px 20px;
-    margin: 10px 0;
+    padding: 10px 10px;
+    /* margin: 10px 0; */
 
     font-family: Torus;
     color: white;
@@ -697,13 +698,62 @@ input[type="checkbox"]:checked {
 
     border: none;
     background-color: rgba(0 0 0 / 0.5);
-    border-radius: 10px;
+    border-radius: 5px;
 
-    transition: ease-in-out 100ms;
+    /* transition: ease-in-out 100ms; */
 }
 
 .list input[type="text"]:focus {
-    outline: solid 4px rgb(255, 187, 0);
+    outline: solid 3px rgb(255, 187, 0);
+}
+
+.radioSel {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 5px 0;
+    opacity: 0.5;
+    font-weight: 400;
+    transition: ease-in-out 200ms;
+}
+
+.radioSel input[type="radio"] {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    appearance: none;
+
+    border: solid 2px white;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: ease-in-out 200ms;
+}
+
+.radioSel input[type="radio"]:checked {
+    border: solid 2px #88c0d0;
+}
+
+.radioSel input[type="radio"]::before {
+    content: "";
+    width: 0px;
+    height: 0px;
+
+    border-radius: 50%;
+    background-color: #88c0d0;
+    transition: ease-in-out 200ms;
+}
+
+.radioSel input[type="radio"]:checked::before {
+    width: 10px;
+    height: 10px;
+}
+
+.radioSel:has(input[type="radio"]:checked) {
+    opacity: 1;
+    font-weight: 600;
 }
 
 @media screen and (max-aspect-ratio: 1 / 1) {
