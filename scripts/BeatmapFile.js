@@ -343,6 +343,7 @@ class BeatmapFile {
             document.querySelector("#loadingText").innerText = `Getting map data`;
 
             document.querySelector("#choose-diff").disabled = false;
+            document.querySelector("#close").disabled = false;
 
             // document.querySelector("#playButton").addEventListener("click", playToggle);
 

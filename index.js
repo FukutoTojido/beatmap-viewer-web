@@ -427,6 +427,7 @@ document.querySelector("#playerContainer").addEventListener("drop", function (e)
     const file = e.dataTransfer.files[0];
     if (file.name.split(".").at(-1) !== "osz") return;
 
+    document.querySelector("#close").disabled = true;
     readZip(file);
 });
 
@@ -439,6 +440,10 @@ document.querySelector("#map-dropper").onchange = () => {
 
 document.querySelector("#choose-diff").onclick = () => {
     document.querySelector(".difficultySelector").style.display = "block";
+};
+
+document.querySelector("#close").onclick = () => {
+    document.querySelector(".difficultySelector").style.display = "none";
 };
 
 function loadDiff() {

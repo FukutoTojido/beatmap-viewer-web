@@ -634,6 +634,18 @@ button:hover {
     text-align: left;
 
     padding: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.instruction button:disabled {
+    opacity: 0.2;
+}
+
+.instruction button:disabled:hover {
+    filter: none;
 }
 
 .listWrapper {
