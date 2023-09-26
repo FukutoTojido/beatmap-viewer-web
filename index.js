@@ -58,27 +58,33 @@ const scaleFactor = Math.max(window.innerWidth / 640, window.innerHeight / 480);
 let elapsed = 0.0;
 let container = new Container();
 
-let w = (w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width));
-let h = (h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height));
+let w = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
+let h = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
+app.renderer.resize(w, h);
 
-if (w / 512 > h / 384) w = w_z = (h / 384) * 512;
-else h = h_z = (w / 512) * 384;
+if (w / 512 > h / 384) {
+    w = w_z = (h / 384) * 512;
+} else {
+    h = h_z = (w / 512) * 384;
+}
 
 document.querySelector("#playerContainer").appendChild(app.view);
 
-if (w < 480) {
-    // console.log("Alo", w, h);
-    app.renderer.resize(
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
-        parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
-    );
-    w *= 2;
-    h *= 2;
+// if (w < 480) {
+//     // console.log("Alo", w, h);
+//     app.renderer.resize(
+//         parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+//         parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+//     );
+//     w *= 2;
+//     h *= 2;
 
-    document.querySelector("canvas").style.transform = `scale(0.5)`;
-} else {
-    document.querySelector("canvas").style.transform = ``;
-}
+//     document.querySelector("canvas").style.transform = `scale(0.5)`;
+// } else {
+//     document.querySelector("canvas").style.transform = ``;
+// }
+
+document.querySelector("canvas").style.transform = `scale(${1 / window.devicePixelRatio})`;
 
 w *= 0.8;
 h *= 0.8;
@@ -207,8 +213,8 @@ let oldPlayerContainerWidth = parseInt(getComputedStyle(document.querySelector("
 // canvas.height = 1080;
 
 window.onresize = () => {
-    w = w_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-    h = h_a = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
+    w = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
+    h = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
     app.renderer.resize(w, h);
 
     if (w / 512 > h / 384) {
@@ -220,23 +226,25 @@ window.onresize = () => {
     bg.width = w;
     bg.height = h;
 
-    if (w < 480) {
-        // console.log("Alo", w, h);
-        app.renderer.resize(
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
-            parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
-        );
+    // if (w < 480) {
+    //     // console.log("Alo", w, h);
+    //     app.renderer.resize(
+    //         parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * 2,
+    //         parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * 2
+    //     );
 
-        bg.width = w * 2;
-        bg.height = h * 2;
+    //     bg.width = w * 2;
+    //     bg.height = h * 2;
 
-        w *= 2;
-        h *= 2;
+    //     w *= 2;
+    //     h *= 2;
 
-        document.querySelector("canvas").style.transform = `scale(0.5)`;
-    } else {
-        document.querySelector("canvas").style.transform = ``;
-    }
+    //     document.querySelector("canvas").style.transform = `scale(0.5)`;
+    // } else {
+    //     document.querySelector("canvas").style.transform = ``;
+    // }
+
+    document.querySelector("canvas").style.transform = `scale(${1 / window.devicePixelRatio})`;
 
     w *= 0.8;
     h *= 0.8;
@@ -422,50 +430,23 @@ document.querySelector("#playerContainer").addEventListener("drop", function (e)
     readZip(file);
 });
 
+document.querySelector("#map-dropper").onchange = () => {
+    const file = document.querySelector("#map-dropper").files[0];
+    if (file.name.split(".").at(-1) !== "osz") return;
+
+    readZip(file);
+};
+
+document.querySelector("#choose-diff").onclick = () => {
+    document.querySelector(".difficultySelector").style.display = "block";
+};
+
 function loadDiff() {
     diffFileName = this.dataset.filename;
     document.querySelector(".difficultySelector").style.display = "none";
 
     submitMap(true);
 }
-
-const createDifficultyElement = (obj) => {
-    const ele = document.createElement("div");
-    ele.classList.add("diff");
-
-    const icon = document.createElement("div");
-    icon.classList.add("icon");
-
-    const colorRing = document.createElement("div");
-    colorRing.classList.add("colorRing");
-    colorRing.style.border = `solid 4px ${getDiffColor(obj.starRating)}`;
-
-    icon.append(colorRing);
-
-    const infoContainer = document.createElement("div");
-    infoContainer.classList.add("infoContainer");
-
-    const diffName = document.createElement("div");
-    diffName.classList.add("diffName");
-
-    const starRating = document.createElement("div");
-    starRating.classList.add("starRating");
-
-    diffName.innerText = obj.name;
-    starRating.innerText = `Star Rating: ${obj.starRating.toFixed(2)}★`;
-
-    infoContainer.append(diffName, starRating);
-    ele.append(icon, infoContainer);
-
-    ele.dataset.filename = obj.fileName;
-    ele.dataset.starrating = obj.starRating;
-    ele.onclick = loadDiff;
-
-    return {
-        ...obj,
-        ele,
-    };
-};
 
 async function readZip(file) {
     dropBlob = null;

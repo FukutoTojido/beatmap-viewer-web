@@ -185,3 +185,41 @@ const getDiffColor = (rating) => {
     if (rating >= 9) return "#000000";
     return difficultyColourSpectrum(rating);
 };
+
+const createDifficultyElement = (obj) => {
+    const ele = document.createElement("div");
+    ele.classList.add("diff");
+
+    const icon = document.createElement("div");
+    icon.classList.add("icon");
+
+    const colorRing = document.createElement("div");
+    colorRing.classList.add("colorRing");
+    colorRing.style.border = `solid 4px ${getDiffColor(obj.starRating)}`;
+
+    icon.append(colorRing);
+
+    const infoContainer = document.createElement("div");
+    infoContainer.classList.add("infoContainer");
+
+    const diffName = document.createElement("div");
+    diffName.classList.add("diffName");
+
+    const starRating = document.createElement("div");
+    starRating.classList.add("starRating");
+
+    diffName.innerText = obj.name;
+    starRating.innerText = `Star Rating: ${obj.starRating.toFixed(2)}★`;
+
+    infoContainer.append(diffName, starRating);
+    ele.append(icon, infoContainer);
+
+    ele.dataset.filename = obj.fileName;
+    ele.dataset.starrating = obj.starRating;
+    ele.onclick = loadDiff;
+
+    return {
+        ...obj,
+        ele,
+    };
+};

@@ -60,7 +60,7 @@ class BeatmapFile {
                 // params: { nv: 1, nh: 0, nsb: 1 },
             });
 
-            return (
+            const blob = (
                 await requestClient.get(`${setId}`, {
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
@@ -69,6 +69,9 @@ class BeatmapFile {
                     },
                 })
             ).data;
+
+            dropBlob = blob;
+            return blob;
         } catch (e) {
             // console.log(e);
             // return;
@@ -105,8 +108,55 @@ class BeatmapFile {
         const zipReader = new zip.ZipReader(mapFileBlobReader);
         const allEntries = await zipReader.getEntries();
 
-        if (!this.isFromFile) await this.getOsuFile();
-        else {
+        if (!this.isFromFile) {
+            await this.getOsuFile();
+            const diffList = document.querySelector(".difficultyList");
+            diffList.innerHTML = "";
+            // document.querySelector(".difficultySelector").style.display = "block";
+
+            const diffs = [];
+
+            for (const content of allEntries) {
+                if (content.filename.split(".").at(-1) !== "osu") continue;
+                const blob = await content.getData(new zip.BlobWriter("text/plain"));
+                const rawFile = await blob.text();
+
+                const mode = rawFile
+                    .split("\r\n")
+                    .filter((line) => /Mode:\s[0-9]+/g.test(line))
+                    .shift()
+                    ?.replace("Mode: ", "");
+                if (parseInt(mode) !== 0) continue;
+
+                const builderOptions = {
+                    addStacking: true,
+                    mods: [],
+                };
+                const blueprintData = osuPerformance.parseBlueprint(rawFile);
+                const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
+                const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
+
+                const diffName = rawFile
+                    .split("\r\n")
+                    .filter((line) => /Version:.+/g.test(line))
+                    .shift()
+                    ?.replace("Version:", "");
+
+                const ele = createDifficultyElement({
+                    name: diffName,
+                    fileName: content.filename,
+                    starRating: difficultyAttributes.starRating,
+                });
+
+                diffs.push(ele);
+            }
+
+            diffs.sort((a, b) => {
+                return -a.starRating + b.starRating;
+            });
+
+            for (const obj of diffs) diffList.appendChild(obj.ele);
+        } else {
             const map = allEntries.filter((e) => e.filename === diffFileName).shift();
             const blob = await map.getData(new zip.BlobWriter("text/plain"));
             this.osuFile = await blob.text();
@@ -157,6 +207,9 @@ class BeatmapFile {
         document.querySelector("#HP").innerText = beatmapData.difficulty.drainRate;
         document.querySelector("#SR").innerText = `${difficultyAttributes.starRating.toFixed(2)}★`;
         document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+
+        if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
+        else document.querySelector("#SR").style.color = "black";
 
         // console.log(beatmapData)
         // console.log(difficultyAttributes)
@@ -288,6 +341,8 @@ class BeatmapFile {
             document.querySelector(".loading").style.display = "none";
 
             document.querySelector("#loadingText").innerText = `Getting map data`;
+
+            document.querySelector("#choose-diff").disabled = false;
 
             // document.querySelector("#playButton").addEventListener("click", playToggle);
 

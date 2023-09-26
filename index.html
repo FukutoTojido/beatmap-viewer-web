@@ -15,10 +15,10 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./deps/countUp.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
-    <script src="./scripts/GlobalVariables.js"></script>
     <script src="./lib/zip-fs-full.js"></script>
     <script src="./lib/osujs.js"></script>
     <script src="./deps/pixi.min.js"></script>
+    <script src="./scripts/GlobalVariables.js"></script>
     <script src="./scripts/Sprites.js"></script>
     <script src="./scripts/Audio.js"></script>
     <script src="./scripts/Cursor.js"></script>
@@ -38,11 +38,17 @@
     <div id="main">
     </div>
     <div id="inputContainer">
-        <button id="settingsButton" onclick="openMenu()"></button>
-        <div id="inputWrapper">
-            <input id="mapInput" type="text" placeholder=" " value="4135190">
+        <div class="legacyPart">
+            <button id="settingsButton" onclick="openMenu()"></button>
+            <div id="inputWrapper">
+                <input id="mapInput" type="text" placeholder=" " value="4135190">
+            </div>
+            <button id="submit">Load</button>
         </div>
-        <button id="submit">Load</button>
+        <div class="utilRow">
+            <input type="file" name="map-dropper" id="map-dropper" accept=".osz">
+            <button id="choose-diff" disabled>Change Difficulty</button>
+        </div>
     </div>
     <div id="playerWrapper">
         <div id="playerContainer">
