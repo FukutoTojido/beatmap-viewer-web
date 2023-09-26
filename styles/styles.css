@@ -51,6 +51,7 @@ body {
     color: white;
     overflow-y: overlay;
     overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 ::-webkit-scrollbar {
@@ -98,6 +99,8 @@ body {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+
+    box-sizing: border-box;
 }
 
 #inputWrapper {
@@ -181,12 +184,23 @@ body {
     background-color: #4c566a;
 }
 
+#playerWrapper {
+    position: relative;
+    width: 100%;
+    /* height: 100%; */
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+}
+
 #playerContainer {
     position: relative;
     /* margin: 20px; */
     /* aspect-ratio: 16 / 9; */
     width: 100%;
-    height: 100%;
+    /* height: 100%; */
+    flex: 1;
     /* width: 1366px; */
     /* width: 1600px; */
     /* width: 1920px; */
@@ -236,6 +250,9 @@ canvas {
     /* width: 100%; */
     font-size: 1rem;
     padding: 30px;
+
+    display: flex;
+    flex-direction: column;
 }
 
 #artistTitle {
@@ -252,6 +269,41 @@ canvas {
 
 #versionCreator span {
     font-weight: 600;
+}
+
+.stats {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #3b4252;
+    padding: 10px;
+    border-radius: 30px;
+
+    font-size: 14px;
+    font-weight: 300;
+}
+
+.stats span {
+    font-weight: 500;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 0 10px;
+}
+
+.SRContainer span {
+    padding: 5px 15px;
+    background-color: #d8dee9;
+    color: black;
+    border-radius: 100px;
 }
 
 #settingsButton {
@@ -488,6 +540,7 @@ button:hover {
     inset: 0 0 0 0;
     margin: auto;
     width: 500px;
+    max-width: 100%;
     height: auto;
     max-height: 60%;
     padding: 20px;
@@ -523,7 +576,6 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 10px;
-
 }
 
 .diff {
@@ -537,10 +589,55 @@ button:hover {
 
     box-sizing: border-box;
     user-select: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.icon {
+    position: relative;
+    width: 30px;
+    height: 30px;
+
+    background: white;
+    border-radius: 50%;
+}
+
+.colorRing {
+    position: absolute;
+    content: "";
+    inset: 0 0 0 0;
+    margin: auto;
+
+    width: 24px;
+    height: 24px;
+
+    border-radius: 50%;
+    border: solid 4px black;
+}
+
+.infoContainer {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .diff:hover {
     background-color: #171a1f;
+}
+
+.diffName {
+    font-size: 18px;
+}
+
+.starRating {
+    font-size: 12px;
+    font-weight: 300;
 }
 
 .loading circle {
@@ -828,15 +925,20 @@ input[type="checkbox"]:checked {
     font-weight: 600;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 @media screen and (max-aspect-ratio: 1 / 1) {
     body {
+        width: 100dvw;
+        height: 100dvh;
         padding: 0;
-        flex-direction: row;
-        flex-wrap: wrap;
+        margin: 0;
+        /* flex-direction: row; */
+        /* flex-wrap: wrap; */
         align-content: flex-start;
-
         overflow: hidden;
-
         gap: 0;
         /* background-size: 0; */
     }
@@ -848,11 +950,9 @@ input[type="checkbox"]:checked {
     }
 
     #inputContainer {
-        width: calc(100% - 20px);
-
-        padding: 20px 10px;
+        width: 100%;
+        padding: 20px;
         margin: 0;
-
         gap: 5px;
     }
 
@@ -871,25 +971,43 @@ input[type="checkbox"]:checked {
         height: 30px;
     }
 
-    #playerContainer {
-        aspect-ratio: 16 / 10;
-        height: auto;
-        border-radius: 0;
-        margin-bottom: 120px;
+    #playerWrapper {
+        height: 100%;
     }
 
-    #overlay {
+    #playerContainer {
+        flex: 1;
+        /* aspect-ratio: 16 / 9; */
+        /* width: 100%; */
+        height: 100%;
         border-radius: 0;
+        /* margin-bottom: 120px; */
+    }
+
+    #overlay,
+    #background {
+        border-radius: 0;
+    }
+
+    .stats {
+        position: relative;
+        inset: unset;
+
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        justify-content: center;
     }
 
     #metadata {
-        top: 100%;
+        position: relative;
+        /* top: 100%; */
 
         width: 100%;
-        height: 120px;
-        padding: 0;
+        /* height: 120px; */
+        padding: 20px;
 
-        /* background-color: #18171c; */
+        background-color: #2e3440;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -903,8 +1021,9 @@ input[type="checkbox"]:checked {
     #playerController {
         position: relative;
         width: 100%;
-        height: 100%;
-        bottom: 0;
+        height: auto;
+        /* height: 100%; */
+        /* bottom: 0; */
         border-radius: 0 0 0 0;
 
         flex-wrap: wrap;
@@ -987,36 +1106,32 @@ input[type="checkbox"]:checked {
     }
 }
 
-@media screen and (max-width: 425px) {
-    body {
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-content: flex-start;
-        align-items: flex-start;
-    }
-
-    #inputContainer {
-        width: calc(100% - 20px);
-    }
-
+@media screen and (max-aspect-ratio: 9 / 16) {
     #inputContainer input::placeholder {
         font-size: 0.7rem;
     }
 
     #metadata {
         font-size: 3vw;
-        height: 160px;
+    }
+
+    .stats {
+        inset: unset;
+        left: 0;
+        right: 0;
+        gap: 0;
+        /* bottom: -160px; */
+        justify-content: space-between;
+        /* position: fixed; */
     }
 
     #playerContainer {
+        /* flex: 0; */
+        flex: unset;
         aspect-ratio: 4 / 3;
         height: auto;
         border-radius: 0;
         margin-bottom: 0px;
-    }
-
-    #playerController {
-        transform: translateY(160px);
     }
 }
 
@@ -1069,6 +1184,10 @@ input[type="checkbox"]:checked {
         display: flex;
         flex-direction: column;
         justify-content: center;
+    }
+
+    .stats {
+        font-size: 1vw;
     }
 
     #playerController {

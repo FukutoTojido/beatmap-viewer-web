@@ -8,14 +8,16 @@
     <meta property="og:title" content="JoSu! | osu! Beatmap Viewer">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://preview.tryz.id.vn">
-    <meta property="og:image" content="./static/JoSu.png">
+    <meta property="og:image" content="https://fukutotojido.s-ul.eu/YuVf9ZAd">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="./styles/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./deps/countUp.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
     <script src="./lib/zip-fs-full.js"></script>
+    <script src="./lib/osujs.js"></script>
     <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/Sprites.js"></script>
     <script src="./scripts/Audio.js"></script>
@@ -42,34 +44,44 @@
         </div>
         <button id="submit">Load</button>
     </div>
-    <div id="playerContainer">
-        <div id="background"></div>
-        <div id="overlay"></div>
+    <div id="playerWrapper">
+        <div id="playerContainer">
+            <div id="background"></div>
+            <div id="overlay"></div>
+            <!-- <canvas id="canvas" width="512" height="384"></canvas> -->
+        </div>
         <div id="metadata">
             <div id="artistTitle"></div>
             <div id="versionCreator"></div>
         </div>
-        <!-- <canvas id="canvas" width="512" height="384"></canvas> -->
-    </div>
-    <div id="playerController">
-        <div id="timeContainer" onclick="copyUrlToClipboard()">
-            <span id="minute2digit" class="digit">0</span>
-            <span id="minute1digit" class="digit">0</span>
-            <span>:</span>
-            <span id="second2digit" class="digit">0</span>
-            <span id="second1digit" class="digit">0</span>
-            <span>:</span>
-            <span id="millisecond3digit" class="digit">0</span>
-            <span id="millisecond2digit" class="digit">0</span>
-            <span id="millisecond1digit" class="digit">0</span>
+        <div class="stats">
+            <div class="stat">CS: <span id="CS">5</span></div>
+            <div class="stat">AR: <span id="AR">5</span></div>
+            <div class="stat">OD: <span id="OD">5</span></div>
+            <div class="stat">HP: <span id="HP">5</span></div>
+            <div class="SRContainer"><span id="SR">0.00★</span></div>
         </div>
-        <button id="prevButton" onclick="goBack()"></button>
-        <button id="playButton" onclick="playToggle()"></button>
-        <button id="nextButton" onclick="goNext()"></button>
-        <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
-            onkeydown="event.preventDefault()">
-        <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
+        <div id="playerController">
+            <div id="timeContainer" onclick="copyUrlToClipboard()">
+                <span id="minute2digit" class="digit">0</span>
+                <span id="minute1digit" class="digit">0</span>
+                <span>:</span>
+                <span id="second2digit" class="digit">0</span>
+                <span id="second1digit" class="digit">0</span>
+                <span>:</span>
+                <span id="millisecond3digit" class="digit">0</span>
+                <span id="millisecond2digit" class="digit">0</span>
+                <span id="millisecond1digit" class="digit">0</span>
+            </div>
+            <button id="prevButton" onclick="goBack()"></button>
+            <button id="playButton" onclick="playToggle()"></button>
+            <button id="nextButton" onclick="goNext()"></button>
+            <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
+                onkeydown="event.preventDefault()">
+            <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
+        </div>
     </div>
+
     <div class="loading">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
             <circle cx="45" cy="45" r="30" strokeLinecap="round" />

@@ -432,11 +432,39 @@ function loadDiff() {
 const createDifficultyElement = (obj) => {
     const ele = document.createElement("div");
     ele.classList.add("diff");
-    ele.innerText = obj.name;
+
+    const icon = document.createElement("div");
+    icon.classList.add("icon");
+
+    const colorRing = document.createElement("div");
+    colorRing.classList.add("colorRing");
+    colorRing.style.border = `solid 4px ${getDiffColor(obj.starRating)}`;
+
+    icon.append(colorRing);
+
+    const infoContainer = document.createElement("div");
+    infoContainer.classList.add("infoContainer");
+
+    const diffName = document.createElement("div");
+    diffName.classList.add("diffName");
+
+    const starRating = document.createElement("div");
+    starRating.classList.add("starRating");
+
+    diffName.innerText = obj.name;
+    starRating.innerText = `Star Rating: ${obj.starRating.toFixed(2)}★`;
+
+    infoContainer.append(diffName, starRating);
+    ele.append(icon, infoContainer);
+
     ele.dataset.filename = obj.fileName;
+    ele.dataset.starrating = obj.starRating;
     ele.onclick = loadDiff;
 
-    return ele;
+    return {
+        ...obj,
+        ele,
+    };
 };
 
 async function readZip(file) {
@@ -452,16 +480,27 @@ async function readZip(file) {
     diffList.innerHTML = "";
     document.querySelector(".difficultySelector").style.display = "block";
 
+    const diffs = [];
+
     for (const content of allEntries) {
         if (content.filename.split(".").at(-1) !== "osu") continue;
         const blob = await content.getData(new zip.BlobWriter("text/plain"));
         const rawFile = await blob.text();
+
         const mode = rawFile
             .split("\r\n")
             .filter((line) => /Mode:\s[0-9]+/g.test(line))
             .shift()
             ?.replace("Mode: ", "");
         if (parseInt(mode) !== 0) continue;
+
+        const builderOptions = {
+            addStacking: true,
+            mods: [],
+        };
+        const blueprintData = osuPerformance.parseBlueprint(rawFile);
+        const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
+        const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
         const diffName = rawFile
             .split("\r\n")
@@ -472,9 +511,17 @@ async function readZip(file) {
         const ele = createDifficultyElement({
             name: diffName,
             fileName: content.filename,
+            starRating: difficultyAttributes.starRating,
         });
-        diffList.appendChild(ele);
+
+        diffs.push(ele);
     }
+
+    diffs.sort((a, b) => {
+        return -a.starRating + b.starRating;
+    });
+
+    for (const obj of diffs) diffList.appendChild(obj.ele);
 
     dropBlob = file;
 }
@@ -507,7 +554,7 @@ function submitMap(isDragAndDrop) {
     beatmapFile = undefined;
     beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
 
-    document.querySelector("#mapInput").value = bID ?? "";
+    document.querySelector("#mapInput").value = !isDragAndDrop ? bID : "";
     document.querySelector("#progress").value = 0;
     // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
@@ -719,7 +766,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
     const start_X = startX;
     const start_Y = startY;
 
-    let currentAR = Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1);
+    let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
     const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
     const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList
@@ -824,7 +871,8 @@ bg.on("click", (e) => {
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         let currentHitCircleSize = 54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier;
 
-        let currentAR = Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1);
+        let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
+
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
         const drawOffset = currentHitCircleSize;
 

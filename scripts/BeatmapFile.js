@@ -143,13 +143,32 @@ class BeatmapFile {
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
         }
 
+        const builderOptions = {
+            addStacking: true,
+            mods: [],
+        };
+        const blueprintData = osuPerformance.parseBlueprint(this.osuFile);
+        const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
+        const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
+
+        document.querySelector("#CS").innerText = beatmapData.difficulty.circleSize;
+        document.querySelector("#AR").innerText = beatmapData.difficulty.approachRate;
+        document.querySelector("#OD").innerText = beatmapData.difficulty.overallDifficulty;
+        document.querySelector("#HP").innerText = beatmapData.difficulty.drainRate;
+        document.querySelector("#SR").innerText = `${difficultyAttributes.starRating.toFixed(2)}★`;
+        document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+
+        // console.log(beatmapData)
+        // console.log(difficultyAttributes)
+
         const audioFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/AudioFilename: /g))[0]
             .replace("AudioFilename: ", "");
         const backgroundFilename = this.osuFile
             .split("\r\n")
-            .filter((line) => line.match(/0,0,"*.*"/g)).shift()
+            .filter((line) => line.match(/0,0,"*.*"/g))
+            .shift()
             ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
 

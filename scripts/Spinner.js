@@ -6,8 +6,7 @@ class Spinner {
 
     draw(timestamp) {
         if (timestamp < this.time) {
-            let currentAR = !mods.EZ ? Beatmap.stats.approachRate : Beatmap.stats.approachRate / 2;
-            currentAR = !mods.HR ? currentAR : Math.min(currentAR * 1.4, 10);
+            let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
             const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
 
             this.obj.alpha = 1 - Math.min(1, Math.max(0, (this.time - timestamp) / currentFadeIn));

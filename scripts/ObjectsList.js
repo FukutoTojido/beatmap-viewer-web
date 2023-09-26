@@ -74,7 +74,7 @@ class ObjectsList {
         updateTime(timestamp);
         setSliderTime();
 
-        let currentAR = Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1);
+        let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
         const currentFadeIn = Beatmap.difficultyRange(currentAR, 1200, 800, 300);
 
