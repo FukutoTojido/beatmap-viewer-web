@@ -435,6 +435,7 @@ document.querySelector("#map-dropper").onchange = () => {
     const file = document.querySelector("#map-dropper").files[0];
     if (file.name.split(".").at(-1) !== "osz") return;
 
+    document.querySelector("#close").disabled = true;
     readZip(file);
 };
 

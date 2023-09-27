@@ -359,7 +359,7 @@ class BeatmapFile {
                         goNext(e.shiftKey);
                         break;
                     case " ":
-                        playToggle();
+                        if ((document.querySelector(".difficultySelector").style.display !== "block")) playToggle();
                         break;
                 }
 
