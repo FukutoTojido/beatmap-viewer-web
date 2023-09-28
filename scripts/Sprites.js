@@ -153,7 +153,7 @@ class HitObjectSprite {
         const renderTexture = PIXI.RenderTexture.create({
             width: width,
             height: height,
-            multisample: PIXI.MSAA_QUALITY.HIGH,
+            multisample: PIXI.MSAA_QUALITY.MEDIUM,
             // resolution: window.devicePixelRatio,
         });
     
