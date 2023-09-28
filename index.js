@@ -305,6 +305,10 @@ function openMenu() {
     settingsPanel.style.opacity = settingsPanel.style.opacity === "" ? "1" : "";
 
     block.style.display = settingsPanel.style.opacity === "1" ? "block" : "";
+
+    setTimeout(() => {
+        block.style.opacity = settingsPanel.style.opacity === "1" ? 0.5 : "";
+    }, 0);
 }
 
 document.body.addEventListener("click", (e) => {
@@ -316,7 +320,10 @@ document.body.addEventListener("click", (e) => {
         if (!settingsPanelIsClick) {
             settingsPanel.style.left = "";
             settingsPanel.style.opacity = "";
-            block.style.display = settingsPanel.style.opacity === "1" ? "block" : "";
+            block.style.opacity = settingsPanel.style.opacity === "1" ? 0.5 : "";
+            setTimeout(() => {
+                block.style.display = settingsPanel.style.opacity === "1" ? "block" : "";
+            }, 200);
         }
     }
 });

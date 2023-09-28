@@ -771,6 +771,9 @@ button:hover {
     position: absolute;
     width: 100%;
     height: 100%;
+    background-color: black;
+    opacity: 0;
+    transition: ease-in-out 200ms;
 }
 
 #settingsPanel {
