@@ -339,6 +339,34 @@ function setCustomMirror(input) {
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
 
+function calculateCurrentSR(modsFlag) {
+    const modsTemplate = [
+        "HARD_ROCK",
+        "EASY",
+        "DOUBLE_TIME",
+        "HALF_TIME"
+    ];
+
+    const builderOptions = {
+        addStacking: true,
+        mods: modsTemplate.filter((mod, idx) => modsFlag[idx]),
+    };
+    
+    const blueprintData = osuPerformance.parseBlueprint(beatmapFile.osuFile);
+    const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
+    const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
+
+    document.querySelector("#CS").innerText = round(beatmapData.difficulty.circleSize);
+    document.querySelector("#AR").innerText = round(beatmapData.difficulty.approachRate);
+    document.querySelector("#OD").innerText = round(beatmapData.difficulty.overallDifficulty);
+    document.querySelector("#HP").innerText = round(beatmapData.difficulty.drainRate);
+    document.querySelector("#SR").innerText = `${round(difficultyAttributes.starRating)}★`;
+    document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+
+    if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
+    else document.querySelector("#SR").style.color = "black";
+}
+
 function handleCheckBox(checkbox) {
     mods[checkbox.name] = !mods[checkbox.name];
     sliderAppearance[checkbox.name] = !sliderAppearance[checkbox.name];
@@ -358,6 +386,13 @@ function handleCheckBox(checkbox) {
         playbackRate = 1 * DTMultiplier * HTMultiplier;
         if (originalIsPlaying) beatmapFile.audioNode.play();
         if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+
+        calculateCurrentSR([
+            mods.HR,
+            mods.EZ,
+            mods.DT,
+            mods.HT
+        ])
     }
 }
 

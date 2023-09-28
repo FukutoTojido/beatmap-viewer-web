@@ -223,3 +223,5 @@ const createDifficultyElement = (obj) => {
         ele,
     };
 };
+
+const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;

@@ -193,19 +193,23 @@ class BeatmapFile {
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
         }
 
+        const modsTemplate = ["HARD_ROCK", "EASY", "DOUBLE_TIME", "HALF_TIME"];
+
+        const modsFlag = [mods.HR, mods.EZ, mods.DT, mods.HT];
+
         const builderOptions = {
             addStacking: true,
-            mods: [],
+            mods: modsTemplate.filter((mod, idx) => modsFlag[idx]),
         };
         const blueprintData = osuPerformance.parseBlueprint(this.osuFile);
         const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
         const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-        document.querySelector("#CS").innerText = beatmapData.difficulty.circleSize;
-        document.querySelector("#AR").innerText = beatmapData.difficulty.approachRate;
-        document.querySelector("#OD").innerText = beatmapData.difficulty.overallDifficulty;
-        document.querySelector("#HP").innerText = beatmapData.difficulty.drainRate;
-        document.querySelector("#SR").innerText = `${difficultyAttributes.starRating.toFixed(2)}★`;
+        document.querySelector("#CS").innerText = round(beatmapData.difficulty.circleSize);
+        document.querySelector("#AR").innerText = round(beatmapData.difficulty.approachRate);
+        document.querySelector("#OD").innerText = round(beatmapData.difficulty.overallDifficulty);
+        document.querySelector("#HP").innerText = round(beatmapData.difficulty.drainRate);
+        document.querySelector("#SR").innerText = `${round(difficultyAttributes.starRating)}★`;
         document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
         if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
@@ -359,7 +363,7 @@ class BeatmapFile {
                         goNext(e.shiftKey);
                         break;
                     case " ":
-                        if ((document.querySelector(".difficultySelector").style.display !== "block")) playToggle();
+                        if (document.querySelector(".difficultySelector").style.display !== "block") playToggle();
                         break;
                 }
 
