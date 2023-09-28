@@ -511,6 +511,7 @@ async function readZip(file) {
     for (const obj of diffs) diffList.appendChild(obj.ele);
 
     dropBlob = file;
+    zipReader.close();
 }
 
 function submitMap(isDragAndDrop) {
