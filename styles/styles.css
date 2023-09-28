@@ -29,6 +29,16 @@
     src: url(../fonts/TorusThin.otf);
 }
 
+:root {
+    --primary-1: #171a1f;
+    --primary-2: #2e3440;
+    --primary-3: #3b4252;
+    --primary-4: #434c5e;
+    --primary-5: #4c566a;
+    --accent-1: #88c0d0;
+    --text-1: #d8dee9;
+}
+
 body {
     width: 100vw;
     height: 100vh;
@@ -45,7 +55,7 @@ body {
     justify-content: center;
     align-content: center;
     /* flex-wrap: wrap; */
-    background-color: #2e3440;
+    background-color: var(--primary-2);
     font-family: Torus;
     font-weight: 500;
     color: white;
@@ -137,7 +147,7 @@ body {
     border: none;
     background-color: rgba(0 0 0 /0.5);
     border-radius: 10px;
-    outline: solid 2px #88c0d0;
+    outline: solid 2px var(--accent-1);
 }
 
 #inputWrapper::before {
@@ -150,7 +160,7 @@ body {
     font-size: 0.7rem;
 
     /* height: 10px; */
-    color: #d8dee9;
+    color: var(--text-1);
 
     padding: 2px 10px;
 
@@ -169,20 +179,20 @@ body {
 #inputWrapper:has(input[type="text"]:focus)::before {
     top: -10px;
     font-size: 0.6rem;
-    background-color: #171a1f;
+    background-color: var(--primary-1);
 
-    /* outline: solid 2px #88c0d0; */
+    /* outline: solid 2px var(--accent-1); */
 }
 
 #inputContainer input[type="text"]:focus {
-    outline: solid 3px #88c0d0;
+    outline: solid 3px var(--accent-1);
 }
 
 #inputContainer button:nth-child(3) {
     width: 80px;
     height: 40px;
 
-    background-color: #3b4252;
+    background-color: var(--primary-3);
 
     font-family: Torus;
     font-weight: 500;
@@ -194,7 +204,7 @@ body {
 
 #inputContainer button:nth-child(3):hover {
     filter: none;
-    background-color: #4c566a;
+    background-color: var(--primary-5);
 }
 
 #settingsButton {
@@ -228,7 +238,7 @@ svg {
     border-radius: 10px;
 
     transition: ease-in-out 200ms;
-    background-color: #3b4252;
+    background-color: var(--primary-3);
 }
 #map-dropper::-webkit-file-upload-button {
     visibility: hidden;
@@ -250,7 +260,7 @@ svg {
     box-sizing: border-box;
 }
 #map-dropper:hover {
-    background-color: #4c566a;
+    background-color: var(--primary-5);
 }
 #map-dropper:active {
     outline: 0;
@@ -260,7 +270,7 @@ svg {
     /* width: 80px; */
     height: 40px;
 
-    background-color: #3b4252;
+    background-color: var(--primary-3);
 
     font-family: Torus;
     font-weight: 500;
@@ -274,7 +284,7 @@ svg {
 
 #choose-diff:hover {
     filter: none;
-    background-color: #4c566a;
+    background-color: var(--primary-5);
 }
 
 #choose-diff:disabled {
@@ -376,7 +386,7 @@ canvas {
     display: flex;
     align-items: center;
     gap: 20px;
-    background-color: #3b4252;
+    background-color: var(--primary-3);
     padding: 10px;
     border-radius: 30px;
 
@@ -398,7 +408,7 @@ canvas {
 
 .SRContainer span {
     padding: 5px 15px;
-    background-color: #d8dee9;
+    background-color: var(--text-1);
     color: black;
     border-radius: 100px;
 }
@@ -410,7 +420,7 @@ canvas {
 
     /* padding: 20px; */
 
-    background-color: #3b4252;
+    background-color: var(--primary-3);
     border-radius: 0 0 20px 20px;
 
     display: flex;
@@ -429,7 +439,7 @@ canvas {
 
     font-size: 0.7em;
 
-    background-color: #4c566a;
+    background-color: var(--primary-5);
 }
 
 .digit {
@@ -506,7 +516,7 @@ canvas {
 }
 
 #playerController input[type="range"]::-webkit-slider-runnable-track {
-    background: #88c0d0;
+    background: var(--accent-1);
     height: 4px;
 
     margin: 20px 0;
@@ -519,7 +529,7 @@ canvas {
     width: 40px;
     height: 10px;
 
-    background: #434c5e;
+    background: var(--primary-4);
     border-radius: 20px;
 
     margin-top: -3px;
@@ -527,16 +537,16 @@ canvas {
     transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 150ms;
     transform-origin: center;
 
-    outline: solid 3px #88c0d0;
+    outline: solid 3px var(--accent-1);
 }
 
 #playerController input[type="range"]::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 10px 0px #88c0d0;
+    box-shadow: 0 0 10px 0px var(--accent-1);
     filter: brightness(2);
 }
 
 #playerController input[type="range"]::-webkit-slider-thumb:active {
-    background: #88c0d0;
+    background: var(--accent-1);
     width: 50px;
 }
 
@@ -621,7 +631,7 @@ button:hover {
     height: auto;
     max-height: 60%;
     padding: 20px;
-    background-color: #2e3440;
+    background-color: var(--primary-2);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -673,7 +683,7 @@ button:hover {
 
     padding: 20px;
 
-    background-color: #3b4252;
+    background-color: var(--primary-3);
     border-radius: 10px;
 
     box-sizing: border-box;
@@ -717,7 +727,7 @@ button:hover {
 }
 
 .diff:hover {
-    background-color: #171a1f;
+    background-color: var(--primary-1);
 }
 
 .diffName {
@@ -761,7 +771,7 @@ button:hover {
     width: 600px;
     height: 100vh;
 
-    background-color: #2e3440;
+    background-color: var(--primary-2);
 
     transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
     opacity: 0;
@@ -779,7 +789,7 @@ button:hover {
     width: 100%;
 
     padding: 40px;
-    background-color: #434c5e;
+    background-color: var(--primary-4);
     font-weight: 400;
 }
 
@@ -833,7 +843,7 @@ button:hover {
 }
 
 .slider input::-webkit-slider-runnable-track {
-    background: #88c0d0;
+    background: var(--accent-1);
     height: 4px;
 
     margin: 20px 0;
@@ -846,7 +856,7 @@ button:hover {
     width: 40px;
     height: 10px;
 
-    background: #434c5e;
+    background: var(--primary-4);
     border-radius: 20px;
 
     margin-top: -3px;
@@ -854,16 +864,16 @@ button:hover {
     transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 150ms;
     transform-origin: center;
 
-    outline: solid 3px #88c0d0;
+    outline: solid 3px var(--accent-1);
 }
 
 .slider input::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 10px 0px #88c0d0;
+    box-shadow: 0 0 10px 0px var(--accent-1);
     filter: brightness(2);
 }
 
 .slider input::-webkit-slider-thumb:active {
-    background: #88c0d0;
+    background: var(--accent-1);
     width: 50px;
 }
 
@@ -879,7 +889,7 @@ button:hover {
 
     width: 300px;
 
-    background-color: #2e3440;
+    background-color: var(--primary-2);
     padding: 5px 15px;
     border-radius: 20px;
 
@@ -924,20 +934,20 @@ input[type="checkbox"] {
     width: 40px;
     height: 10px;
 
-    outline: solid 3px #88c0d0;
+    outline: solid 3px var(--accent-1);
     border-radius: 25px;
 
     transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
 }
 
 input[type="checkbox"]:hover {
-    box-shadow: 0 0 5px 2px #88c0d0;
+    box-shadow: 0 0 5px 2px var(--accent-1);
     filter: brightness(2);
 }
 
 input[type="checkbox"]:checked {
     width: 50px;
-    background-color: #88c0d0;
+    background-color: var(--accent-1);
 }
 
 .list input[type="text"] {
@@ -975,7 +985,7 @@ input[type="checkbox"]:checked {
     transition: ease-in-out 100ms;
 }
 
-.radioSel label{
+.radioSel label {
     flex: 1;
 }
 
@@ -999,7 +1009,7 @@ input[type="checkbox"]:checked {
 }
 
 .radioSel input[type="radio"]:checked {
-    border: solid 2px #88c0d0;
+    border: solid 2px var(--accent-1);
 }
 
 .radioSel input[type="radio"]::before {
@@ -1008,7 +1018,7 @@ input[type="checkbox"]:checked {
     height: 0px;
 
     border-radius: 50%;
-    background-color: #88c0d0;
+    background-color: var(--accent-1);
     transition: ease-in-out 100ms;
 }
 
@@ -1073,7 +1083,7 @@ input[type="checkbox"]:checked {
     }
 
     #inputContainer button:nth-child(3) {
-        background-color: #3b4252;
+        background-color: var(--primary-3);
         border-radius: 5px;
     }
 
@@ -1118,7 +1128,7 @@ input[type="checkbox"]:checked {
         /* height: 120px; */
         padding: 20px;
 
-        background-color: #2e3440;
+        background-color: var(--primary-2);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -1189,7 +1199,7 @@ input[type="checkbox"]:checked {
     }
 
     #playerController input[type="range"]::-webkit-slider-runnable-track {
-        background: #4c566a;
+        background: var(--primary-5);
         height: 4px;
 
         margin: 10px;
