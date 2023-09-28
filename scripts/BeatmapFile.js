@@ -278,40 +278,10 @@ class BeatmapFile {
                 const bg = new Image();
                 bg.src = this.backgroundBlobURL;
 
-                const colorThief = new ColorThief();
                 if (bg.complete) {
-                    const colors = colorThief.getColor(bg);
-                    console.log(colors);
+                    loadColorPalette(bg);
                 } else {
-                    bg.addEventListener("load", () => {
-                        const vibrant = new Vibrant(bg);
-                        const swatches = vibrant.swatches();
-
-                        // const colors = colorThief.getPalette(bg, 2);
-                        const rootCSS = document.querySelector(":root");
-
-                        const primary = swatches.DarkMuted?.getRgb() ?? swatches.DarkVibrant?.getRgb();
-                        if (primary) {
-                            const primaryHex = d3.color(`rgb(${primary[0]}, ${primary[1]}, ${primary[2]})`);
-                            const primaryPalette = [
-                                primaryHex.darker(2.0).formatHex(),
-                                primaryHex.darker(1.5).formatHex(),
-                                primaryHex.darker(1.0).formatHex(),
-                                primaryHex.darker(0.5).formatHex(),
-                                primaryHex.formatHex(),
-                            ];
-
-                            primaryPalette.forEach((val, idx) => {
-                                rootCSS.style.setProperty(`--primary-${idx + 1}`, val);
-                            });
-                        }
-
-                        const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb();
-                        if (accent) {
-                            const accentHex = d3.color(`rgb(${accent[0]}, ${accent[1]}, ${accent[2]})`);
-                            rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
-                        }
-                    });
+                    bg.addEventListener("load", () => loadColorPalette(bg));
                 }
             });
         }
