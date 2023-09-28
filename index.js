@@ -357,8 +357,8 @@ function calculateCurrentSR(modsFlag) {
     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
     document.querySelector("#CS").innerText = round(beatmapData.difficulty.circleSize);
-    document.querySelector("#AR").innerText = round(beatmapData.difficulty.approachRate);
-    document.querySelector("#OD").innerText = round(beatmapData.difficulty.overallDifficulty);
+    document.querySelector("#AR").innerText = round(difficultyAttributes.approachRate);
+    document.querySelector("#OD").innerText = round(difficultyAttributes.overallDifficulty);
     document.querySelector("#HP").innerText = round(beatmapData.difficulty.drainRate);
     document.querySelector("#SR").innerText = `${round(difficultyAttributes.starRating)}★`;
     document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
