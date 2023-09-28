@@ -340,18 +340,13 @@ function setCustomMirror(input) {
 }
 
 function calculateCurrentSR(modsFlag) {
-    const modsTemplate = [
-        "HARD_ROCK",
-        "EASY",
-        "DOUBLE_TIME",
-        "HALF_TIME"
-    ];
+    const modsTemplate = ["HARD_ROCK", "EASY", "DOUBLE_TIME", "HALF_TIME"];
 
     const builderOptions = {
         addStacking: true,
         mods: modsTemplate.filter((mod, idx) => modsFlag[idx]),
     };
-    
+
     const blueprintData = osuPerformance.parseBlueprint(beatmapFile.osuFile);
     const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
@@ -387,12 +382,7 @@ function handleCheckBox(checkbox) {
         if (originalIsPlaying) beatmapFile.audioNode.play();
         if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
 
-        calculateCurrentSR([
-            mods.HR,
-            mods.EZ,
-            mods.DT,
-            mods.HT
-        ])
+        calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
     }
 }
 
@@ -573,6 +563,7 @@ function submitMap(isDragAndDrop) {
     const origin = window.location.origin;
 
     if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}/?b=${bID}`);
+    else window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}`);
 
     beatmapFile = undefined;
     beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
