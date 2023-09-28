@@ -50,21 +50,28 @@ class ObjectsList {
     }
 
     draw(timestamp, staticDraw) {
+        const DTMultiplier = !mods.DT ? 1 : 1.5;
+        const HTMultiplier = !mods.HT ? 1 : 0.75;
+
         this.fpsArr.push(Math.max(0, timestamp - this.lastTimestamp));
         if (this.fpsArr.length > 100) {
             this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 100);
         }
 
         fpsSprite.text = `${Math.round(
-            1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)
-        )}fps\n${(this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length).toFixed(2)}ms`;
+            (1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)) * DTMultiplier * HTMultiplier
+        )}fps\n${(
+            this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) /
+            this.fpsArr.length /
+            (DTMultiplier * HTMultiplier)
+        ).toFixed(2)}ms`;
         this.lastTime = performance.now();
 
         if (this.tempW !== w || this.tempH !== h) {
             this.tempW = w;
             this.tempH = h;
 
-            generateSprites(Beatmap.stats.circleDiameter)
+            generateSprites(Beatmap.stats.circleDiameter);
         }
         if (didMove && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
