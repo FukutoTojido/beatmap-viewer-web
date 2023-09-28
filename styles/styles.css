@@ -972,7 +972,11 @@ input[type="checkbox"]:checked {
     padding: 5px 0;
     opacity: 0.5;
     font-weight: 400;
-    transition: ease-in-out 200ms;
+    transition: ease-in-out 100ms;
+}
+
+.radioSel label{
+    flex: 1;
 }
 
 .radioSel input[type="radio"] {
@@ -987,7 +991,11 @@ input[type="checkbox"]:checked {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: ease-in-out 200ms;
+    transition: ease-in-out 100ms;
+}
+
+.radioSel:has(input[type="radio"]:hover) {
+    opacity: 1;
 }
 
 .radioSel input[type="radio"]:checked {
@@ -1001,7 +1009,7 @@ input[type="checkbox"]:checked {
 
     border-radius: 50%;
     background-color: #88c0d0;
-    transition: ease-in-out 200ms;
+    transition: ease-in-out 100ms;
 }
 
 .radioSel input[type="radio"]:checked::before {

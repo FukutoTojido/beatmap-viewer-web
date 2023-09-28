@@ -120,21 +120,24 @@
             <div class="title">beatmap provider</div>
             <div class="list">
                 <div class="radioSel">
-                    <input type="radio" name="mirror" id="nerinyan" value="nerinyan" oncli>
-                    Nerinyan
+                    <input type="radio" name="mirror" id="nerinyan" value="nerinyan">
+                    <label for="nerinyan">Nerinyan</label>
                 </div>
                 <div class="radioSel">
                     <input type="radio" name="mirror" id="sayobot" value="sayobot">
-                    SayoBot
+                    <label for="sayobot">SayoBot</label>
                 </div>
                 <div class="radioSel">
                     <input type="radio" name="mirror" id="chimu" value="chimu">
-                    Chimu.moe
+                    <label for="chimu">Chimu.moe</label>
                 </div>
                 <div class="radioSel">
                     <input type="radio" name="mirror" id="custom" value="custom">
-                    <input type="text" id="custom-mirror" placeholder="mirror download url format"
-                        onblur="setCustomMirror(this)">
+                    <label for="custom">
+                        <input type="text" id="custom-mirror" placeholder="mirror download url format"
+                            onblur="setCustomMirror(this)">
+                    </label>
+
                 </div>
             </div>
         </div>
