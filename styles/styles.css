@@ -622,13 +622,25 @@ button:hover {
     display: none;
 }
 
-.popup {
+.selectorWrapper {
     position: absolute;
-    inset: 0 0 0 0;
-    margin: auto;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    position: relative;
+    /* inset: 0 0 0 0; */
+    /* margin: auto; */
     width: 500px;
     max-width: 100%;
-    height: auto;
+    min-height: 0;
     max-height: 60%;
     padding: 20px;
     background-color: var(--primary-2);
@@ -660,7 +672,6 @@ button:hover {
 
 .listWrapper {
     position: relative;
-
     width: 100%;
     /* height: 300px; */
     /* min-height: min-content; */
