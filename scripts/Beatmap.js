@@ -144,6 +144,7 @@ class Beatmap {
                 16
             )
         );
+        // console.log(coloursList);
 
         colorsLength = coloursList.length;
         // console.log(colorsLength);

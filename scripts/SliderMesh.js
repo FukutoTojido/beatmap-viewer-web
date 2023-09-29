@@ -114,7 +114,7 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
 
     for (let s = 0; s < 2; s++)
         for (let k = 0; k < roundedLength; ++k) {
-            if (k <= colors.length) {
+            if (k < colors.length) {
                 const innerPortion = 1 - (s === 0 ? borderwidth * 1.65 : borderwidth);
                 let tint = typeof SliderTrackOverride != "undefined" ? SliderTrackOverride : colors[k];
                 let bordertint = typeof SliderBorder != "undefined" ? SliderBorder : colors[k];
@@ -122,10 +122,12 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                 let borderG = ((bordertint >> 8) & 255) / 255;
                 let borderB = (bordertint & 255) / 255;
                 let borderA = 1.0;
+
                 let innerR = (tint >> 16) / 255;
                 let innerG = ((tint >> 8) & 255) / 255;
                 let innerB = (tint & 255) / 255;
                 let innerA = 1.0;
+
                 for (let i = 0; i < width; i++) {
                     let position = i / width;
                     let R, G, B, A;
@@ -134,15 +136,26 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                         R = borderR;
                         G = borderG;
                         B = borderB;
+
+                        if (k === colors.length - 1) {
+                            R = 60 / 255;
+                            G = 60 / 255;
+                            B = 60 / 255;
+                        }
+
                         A = borderA;
                     } // draw inner color
                     else {
-                        // R = lighten(innerR, (1 - position) / innerPortion);
-                        // G = lighten(innerG, (1 - position) / innerPortion);
-                        // B = lighten(innerB, (1 - position) / innerPortion);
-                        R = darken(innerR, s === 0 ? 0 : (1 - position) / innerPortion);
-                        G = darken(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
-                        B = darken(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
+                        if (k === colors.length - 1) {
+                            R = lighten(innerR, s === 0 ? 0 : (1 - position) / innerPortion);
+                            G = lighten(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
+                            B = lighten(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
+                        } else {
+                            R = darken(innerR, s === 0 ? 0 : (1 - position) / innerPortion);
+                            G = darken(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
+                            B = darken(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
+                        }
+
                         // TODO: tune this to make opacity transition smoother at center
                         A = innerA * (((edgeOpacity - centerOpacity) * position) / innerPortion + centerOpacity) * (s === 0 ? 1 : 0.7);
                     }
@@ -157,9 +170,9 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                         G *= (1 - position) / blurrate;
                         B *= (1 - position) / blurrate;
                         A *= (1 - position) / blurrate;
-                    }
+                    } 
                     if (innerPortion - position > 0 && innerPortion - position < blurrate) {
-                        let mu = (innerPortion - position) / blurrate;
+                        let mu = (innerPortion - position) / (blurrate);
                         R = mu * R + (1 - mu) * borderR * borderA;
                         G = mu * G + (1 - mu) * borderG * borderA;
                         B = mu * B + (1 - mu) * borderB * borderA;

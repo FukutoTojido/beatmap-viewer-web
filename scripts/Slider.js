@@ -15,10 +15,9 @@ class Slider {
     fadeIn;
 
     isNewCombo;
-    
+
     repeat;
 
-    
     sliderType;
 
     endPosition;
@@ -30,10 +29,10 @@ class Slider {
 
     SliderMesh;
     SliderSelectedMesh;
-    
+
     obj;
     selected;
-    
+
     hitCircle;
     reverseArrow;
     sliderBall;
@@ -239,6 +238,9 @@ class Slider {
 
         // Set slider color
         this.SliderMesh.tintid = this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)));
+        // this.SliderMesh.tintid = !sliderAppearance.untint
+        //     ? this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)))
+        //     : 2 ** Math.ceil(Math.log2(colorsLength)) + colorsLength - 1;
     }
 
     draw(timestamp) {
@@ -505,7 +507,7 @@ class Slider {
         this.hitTime = time;
         this.startTime = time - Beatmap.stats.preempt;
         this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
-        
+
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time, false);
         this.hitCircle.hitTime = this.hitTime;
 

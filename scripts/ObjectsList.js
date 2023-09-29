@@ -30,12 +30,12 @@ class ObjectsList {
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
         // this.objectsList = this.slidersList;
-        this.currentColor = 1 % coloursList.length;
+        this.currentColor = 1 % (coloursList.length - 1);
         this.comboIdx = 1;
 
         this.objectsList = this.objectsList.map((object, idx) => {
             if (object.obj.isNewCombo && idx !== 0) {
-                this.currentColor = (this.currentColor + 1) % coloursList.length;
+                this.currentColor = (this.currentColor + 1) % (coloursList.length - 1);
                 this.comboIdx = 1;
             }
 
@@ -94,7 +94,6 @@ class ObjectsList {
 
         const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
-        const currentFadeIn = Beatmap.difficultyRange(currentAR, 1200, 800, 300);
 
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
         const filtered = this.objectsList
@@ -261,6 +260,15 @@ class ObjectsList {
             this.fpsArr = [];
             fpsSprite.text = `0fps\nInfinite ms`;
         }
+    }
+
+    reinitializeAllSliders() {
+        const start = performance.now()
+        this.objectsList.forEach((o) => {
+            if (o.obj instanceof Slider)
+                o.obj.reInitialize()
+        })
+        console.log(`ReInitialize all sliders took: ${performance.now() - start}ms`)
     }
 
     render() {
