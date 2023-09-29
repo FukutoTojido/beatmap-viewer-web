@@ -30,12 +30,12 @@ class ObjectsList {
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
         // this.objectsList = this.slidersList;
-        this.currentColor = 1 % (coloursList.length - 1);
+        this.currentColor = 1 % (coloursList.length);
         this.comboIdx = 1;
 
         this.objectsList = this.objectsList.map((object, idx) => {
             if (object.obj.isNewCombo && idx !== 0) {
-                this.currentColor = (this.currentColor + 1) % (coloursList.length - 1);
+                this.currentColor = (this.currentColor + 1) % (coloursList.length);
                 this.comboIdx = 1;
             }
 
