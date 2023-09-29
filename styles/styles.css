@@ -254,7 +254,7 @@ svg {
     background-position: center center;
 
     padding: 5px;
-    -webkit-user-select: none;
+    user-select: none;
     cursor: pointer;
 
     box-sizing: border-box;
@@ -1146,11 +1146,6 @@ input[type="checkbox"]:checked {
         display: flex;
         flex-direction: column;
         justify-content: center;
-    }
-
-    #artistTitle,
-    #versionCreator {
-        /* padding: 0 20px; */
     }
 
     #playerController {
