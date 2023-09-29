@@ -137,11 +137,11 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                         G = borderG;
                         B = borderB;
 
-                        if (k === colors.length - 1) {
-                            R = 60 / 255;
-                            G = 60 / 255;
-                            B = 60 / 255;
-                        }
+                        // if (k === colors.length - 1) {
+                        //     R = 60 / 255;
+                        //     G = 60 / 255;
+                        //     B = 60 / 255;
+                        // }
 
                         A = borderA;
                     } // draw inner color
