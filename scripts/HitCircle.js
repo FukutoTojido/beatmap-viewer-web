@@ -21,6 +21,7 @@ class HitCircle {
     tempModsEZ = mods.EZ;
     tempW = w;
     tempH = h;
+    hitTime;
 
     drawSelected(passedStackHeight) {
         const HRMultiplier = !mods.HR ? 1 : 1.3;
@@ -129,6 +130,7 @@ class HitCircle {
         this.originalY = parseInt(positionY);
 
         this.time = time;
+        this.hitTime = time;
         this.startTime = time - Beatmap.stats.preempt;
         this.endTime = time + 240;
 

@@ -100,6 +100,8 @@ function selectedTexture() {
 
 function newTexture(colors, SliderTrackOverride, SliderBorder) {
     // console.log(colors);
+    // const startTime = performance.now();
+
     const borderwidth = 0.128;
     const edgeOpacity = 1;
     const centerOpacity = 1;
@@ -190,6 +192,7 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
     // }
     // console.log(buff);
 
+    // console.log(`Created texture in: ${performance.now() - startTime}ms`)
     return PIXI.Texture.fromBuffer(buff, width, roundedLength * 2);
 }
 
