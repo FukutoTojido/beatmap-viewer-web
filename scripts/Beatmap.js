@@ -582,7 +582,10 @@ class Beatmap {
         }
 
         this.objectsList.objectsList.forEach((o) => {
-            if (o.obj instanceof Slider) o.obj.reInitialize();
+            if (o.obj instanceof Slider) {
+                o.obj.reInitialize();
+                o.obj.hitCircle.stackHeight = o.obj.stackHeight;
+            }
         });
 
         // this.objectsList.objectsList.reverse().forEach((currentObj, i) => {

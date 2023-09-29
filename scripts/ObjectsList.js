@@ -38,11 +38,22 @@ class ObjectsList {
                 this.currentColor = (this.currentColor + 1) % coloursList.length;
                 this.comboIdx = 1;
             }
+
+            object.obj.colour = coloursList[this.currentColor];
+            object.obj.colourIdx = this.currentColor;
+            object.obj.comboIdx = this.comboIdx++;
+
+            if (object.obj instanceof Slider) {
+                object.obj.hitCircle.colour = object.obj.colour;
+                object.obj.hitCircle.colourIdx = object.obj.colourIdx;
+                object.obj.hitCircle.comboIdx = object.obj.comboIdx;
+            }
+
             return {
                 ...object,
-                comboIdx: this.comboIdx++,
-                colour: coloursList[this.currentColor],
-                colourIdx: this.currentColor,
+                colour: object.obj.colour,
+                colourIdx: object.obj.colourIdx,
+                comboIdx: object.obj.comboIdx,
             };
         });
 
@@ -81,7 +92,7 @@ class ObjectsList {
         updateTime(timestamp);
         setSliderTime();
 
-        let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
+        const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
         const currentFadeIn = Beatmap.difficultyRange(currentAR, 1200, 800, 300);
 
@@ -173,41 +184,18 @@ class ObjectsList {
             const objStartTime = object.time - currentPreempt;
 
             if (timestamp >= objStartTime) {
-                let opacity = 0;
-                let opacityHD = 0;
-
-                if (timestamp < object.time) opacity = (timestamp - objStartTime) / currentFadeIn;
-                else opacity = Math.min((timestamp - (object.obj.endTime - 240)) / 240 - 1, -0.0001);
-
-                if (timestamp < objStartTime + currentFadeIn) opacityHD = (timestamp - objStartTime) / currentFadeIn;
-                else opacityHD = Math.max(1 - (timestamp - (objStartTime + currentFadeIn)) / (currentPreempt * 0.3), 0);
-
-                // console.log(object.time, object.colourIdx);
-
-                object.obj.draw(
-                    timestamp,
-                    opacity,
-                    (timestamp - object.time) / (object.obj.endTime - 240 - object.time),
-                    1 - (timestamp - object.time) / 240,
-                    (timestamp - objStartTime) / currentPreempt,
-                    object.colour,
-                    object.colourIdx,
-                    object.comboIdx,
-                    1,
-                    undefined,
-                    opacityHD
-                );
+                object.obj.draw(timestamp);
 
                 if (timestamp - this.lastTimestamp >= 2) {
                     if (object.obj instanceof HitCircle) {
-                        if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                        if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
                             // console.log(object.time, timestamp, this.lastTimestamp);
                             object.hitsounds.play();
                         }
                     }
 
                     if (object.obj instanceof Slider) {
-                        if (timestamp >= object.time && this.lastTimestamp < object.time && !staticDraw) {
+                        if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
                             // console.log(object.time, timestamp, this.lastTimestamp);
                             object.hitsounds.sliderHead.play();
                         }

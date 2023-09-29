@@ -1,34 +1,46 @@
 class HitCircle {
     startTime;
     endTime;
+
     positionX;
     positionY;
+
     isNewCombo;
     isSliderHead;
+
     originalX;
     originalY;
+
     stackHeight = 0;
     time;
+
     obj;
     selected;
+
     hitCircleSprite;
     hitCircleLegacySprite;
     hitCircleOverlaySprite;
     hitCircleOverlayLegacySprite;
+
     numberSprite;
     approachCircleObj;
+
     tempModsHR = mods.HR;
     tempModsEZ = mods.EZ;
     tempW = w;
     tempH = h;
-    hitTime;
 
-    drawSelected(passedStackHeight) {
+    hitTime;
+    colour;
+    colourIdx;
+    comboIdx;
+
+    drawSelected() {
         const HRMultiplier = !mods.HR ? 1 : 1.3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
 
-        const stackHeight = !passedStackHeight ? this.stackHeight : passedStackHeight;
+        const stackHeight = this.stackHeight;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
         const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
@@ -42,13 +54,15 @@ class HitCircle {
         this.selected.scale.set(circleModScale);
     }
 
-    draw(timestamp, opacity, trol, expandRate, preemptRate, colour, colourIdx, comboIdx, currentScaleFactor, sliderStackHeight, opacityHD) {
+    draw(timestamp) {
         // if (this.time === 468) console.log(this.time, opacity, opacityHD);
 
+        // Calculate object radius on HR / EZ toggle
         const HRMultiplier = !mods.HR ? 1 : 4 / 3;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
 
+        // Re-scale on playfield size change
         if (this.tempW !== w || this.tempH !== h) {
             this.tempW = w;
             this.tempH = h;
@@ -62,66 +76,112 @@ class HitCircle {
             this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
+        // Re-scale on HR / EZ toggle
         if (this.tempModsHR !== mods.HR || this.tempModsEZ !== mods.EZ) {
             this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
-        const currentOpacity = Clamp(
-            !mods.HD
-                ? timestamp - this.time < 0
-                    ? opacity
-                    : 1 - Math.abs(timestamp - this.time) / (sliderAppearance.hitAnim ? 240 : 800)
-                : opacityHD,
-            0,
-            1
-        );
-        const currentExpand = sliderAppearance.hitAnim ? (timestamp - this.time < 0 ? 1 : 1 - currentOpacity + 1) : 1;
+        // Calculate current timing stats
+        const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
+        const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
+        const currentFadeIn = Beatmap.difficultyRange(currentAR, 1200, 800, 300);
+        const fadeOutTime = sliderAppearance.hitAnim ? 240 : 800;
 
-        const stackHeight = sliderStackHeight === undefined ? this.stackHeight : sliderStackHeight;
+        // Calculate object opacity
+        let currentOpacity = 0;
+        if (!mods.HD) {
+            if (timestamp < this.hitTime) {
+                currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
+            } else {
+                currentOpacity = 1 - (timestamp - this.hitTime) / fadeOutTime;
+            }
+        } else {
+            if (timestamp < this.time - currentPreempt + currentFadeIn) {
+                currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
+            } else {
+                currentOpacity = 1 - (timestamp - (this.time - currentPreempt + currentFadeIn)) / (currentPreempt * 0.3);
+            }
+        }
+        currentOpacity = Clamp(currentOpacity, 0, 1);
+
+        // Calculate object expandation
+        let currentExpand = 1;
+        if (sliderAppearance.hitAnim && timestamp > this.hitTime) {
+            currentExpand = (timestamp - this.hitTime) / 240 + 1;
+        }
+        currentExpand = Math.max(currentExpand, 1);
+
+        // Calculate stack offset for this object
+        const stackHeight = this.stackHeight;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
-        const convertedColor = colour;
-        this.hitCircleSprite.tint = sliderAppearance.hitAnim ? convertedColor : timestamp - this.time < 0 ? convertedColor : 0xffffff;
-        this.hitCircleLegacySprite.tint = sliderAppearance.hitAnim ? convertedColor : timestamp - this.time < 0 ? convertedColor : 0xffffff;
+        // Untint HitCircle on hit when hit animation is disabled
+        if (sliderAppearance.hitAnim || timestamp < this.hitTime) {
+            this.hitCircleSprite.tint = this.colour;
+            this.hitCircleLegacySprite.tint = this.colour;
+        } else {
+            this.hitCircleSprite.tint = 0xffffff;
+            this.hitCircleLegacySprite.tint = 0xffffff;
+        }
 
+        // Set HitCircle alpha and scale
         this.obj.alpha = currentOpacity;
         this.obj.scale.set(currentExpand * circleModScale);
 
+        // Set HitCircle position
         const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
         const y = !mods.HR
             ? ((this.originalY + stackHeight * currentStackOffset) * w) / 512
             : ((384 - this.originalY + stackHeight * currentStackOffset) * w) / 512;
-
         this.obj.x = x;
         this.obj.y = y;
 
         if (sliderAppearance.legacy) {
+            // Hide Lazer HitCircle
             this.hitCircleSprite.alpha = 0;
+            this.hitCircleOverlaySprite.alpha = 0;
+
+            // Show Legacy HitCircle
             this.hitCircleLegacySprite.alpha = 0.9;
             this.hitCircleOverlayLegacySprite.alpha = 1;
-            this.hitCircleOverlaySprite.alpha = 0;
+
+            // Re-scale Number Sprite
             this.numberSprite.scale.set(((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize)) / 1.3);
         } else {
+            // Show Lazer HitCircle
             this.hitCircleSprite.alpha = 1;
+            this.hitCircleOverlaySprite.alpha = 1;
+
+            // Hide Legacy HitCircle
             this.hitCircleLegacySprite.alpha = 0;
             this.hitCircleOverlayLegacySprite.alpha = 0;
-            this.hitCircleOverlaySprite.alpha = 1;
+
+            // Re-scale Number Sprite
             this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
-        // this.hitCircleOverlaySprite.scale.set(sliderAppearance.legacy ? 236 / 272 : 1);
+        // Set Number Sprite text and alpha
+        this.numberSprite.text = this.comboIdx.toString();
+        if (timestamp < this.hitTime || !sliderAppearance.hitAnim) {
+            this.numberSprite.alpha = 1;
+        } else {
+            this.numberSprite.alpha = 0;
+        }
 
-        this.numberSprite.text = comboIdx.toString();
-        this.numberSprite.alpha = timestamp > this.time ? (!sliderAppearance.hitAnim ? 1 : 0) : 1;
-
-        const approachRateExpandRate = opacity >= 0 ? -3 * Math.min(preemptRate, 1) + 4 : 1;
+        // Set Approach Circle opacity and expand
+        let approachRateExpandRate = 1;
+        if (timestamp <= this.time) {
+            const preemptRate = (timestamp - (this.time - currentPreempt)) / currentPreempt;
+            approachRateExpandRate = Math.max(-3 * Math.min(preemptRate, 1) + 4, 1);
+        }
         this.approachCircleObj.obj.x = x;
         this.approachCircleObj.obj.y = y;
-        this.approachCircleObj.draw(
-            sliderAppearance.hitAnim ? (!mods.HD ? (timestamp > this.time ? 0 : currentOpacity) : 0) : currentOpacity,
-            approachRateExpandRate * circleModScale,
-            convertedColor
-        );
+        const approachRateSize = approachRateExpandRate * circleModScale;
+        if (mods.HD || timestamp > this.time) {
+            this.approachCircleObj.draw(0, approachRateSize, this.colour);
+        } else {
+            this.approachCircleObj.draw(currentOpacity, approachRateSize, this.colour);
+        }
         // console.log(this.time, currentExpand, timestamp - this.time > 0, timestamp);
     }
 
