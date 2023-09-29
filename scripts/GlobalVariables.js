@@ -235,7 +235,8 @@ const loadColorPalette = (bg) => {
 
     const primary = swatches.DarkMuted?.getRgb() ?? swatches.DarkVibrant?.getRgb();
     if (primary) {
-        const primaryHex = d3.color(`rgb(${primary[0]}, ${primary[1]}, ${primary[2]})`);
+        const primaryHex = d3.color(`rgb(${parseInt(primary[0])}, ${parseInt(primary[1])}, ${parseInt(primary[2])})`);
+        console.log(primary, primaryHex);
         const primaryPalette = [
             primaryHex.darker(2.0).formatHex(),
             primaryHex.darker(1.5).formatHex(),
@@ -251,7 +252,7 @@ const loadColorPalette = (bg) => {
 
     const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb();
     if (accent) {
-        const accentHex = d3.color(`rgb(${accent[0]}, ${accent[1]}, ${accent[2]})`);
+        const accentHex = d3.color(`rgb(${parseInt(accent[0])}, ${parseInt(accent[1])}, ${parseInt(accent[2])})`);
         rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
     }
 };
