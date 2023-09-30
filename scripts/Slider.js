@@ -218,7 +218,7 @@ class Slider {
                     : Math.ceil((this.angleList.length - 1) * (1 - repeatPercentage));
 
             // Set sliderball position
-            if (currentRepeat < this.repeat) {
+            if (currentRepeat <= this.repeat) {
                 this.sliderBall.x = ((this.angleList[pos].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
                 this.sliderBall.y =
                     (((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
