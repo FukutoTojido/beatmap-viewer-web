@@ -1,3 +1,4 @@
+document.querySelector("#mapInput").onkeydown = mapInputEnter;
 function mapInputEnter(e) {
     if (e.key === "Enter") {
         submitMap(false);
