@@ -40,7 +40,7 @@ class Game {
         fpsSprite.x = Game.APP.view.width - 10;
         fpsSprite.y = Game.APP.view.height - 10;
 
-        return fpsSprite
+        return fpsSprite;
     }
 
     static dragWindowInit() {

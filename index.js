@@ -17,23 +17,27 @@ if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
     document.querySelector("#mapInput").value = urlParams.get("b");
 }
 
-window.onresize = () => {
-    mainGame.appResize();
+window.onresize = debounce(() => {
+    setTimeout(() => {
+        Game.appResize();
+    }, 200);
 
     if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
             beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }
     }
-};
+});
 
-screen.orientation.onchange = () => {
+screen.orientation.onchange = debounce(() => {
     // console.log("Orientation Changed");
-    mainGame.appResize();
+    setTimeout(() => {
+        Game.appResize();
+    }, 200);
 
     if (!playingFlag) {
         if (beatmapFile !== undefined && beatmapFile.beatmapRenderData !== undefined) {
             beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }
     }
-};
+});

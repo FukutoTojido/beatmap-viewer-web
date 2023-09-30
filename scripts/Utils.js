@@ -111,7 +111,7 @@ const loadColorPalette = (bg) => {
     const primary = swatches.DarkMuted?.getRgb() ?? swatches.DarkVibrant?.getRgb();
     if (primary) {
         const primaryHex = d3.color(`rgb(${parseInt(primary[0])}, ${parseInt(primary[1])}, ${parseInt(primary[2])})`);
-        console.log(primary, primaryHex);
+        // console.log(primary, primaryHex);
         const primaryPalette = [
             primaryHex.darker(2.0).formatHex(),
             primaryHex.darker(1.5).formatHex(),
@@ -169,4 +169,12 @@ function toDataUrl(url, callback) {
     xhr.open("GET", url);
     xhr.responseType = "blob";
     xhr.send();
+}
+
+function debounce(func) {
+    let timer;
+    return function (event) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(func, 100, event);
+    };
 }

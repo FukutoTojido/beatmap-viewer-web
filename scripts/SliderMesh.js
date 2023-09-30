@@ -151,9 +151,9 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                         //     G = lighten(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
                         //     B = lighten(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
                         // } else {
-                            R = darken(innerR, s === 0 ? 0 : (1 - position) / innerPortion);
-                            G = darken(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
-                            B = darken(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
+                        R = darken(innerR, s === 0 ? 0 : (1 - position) / innerPortion);
+                        G = darken(innerG, s === 0 ? 0 : (1 - position) / innerPortion);
+                        B = darken(innerB, s === 0 ? 0 : (1 - position) / innerPortion);
                         // }
 
                         // TODO: tune this to make opacity transition smoother at center
@@ -170,9 +170,9 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                         G *= (1 - position) / blurrate;
                         B *= (1 - position) / blurrate;
                         A *= (1 - position) / blurrate;
-                    } 
+                    }
                     if (innerPortion - position > 0 && innerPortion - position < blurrate) {
-                        let mu = (innerPortion - position) / (blurrate);
+                        let mu = (innerPortion - position) / blurrate;
                         R = mu * R + (1 - mu) * borderR * borderA;
                         G = mu * G + (1 - mu) * borderG * borderA;
                         B = mu * B + (1 - mu) * borderB * borderA;
@@ -469,6 +469,9 @@ class SliderMesh extends PIXI.Container {
                 bind(this.geometry);
             }
             gl.drawElements(this.drawMode, indexLength, glType, 0);
+
+            bind(this.circle);
+            gl.drawElements(this.drawMode, indexLength, glType, 0);
         } else if (this.startt == 0.0) {
             // snaking in
             if (this.endt != 0.0) {
@@ -479,6 +482,9 @@ class SliderMesh extends PIXI.Container {
                 this.uniforms.ot = this.endt;
                 bind(this.geometry);
             }
+            gl.drawElements(this.drawMode, indexLength, glType, 0);
+
+            bind(this.circle);
             gl.drawElements(this.drawMode, indexLength, glType, 0);
         }
 
