@@ -463,7 +463,6 @@ class SliderMesh extends PIXI.Container {
         } else if (this.endt == 1.0) {
             // snaking out
             if (this.startt != 1.0) {
-                bind(this.circle);
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
                 this.uniforms.ox = ox0;
                 this.uniforms.oy = oy0;
@@ -475,7 +474,6 @@ class SliderMesh extends PIXI.Container {
         } else if (this.startt == 0.0) {
             // snaking in
             if (this.endt != 0.0) {
-                bind(this.circle);
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
                 this.uniforms.ox = ox0;
                 this.uniforms.oy = oy0;
