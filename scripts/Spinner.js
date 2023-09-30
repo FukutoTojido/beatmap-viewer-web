@@ -33,38 +33,35 @@ class Spinner {
         this.hitTime = endTime;
         this.endTime = endTime + 240;
 
-        const container = new Container();
+        const container = new PIXI.Container();
 
-        const approachCircleContainer = new Container();
+        const approachCircleContainer = new PIXI.Container();
         const approachCircle = new Graphics()
             .lineStyle({
-                width: (4 * w) / 1024,
+                width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, (192 * w) / 512, 0, Math.PI * 2);
-        // graphics.x = (256 * w) / 512;
-        // graphics.y = (192 * w) / 512;
-        // graphics.anchor.set(0.5);
+            .arc(0, 0, (192 * Game.WIDTH) / 512, 0, Math.PI * 2);
 
         approachCircleContainer.addChild(approachCircle);
 
         const spinner = new Graphics()
             .lineStyle({
-                width: (4 * w) / 1024,
+                width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, (5 * w) / 512, 0, Math.PI * 2);
+            .arc(0, 0, (5 * Game.WIDTH) / 512, 0, Math.PI * 2);
 
         container.addChild(approachCircleContainer);
         container.addChild(spinner);
-        container.x = (256 * w) / 512;
-        container.y = (192 * w) / 512;
+        container.x = (256 * Game.WIDTH) / 512;
+        container.y = (192 * Game.WIDTH) / 512;
 
         this.obj = container;
         this.approachCircle = approachCircleContainer;

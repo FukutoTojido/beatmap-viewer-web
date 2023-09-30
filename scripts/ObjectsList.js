@@ -10,8 +10,8 @@ class ObjectsList {
     lastTimestamp = 0;
     lastTime = 0;
     fpsArr = [];
-    tempW = w;
-    tempH = h;
+    tempW = Game.WIDTH;
+    tempH = Game.HEIGHT;
 
     // static preempt = 0;
 
@@ -69,7 +69,7 @@ class ObjectsList {
             this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 100);
         }
 
-        fpsSprite.text = `${Math.round(
+        Game.FPS.text = `${Math.round(
             (1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)) * DTMultiplier * HTMultiplier
         )}fps\n${(
             this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) /
@@ -78,9 +78,9 @@ class ObjectsList {
         ).toFixed(2)}ms`;
         this.lastTime = performance.now();
 
-        if (this.tempW !== w || this.tempH !== h) {
-            this.tempW = w;
-            this.tempH = h;
+        if (this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
+            this.tempW = Game.WIDTH;
+            this.tempH = Game.HEIGHT;
 
             generateSprites(Beatmap.stats.circleDiameter);
         }
@@ -125,7 +125,7 @@ class ObjectsList {
             if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
         });
 
-        addToContainer(
+        Game.addToContainer(
             filtered
                 .map((o) => o.obj)
                 .concat(approachCircleList)
@@ -148,7 +148,7 @@ class ObjectsList {
                 .filter((o) => o)
         );
 
-        removeFromContainer(
+        Game.removeFromContainer(
             noRender
                 .map((o) => o.obj)
                 .concat(noRenderApproachCircleList)
@@ -258,7 +258,7 @@ class ObjectsList {
             });
         } else {
             this.fpsArr = [];
-            fpsSprite.text = `0fps\nInfinite ms`;
+            Game.FPS.text = `0fps\nInfinite ms`;
         }
     }
 

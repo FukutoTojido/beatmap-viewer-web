@@ -27,8 +27,8 @@ class HitCircle {
 
     tempModsHR = mods.HR;
     tempModsEZ = mods.EZ;
-    tempW = w;
-    tempH = h;
+    tempW = Game.WIDTH;
+    tempH = Game.HEIGHT;
 
     hitTime;
     colour;
@@ -43,10 +43,10 @@ class HitCircle {
         const stackHeight = this.stackHeight;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
-        const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
+        const x = ((this.originalX + stackHeight * currentStackOffset) * Game.WIDTH) / 512;
         const y = !mods.HR
-            ? ((this.originalY + stackHeight * currentStackOffset) * w) / 512
-            : ((384 - this.originalY + stackHeight * currentStackOffset) * w) / 512;
+            ? ((this.originalY + stackHeight * currentStackOffset) * Game.WIDTH) / 512
+            : ((384 - this.originalY + stackHeight * currentStackOffset) * Game.WIDTH) / 512;
 
         this.selected.x = x;
         this.selected.y = y;
@@ -63,9 +63,9 @@ class HitCircle {
         const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
 
         // Re-scale on playfield size change
-        if (this.tempW !== w || this.tempH !== h) {
-            this.tempW = w;
-            this.tempH = h;
+        if (this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
+            this.tempW = Game.WIDTH;
+            this.tempH = Game.HEIGHT;
 
             this.hitCircleOverlaySprite.texture = hitCircleOverlayTemplate;
             this.hitCircleOverlayLegacySprite.texture = hitCircleOverlayLegacyTemplate;
@@ -73,12 +73,12 @@ class HitCircle {
             this.hitCircleLegacySprite.texture = hitCircleLegacyTemplate;
             this.approachCircleObj.obj.texture = approachCircleTemplate;
 
-            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
+            this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
         // Re-scale on HR / EZ toggle
         if (this.tempModsHR !== mods.HR || this.tempModsEZ !== mods.EZ) {
-            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
+            this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
         // Calculate current timing stats
@@ -129,10 +129,10 @@ class HitCircle {
         this.obj.scale.set(currentExpand * circleModScale);
 
         // Set HitCircle position
-        const x = ((this.originalX + stackHeight * currentStackOffset) * w) / 512;
+        const x = ((this.originalX + stackHeight * currentStackOffset) * Game.WIDTH) / 512;
         const y = !mods.HR
-            ? ((this.originalY + stackHeight * currentStackOffset) * w) / 512
-            : ((384 - this.originalY + stackHeight * currentStackOffset) * w) / 512;
+            ? ((this.originalY + stackHeight * currentStackOffset) * Game.WIDTH) / 512
+            : ((384 - this.originalY + stackHeight * currentStackOffset) * Game.WIDTH) / 512;
         this.obj.x = x;
         this.obj.y = y;
 
@@ -146,7 +146,7 @@ class HitCircle {
             this.hitCircleOverlayLegacySprite.alpha = 1;
 
             // Re-scale Number Sprite
-            this.numberSprite.scale.set(((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize)) / 1.3);
+            this.numberSprite.scale.set(((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize)) / 1.3);
         } else {
             // Show Lazer HitCircle
             this.hitCircleSprite.alpha = 1;
@@ -157,7 +157,7 @@ class HitCircle {
             this.hitCircleOverlayLegacySprite.alpha = 0;
 
             // Re-scale Number Sprite
-            this.numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
+            this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
         // Set Number Sprite text and alpha
@@ -196,23 +196,23 @@ class HitCircle {
 
         this.isNewCombo = isNewCombo;
 
-        const selected = new Sprite(selectedHitCircleTemplate);
+        const selected = new PIXI.Sprite(selectedHitCircleTemplate);
         selected.anchor.set(0.5);
         this.selected = selected;
 
-        const hitCircleOverlaySprite = new Sprite(hitCircleOverlayTemplate);
+        const hitCircleOverlaySprite = new PIXI.Sprite(hitCircleOverlayTemplate);
         hitCircleOverlaySprite.anchor.set(0.5);
         this.hitCircleOverlaySprite = hitCircleOverlaySprite;
 
-        const hitCircleOverlayLegacySprite = new Sprite(hitCircleOverlayLegacyTemplate);
+        const hitCircleOverlayLegacySprite = new PIXI.Sprite(hitCircleOverlayLegacyTemplate);
         hitCircleOverlayLegacySprite.anchor.set(0.5);
         this.hitCircleOverlayLegacySprite = hitCircleOverlayLegacySprite;
 
-        const hitCircleSprite = new Sprite(hitCircleTemplate);
+        const hitCircleSprite = new PIXI.Sprite(hitCircleTemplate);
         hitCircleSprite.anchor.set(0.5);
         this.hitCircleSprite = hitCircleSprite;
 
-        const hitCircleLegacySprite = new Sprite(hitCircleLegacyTemplate);
+        const hitCircleLegacySprite = new PIXI.Sprite(hitCircleLegacyTemplate);
         hitCircleLegacySprite.anchor.set(0.5);
         this.hitCircleLegacySprite = hitCircleLegacySprite;
 
@@ -224,18 +224,18 @@ class HitCircle {
             align: "center",
         });
         numberSprite.anchor.set(0.5);
-        numberSprite.y = (-1 * w) / 512;
-        numberSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
+        numberSprite.y = (-1 * Game.WIDTH) / 512;
+        numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         this.numberSprite = numberSprite;
 
-        const hitCircleContainer = new Container();
+        const hitCircleContainer = new PIXI.Container();
         hitCircleContainer.addChild(hitCircleSprite);
         hitCircleContainer.addChild(hitCircleLegacySprite);
         hitCircleContainer.addChild(hitCircleOverlaySprite);
         hitCircleContainer.addChild(hitCircleOverlayLegacySprite);
         hitCircleContainer.addChild(numberSprite);
-        hitCircleContainer.x = (this.originalX * w) / 512;
-        hitCircleContainer.y = (this.originalY * w) / 512;
+        hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;
+        hitCircleContainer.y = (this.originalY * Game.WIDTH) / 512;
 
         this.approachCircleObj = new ApproachCircle(this.originalX, this.originalY);
 

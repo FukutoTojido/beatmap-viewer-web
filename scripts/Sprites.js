@@ -1,32 +1,32 @@
 class HitObjectSprite {
     static createSelectedHitCircle(diameter) {
-        return new Graphics()
+        return new PIXI.Graphics()
             .lineStyle({
-                width: ((((diameter / 2) * 50) / 236) * w) / 512,
+                width: ((((diameter / 2) * 50) / 236) * Game.WIDTH) / 512,
                 color: 0xf2cc0f,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, ((diameter / 2) * w) / 512, 0, Math.PI * 2);
+            .arc(0, 0, ((diameter / 2) * Game.WIDTH) / 512, 0, Math.PI * 2);
     }
 
     static createHitCircle(diameter) {
-        const hitCircle = new Graphics();
+        const hitCircle = new PIXI.Graphics();
 
-        const circle_1 = new Graphics();
+        const circle_1 = new PIXI.Graphics();
         circle_1.beginFill(0xffffff);
-        circle_1.drawCircle(0, 0, ((diameter / 2) * w) / 512);
+        circle_1.drawCircle(0, 0, ((diameter / 2) * Game.WIDTH) / 512);
         circle_1.endFill();
 
-        const circle_2 = new Graphics();
+        const circle_2 = new PIXI.Graphics();
         circle_2.beginFill(0x9a9a9a);
-        circle_2.drawCircle(0, 0, ((((diameter / 2) * 186) / 236) * w) / 512);
+        circle_2.drawCircle(0, 0, ((((diameter / 2) * 186) / 236) * Game.WIDTH) / 512);
         circle_2.endFill();
 
-        const circle_3 = new Graphics();
+        const circle_3 = new PIXI.Graphics();
         circle_3.beginFill(0x2f2f2f);
-        circle_3.drawCircle(0, 0, ((((diameter / 2) * 140) / 236) * w) / 512);
+        circle_3.drawCircle(0, 0, ((((diameter / 2) * 140) / 236) * Game.WIDTH) / 512);
         circle_3.endFill();
 
         hitCircle.addChild(circle_1);
@@ -37,26 +37,26 @@ class HitObjectSprite {
     }
 
     static createHitCircleLegacy(diameter) {
-        const hitCircle = new Graphics();
+        const hitCircle = new PIXI.Graphics();
 
-        const circle_0 = new Graphics();
+        const circle_0 = new PIXI.Graphics();
         circle_0.beginFill(0x202020);
-        circle_0.drawCircle(0, 0, ((diameter / 2) * w) / 512);
+        circle_0.drawCircle(0, 0, ((diameter / 2) * Game.WIDTH) / 512);
         circle_0.endFill();
 
-        const circle_1 = new Graphics();
+        const circle_1 = new PIXI.Graphics();
         circle_1.beginFill(0xffffff);
-        circle_1.drawCircle(0, 0, ((((diameter / 2) * 200) / 236) * w) / 512);
+        circle_1.drawCircle(0, 0, ((((diameter / 2) * 200) / 236) * Game.WIDTH) / 512);
         circle_1.endFill();
 
-        const circle_2 = new Graphics();
+        const circle_2 = new PIXI.Graphics();
         circle_2.beginFill(0x9a9a9a);
-        circle_2.drawCircle(0, 0, ((((diameter / 2) * 160) / 236) * w) / 512);
+        circle_2.drawCircle(0, 0, ((((diameter / 2) * 160) / 236) * Game.WIDTH) / 512);
         circle_2.endFill();
 
-        const circle_3 = new Graphics();
+        const circle_3 = new PIXI.Graphics();
         circle_3.beginFill(0x2f2f2f);
-        circle_3.drawCircle(0, 0, ((((diameter / 2) * 120) / 236) * w) / 512);
+        circle_3.drawCircle(0, 0, ((((diameter / 2) * 120) / 236) * Game.WIDTH) / 512);
         circle_3.endFill();
 
         hitCircle.addChild(circle_0);
@@ -68,53 +68,53 @@ class HitObjectSprite {
     }
 
     static createHitCircleOverlay(diameter) {
-        return new Graphics()
+        return new PIXI.Graphics()
             .lineStyle({
-                width: (4 * w) / 1024,
+                width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, ((((diameter / 2) * 272) / 236) * w) / 512, 0, Math.PI * 2);
+            .arc(0, 0, ((((diameter / 2) * 272) / 236) * Game.WIDTH) / 512, 0, Math.PI * 2);
     }
 
     static createHitCircleOverlayLegacy(diameter) {
-        return new Graphics()
+        return new PIXI.Graphics()
             .lineStyle({
-                width: (4 * w) / 1024,
+                width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, ((diameter / 2) * w) / 512, 0, Math.PI * 2);
+            .arc(0, 0, ((diameter / 2) * Game.WIDTH) / 512, 0, Math.PI * 2);
     }
 
     static createApproachCircle(diameter) {
-        return new Graphics()
+        return new PIXI.Graphics()
             .lineStyle({
-                width: (4 * w) / 1024,
+                width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 1,
             })
-            .arc(0, 0, ((diameter / 2) * w) / 512, 0, Math.PI * 2);
+            .arc(0, 0, ((diameter / 2) * Game.WIDTH) / 512, 0, Math.PI * 2);
     }
 
     static createSliderBall(diameter) {
-        const sliderBallOutLine = new Graphics()
+        const sliderBallOutLine = new PIXI.Graphics()
             .lineStyle({
-                width: (15 * w) / 1024,
+                width: (15 * Game.WIDTH) / 1024,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, ((diameter / 2) * w) / 512, 0, Math.PI * 2);
+            .arc(0, 0, ((diameter / 2) * Game.WIDTH) / 512, 0, Math.PI * 2);
 
-        const sliderBallContainer = new Container();
+        const sliderBallContainer = new PIXI.Container();
         sliderBallContainer.addChild(sliderBallOutLine);
 
         return sliderBallContainer;
@@ -157,12 +157,12 @@ class HitObjectSprite {
             // resolution: window.devicePixelRatio,
         });
     
-        app.renderer.render(graphics, {
+        Game.APP.renderer.render(graphics, {
             renderTexture,
             transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
         });
     
-        app.renderer.framebuffer.blit();
+        Game.APP.renderer.framebuffer.blit();
     
         graphics.destroy(true);
     

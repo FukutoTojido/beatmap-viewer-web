@@ -328,11 +328,9 @@ class BeatmapFile {
 
     async constructMap() {
         try {
-            app.stage.removeChild(container);
-            container = new Container();
-            app.stage.addChild(container);
-            container.x = offsetX;
-            container.y = offsetY;
+            Game.APP.stage.removeChild(Game.CONTAINER);
+            Game.CONTAINER = Game.containerInit();
+            Game.APP.stage.addChild(Game.CONTAINER);
 
             currentMapId = this.mapId;
             audioCtx = new AudioContext();

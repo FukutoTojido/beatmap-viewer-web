@@ -42,8 +42,8 @@ class Slider {
 
     tempModsHR = mods.HR;
     tempModsEZ = mods.EZ;
-    tempW = w;
-    tempH = h;
+    tempW = Game.WIDTH;
+    tempH = Game.HEIGHT;
 
     colour;
     colourIdx;
@@ -77,11 +77,11 @@ class Slider {
     }
 
     drawSelected() {
-        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== w || this.tempH !== h) {
+        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
             this.tempModsEZ = mods.EZ;
             this.tempModsHR = mods.HR;
-            this.tempW = w;
-            this.tempH = h;
+            this.tempW = Game.WIDTH;
+            this.tempH = Game.HEIGHT;
             this.reInitialize();
             this.sliderBall.texture = sliderBallTemplate;
         }
@@ -99,11 +99,11 @@ class Slider {
         const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
         // Re-scale on playfield size change / on HR / EZ toggle
-        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== w || this.tempH !== h) {
+        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
             this.tempModsEZ = mods.EZ;
             this.tempModsHR = mods.HR;
-            this.tempW = w;
-            this.tempH = h;
+            this.tempW = Game.WIDTH;
+            this.tempH = Game.HEIGHT;
             this.reInitialize();
             this.sliderBall.texture = sliderBallTemplate;
         }
@@ -163,9 +163,9 @@ class Slider {
         if (this.repeat > 1) {
             if (timestamp < this.time) {
                 // Set reverse arrow position
-                this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * w) / 512;
+                this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
                 this.reverseArrow.y =
-                    (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * w) / 512;
+                    (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
 
                 // Set reverse arrow rotation
                 this.reverseArrow.rotation = this.angleE + (!mods.HR ? 0 : Math.PI * 2 - this.angleE * 2);
@@ -181,16 +181,16 @@ class Slider {
                 if (currentRepeat < this.repeat - 1) {
                     if (currentRepeat % 2 === 0) {
                         // Set reverse arrow properties at slider end
-                        this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * w) / 512;
+                        this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
                         this.reverseArrow.y =
-                            (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * w) /
+                            (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * Game.WIDTH) /
                             512;
                         this.reverseArrow.rotation = this.angleE + (!mods.HR ? 0 : Math.PI * 2 - this.angleE * 2);
                     } else {
                         // Set reverse arrow properties at slider head
-                        this.reverseArrow.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * w) / 512;
+                        this.reverseArrow.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
                         this.reverseArrow.y =
-                            (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * w) / 512;
+                            (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
                         this.reverseArrow.rotation = this.angleS + (!mods.HR ? 0 : Math.PI * 2 - this.angleS * 2);
                     }
 
@@ -205,7 +205,7 @@ class Slider {
             const offset = this.time % this.beatStep;
             const revExpand = (timestamp - offset - Math.floor((timestamp - offset) / this.beatStep) * this.beatStep) / this.beatStep;
             const revExpandRate = (1 - Clamp(Math.abs(revExpand), 0, 1)) * 0.7 + 0.8;
-            this.reverseArrow.scale.set(((revExpandRate * circleModScale * w) / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
+            this.reverseArrow.scale.set(((revExpandRate * circleModScale * Game.WIDTH) / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
 
         if (timestamp > this.hitTime) {
@@ -219,17 +219,17 @@ class Slider {
 
             // Set sliderball position
             if (currentRepeat < this.repeat) {
-                this.sliderBall.x = ((this.angleList[pos].x + this.stackHeight * currentStackOffset) * w) / 512;
+                this.sliderBall.x = ((this.angleList[pos].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
                 this.sliderBall.y =
-                    (((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) + this.stackHeight * currentStackOffset) * w) / 512;
+                    (((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
             }
 
             this.sliderBall.alpha = timestamp > this.endTime - fadeOutTime + 1 ? 0 : 1;
         } else {
             // Hide sliderball when not hitted
             this.sliderBall.alpha = 0;
-            this.sliderBall.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * w) / 512;
-            this.sliderBall.y = (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * w) / 512;
+            this.sliderBall.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+            this.sliderBall.y = (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
         }
 
         // Set sliderball scale
@@ -255,20 +255,14 @@ class Slider {
         const inverse = mods.HR ? -1 : 1;
         const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
-        let w_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-        let h_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-
-        if (w_z / 512 > h_z / 384) w_z = (h_z / 384) * 512;
-        else h_z = (w_z / 512) * 384;
-
-        const dx = (2 * w) / document.querySelector("canvas").width / 512;
-        const dy = (inverse * (-2 * h)) / document.querySelector("canvas").height / 384;
+        const dx = (2 * Game.WIDTH) / Game.APP.view.width / 512;
+        const dy = (inverse * (-2 * Game.HEIGHT)) / Game.APP.view.height / 384;
 
         const transform = {
             dx: dx,
-            ox: -1 + (2 * offsetX) / document.querySelector("canvas").width + dx * this.stackHeight * currentStackOffset,
+            ox: -1 + (2 * Game.OFFSET_X) / Game.APP.view.width + dx * this.stackHeight * currentStackOffset,
             dy: dy,
-            oy: inverse * (1 - (2 * offsetY) / document.querySelector("canvas").height) + inverse * dy * this.stackHeight * currentStackOffset,
+            oy: inverse * (1 - (2 * Game.OFFSET_Y) / Game.APP.view.height) + inverse * dy * this.stackHeight * currentStackOffset,
         };
 
         this.sliderGeometryContainer.initiallize((Beatmap.stats.circleDiameter / 2) * circleModScale, transform);
@@ -276,7 +270,7 @@ class Slider {
 
     createEquiDistCurve(points, actualLength, calculatedLength) {
         let rPoints = points;
-        const sectionDistance = actualLength * sliderAccuracy;
+        const sectionDistance = actualLength * Game.SLIDER_ACCURACY;
 
         for (let i = 0; i < rPoints.length - 1; i++) {
             let distanceToNextPoint = this.Dist(rPoints[i], rPoints[i + 1]);
@@ -317,7 +311,7 @@ class Slider {
 
     generatePointsList(controlPointsList) {
         let pointsList = [];
-        for (let i = 0; i < 1; i += sliderAccuracy) {
+        for (let i = 0; i < 1; i += Game.SLIDER_ACCURACY) {
             pointsList.push(this.bezier(i, controlPointsList));
         }
 
@@ -424,7 +418,7 @@ class Slider {
         let length = 0;
 
         // console.log(this.time, innerAngle, centerX, centerY, pointArr[0]);
-        for (let i = 0; i < 1; i += sliderAccuracy) {
+        for (let i = 0; i < 1; i += Game.SLIDER_ACCURACY) {
             const toPush = {
                 x: centerX + (pointArr[0].x - centerX) * Math.cos(innerAngle * i) - (pointArr[0].y - centerY) * Math.sin(innerAngle * i),
                 y: centerY + (pointArr[0].x - centerX) * Math.sin(innerAngle * i) + (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
@@ -534,8 +528,8 @@ class Slider {
             this.angleE = angleE;
             this.angleS = angleS;
 
-            const revEndSprite = Sprite.from("static/reversearrow@2x.png");
-            revEndSprite.scale.set((w / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
+            const revEndSprite = PIXI.Sprite.from("static/reversearrow@2x.png");
+            revEndSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
             revEndSprite.anchor.set(0.5);
             revEndSprite.alpha = 0;
 
@@ -554,16 +548,16 @@ class Slider {
         this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
         this.selected = this.sliderGeometryContainer.selSliderContainer;
 
-        this.SliderMeshContainer = new Container();
+        this.SliderMeshContainer = new PIXI.Container();
         this.SliderMeshContainer.addChild(this.SliderMesh);
 
-        const sliderBall = new Sprite(sliderBallTemplate);
-        sliderBall.x = (this.angleList[0].x * w) / 512;
-        sliderBall.y = (this.angleList[0].y * w) / 512;
+        const sliderBall = new PIXI.Sprite(sliderBallTemplate);
+        sliderBall.x = (this.angleList[0].x * Game.WIDTH) / 512;
+        sliderBall.y = (this.angleList[0].y * Game.WIDTH) / 512;
         sliderBall.anchor.set(0.5);
         this.sliderBall = sliderBall;
 
-        const SliderContainer = new Container();
+        const SliderContainer = new PIXI.Container();
         SliderContainer.addChild(this.SliderMeshContainer);
 
         if (this.reverseArrow) {

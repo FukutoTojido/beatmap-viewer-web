@@ -44,6 +44,8 @@ class PAudio {
     absStartTime = 0;
     isPlaying = false;
 
+    static SOFT_OFFSET = 0;
+
     async createBufferNode(buf) {
         // console.log(buf);
         this.buf = await audioCtx.decodeAudioData(buf);
@@ -56,6 +58,7 @@ class PAudio {
     }
 
     constructor(buf) {
+        PAudio.SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset
         this.createBufferNode(buf);
     }
 
@@ -97,8 +100,8 @@ class PAudio {
             this.startTime = audioCtx.currentTime * 1000;
             this.absStartTime = performance.now();
             this.src.start(
-                audioCtx.currentTime - (SOFT_OFFSET < 0 ? SOFT_OFFSET / 1000 : 0),
-                this.currentTime / 1000 + 25 / 1000 + (SOFT_OFFSET >= 0 ? SOFT_OFFSET / 1000 : 0)
+                audioCtx.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
+                this.currentTime / 1000 + 25 / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
             document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
