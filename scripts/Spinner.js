@@ -36,7 +36,7 @@ class Spinner {
         const container = new PIXI.Container();
 
         const approachCircleContainer = new PIXI.Container();
-        const approachCircle = new Graphics()
+        const approachCircle = new PIXI.Graphics()
             .lineStyle({
                 width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
@@ -48,7 +48,7 @@ class Spinner {
 
         approachCircleContainer.addChild(approachCircle);
 
-        const spinner = new Graphics()
+        const spinner = new PIXI.Graphics()
             .lineStyle({
                 width: (4 * Game.WIDTH) / 1024,
                 color: 0xffffff,
