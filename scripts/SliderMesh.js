@@ -394,6 +394,7 @@ class SliderMesh extends PIXI.Container {
 
         // first render: to store min depth in depth buffer, but not actually drawing anything
         gl.colorMask(false, false, false, false);
+        // gl.colorMask(true, true, true, true);
 
         // translation is not supported
         renderer.state.set(this.state); // set state
@@ -409,6 +410,7 @@ class SliderMesh extends PIXI.Container {
             glType = byteSize === 2 ? gl.UNSIGNED_SHORT : gl.UNSIGNED_INT; // type of each index
             indexLength = geometry.indexBuffer.data.length; // number of indices
         }
+
         if (this.startt == 0.0 && this.endt == 1.0) {
             // display whole slider
             this.uniforms.dt = 0;
@@ -461,6 +463,7 @@ class SliderMesh extends PIXI.Container {
         } else if (this.endt == 1.0) {
             // snaking out
             if (this.startt != 1.0) {
+                bind(this.circle);
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
                 this.uniforms.ox = ox0;
                 this.uniforms.oy = oy0;
@@ -469,12 +472,10 @@ class SliderMesh extends PIXI.Container {
                 bind(this.geometry);
             }
             gl.drawElements(this.drawMode, indexLength, glType, 0);
-
-            bind(this.circle);
-            gl.drawElements(this.drawMode, indexLength, glType, 0);
         } else if (this.startt == 0.0) {
             // snaking in
             if (this.endt != 0.0) {
+                bind(this.circle);
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
                 this.uniforms.ox = ox0;
                 this.uniforms.oy = oy0;
@@ -482,9 +483,6 @@ class SliderMesh extends PIXI.Container {
                 this.uniforms.ot = this.endt;
                 bind(this.geometry);
             }
-            gl.drawElements(this.drawMode, indexLength, glType, 0);
-
-            bind(this.circle);
             gl.drawElements(this.drawMode, indexLength, glType, 0);
         }
 
