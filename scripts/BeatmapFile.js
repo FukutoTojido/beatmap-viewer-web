@@ -73,8 +73,8 @@ class BeatmapFile {
             dropBlob = blob;
             return blob;
         } catch (e) {
-            // console.log(e);
             // return;
+            console.log(e);
             throw "This map is not available on the selected beatmap provider\nPlease open the settings to choose another one.";
         }
     }
@@ -429,6 +429,8 @@ class BeatmapFile {
 
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
+
+            beatmapFile = undefined;
         }
     }
 }

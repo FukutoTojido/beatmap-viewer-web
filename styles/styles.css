@@ -964,6 +964,15 @@ input[type="checkbox"]:checked {
     background-color: var(--accent-1);
 }
 
+.selection:has(input[type="checkbox"]:disabled) {
+    opacity: 0.2;
+}
+
+input[type="checkbox"]:disabled:hover {
+    box-shadow: unset;
+    filter: unset;
+}
+
 .list input[type="text"] {
     appearance: none;
     box-sizing: border-box;

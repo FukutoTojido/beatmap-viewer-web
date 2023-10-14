@@ -7,6 +7,12 @@ document.querySelector("#playerContainer").addEventListener("drop", function (e)
     if (!e.dataTransfer.files.length) return;
 
     const file = e.dataTransfer.files[0];
+    if (file.name.split(".").at(-1) === "osr") {
+        const parser = new ScoreParser(file);
+        parser.getReplayData();
+        return;
+    }
+
     if (file.name.split(".").at(-1) !== "osz") return;
 
     document.querySelector("#close").disabled = true;
