@@ -60,15 +60,23 @@ class BeatmapFile {
                 // params: { nv: 1, nh: 0, nsb: 1 },
             });
 
-            const blob = (
-                await requestClient.get(`${setId}`, {
-                    responseType: "blob",
-                    onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                        // console.log(progressEvent);
-                    },
-                })
-            ).data;
+            // const blob = (
+            //     await requestClient.get(`${setId}`, {
+            //         responseType: "blob",
+            //         onDownloadProgress: (progressEvent) => {
+            //             document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+            //             // console.log(progressEvent);
+            //         },
+            //     })
+            // ).data;
+
+            const blob = await await ky.get(`${setId}`, {
+                        prefixUrl: urls[selectedMirror] ?? customURL,
+                        onDownloadProgress: (progressEvent) => {
+                            document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                            // console.log(progressEvent);
+                        },
+            }).blob();
 
             dropBlob = blob;
             return blob;

@@ -153,10 +153,6 @@ async function loadSampleSound(sample, idx, buf) {
     }
 }
 
-function timeout(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function toDataUrl(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
