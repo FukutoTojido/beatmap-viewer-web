@@ -21,7 +21,7 @@ function loadLocalStorage() {
         // masterVol = currentLocalStorage.volume.master;
 
         document.querySelector("#music").value = currentLocalStorage.volume.music;
-        document.querySelector("#musicVal").innerHTML = `${parseInt((currentLocalStorage.volume.music / 0.4) * 100)}%`;
+        document.querySelector("#musicVal").innerHTML = `${parseInt((currentLocalStorage.volume.music) * 100)}%`;
         // musicVol = currentLocalStorage.volume.music;
 
         document.querySelector("#effect").value = currentLocalStorage.volume.hs;
@@ -174,3 +174,50 @@ function debounce(func) {
         timer = setTimeout(func, 100, event);
     };
 }
+
+const Fixed = (val, decimalPlace) => Math.round(val * 10 ** decimalPlace) / 10 ** decimalPlace;
+const Dist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+const Add = (p1, p2) => {
+    return { x: p1.x + p2.x, y: p1.y + p2.y };
+};
+
+const FlipHR = (coord) => {
+    return { x: coord.x, y: 384 - coord.y };
+};
+
+const LinearEstimation = (start, end, t) => {
+    const deltaX = end.x - start.x;
+    const deltaY = end.y - start.y;
+
+    return {
+        x: start.x + deltaX * t,
+        y: start.y + deltaY * t,
+    };
+};
+
+const ApplyModsToTime = (time, mods) => {
+    if (mods.includes("DoubleTime")) return time / 1.5;
+
+    if (mods.includes("HalfTime")) return time / 0.75;
+
+    return time;
+};
+const TranslateToZero = (point) => {
+    const pointCop = { ...point };
+    pointCop.x -= 256;
+    pointCop.y -= 192;
+
+    return pointCop;
+};
+
+const easeOutQuint = (t) => {
+    return 1 - Math.pow(1 - t, 5);
+};
+
+const easeInSine = (x) => {
+    return 1 - Math.cos((x * Math.PI) / 2);
+};
+
+const easeOutSine = (x) => {
+    return Math.sin((x * Math.PI) / 2);
+};

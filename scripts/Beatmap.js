@@ -10,13 +10,17 @@ function generateSprites(diameter) {
 
 class Beatmap {
     objectsList;
+    static difficultyMultiplier = 1;
     static stats = {
         approachRate: 5,
         circleSize: 5,
+        HPDrainRate: 5,
+        overallDifficulty: 5,
         stackLeniency: 7,
         circleDiameter: (2 * (54.4 - 4.48 * 5) * 236) / 256,
         preempt: 1200,
         fadeIn: 800,
+        sliderTickRate: 1,
     };
 
     static difficultyRange(val, min, mid, max) {
@@ -24,6 +28,12 @@ class Beatmap {
         if (val < 5) return mid - ((mid - min) * (5 - val)) / 5;
         return mid;
     }
+
+    static hitWindows = {
+        GREAT: 80,
+        OK: 140,
+        MEH: 200,
+    };
 
     constructor(rawBeatmap, delay) {
         // Get Approach Rate
@@ -54,6 +64,15 @@ class Beatmap {
                 .replaceAll("CircleSize:", "")
         );
 
+        // Get Circle Size
+        Beatmap.stats.HPDrainRate = parseFloat(
+            rawBeatmap
+                .split("\r\n")
+                .filter((line) => line.includes("HPDrainRate:"))
+                .shift()
+                .replaceAll("HPDrainRate:", "")
+        );
+
         // Get Stack Leniency
         Beatmap.stats.stackLeniency = rawBeatmap.includes("StackLeniency: ")
             ? parseFloat(
@@ -64,6 +83,33 @@ class Beatmap {
                       .replaceAll("StackLeniency: ", "")
               )
             : 0.7;
+
+        // Get Slider Tick Rate
+        Beatmap.stats.sliderTickRate = parseFloat(
+            rawBeatmap
+                .split("\r\n")
+                .filter((line) => line.includes("SliderTickRate:"))
+                .shift()
+                .replaceAll("SliderTickRate:", "")
+        );
+
+        // Get Overall Difficulty
+        Beatmap.stats.overallDifficulty = parseFloat(
+            rawBeatmap
+                .split("\r\n")
+                .filter((line) => line.includes("OverallDifficulty:"))
+                .shift()
+                .replaceAll("OverallDifficulty:", "")
+        );
+
+        const HRMultiplier = !mods.HR ? 1 : 1.3;
+        const EZMultiplier = !mods.EZ ? 1 : 0.5;
+
+        Beatmap.hitWindows = {
+            GREAT: Math.floor(80 - 6 * Clamp(Beatmap.stats.overallDifficulty * HRMultiplier * EZMultiplier, 0, 10)),
+            OK: Math.floor(140 - 8 * Clamp(Beatmap.stats.overallDifficulty * HRMultiplier * EZMultiplier, 0, 10)),
+            MEH: Math.floor(200 - 10 * Clamp(Beatmap.stats.overallDifficulty * HRMultiplier * EZMultiplier, 0, 10)),
+        };
 
         Beatmap.stats.circleDiameter = (2 * (54.4 - 4.48 * Beatmap.stats.circleSize) * 236) / 256;
         generateSprites(Beatmap.stats.circleDiameter);
@@ -460,8 +506,8 @@ class Beatmap {
                     const sliderObj = new Slider(
                         `${params[0]}:${params[1]}|${params[5].slice(2)}`,
                         params[5][0],
-                        params[6] * params[7],
-                        initialSliderVelocity * currentSVMultiplier.svMultiplier,
+                        parseFloat(params[7]),
+                        currentSVMultiplier.svMultiplier,
                         initialSliderVelocity,
                         beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
                             ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
@@ -474,7 +520,7 @@ class Beatmap {
                     const endTime =
                         parseInt(params[2]) +
                         delay +
-                        (sliderObj.initialSliderLen / currentSVMultiplier.svMultiplier / sliderObj.baseSliderVelocity) * currentbeatStep;
+                        ((sliderObj.sliderLength * sliderObj.repeat) / currentSVMultiplier.svMultiplier / sliderObj.baseSV) * currentbeatStep;
 
                     return {
                         obj: sliderObj,
@@ -588,6 +634,20 @@ class Beatmap {
                 o.obj.hitCircle.stackHeight = o.obj.stackHeight;
             }
         });
+
+        const drainTime =
+            (this.objectsList.objectsList.at(-1).obj.time -
+                (breakPeriods.reduce((accumulated, curr) => accumulated + (curr[1] - curr[0]), 0) + this.objectsList.objectsList.at(0).obj.time)) /
+            1000;
+
+        Beatmap.difficultyMultiplier = Math.round(
+            ((Beatmap.stats.HPDrainRate +
+                Beatmap.stats.circleSize +
+                Beatmap.stats.overallDifficulty +
+                Clamp((this.objectsList.objectsList.length / drainTime) * 8, 0, 16)) /
+                38) *
+                5
+        );
 
         // this.objectsList.objectsList.reverse().forEach((currentObj, i) => {
         //     let stackBaseIndex = i;

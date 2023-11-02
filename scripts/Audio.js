@@ -39,6 +39,7 @@ class Audio {
 class PAudio {
     buf;
     src;
+    phazeNode;
     currentTime = 0;
     startTime = 0;
     absStartTime = 0;
@@ -55,10 +56,15 @@ class PAudio {
             this.seekTo(parseInt(urlParams.get("t")));
             setSliderTime();
         }
+
+        await audioCtx.audioWorklet.addModule("../lib/phase-vocoder.min.js");
+        this.phazeNode = new AudioWorkletNode(audioCtx, "phase-vocoder-processor");
+
+        this.gainNode = audioCtx.createGain();
     }
 
     constructor(buf) {
-        PAudio.SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset
+        PAudio.SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset;
         this.createBufferNode(buf);
     }
 
@@ -77,11 +83,10 @@ class PAudio {
     play(time) {
         if (!this.isPlaying) {
             this.isPlaying = true;
+
             this.src = audioCtx.createBufferSource();
 
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = musicVol * masterVol;
-            gainNode.connect(audioCtx.destination);
+            this.gainNode.gain.value = musicVol * masterVol;
 
             this.src.buffer = this.buf;
             this.src.playbackRate.value = playbackRate;
@@ -95,13 +100,19 @@ class PAudio {
                     this.seekTo(0);
                 }
             };
-            this.src.connect(gainNode);
+
+            let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
+            pitchFactorParam.value = 1 / playbackRate;
+
+            this.src.connect(this.phazeNode);
+            this.phazeNode.connect(this.gainNode);
+            this.gainNode.connect(audioCtx.destination);
 
             this.startTime = audioCtx.currentTime * 1000;
             this.absStartTime = performance.now();
             this.src.start(
                 audioCtx.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
-                this.currentTime / 1000 + 25 / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
+                this.currentTime / 1000 + 60 / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
             document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
@@ -112,6 +123,8 @@ class PAudio {
         if (this.isPlaying) {
             this.src.stop();
             this.src.disconnect();
+            this.phazeNode.disconnect();
+            this.gainNode.disconnect();
             // this.currentTime += (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
             this.currentTime += (performance.now() - this.absStartTime) * playbackRate;
             this.isPlaying = false;
@@ -132,6 +145,8 @@ class HitSample {
     sliderTail = false;
     vol = 1;
 
+    static masterGainNode;
+
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
@@ -140,17 +155,15 @@ class HitSample {
     play() {
         // console.log(this.audioObj, "Played");
         this.audioObj.forEach((hs) => {
-            const src = audioCtx.createBufferSource();
             const gainNode = audioCtx.createGain();
-            gainNode.gain.value = hsVol * masterVol * this.vol;
-            gainNode.connect(audioCtx.destination);
+            gainNode.gain.value = this.vol;
 
+            const src = audioCtx.createBufferSource();
             src.buffer = hitsoundsBuffer[Object.keys(hitsoundsBuffer).includes(hs) ? hs : `${hs.replaceAll(/\d/g, "")}0`];
             src.connect(gainNode);
 
-            // const audioOffset = -document.querySelector("audio").currentTime + time;
-            // console.log(audioCtx.currentTime);
-
+            gainNode.connect(HitSample.masterGainNode);
+            
             src.start();
         });
     }

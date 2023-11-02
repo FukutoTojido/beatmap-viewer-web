@@ -19,6 +19,7 @@
     <script src="./lib/Vibrant.min.js"></script>
     <script src="./lib/zip-fs-full.js"></script>
     <script src="./lib/osujs.js"></script>
+    <!-- <script src="./lib/phase-vocoder.min.js"></script> -->
     <!-- <script src="./lib/lzma-min.js"></script> -->
     <!-- <script src="./lib/lzma_worker-min.js"></script> -->
     <script src="./lib/lzma_worker.js"></script>
@@ -28,11 +29,12 @@
     <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
+    <script src="./scripts/Cursor.js"></script>
     <script src="./scripts/Game.js"></script>
     <script src="./scripts/Sprites.js"></script>
     <script src="./scripts/Audio.js"></script>
-    <script src="./scripts/Cursor.js"></script>
     <script src="./scripts/ApproachCircle.js"></script>
+    <script src="./scripts/Judgement.js"></script>
     <script src="./scripts/HitCircle.js"></script>
     <script src="./scripts/Slider.js"></script>
     <script src="./scripts/Spinner.js"></script>
@@ -48,6 +50,7 @@
     <script src="./scripts/DragDrop.js" defer></script>
     <script src="./scripts/InputBar.js" defer></script>
     <script src="./scripts/ProgressBar.js" defer></script>
+    <script src="./scripts/Record.js" defer></script>
 </head>
 
 <body>
@@ -60,6 +63,7 @@
                 <input id="mapInput" type="text" placeholder=" " value="4135190" onkeydown="mapInputEnter(this)">
             </div>
             <button id="submit">Load</button>
+            <!-- <button id="record">Record</button> -->
         </div>
         <div class="utilRow">
             <input type="file" name="map-dropper" id="map-dropper" accept=".osz">
@@ -188,8 +192,8 @@
                 <div class="selection slider">
                     <label for="music">music volume</label>
                     <div id="musicVal" class="val">25%</div>
-                    <input type="range" id="music" name="music" min="0" max="0.4" step="0.004"
-                        oninput='setAudioVolume(this);' value="0.1">
+                    <input type="range" id="music" name="music" min="0" max="1.0" step="0.01"
+                        oninput='setAudioVolume(this);' value="0.25">
                 </div>
                 <div class="selection slider">
                     <label for="effect">effect volume</label>
@@ -215,11 +219,11 @@
                     <input type="checkbox" id="EZ" name="EZ" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="DT">nightcore</label>
+                    <label for="DT">double time</label>
                     <input type="checkbox" id="DT" name="DT" onchange='handleCheckBox(this);'>
                 </div>
                 <div class="selection">
-                    <label for="HT">daycore</label>
+                    <label for="HT">half time</label>
                     <input type="checkbox" id="HT" name="HT" onchange='handleCheckBox(this);'>
                 </div>
             </div>

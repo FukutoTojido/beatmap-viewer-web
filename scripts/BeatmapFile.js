@@ -70,13 +70,29 @@ class BeatmapFile {
             //     })
             // ).data;
 
-            const blob = await await ky.get(`${setId}`, {
-                        prefixUrl: urls[selectedMirror] ?? customURL,
-                        onDownloadProgress: (progressEvent) => {
-                            document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-                            // console.log(progressEvent);
-                        },
-            }).blob();
+            const rawData = await ky.get(`${setId}/`, {
+                prefixUrl: urls[selectedMirror] ?? customURL,
+                onDownloadProgress: (progressEvent) => {
+                    document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                    // console.log(progressEvent);
+                },
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                },
+            });
+
+            // const rawData = await fetch(`${urls[selectedMirror] ?? customURL}${setId}`, {
+            //     // onDownloadProgress: (progressEvent) => {
+            //     //     document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+            //     //     // console.log(progressEvent);
+            //     // },
+            //     mode: "no-cors",
+            // });
+
+            const blob = await rawData.blob();
+
+            // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
             dropBlob = blob;
             return blob;
@@ -242,6 +258,11 @@ class BeatmapFile {
 
         document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
         const audioFile = allEntries.filter((e) => e.filename === audioFilename).shift();
+
+        if (!audioFile) {
+            throw "This map has no audio file";
+        }
+
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
         // console.log("Audio Blob Generated");
         this.audioBlobURL = URL.createObjectURL(audioBlob);
@@ -337,8 +358,10 @@ class BeatmapFile {
     async constructMap() {
         try {
             Game.APP.stage.removeChild(Game.CONTAINER);
+            Game.APP.stage.removeChild(Game.CURSOR);
             Game.CONTAINER = Game.containerInit();
             Game.APP.stage.addChild(Game.CONTAINER);
+            Game.APP.stage.addChild(Game.CURSOR.obj);
 
             currentMapId = this.mapId;
             audioCtx = new AudioContext();
@@ -348,6 +371,9 @@ class BeatmapFile {
             this.audioArrayBuffer = audioArrayBuffer;
             // console.log(this.audioArrayBuffer, audioArrayBuffer);
             this.audioNode = new PAudio(audioArrayBuffer);
+            HitSample.masterGainNode = audioCtx.createGain();
+            HitSample.masterGainNode.gain.value = hsVol * masterVol;
+            HitSample.masterGainNode.connect(audioCtx.destination);
             await this.loadHitsounds();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
@@ -365,6 +391,29 @@ class BeatmapFile {
             document.querySelector("#close").disabled = false;
 
             // document.querySelector("#playButton").addEventListener("click", playToggle);
+
+            if (ScoreParser.CURSOR_DATA) {
+                ScoreParser.eval();
+                document.querySelector("#HD").disabled = true;
+                document.querySelector("#HR").disabled = true;
+                document.querySelector("#DT").disabled = true;
+                document.querySelector("#EZ").disabled = true;
+                document.querySelector("#HT").disabled = true;
+
+                calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
+            } else {
+                document.querySelector("#HD").disabled = false;
+                document.querySelector("#HR").disabled = false;
+                document.querySelector("#DT").disabled = false;
+                document.querySelector("#EZ").disabled = false;
+                document.querySelector("#HT").disabled = false;
+
+                document.querySelector("#HD").checked = false;
+                document.querySelector("#HR").checked = false;
+                document.querySelector("#DT").checked = false;
+                document.querySelector("#EZ").checked = false;
+                document.querySelector("#HT").checked = false;
+            }
 
             document.onkeydown = (e) => {
                 e = e || window.event;

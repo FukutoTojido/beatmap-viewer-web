@@ -188,7 +188,8 @@ body {
     outline: solid 3px var(--accent-1);
 }
 
-#inputContainer button:nth-child(3) {
+#inputContainer button:nth-child(3),
+#inputContainer button:nth-child(4) {
     width: 80px;
     height: 40px;
 
@@ -202,7 +203,8 @@ body {
     transition: ease-in-out 200ms;
 }
 
-#inputContainer button:nth-child(3):hover {
+#inputContainer button:nth-child(3):hover,
+#inputContainer button:nth-child(4):hover {
     filter: none;
     background-color: var(--primary-5);
 }
@@ -1105,7 +1107,8 @@ input[type="checkbox"]:disabled:hover {
         border-radius: 5px;
     }
 
-    #inputContainer button:nth-child(3) {
+    #inputContainer button:nth-child(3),
+    #inputContainer button:nth-child(4) {
         background-color: var(--primary-3);
         border-radius: 5px;
     }
@@ -1296,7 +1299,8 @@ input[type="checkbox"]:disabled:hover {
         /* background-color: rgb(0 0 0 /0.5); */
     }
 
-    #inputContainer button:nth-child(3) {
+    #inputContainer button:nth-child(3),
+    #inputContainer button:nth-child(4) {
         border-radius: 5px;
         background-color: rgb(0 0 0 /0.5);
     }

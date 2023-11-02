@@ -6,6 +6,7 @@ class Game {
     static GRID;
     static DRAG_WINDOW;
     static FPS;
+    static CURSOR;
 
     static WIDTH;
     static HEIGHT;
@@ -25,6 +26,10 @@ class Game {
         objectsList.forEach((o) => {
             Game.CONTAINER.removeChild(o.obj);
         });
+    }
+
+    static CursorInit() {
+        return new Cursor();
     }
 
     static FPSInit() {
@@ -170,13 +175,16 @@ class Game {
         Game.GRID = Game.gridInit();
         Game.DRAG_WINDOW = Game.dragWindowInit();
         Game.FPS = Game.FPSInit();
+        Game.CURSOR = Game.CursorInit();
 
         Game.APP.stage.addChild(Game.GRID);
         Game.APP.stage.addChild(Game.DRAG_WINDOW);
         Game.APP.stage.addChild(Game.CONTAINER);
         Game.APP.stage.addChild(Game.FPS);
+        Game.APP.stage.addChild(Game.CURSOR.obj);
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
+        globalThis.__PIXI_APP__ = Game.APP;
     }
 }

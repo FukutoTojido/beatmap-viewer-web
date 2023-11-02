@@ -2,6 +2,7 @@ class ObjectsList {
     hitCirclesList;
     slidersList;
     objectsList;
+    judgementList = [];
     drawTime;
     coloursList;
     breakPeriods;
@@ -30,12 +31,12 @@ class ObjectsList {
         this.slidersList = slidersList;
         this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
         // this.objectsList = this.slidersList;
-        this.currentColor = 1 % (coloursList.length);
+        this.currentColor = 1 % coloursList.length;
         this.comboIdx = 1;
 
         this.objectsList = this.objectsList.map((object, idx) => {
             if (object.obj.isNewCombo && idx !== 0) {
-                this.currentColor = (this.currentColor + 1) % (coloursList.length);
+                this.currentColor = (this.currentColor + 1) % coloursList.length;
                 this.comboIdx = 1;
             }
 
@@ -112,6 +113,16 @@ class ObjectsList {
             if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
         });
 
+        const judgementRenderList = this.judgementList.filter(
+            (judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp
+        );
+
+        const judgementNoRender = this.judgementList.filter(
+            (judgement) => !(judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp)
+        );
+
+        // console.log(judgementList);
+
         const noRender = this.objectsList.filter(
             (object) =>
                 !(
@@ -126,25 +137,29 @@ class ObjectsList {
         });
 
         Game.addToContainer(
-            filtered
-                .map((o) => o.obj)
-                .concat(approachCircleList)
+            judgementRenderList
                 .concat(
-                    selected.map((o) => {
-                        return {
-                            obj: o.obj.selected,
-                        };
-                    })
+                    filtered
+                        .map((o) => o.obj)
+                        .concat(approachCircleList)
+                        .concat(
+                            selected.map((o) => {
+                                return {
+                                    obj: o.obj.selected,
+                                };
+                            })
+                        )
+                        .concat(
+                            selected
+                                .filter((o) => o.obj instanceof Slider)
+                                .map((o) => {
+                                    return {
+                                        obj: o.obj.hitCircle.selected,
+                                    };
+                                })
+                        )
                 )
-                .concat(
-                    selected
-                        .filter((o) => o.obj instanceof Slider)
-                        .map((o) => {
-                            return {
-                                obj: o.obj.hitCircle.selected,
-                            };
-                        })
-                )
+
                 .filter((o) => o)
         );
 
@@ -152,6 +167,7 @@ class ObjectsList {
             noRender
                 .map((o) => o.obj)
                 .concat(noRenderApproachCircleList)
+                .concat(judgementNoRender)
                 .concat(
                     noSelected.map((o) => {
                         return {
@@ -179,60 +195,109 @@ class ObjectsList {
             document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
         }
 
+        judgementRenderList.forEach((object) => {
+            object.draw(timestamp);
+        });
+
         filtered.forEach((object) => {
             const objStartTime = object.time - currentPreempt;
-
-            if (timestamp >= objStartTime) {
-                object.obj.draw(timestamp);
-
-                if (timestamp - this.lastTimestamp >= 2) {
-                    if (object.obj instanceof HitCircle) {
-                        if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
-                            // console.log(object.time, timestamp, this.lastTimestamp);
-                            object.hitsounds.play();
-                        }
-                    }
-
-                    if (object.obj instanceof Slider) {
-                        if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
-                            // console.log(object.time, timestamp, this.lastTimestamp);
-                            object.hitsounds.sliderHead.play();
-                        }
-
-                        if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
-                            // console.log(object.time, timestamp, this.lastTimestamp);
-                            object.hitsounds.sliderTail.play();
-                        }
-
-                        if (object.hitsounds.sliderReverse.length > 0) {
-                            const currentOffsetFromStart = timestamp - object.time;
-                            const lastOffsetFromStart = this.lastTimestamp - object.time;
-                            const totalLength = object.endTime - object.time;
-
-                            const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
-                            const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
-
-                            if (currentRepeatIdx > lastRepeatIdx && currentRepeatIdx < object.obj.repeat && currentRepeatIdx >= 1 && !staticDraw) {
-                                object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
-                            }
-                        }
-                    }
-
-                    if (object.obj instanceof Spinner) {
-                        if (timestamp >= object.endTime && this.lastTimestamp < object.endTime && !staticDraw) {
-                            // console.log(object.time, timestamp, this.lastTimestamp);
-                            object.hitsounds.play();
-                        }
-                    }
-                }
-            }
 
             selected.forEach((o) => {
                 o.obj.drawSelected();
                 if (o.obj instanceof Slider) o.obj.hitCircle.drawSelected(o.obj.stackHeight);
             });
+
+            if (timestamp < objStartTime) return;
+
+            object.obj.draw(Math.max(timestamp, 0));
+
+            if (object.obj instanceof HitCircle) {
+                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
+                    // console.log(object.time, timestamp, this.lastTimestamp);
+
+                    if (!ScoreParser.REPLAY_DATA) object.hitsounds.play();
+                    else {
+                        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+                        if (evaluation) object.hitsounds.play();
+                    }
+                }
+            }
+
+            if (object.obj instanceof Slider) {
+                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
+                    // console.log(object.time, timestamp, this.lastTimestamp);
+                    if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderHead.play();
+                    else {
+                        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+                        if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
+                            object.hitsounds.sliderHead.play();
+                    }
+                }
+
+                if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
+                    // console.log(object.time, timestamp, this.lastTimestamp);
+
+                    if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderTail.play();
+                    else {
+                        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+                        if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
+                            object.hitsounds.sliderTail.play();
+                    }
+                }
+
+                if (object.hitsounds.sliderReverse.length > 0) {
+                    const currentOffsetFromStart = timestamp - object.time;
+                    const lastOffsetFromStart = this.lastTimestamp - object.time;
+                    const totalLength = object.endTime - object.time;
+
+                    const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
+                    const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
+
+                    if (currentRepeatIdx > lastRepeatIdx && currentRepeatIdx < object.obj.repeat && currentRepeatIdx >= 1 && !staticDraw) {
+                        if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
+                        else {
+                            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+                            if (
+                                evaluation &&
+                                evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[currentRepeatIdx - 1].eval ===
+                                    1
+                            )
+                                object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
+                        }
+                    }
+                }
+            }
+
+            if (object.obj instanceof Spinner) {
+                if (timestamp >= object.endTime && this.lastTimestamp < object.endTime && !staticDraw) {
+                    // console.log(object.time, timestamp, this.lastTimestamp);
+                    object.hitsounds.play();
+                }
+            }
+
             // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
         });
+
+        if (ScoreParser.CURSOR_DATA) {
+            const posInfoIndex = ScoreParser.CURSOR_DATA.slice(0, -1).findLastIndex((cursorData) => cursorData.time <= timestamp);
+            const lerp_x =
+                ScoreParser.CURSOR_DATA[posInfoIndex].x +
+                ((timestamp - ScoreParser.CURSOR_DATA[posInfoIndex].time) /
+                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].time - ScoreParser.CURSOR_DATA[posInfoIndex].time)) *
+                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].x - ScoreParser.CURSOR_DATA[posInfoIndex].x);
+            const lerp_y =
+                ScoreParser.CURSOR_DATA[posInfoIndex].y +
+                ((timestamp - ScoreParser.CURSOR_DATA[posInfoIndex].time) /
+                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].time - ScoreParser.CURSOR_DATA[posInfoIndex].time)) *
+                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].y - ScoreParser.CURSOR_DATA[posInfoIndex].y);
+
+            if (posInfoIndex !== -1) {
+                // Game.CURSOR.x = Game.OFFSET_X + lerp_x * (Game.WIDTH / 512);
+                // Game.CURSOR.y = Game.OFFSET_Y + lerp_y * (Game.WIDTH / 512);
+
+                Game.CURSOR.update(posInfoIndex, lerp_x, lerp_y);
+            }
+        }
 
         if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying) {
             if (beatmapFile.audioNode.getCurrentTime() > beatmapFile.audioNode.buf.duration * 1000) {
@@ -263,12 +328,11 @@ class ObjectsList {
     }
 
     reinitializeAllSliders() {
-        const start = performance.now()
+        const start = performance.now();
         this.objectsList.forEach((o) => {
-            if (o.obj instanceof Slider)
-                o.obj.reInitialize()
-        })
-        console.log(`ReInitialize all sliders took: ${performance.now() - start}ms`)
+            if (o.obj instanceof Slider) o.obj.reInitialize();
+        });
+        console.log(`ReInitialize all sliders took: ${performance.now() - start}ms`);
     }
 
     render() {

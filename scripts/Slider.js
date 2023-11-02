@@ -1,10 +1,13 @@
 class Slider {
     originalArr = [];
     angleList = [];
+    realTrackPoints;
+    sliderParts;
+    sliderEndEvalPosition;
 
-    initialSliderLen;
-    initialSliderVelocity;
-    baseSliderVelocity;
+    sliderLength;
+    svMultiplier;
+    baseSV;
 
     beatStep;
 
@@ -117,11 +120,12 @@ class Slider {
         // Calculate object opacity
         let currentOpacity = 0;
         if (!mods.HD) {
-            if (timestamp < this.hitTime) {
+            if (timestamp < this.time) {
                 currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
             } else if (timestamp > this.endTime - (fadeOutTime - 1)) {
                 if (sliderAppearance.snaking) {
-                    currentOpacity = 0;
+                    if (this.hitTime <= this.endTime - fadeOutTime) currentOpacity = 0;
+                    else currentOpacity = 1 - (timestamp - (this.endTime - (fadeOutTime - 1))) / fadeOutTime;
                 } else {
                     currentOpacity = 1 - (timestamp - (this.endTime - (fadeOutTime - 1))) / fadeOutTime;
                 }
@@ -129,7 +133,7 @@ class Slider {
                 currentOpacity = 1;
             }
         } else {
-            if (timestamp < this.hitTime) {
+            if (timestamp < this.time) {
                 currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
             } else {
                 currentOpacity = 1 - (timestamp - this.time) / (this.endTime - (fadeOutTime - 1) - this.time);
@@ -139,13 +143,18 @@ class Slider {
         this.SliderMesh.alpha = currentOpacity;
 
         // Calculate object progress percentage
-        const currentPercentage = (timestamp - this.time) / (this.endTime - fadeOutTime - this.time);
+        const currentPercentage = Clamp((timestamp - this.time) / (this.endTime - fadeOutTime - this.time), 0, 1);
 
         // Set object snaking section
         if (sliderAppearance.snaking) {
-            if (timestamp < this.time) {
+            if (timestamp < this.hitTime) {
                 this.SliderMesh.startt = 0;
-                this.SliderMesh.endt = Clamp(currentOpacity * 2, 0, 1);
+
+                if (this.hitTime > this.endTime) {
+                    this.SliderMesh.endt = 1;
+                } else {
+                    this.SliderMesh.endt = Clamp(currentOpacity * 2, 0, 1);
+                }
             } else if (timestamp >= this.hitTime) {
                 if (this.repeat % 2 === 0) {
                     this.SliderMesh.startt = 0;
@@ -214,7 +223,8 @@ class Slider {
             );
         }
 
-        if (timestamp > this.hitTime) {
+        const sliderBallShowtime = this.time;
+        if (timestamp > sliderBallShowtime) {
             // Calculate sliderball position
             const currentRepeat = Math.floor(currentPercentage * this.repeat);
             const repeatPercentage = (currentPercentage - currentRepeat / this.repeat) * this.repeat;
@@ -327,7 +337,7 @@ class Slider {
             length += this.Dist(pointsList[i], pointsList[i + 1]);
         }
 
-        pointsList = this.createEquiDistCurve(pointsList, this.initialSliderLen / this.repeat, length);
+        pointsList = this.createEquiDistCurve(pointsList, this.sliderLength, length);
 
         let recalculatedLength = 0;
         for (let i = 0; i < pointsList.length - 1; i++) {
@@ -471,7 +481,7 @@ class Slider {
             .reduce((prev, curr) => prev.concat(curr), [])
             .filter((s) => s);
         const sliderLen = calculatedAngleLength.reduce((prev, curr) => prev + curr.length, 0);
-        const limit = Math.floor((this.initialSliderLen / this.repeat / sliderLen) * (calculatedAngle.length - 1));
+        const limit = Math.floor((this.sliderLength / sliderLen) * (calculatedAngle.length - 1));
 
         const sliced = calculatedAngle.slice(0, limit);
 
@@ -485,7 +495,192 @@ class Slider {
         });
     }
 
-    constructor(pointLists, sliderType, initialSliderLen, initialSliderVelocity, baseSliderVelocity, beatStep, time, isNewCombo, repeat) {
+    getPointAtTime(time) {
+        // console.log(this.time, Math.round(((time - this.time) / (this.sliderEndEvalPosition.time - this.time + 35)) * (this.actualTrackPoints.length - 1)));
+        return this.realTrackPoints[Math.ceil(((time - this.time) / (this.endTime - 240 - this.time)) * (this.realTrackPoints.length - 1))];
+    }
+
+    getSliderPart() {
+        const baseTicksList = [];
+        const endTime = this.endTime - 240;
+        for (let i = 0; i < this.sliderTicksCount / this.repeat; i++) {
+            baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime) * this.angleList.length)]);
+        }
+
+        const sliderParts = [];
+        const sliderEndEvalPosition = {
+            ...this.realTrackPoints[Math.round(Clamp((this.endTime - this.time - 36) / (endTime - this.time), 0, 1) * this.realTrackPoints.length)],
+            type: "Slider End",
+            time: endTime - 36 < this.time ? endTime - 15 : endTime - 36,
+        };
+
+        // if (this.time === 9596) console.log(this.sliderTicksCount);
+
+        for (let i = 0; i < this.repeat; i++) {
+            // Time from the last slider tick to the slider end
+            const tickEndDelta = this.sliderTime - (this.sliderTicksCount / this.repeat) * this.beatStep;
+            const currentTrackPoint = i % 2 === 0 ? this.angleList.at(-1) : this.angleList[0];
+
+            sliderParts.push(
+                ...baseTicksList.map((tick, idx) => {
+                    return {
+                        ...tick,
+                        type: "Slider Tick",
+                        time:
+                            i % 2 === 0
+                                ? i * this.sliderTime + Math.floor(this.time + (idx + 1) * this.beatStep)
+                                : (i - 1) * this.sliderTime + Math.floor(this.time + this.sliderTime + idx * this.beatStep + tickEndDelta),
+                    };
+                })
+            );
+
+            if (i < this.repeat - 1)
+                sliderParts.push({
+                    ...currentTrackPoint,
+                    type: "Slider Repeat",
+                    time: this.time + Math.round((i + 1) * this.sliderTime),
+                });
+        }
+
+        this.sliderParts = sliderParts;
+        this.sliderEndEvalPosition = sliderEndEvalPosition;
+    }
+
+    eval(inputIdx) {
+        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+        const endTime = this.endTime - 240;
+
+        const radius = 54.4 - 4.48 * Beatmap.stats.circleSize;
+        let currentInput = ScoreParser.CURSOR_DATA[inputIdx];
+
+        let internalInputIdx = inputIdx;
+        let val = this.hitCircle.eval(inputIdx);
+
+        while (!val) {
+            val = this.hitCircle.eval(++inputIdx);
+            if (!ScoreParser.CURSOR_DATA[inputIdx]) return null;
+        }
+        if (val === null) return null;
+
+        let state = val.val === 0 ? "UNTRACKING" : "TRACKING";
+        let sliderPartIdx = 0;
+
+        const sliderParts = this.sliderParts.concat([this.sliderEndEvalPosition]).sort((a, b) => (a.time > b.time ? 1 : a.time < b.time ? -1 : 0));
+        const sliderPartsEval = [{ type: "Slider Head", eval: val.val === 0 ? 0 : 1 }];
+
+        // if (this.time === 9596) console.log(sliderParts);
+
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const additionalMemory = {
+            x: this.stackHeight * currentStackOffset,
+            y: this.stackHeight * currentStackOffset,
+        };
+
+        let firstTrackingTime = val.inputTime;
+
+        while (currentInput.time <= endTime) {
+            const pointAtT = this.getPointAtTime(currentInput.time);
+
+            if (!pointAtT) {
+                currentInput = ScoreParser.CURSOR_DATA[++internalInputIdx];
+                if (!currentInput) break;
+                continue;
+            }
+
+            const accountedPointAtT = mods.HR ? Add(FlipHR(pointAtT), additionalMemory) : Add(pointAtT, additionalMemory);
+            // Untrack slider if release keys / move out of slider follow circle
+            if (state === "TRACKING")
+                if (currentInput.inputArray.length === 0 || Fixed(Dist(currentInput, accountedPointAtT) / (2.4 * radius), 5) > 1) {
+                    state = "UNTRACKING";
+                    // if (this.time === 87669) {
+                    //     if (currentInput.inputArray.length === 0) console.log("Untracked due to release key");
+                    //     if (Fixed(Dist(currentInput, accountedPointAtT) / (2.4 * radius), 5) > 1) console.log("Untracked due to unfollow");
+                    // }
+                }
+
+            // Track slider if press keys AND move inside of sliderB
+            if (state === "UNTRACKING") {
+                if (currentInput.inputArray.length !== 0 && Fixed(Dist(currentInput, accountedPointAtT) / radius, 5) < 1) {
+                    state = "TRACKING";
+                    if (!firstTrackingTime) firstTrackingTime = currentInput.time;
+                }
+            }
+
+            if (sliderParts[sliderPartIdx] && ScoreParser.CURSOR_DATA[internalInputIdx + 1]?.time > sliderParts[sliderPartIdx]?.time) {
+                if (currentInput.time !== sliderParts[sliderPartIdx]?.time) {
+                    const nextInput = ScoreParser.CURSOR_DATA[internalInputIdx + 1];
+                    const estimatedInput = LinearEstimation(
+                        currentInput,
+                        nextInput,
+                        (sliderParts[sliderPartIdx].time - currentInput.time) / (nextInput.time - currentInput.time)
+                    );
+
+                    // Untrack slider if release keys / move out of slider follow circle
+                    if (state === "TRACKING")
+                        if (
+                            currentInput.inputArray.length === 0 ||
+                            Fixed(
+                                Dist(estimatedInput, !mods.HR ? sliderParts[sliderPartIdx] : FlipHR(sliderParts[sliderPartIdx])) / (2.4 * radius),
+                                5
+                            ) > 1
+                        ) {
+                            state = "UNTRACKING";
+                            // if (this.time === 87669) {
+                            //     if (currentInput.inputArray.length === 0) console.log("Untracked due to release key");
+                            //     if (Fixed(Dist(estimatedInput, FlipHR(sliderParts[sliderPartIdx])) / (2.4 * radius), 5) > 1)
+                            //         console.log("Untracked due to unfollow", currentInput, estimatedInput, FlipHR(sliderParts[sliderPartIdx]));
+                            // }
+                        }
+
+                    // Track slider if press keys AND move inside of sliderB
+                    if (state === "UNTRACKING") {
+                        if (currentInput.inputArray.length !== 0 && Fixed(Dist(currentInput, sliderParts[sliderPartIdx]) / radius, 5) < 1) {
+                            state = "TRACKING";
+                            if (!firstTrackingTime) firstTrackingTime = currentInput.time;
+                        }
+                    }
+                }
+
+                sliderPartsEval.push({
+                    type: sliderParts[sliderPartIdx].type,
+                    eval: state === "TRACKING" && currentInput.time <= sliderParts[sliderPartIdx].time ? 1 : 0,
+                });
+
+                sliderPartIdx++;
+            }
+
+            if (!sliderParts[sliderPartIdx] || sliderParts[sliderPartIdx].time >= ScoreParser.CURSOR_DATA[internalInputIdx + 1]?.time)
+                internalInputIdx++;
+
+            currentInput = ScoreParser.CURSOR_DATA[internalInputIdx];
+            if (!currentInput) break;
+            // if (this.time === 252735) console.log(currentInput.time, state);
+        }
+
+        const evaluated = sliderPartsEval.every((checkPoint) => checkPoint.eval === 1)
+            ? 300
+            : sliderPartsEval.every((checkPoint) => checkPoint.eval === 0)
+            ? 0
+            : sliderPartsEval.filter((checkPoint) => checkPoint.eval === 1).length * 2 >= 1 + this.sliderTicksCount * this.repeat + this.repeat
+            ? 100
+            : 50;
+
+        // if (evaluated !== 300) console.log(this.time, sliderPartsEval, sliderParts, endTime);
+
+        // this.hitTime = firstTrackingTime;
+        // this.hitTime = this.endTime;
+
+        return {
+            val: evaluated,
+            valV2: val.val,
+            checkPointState: sliderPartsEval,
+            delta: val.delta,
+            inputTime: firstTrackingTime,
+        };
+    }
+
+    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, isNewCombo, repeat) {
         this.sliderType = sliderType;
         const originalArr = pointLists.split("|").map((point) => {
             return {
@@ -495,25 +690,45 @@ class Slider {
         });
 
         this.originalArr = originalArr;
-        this.initialSliderLen = initialSliderLen;
-        this.initialSliderVelocity = initialSliderVelocity;
+        this.sliderLength = sliderLength;
+        this.svMultiplier = svMultiplier;
         this.repeat = repeat;
 
         this.isNewCombo = isNewCombo;
 
-        this.baseSliderVelocity = baseSliderVelocity;
+        this.baseSV = baseSV;
         this.beatStep = parseFloat(beatStep);
 
         this.time = time;
-        this.hitTime = time;
         this.startTime = time - Beatmap.stats.preempt;
-        this.endTime = time + (initialSliderLen / initialSliderVelocity) * beatStep + 240;
+        this.endTime = time + ((this.sliderLength * this.repeat) / (this.svMultiplier * this.baseSV)) * beatStep + 240;
+        this.hitTime = this.time;
+        this.sliderTime = (beatStep * this.sliderLength) / (this.svMultiplier * this.baseSV);
+        this.sliderTicksCount =
+            (Math.ceil(Fixed(this.sliderLength / this.svMultiplier / (baseSV / Beatmap.stats.sliderTickRate), 2)) - 1) * this.repeat;
 
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time, false);
         this.hitCircle.hitTime = this.hitTime;
 
         this.angleList = this.getAngleList(originalArr);
+        this.realTrackPoints = [...Array(this.repeat).keys()]
+            .reduce((prev, curr, idx) => {
+                let ret = [];
+                if (idx % 2 === 0) ret = prev.concat(this.angleList.slice(0, -1));
+                if (idx % 2 !== 0) ret = prev.concat([...this.angleList].reverse().slice(0, -1));
 
+                if (idx === this.repeat - 1) {
+                    if (idx % 2 === 0) ret.push(this.angleList.at(-1));
+                    else ret.push(this.angleList[0]);
+                }
+
+                return ret;
+            }, [])
+            .map((coord, idx) => {
+                const ret = { ...coord, t: idx / ((this.angleList.length - 1) * this.repeat + 1) };
+                return ret;
+            });
+        this.getSliderPart();
         // this.draw(0.5);
         // console.log(this.repeat % 2);
 

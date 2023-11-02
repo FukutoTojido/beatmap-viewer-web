@@ -13,7 +13,7 @@ const settingsTemplate = {
     },
     volume: {
         master: 1,
-        music: 0.2,
+        music: 0.5,
         hs: 0.2,
     },
     sliderAppearance: {

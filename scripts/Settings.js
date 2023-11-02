@@ -80,14 +80,17 @@ function setMasterVolume(slider) {
 
     if (beatmapFile === undefined) return;
 
-    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    if (originalIsPlaying) beatmapFile.audioNode.play();
+    // const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    // if (originalIsPlaying) beatmapFile.audioNode.play();
+
+    beatmapFile.audioNode.gainNode.gain.value = masterVol * musicVol;
+    HitSample.masterGainNode.gain.value = masterVol * hsVol;
 }
 
 function setAudioVolume(slider) {
     musicVol = slider.value;
-    document.querySelector("#musicVal").innerHTML = `${parseInt((slider.value / 0.4) * 100)}%`;
+    document.querySelector("#musicVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.volume.music = slider.value;
@@ -95,9 +98,11 @@ function setAudioVolume(slider) {
 
     if (beatmapFile === undefined) return;
 
-    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    if (originalIsPlaying) beatmapFile.audioNode.play();
+    // const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    // if (originalIsPlaying) beatmapFile.audioNode.play();
+
+    beatmapFile.audioNode.gainNode.gain.value = masterVol * musicVol;
 }
 
 function setEffectVolume(slider) {
@@ -110,9 +115,11 @@ function setEffectVolume(slider) {
 
     if (beatmapFile === undefined) return;
 
-    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    if (originalIsPlaying) beatmapFile.audioNode.play();
+    // const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    // if (originalIsPlaying) beatmapFile.audioNode.play();
+
+    HitSample.masterGainNode.gain.value = masterVol * hsVol;
 }
 
 // MAPPING

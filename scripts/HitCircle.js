@@ -16,6 +16,7 @@ class HitCircle {
 
     obj;
     selected;
+    judgementObj;
 
     hitCircleSprite;
     hitCircleLegacySprite;
@@ -58,7 +59,7 @@ class HitCircle {
         // if (this.time === 468) console.log(this.time, opacity, opacityHD);
 
         // Calculate object radius on HR / EZ toggle
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
+        const HRMultiplier = !mods.HR ? 1 : 1.4;
         const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
 
@@ -104,12 +105,17 @@ class HitCircle {
         }
         currentOpacity = Clamp(currentOpacity, 0, 1);
 
+        if (this.hitTime > this.endTime && timestamp > this.endTime) currentOpacity = 0;
+
         // Calculate object expandation
         let currentExpand = 1;
         if (sliderAppearance.hitAnim && timestamp > this.hitTime) {
             currentExpand = (timestamp - this.hitTime) / 240 + 1;
         }
         currentExpand = Math.max(currentExpand, 1);
+
+        // if (this.time === 254369)
+        // console.log(this.time, currentExpand);
 
         // Calculate stack offset for this object
         const stackHeight = this.stackHeight;
@@ -182,7 +188,92 @@ class HitCircle {
         } else {
             this.approachCircleObj.draw(currentOpacity, approachRateSize, this.colour);
         }
+
+        // if (this.judgementObj) {
+        //     if (timestamp >= this.hitTime) this.judgementObj.draw(timestamp);
+        // }
         // console.log(this.time, currentExpand, timestamp - this.time > 0, timestamp);
+    }
+
+    eval(inputIdx) {
+        const HRMultiplier = !mods.HR ? 1 : 1.4;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+
+        const radius = 54.4 - 4.48 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier);
+        const currentInput = ScoreParser.CURSOR_DATA[inputIdx];
+
+        if (!currentInput) {
+            return null;
+        }
+
+        // Input before Hit Window
+        if (currentInput.time - this.time <= -Beatmap.hitWindows.MEH) return null;
+        // Input after Hit Window
+        if (currentInput.time - this.time >= Beatmap.hitWindows.MEH) return { val: 0, valV2: 0 };
+        // Input during Note Lock
+        if (
+            ScoreParser.EVAL_LIST.at(-1)?.eval === 0 &&
+            Math.abs(currentInput.time - (ScoreParser.EVAL_LIST.at(-1)?.time ?? currentInput.time)) < Beatmap.hitWindows.MEH
+        )
+            return null;
+
+        // Input while not pressing any keys / releasing keys
+        const prevInput = ScoreParser.CURSOR_DATA[inputIdx - 1];
+        if (
+            currentInput.inputArray.length === 0 ||
+            prevInput.inputArray.length > currentInput.inputArray.length ||
+            (prevInput.inputArray.length === currentInput.inputArray.length &&
+                JSON.stringify(prevInput.inputArray) === JSON.stringify(currentInput.inputArray))
+        )
+            return null;
+
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const additionalMemory = {
+            x: this.stackHeight * currentStackOffset,
+            y: this.stackHeight * currentStackOffset,
+        };
+
+        // if (this.time === 45886) {
+        //     console.log(
+        //         Fixed(
+        //             Dist(
+        //                 currentInput,
+        //                 mods.HR
+        //                     ? Add(FlipHR({ x: this.originalX, y: this.originalY }), additionalMemory)
+        //                     : Add({ x: this.originalX, y: this.originalY }, additionalMemory)
+        //             ) / radius,
+        //             2
+        //         )
+        //     );
+        // }
+
+        // Misaim
+        if (
+            Fixed(
+                Dist(
+                    currentInput,
+                    mods.HR
+                        ? Add(FlipHR({ x: this.originalX, y: this.originalY }), additionalMemory)
+                        : Add({ x: this.originalX, y: this.originalY }, additionalMemory)
+                ) / radius,
+                2
+            ) > 1
+        ) {
+            this.hitTime = this.endTime;
+            this.endTime = this.time + Beatmap.hitWindows.MEH;
+            return null;
+        }
+
+        let val = 0;
+        const delta = Math.abs(currentInput.time - this.time);
+
+        if (delta < Beatmap.hitWindows.GREAT) val = 300;
+        if (delta >= Beatmap.hitWindows.GREAT && delta < Beatmap.hitWindows.OK) val = 100;
+        if (delta >= Beatmap.hitWindows.OK && delta < Beatmap.hitWindows.MEH) val = 50;
+
+        if (val !== 0) this.hitTime = currentInput.time;
+
+        return { val, valV2: val, delta: currentInput.time - this.time, inputTime: currentInput.time };
     }
 
     constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
