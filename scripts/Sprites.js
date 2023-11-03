@@ -2,7 +2,7 @@ class HitObjectSprite {
     static createSelectedHitCircle(diameter) {
         return new PIXI.Graphics()
             .lineStyle({
-                width: ((((diameter / 2) * 50) / 236) * Game.WIDTH) / 512,
+                width: ((((diameter / 2) * 30) / 236) * Game.WIDTH) / 512,
                 color: 0xf2cc0f,
                 alpha: 1,
                 cap: "round",

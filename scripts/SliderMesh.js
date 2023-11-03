@@ -42,7 +42,7 @@ function selectedTexture() {
 
     let buff = new Uint8Array(width * 4);
 
-    const innerPortion = 1 - borderwidth * 1.65;
+    const innerPortion = 1 - borderwidth;
     let tint = 0xf2cc0f;
     let bordertint = 0xf2cc0f;
     let borderR = (bordertint >> 16) / 255;
