@@ -27,6 +27,7 @@ class Cursor {
         container.y = Game.OFFSET_Y;
 
         this.obj = container;
+        this.obj.alpha = 0;
     }
 
     update(index, current_x, current_y) {

@@ -14,6 +14,7 @@ class BeatmapFile {
     title;
     artist;
     diff;
+    md5Map;
 
     constructor(mapId, isFromFile) {
         this.mapId = mapId;
@@ -380,6 +381,7 @@ class BeatmapFile {
             // this.audio = new Audio(this.audioBlobURL);
 
             document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
+            this.md5Map = CryptoJS.MD5(this.osuFile).toString();
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
 
             document.querySelector(".loading").style.opacity = 0;
@@ -482,7 +484,7 @@ class BeatmapFile {
             );
         } catch (err) {
             alert(err);
-            console.log(err);
+            console.error(err);
 
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";

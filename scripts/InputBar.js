@@ -8,7 +8,15 @@ function mapInputEnter(e) {
 
 document.querySelector("#map-dropper").onchange = () => {
     const file = document.querySelector("#map-dropper").files[0];
-    if (file.name.split(".").at(-1) !== "osz") return;
+    if (!["osz", "osr"].includes(file.name.split(".").at(-1))) return;
+
+    ScoreParser.reset();
+
+    if (file.name.split(".").at(-1) === "osr") {
+        const parser = new ScoreParser(file);
+        parser.getReplayData();
+        return;
+    }
 
     document.querySelector("#close").disabled = true;
     readZip(file);
@@ -123,4 +131,7 @@ function submitMap(isDragAndDrop, beatmapID) {
     // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
 
-document.querySelector("#submit").addEventListener("click", () => submitMap(false));
+document.querySelector("#submit").addEventListener("click", () => {
+    ScoreParser.reset();
+    submitMap(false);
+});

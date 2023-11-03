@@ -416,94 +416,133 @@ class ScoreParser {
     }
 
     async getReplayData() {
-        // Convert Blob to ArrayBuffer to Buffer
-        document.querySelector(".loading").style.display = "";
-        document.querySelector(".loading").style.opacity = 1;
-        document.querySelector("#loadingText").innerText = `Parsing Score`;
+        try {
+            // Convert Blob to ArrayBuffer to Buffer
+            document.querySelector(".loading").style.display = "";
+            document.querySelector(".loading").style.opacity = 1;
+            document.querySelector("#loadingText").innerText = `Parsing Score`;
 
-        const arr_buf = await new Response(ScoreParser.BLOB).arrayBuffer();
-        const buf = buffer.Buffer.from(arr_buf);
+            const arr_buf = await new Response(ScoreParser.BLOB).arrayBuffer();
+            const buf = buffer.Buffer.from(arr_buf);
 
-        // Get Replay Data
-        const replay = new Replay(buf);
-        const replayData = await replay.deserialize();
-        ScoreParser.REPLAY_DATA = replayData;
-        ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
+            // Get Replay Data
+            const replay = new Replay(buf);
+            const replayData = await replay.deserialize();
+            ScoreParser.REPLAY_DATA = replayData;
+            ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
 
-        // Get Cursor Data
-        let timestamp = 0;
-        ScoreParser.CURSOR_DATA = replayData.replayData
-            .split(",")
-            .filter((data) => data !== "")
-            .map((data, idx) => {
-                const nodes = data.split("|");
+            // Get Cursor Data
+            let timestamp = 0;
+            ScoreParser.CURSOR_DATA = replayData.replayData
+                .split(",")
+                .filter((data) => data !== "")
+                .map((data, idx) => {
+                    const nodes = data.split("|");
 
-                if (nodes[0] === "-12345")
+                    if (nodes[0] === "-12345")
+                        return {
+                            time: 0,
+                            x: 0,
+                            y: 0,
+                            inputArray: [],
+                            idx,
+                        };
+
+                    timestamp += parseFloat(nodes[0]);
                     return {
-                        time: 0,
-                        x: 0,
-                        y: 0,
-                        inputArray: [],
+                        time: timestamp,
+                        x: parseFloat(nodes[1]),
+                        y: parseFloat(nodes[2]),
+                        inputArray: parseInt(nodes[3])
+                            .toString(2)
+                            .padStart(5, "0")
+                            .split("")
+                            .reduce((prev, curr, idx) => (curr === "1" && idx !== 0 ? prev.concat([ScoreParser.INPUT_LIST[idx]]) : prev), []),
                         idx,
                     };
+                });
 
-                timestamp += parseFloat(nodes[0]);
-                return {
-                    time: timestamp,
-                    x: parseFloat(nodes[1]),
-                    y: parseFloat(nodes[2]),
-                    inputArray: parseInt(nodes[3])
-                        .toString(2)
-                        .padStart(5, "0")
-                        .split("")
-                        .reduce((prev, curr, idx) => (curr === "1" && idx !== 0 ? prev.concat([ScoreParser.INPUT_LIST[idx]]) : prev), []),
-                    idx,
-                };
-            });
+            ScoreParser.MODS = ScoreParser.REPLAY_DATA.mods
+                .toString(2)
+                .padStart(31, "0")
+                .split("")
+                .reduce((accumulated, current, idx) => {
+                    if (current === "1") accumulated.push(ScoreParser.MOD_LIST[ScoreParser.MOD_LIST.length - 1 - idx]);
+                    return accumulated;
+                }, []);
 
-        ScoreParser.MODS = ScoreParser.REPLAY_DATA.mods
-            .toString(2)
-            .padStart(31, "0")
-            .split("")
-            .reduce((accumulated, current, idx) => {
-                if (current === "1") accumulated.push(ScoreParser.MOD_LIST[ScoreParser.MOD_LIST.length - 1 - idx]);
-                return accumulated;
-            }, []);
+            mods.HD = ScoreParser.MODS.includes("Hidden");
+            mods.HR = ScoreParser.MODS.includes("HardRock");
+            mods.EZ = ScoreParser.MODS.includes("Easy");
+            mods.DT = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
+            mods.HT = ScoreParser.MODS.includes("HalfTime");
 
-        mods.HD = ScoreParser.MODS.includes("Hidden");
-        mods.HR = ScoreParser.MODS.includes("HardRock");
-        mods.EZ = ScoreParser.MODS.includes("Easy");
-        mods.DT = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
-        mods.HT = ScoreParser.MODS.includes("HalfTime");
+            document.querySelector("#HD").checked = ScoreParser.MODS.includes("Hidden");
+            document.querySelector("#HR").checked = ScoreParser.MODS.includes("HardRock");
+            document.querySelector("#EZ").checked = ScoreParser.MODS.includes("Easy");
+            document.querySelector("#DT").checked = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
+            document.querySelector("#HT").checked = ScoreParser.MODS.includes("HalfTime");
 
-        
+            const DTMultiplier = !mods.DT ? 1 : 1.5;
+            const HTMultiplier = !mods.HT ? 1 : 0.75;
+            playbackRate = 1 * DTMultiplier * HTMultiplier;
 
-        document.querySelector("#HD").checked = ScoreParser.MODS.includes("Hidden");
-        document.querySelector("#HR").checked = ScoreParser.MODS.includes("HardRock");
-        document.querySelector("#EZ").checked = ScoreParser.MODS.includes("Easy");
-        document.querySelector("#DT").checked = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
-        document.querySelector("#HT").checked = ScoreParser.MODS.includes("HalfTime");
+            ScoreParser.MOD_MULTIPLIER = ScoreParser.MODS.reduce(
+                (prev, curr) => {
+                    return {
+                        V1: prev.V1 * (ScoreParser.modsMultiplierList.V1[curr] ?? 1),
+                        V2: prev.V2 * (ScoreParser.modsMultiplierList.V2[curr] ?? 1),
+                    };
+                },
+                {
+                    V1: 1,
+                    V2: 1,
+                }
+            );
 
-        const DTMultiplier = !mods.DT ? 1 : 1.5;
-        const HTMultiplier = !mods.HT ? 1 : 0.75;
-        playbackRate = 1 * DTMultiplier * HTMultiplier;
+            document.querySelector(".loading").style.opacity = 0;
+            document.querySelector(".loading").style.display = "none";
 
-        const mapData = await this.getMapData(ScoreParser.REPLAY_DATA.md5map);
-        submitMap(false, mapData.beatmap_id);
-
-        ScoreParser.MOD_MULTIPLIER = ScoreParser.MODS.reduce(
-            (prev, curr) => {
-                return {
-                    V1: prev.V1 * (ScoreParser.modsMultiplierList.V1[curr] ?? 1),
-                    V2: prev.V2 * (ScoreParser.modsMultiplierList.V2[curr] ?? 1),
-                };
-            },
-            {
-                V1: 1,
-                V2: 1,
+            if (ScoreParser.REPLAY_DATA.md5map !== beatmapFile?.md5Map) {
+                const mapData = await this.getMapData(ScoreParser.REPLAY_DATA.md5map);
+                if (!mapData.beatmap_id) {
+                    throw "Map is not available online!";
+                }
+                submitMap(false, mapData.beatmap_id);
+                return;
             }
-        );
-        // console.log(ScoreParser.REPLAY_DATA, ScoreParser.CURSOR_DATA, ScoreParser.MODS);
+
+            ScoreParser.eval();
+            document.querySelector("#HD").disabled = true;
+            document.querySelector("#HR").disabled = true;
+            document.querySelector("#DT").disabled = true;
+            document.querySelector("#EZ").disabled = true;
+            document.querySelector("#HT").disabled = true;
+
+            calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
+            // console.log(ScoreParser.REPLAY_DATA, ScoreParser.CURSOR_DATA, ScoreParser.MODS);
+        } catch (error) {
+            ScoreParser.reset();
+
+            alert(error);
+            console.error(error);
+
+            document.querySelector(".loading").style.opacity = 0;
+            document.querySelector(".loading").style.display = "none";
+        }
+    }
+
+    static reset() {
+        ScoreParser.BLOB = null;
+        ScoreParser.REPLAY_DATA = null;
+        ScoreParser.CURSOR_DATA = null;
+        ScoreParser.EVAL_LIST = [];
+
+        ScoreParser.comboPortion = 0;
+        ScoreParser.maxComboPortion = 0;
+        ScoreParser.maxCombo = 0;
+
+        Game.CURSOR.obj.alpha = 0;
     }
 
     constructor(blob) {
@@ -515,5 +554,7 @@ class ScoreParser {
         ScoreParser.comboPortion = 0;
         ScoreParser.maxComboPortion = 0;
         ScoreParser.maxCombo = 0;
+
+        Game.CURSOR.obj.alpha = 1;
     }
 }
