@@ -14,6 +14,8 @@ class ObjectsList {
     tempW = Game.WIDTH;
     tempH = Game.HEIGHT;
 
+    filtered;
+
     // static preempt = 0;
 
     compare(a, b) {
@@ -104,6 +106,8 @@ class ObjectsList {
                     (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
             )
             .reverse();
+
+        this.filtered = filtered;
 
         const selected = this.objectsList.filter((object) => selectedHitObject.includes(object.time)).reverse();
         const noSelected = this.objectsList.filter((object) => !selectedHitObject.includes(object.time)).reverse();

@@ -52,6 +52,8 @@ class Slider {
     colourIdx;
     comboIdx;
 
+    isHover = false;
+
     binom(n, k) {
         if (k < 0 || k > n) return 0;
         if (k == 0 || k == n) return 1;
@@ -258,6 +260,9 @@ class Slider {
         // this.SliderMesh.tintid = !sliderAppearance.untint
         //     ? this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)))
         //     : 2 ** Math.ceil(Math.log2(colorsLength)) + colorsLength - 1;
+
+        if (this.isHover) this.nodesContainer.alpha = 1;
+        else this.nodesContainer.alpha = 0;
     }
 
     draw(timestamp) {
@@ -689,6 +694,25 @@ class Slider {
             };
         });
 
+        const nodes = [];
+        for (let i = 0; i < originalArr.length; i++) {
+            if (originalArr[i + 1] && this.Dist(originalArr[i], originalArr[i + 1]) === 0) {
+                nodes.push({
+                    type: "Red Anchor",
+                    position: originalArr[i],
+                });
+
+                i++;
+                continue;
+            }
+
+            nodes.push({
+                type: "White Anchor",
+                position: originalArr[i],
+            });
+        }
+        this.nodes = nodes;
+
         this.originalArr = originalArr;
         this.sliderLength = sliderLength;
         this.svMultiplier = svMultiplier;
@@ -786,8 +810,38 @@ class Slider {
             SliderContainer.addChild(this.reverseArrow);
         }
 
+        this.nodesContainer = new PIXI.Container();
+        this.nodesLine = new PIXI.Graphics()
+            .lineStyle(1, 0xffffff)
+            .moveTo(this.nodes[0].position.x * (Game.WIDTH / 512), this.nodes[0].position.y * (Game.WIDTH / 512));
+
+        this.nodesGraphics = this.nodes.map((node) => {
+            const fillColor = node.type === "White Anchor" ? 0xffffff : 0xff0000;
+            const x = node.position.x * (Game.WIDTH / 512);
+            const y = node.position.y * (Game.WIDTH / 512);
+
+            this.nodesLine.lineTo(x, y);
+
+            const graphic = new PIXI.Graphics()
+                .lineStyle({
+                    width: 1,
+                    color: 0x000000,
+                    alpha: 1,
+                    alignment: 0,
+                })
+                .beginFill(fillColor)
+                .drawRect(x - 4, y - 4, 8, 8)
+                .endFill();
+            this.nodesContainer.addChild(graphic);
+
+            return graphic;
+        });
+
+        this.nodesContainer.addChild(this.nodesLine);
+
         SliderContainer.addChild(this.sliderBall);
         SliderContainer.addChild(this.hitCircle.obj);
+        SliderContainer.addChild(this.nodesContainer);
 
         this.obj = SliderContainer;
         // this.obj.alpha = 0.0;

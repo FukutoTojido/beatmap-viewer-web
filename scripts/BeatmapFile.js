@@ -15,6 +15,7 @@ class BeatmapFile {
     artist;
     diff;
     md5Map;
+    isLoaded = false;
 
     constructor(mapId, isFromFile) {
         this.mapId = mapId;
@@ -482,6 +483,8 @@ class BeatmapFile {
                     passive: true,
                 }
             );
+
+            this.isLoaded = true;
         } catch (err) {
             alert(err);
             console.error(err);
