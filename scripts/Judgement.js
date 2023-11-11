@@ -69,6 +69,18 @@ class Judgement {
     draw(timestamp) {
         // if (this.val === 300)
         //     return;
+        const HRMultiplier = !mods.HR ? 1 : 1.4;
+        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
+
+        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+
+        const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+        const y = !mods.HR
+            ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
+            : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+
+        this.obj.x = x;
+        this.obj.y = y;
 
         if (timestamp < this.time || timestamp >= this.time + Judgement.ANIM_DURATION) {
             this.obj.alpha = 0;
@@ -95,8 +107,8 @@ class Judgement {
             this.obj.scale.set(scale);
             this.obj.alpha = alpha;
 
-            this.text.y = 100 * (t ** 5);
-            this.text.angle = 40 * (t ** 5);
+            this.text.y = 100 * t ** 5;
+            this.text.angle = 40 * t ** 5;
             // this.text.style.letterSpacing = spacing;
         }
 

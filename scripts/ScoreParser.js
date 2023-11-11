@@ -415,6 +415,21 @@ class ScoreParser {
         }
     }
 
+    async getPlayer() {
+        console.log(ScoreParser.REPLAY_DATA.player);
+        if (!ScoreParser.REPLAY_DATA.player) return;
+
+        const data = (await axios.get(`https://tryz.vercel.app/api/u/${ScoreParser.REPLAY_DATA.player}`)).data;
+        console.log(data);
+        if (JSON.stringify(data) === "{}") return;
+
+        document.querySelector(".thePlayer").style.backgroundImage = `url(${data.cover_url})`;
+        document.querySelector(".playerName").innerText = data.username;
+        document.querySelector(".playerAva").src = data.avatar_url;
+
+        document.querySelector(".thePlayer").style.display = "flex";
+    }
+
     async getReplayData() {
         try {
             // Convert Blob to ArrayBuffer to Buffer
@@ -428,8 +443,10 @@ class ScoreParser {
             // Get Replay Data
             const replay = new Replay(buf);
             const replayData = await replay.deserialize();
-            ScoreParser.REPLAY_DATA = replayData;
+            ScoreParser.REPLAY_DATA = replayData;            
             ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
+
+            this.getPlayer();
 
             // Get Cursor Data
             let timestamp = 0;
@@ -543,6 +560,11 @@ class ScoreParser {
         ScoreParser.maxCombo = 0;
 
         Game.CURSOR.obj.alpha = 0;
+
+        document.querySelector(".thePlayer").style.display = "";
+        document.querySelector(".thePlayer").style.backgroundImage = "";
+        document.querySelector(".playerName").innerText = "";
+        document.querySelector(".playerAva").src = "";
     }
 
     constructor(blob) {
@@ -556,5 +578,10 @@ class ScoreParser {
         ScoreParser.maxCombo = 0;
 
         Game.CURSOR.obj.alpha = 1;
+        
+        document.querySelector(".thePlayer").style.display = "";
+        document.querySelector(".thePlayer").style.backgroundImage = "";
+        document.querySelector(".playerName").innerText = "";
+        document.querySelector(".playerAva").src = "";
     }
 }
