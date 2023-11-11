@@ -393,6 +393,10 @@ class BeatmapFile {
             document.querySelector("#choose-diff").disabled = false;
             document.querySelector("#close").disabled = false;
 
+            if (ScoreParser.REPLAY_DATA.md5map !== this.md5Map) {
+                ScoreParser.reset();
+            }
+
             // document.querySelector("#playButton").addEventListener("click", playToggle);
 
             if (ScoreParser.CURSOR_DATA) {
