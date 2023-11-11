@@ -261,6 +261,14 @@ class Slider {
         //     ? this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)))
         //     : 2 ** Math.ceil(Math.log2(colorsLength)) + colorsLength - 1;
 
+        this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
+        this.nodesContainer.y = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
+
+        if (mods.HR) {
+            this.nodesContainer.scale.set(1, -1);
+            this.nodesContainer.y = (384 + this.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
+        }
+
         if (this.isHover) this.nodesContainer.alpha = 1;
         else this.nodesContainer.alpha = 0;
     }
