@@ -393,7 +393,7 @@ class BeatmapFile {
             document.querySelector("#choose-diff").disabled = false;
             document.querySelector("#close").disabled = false;
 
-            if (ScoreParser.REPLAY_DATA.md5map !== this.md5Map) {
+            if (ScoreParser.REPLAY_DATA && ScoreParser.REPLAY_DATA.md5map !== this.md5Map) {
                 ScoreParser.reset();
             }
 
