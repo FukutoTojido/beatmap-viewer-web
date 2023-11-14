@@ -87,9 +87,9 @@ class ScoreParser {
         ScoreParser.EVAL_LIST = [];
 
         while (currentInputIdx < ScoreParser.CURSOR_DATA.length) {
-            if (currentObjIdx >= beatmapFile.beatmapRenderData.objectsList.objectsList.length) break;
+            if (currentObjIdx >= beatmapFile.beatmapRenderData.objectsController.objectsList.length) break;
 
-            const currentObj = beatmapFile.beatmapRenderData.objectsList.objectsList[currentObjIdx].obj;
+            const currentObj = beatmapFile.beatmapRenderData.objectsController.objectsList[currentObjIdx].obj;
             const currentInput = ScoreParser.CURSOR_DATA[currentInputIdx];
 
             if (ScoreParser.EVAL_LIST.at(-1)?.time === currentObj.time) {
@@ -156,7 +156,7 @@ class ScoreParser {
                           };
 
                 const obj = new Judgement(judgementTime, ScoreParser.MODS.includes("ScoreV2") ? val.valV2 : val.val, currentObj.stackHeight, pos);
-                beatmapFile.beatmapRenderData.objectsList.judgementList.push(obj);
+                beatmapFile.beatmapRenderData.objectsController.judgementList.push(obj);
             }
 
             currentInputIdx++;

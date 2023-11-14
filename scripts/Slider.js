@@ -854,4 +854,8 @@ class Slider {
         this.obj = SliderContainer;
         // this.obj.alpha = 0.0;
     }
+
+    get approachCircleObj() {
+        return this.hitCircle.approachCircleObj;
+    }
 }

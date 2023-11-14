@@ -257,4 +257,8 @@ class Spinner {
         this.obj = container;
         this.approachCircle = approachCircleContainer;
     }
+
+    get approachCircleObj() {
+        return null;
+    }
 }

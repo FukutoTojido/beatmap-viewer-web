@@ -17,14 +17,14 @@ class Game {
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
-            Game.CONTAINER.addChild(o.obj);
+            if (o) Game.CONTAINER.addChild(o.obj);
         });
     }
 
     // Remove certain objects from container
     static removeFromContainer(objectsList) {
         objectsList.forEach((o) => {
-            Game.CONTAINER.removeChild(o.obj);
+            if (o) Game.CONTAINER.removeChild(o.obj);
         });
     }
 

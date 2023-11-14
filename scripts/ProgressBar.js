@@ -13,7 +13,7 @@ function setAudioTime() {
 
     beatmapFile.audioNode.seekTo(parseFloat(slider.value));
 
-    if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function setProgressMax() {
@@ -32,7 +32,7 @@ function playToggle() {
         } else {
             playingFlag = false;
             beatmapFile.audioNode.pause();
-            beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+            beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
         }
     } else {
         beatmapFile.audioNode.play();
@@ -89,7 +89,7 @@ function goNext(precise) {
 
         beatmapFile.audioNode.seekTo(goTo);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
+        beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
     }
 }
 
@@ -113,7 +113,7 @@ function goBack(precise) {
 
         beatmapFile.audioNode.seekTo(goTo);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        beatmapFile.beatmapRenderData.objectsList.draw(goTo, true);
+        beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
     }
 }
 

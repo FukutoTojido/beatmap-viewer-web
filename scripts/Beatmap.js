@@ -9,7 +9,7 @@ function generateSprites(diameter) {
 }
 
 class Beatmap {
-    objectsList;
+    objectsController;
     static difficultyMultiplier = 1;
     static stats = {
         approachRate: 5,
@@ -537,24 +537,24 @@ class Beatmap {
             })
             .filter((s) => s);
 
-        this.objectsList = new ObjectsList(hitCircleList, slidersList, coloursList, breakPeriods);
+        this.objectsController = new ObjectsController(hitCircleList, slidersList, coloursList, breakPeriods);
 
         // Ported from Lazer
-        let extendedEndIndex = this.objectsList.objectsList.length - 1;
+        let extendedEndIndex = this.objectsController.objectsList.length - 1;
         let extendedStartIndex = 0;
         const stackDistance = 3;
 
-        // console.log(this.objectsList);
+        // console.log(this.objectsController);
 
         for (let i = extendedEndIndex; i > 0; i--) {
             let n = i;
-            let currentObj = this.objectsList.objectsList[i];
+            let currentObj = this.objectsController.objectsList[i];
 
             if (currentObj.obj.stackHeight != 0) continue;
 
             if (currentObj.obj instanceof HitCircle) {
                 while (--n >= 0) {
-                    const nObj = this.objectsList.objectsList[n];
+                    const nObj = this.objectsController.objectsList[n];
                     const endTime = nObj.endTime;
 
                     if (currentObj.time - endTime > stackThreshold) break;
@@ -575,7 +575,7 @@ class Beatmap {
                         let offset = currentObj.obj.stackHeight - nObj.obj.stackHeight + 1;
 
                         for (let j = n + 1; j <= i; j++) {
-                            const jObj = this.objectsList.objectsList[j];
+                            const jObj = this.objectsController.objectsList[j];
 
                             if (
                                 this.calculateDistance(
@@ -607,7 +607,7 @@ class Beatmap {
             } else if (currentObj.obj instanceof Slider) {
                 while (--n >= 0) {
                     // console.log(currentObj);
-                    const nObj = this.objectsList.objectsList[n];
+                    const nObj = this.objectsController.objectsList[n];
                     // console.log(nObj);
                     if (currentObj.time - nObj.time > stackThreshold) break;
 
@@ -628,7 +628,7 @@ class Beatmap {
             }
         }
 
-        this.objectsList.objectsList.forEach((o) => {
+        this.objectsController.objectsList.forEach((o) => {
             if (o.obj instanceof Slider) {
                 o.obj.reInitialize();
                 o.obj.hitCircle.stackHeight = o.obj.stackHeight;
@@ -636,30 +636,18 @@ class Beatmap {
         });
 
         const drainTime =
-            (this.objectsList.objectsList.at(-1).obj.time -
-                (breakPeriods.reduce((accumulated, curr) => accumulated + (curr[1] - curr[0]), 0) + this.objectsList.objectsList.at(0).obj.time)) /
+            (this.objectsController.objectsList.at(-1).obj.time -
+                (breakPeriods.reduce((accumulated, curr) => accumulated + (curr[1] - curr[0]), 0) + this.objectsController.objectsList.at(0).obj.time)) /
             1000;
 
         Beatmap.difficultyMultiplier = Math.round(
             ((Beatmap.stats.HPDrainRate +
                 Beatmap.stats.circleSize +
                 Beatmap.stats.overallDifficulty +
-                Clamp((this.objectsList.objectsList.length / drainTime) * 8, 0, 16)) /
+                Clamp((this.objectsController.objectsList.length / drainTime) * 8, 0, 16)) /
                 38) *
                 5
         );
-
-        // this.objectsList.objectsList.reverse().forEach((currentObj, i) => {
-        //     let stackBaseIndex = i;
-        //     const stackHeight = objectLists.filter((object, idx) => {
-        //         const inParams = object.split(",");
-        //         return idx > i && parseInt(inParams[2]) - endTime <= stackThreshold && params[0] === inParams[0] && params[1] === inParams[1];
-        //     }).length;
-        //     // console.log(parseInt(params[2]), stackHeight);
-        //     const x = Math.round(parseInt(params[0]) + stackOffset * stackHeight);
-        //     const y = Math.round(parseInt(params[1]) + stackOffset * stackHeight);
-        //     return [x, y, ...params.slice(2)].join(",");
-        // });
     }
 
     calculateDistance(vec1, vec2) {
@@ -669,6 +657,6 @@ class Beatmap {
     }
 
     render() {
-        this.objectsList.render();
+        this.objectsController.render();
     }
 }

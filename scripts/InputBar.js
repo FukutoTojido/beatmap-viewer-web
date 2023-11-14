@@ -115,7 +115,7 @@ function submitMap(isDragAndDrop, beatmapID) {
     if (beatmapFile !== undefined) {
         playingFlag = false;
         beatmapFile.audioNode?.pause();
-        beatmapFile.beatmapRenderData?.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+        beatmapFile.beatmapRenderData?.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
 
     const origin = window.location.origin;

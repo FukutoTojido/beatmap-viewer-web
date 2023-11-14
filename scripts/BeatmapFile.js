@@ -441,7 +441,7 @@ class BeatmapFile {
                 if (e.key === "c" && e.ctrlKey) {
                     // console.log("Copied");
                     if (selectedHitObject.length) {
-                        const objs = this.beatmapRenderData.objectsList.objectsList.filter((o) => selectedHitObject.includes(o.time));
+                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => selectedHitObject.includes(o.time));
                         const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
                         const currentMiliseconds = Math.floor(obj.time % 1000)
                             .toString()
@@ -462,9 +462,9 @@ class BeatmapFile {
 
             if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
                 updateTime(parseInt(urlParams.get("t")));
-                this.beatmapRenderData.objectsList.draw(parseInt(urlParams.get("t")), true);
+                this.beatmapRenderData.objectsController.draw(parseInt(urlParams.get("t")), true);
             } else {
-                this.beatmapRenderData.objectsList.draw(this.audioNode.getCurrentTime(), true);
+                this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
             }
 
             document.querySelector("#playerContainer").addEventListener(

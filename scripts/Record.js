@@ -35,7 +35,7 @@ document.querySelector("#record")?.addEventListener("click", () => {
             return;
         }
 
-        beatmapFile.beatmapRenderData.objectsList.draw(Math.round(time), true);
+        beatmapFile.beatmapRenderData.objectsController.draw(Math.round(time), true);
         videoStream.getVideoTracks()[0].requestFrame();
 
         window.requestAnimationFrame(() => {

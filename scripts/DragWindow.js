@@ -12,7 +12,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
     let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
     const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
-    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.objectsList
+    const selectedObjList = beatmapFile.beatmapRenderData.objectsController.objectsList
         .filter((o) => {
             const lowerBound = o.time - currentPreempt;
             const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
@@ -88,7 +88,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
         selectedHitObject = [];
     }
 
-    if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+    if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
 
     // console.log(selectedHitObject);
 };
@@ -137,7 +137,7 @@ Game.GRID.on("click", (e) => {
     x /= Game.WIDTH / 512;
     y /= Game.WIDTH / 512;
 
-    const selectedObjList = beatmapFile.beatmapRenderData.objectsList.filtered.filter((o) => checkCollide(x, y, o));
+    const selectedObjList = beatmapFile.beatmapRenderData.objectsController.filtered.filter((o) => checkCollide(x, y, o));
 
     const selectedObj = selectedObjList.length
         ? selectedObjList.reduce((prev, curr) => {
@@ -160,7 +160,7 @@ Game.GRID.on("click", (e) => {
     }
 
     // console.log(selectedHitObject);
-    if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+    if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
     didMove = false;
     // console.log("Mouse CLICK", didMove);
 });
@@ -239,16 +239,16 @@ Game.GRID.on("mousemove", (e) => {
     }
 
     const currentTime = beatmapFile.audioNode.getCurrentTime();
-    const inRender = beatmapFile.beatmapRenderData.objectsList.filtered.filter((o) => o.obj instanceof Slider && checkCollide(x, y, o));
+    const inRender = beatmapFile.beatmapRenderData.objectsController.filtered.filter((o) => o.obj instanceof Slider && checkCollide(x, y, o));
     const selectedSlider = inRender.reduce((selected, current) => {
         if (Math.abs(current.obj.time - currentTime) < Math.abs(selected.obj.time - currentTime)) return current;
 
         return selected;
     }, inRender[0] ?? null);
 
-    beatmapFile.beatmapRenderData.objectsList.slidersList.forEach((o) => (o.obj.isHover = false));
+    beatmapFile.beatmapRenderData.objectsController.slidersList.forEach((o) => (o.obj.isHover = false));
 
     if (selectedSlider) selectedSlider.obj.isHover = true;
 
-    if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsList.draw(currentTime, true);
+    if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
 });

@@ -189,7 +189,7 @@ function handleCheckBox(checkbox) {
         if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
         playbackRate = 1 * DTMultiplier * HTMultiplier;
         if (originalIsPlaying) beatmapFile.audioNode.play();
-        if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsList.draw(beatmapFile.audioNode.getCurrentTime(), true);
+        if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 
         calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
     }
