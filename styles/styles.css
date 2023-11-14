@@ -420,7 +420,7 @@ canvas {
     bottom: 60px;
     left: 0;
 
-    width: 200px;
+    /* width: 200px; */
     margin: 20px;
 
     display: flex;
@@ -466,6 +466,24 @@ canvas {
     flex-direction: column;
     justify-content: center;
     gap: 5px;
+}
+
+.modsList {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+}
+
+.modWrapper {
+    width: 20px;
+    overflow: visible;
+
+    display: flex;
+    align-items: center;
+}
+
+.modWrapper:last-child {
+    width: unset;
 }
 
 .thePlayer .label {
@@ -1234,6 +1252,10 @@ input[type="checkbox"]:disabled:hover {
 
         width: 100%;
         border-radius: unset;
+    }
+
+    .modsList {
+        margin-left: auto;
     }
 
     #playerController {

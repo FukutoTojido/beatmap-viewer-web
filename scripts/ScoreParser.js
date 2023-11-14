@@ -443,7 +443,7 @@ class ScoreParser {
             // Get Replay Data
             const replay = new Replay(buf);
             const replayData = await replay.deserialize();
-            ScoreParser.REPLAY_DATA = replayData;            
+            ScoreParser.REPLAY_DATA = replayData;
             ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
 
             this.getPlayer();
@@ -499,6 +499,35 @@ class ScoreParser {
             document.querySelector("#EZ").checked = ScoreParser.MODS.includes("Easy");
             document.querySelector("#DT").checked = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
             document.querySelector("#HT").checked = ScoreParser.MODS.includes("HalfTime");
+
+            [
+                "NoFail",
+                "Easy",
+                "Hidden",
+                "HardRock",
+                "SuddenDeath",
+                "DoubleTime",
+                "HalfTime",
+                "Nightcore",
+                "Flashlight",
+                "SpunOut",
+                "Perfect",
+                "ScoreV2",
+            ].forEach((mod) => {
+                if (!ScoreParser.MODS.includes(mod)) return;
+
+                const div = document.createElement("div");
+                div.classList.add("modWrapper");
+
+                const img = document.createElement("img");
+                img.classList.add("mod");
+                img.src = `./static/mods/${mod}.png`;
+
+                div.appendChild(img);
+                document.querySelector(".modsList").appendChild(div);
+            });
+
+            
 
             const DTMultiplier = !mods.DT ? 1 : 1.5;
             const HTMultiplier = !mods.HT ? 1 : 0.75;
@@ -565,6 +594,7 @@ class ScoreParser {
         document.querySelector(".thePlayer").style.backgroundImage = "";
         document.querySelector(".playerName").innerText = "";
         document.querySelector(".playerAva").src = "";
+        document.querySelector(".modsList").innerHTML = "";
     }
 
     constructor(blob) {
@@ -578,10 +608,11 @@ class ScoreParser {
         ScoreParser.maxCombo = 0;
 
         Game.CURSOR.obj.alpha = 1;
-        
+
         document.querySelector(".thePlayer").style.display = "";
         document.querySelector(".thePlayer").style.backgroundImage = "";
         document.querySelector(".playerName").innerText = "";
         document.querySelector(".playerAva").src = "";
+        document.querySelector(".modsList").innerHTML = "";
     }
 }
