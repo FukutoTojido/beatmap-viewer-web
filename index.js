@@ -10,6 +10,7 @@ let hitCircleOverlayTemplate;
 let hitCircleOverlayLegacyTemplate;
 let approachCircleTemplate;
 let sliderBallTemplate;
+let reverseArrowTextures;
 
 document.querySelector(".loading").style.display = "none";
 if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {

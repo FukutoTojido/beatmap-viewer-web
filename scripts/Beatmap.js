@@ -6,6 +6,10 @@ function generateSprites(diameter) {
     hitCircleOverlayLegacyTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_OVERLAY_LEGACY", diameter);
     approachCircleTemplate = HitObjectSprite.createSprite("APPROACH_CIRCLE", diameter);
     sliderBallTemplate = HitObjectSprite.createSprite("SLIDER_BALL", diameter);
+    reverseArrowTextures = {
+        arrow: PIXI.Texture.from("static/reversearrow@2x.png"),
+        ring: PIXI.Texture.from("static/repeat-edge-piece.png"),
+    };
 }
 
 class Beatmap {
@@ -34,6 +38,8 @@ class Beatmap {
         OK: 140,
         MEH: 200,
     };
+
+    static beatStepsList = [];
 
     constructor(rawBeatmap, delay) {
         // Get Approach Rate
@@ -151,6 +157,7 @@ class Beatmap {
             });
 
         beatsteps = beatStepsList;
+        Beatmap.beatStepsList = beatStepsList;
 
         const timingPointsList = rawBeatmap
             .slice(
@@ -637,7 +644,8 @@ class Beatmap {
 
         const drainTime =
             (this.objectsController.objectsList.at(-1).obj.time -
-                (breakPeriods.reduce((accumulated, curr) => accumulated + (curr[1] - curr[0]), 0) + this.objectsController.objectsList.at(0).obj.time)) /
+                (breakPeriods.reduce((accumulated, curr) => accumulated + (curr[1] - curr[0]), 0) +
+                    this.objectsController.objectsList.at(0).obj.time)) /
             1000;
 
         Beatmap.difficultyMultiplier = Math.round(

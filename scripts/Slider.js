@@ -38,6 +38,7 @@ class Slider {
 
     hitCircle;
     reverseArrow;
+    revArrows = [];
     sliderBall;
 
     angleE;
@@ -53,6 +54,7 @@ class Slider {
     comboIdx;
 
     isHover = false;
+    opacity = 0;
 
     binom(n, k) {
         if (k < 0 || k > n) return 0;
@@ -142,6 +144,7 @@ class Slider {
             }
         }
         currentOpacity = Clamp(currentOpacity, 0, 1);
+        this.opacity = currentOpacity;
         this.SliderMesh.alpha = currentOpacity;
 
         // Calculate object progress percentage
@@ -169,60 +172,6 @@ class Slider {
         } else {
             this.SliderMesh.startt = 0;
             this.SliderMesh.endt = 1;
-        }
-
-        // Set reverse arrow properties
-        if (this.repeat > 1) {
-            if (timestamp < this.time) {
-                // Set reverse arrow position
-                this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-                this.reverseArrow.y =
-                    (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) * Game.WIDTH) /
-                    512;
-
-                // Set reverse arrow rotation
-                this.reverseArrow.rotation = this.angleE + (!mods.HR ? 0 : Math.PI * 2 - this.angleE * 2);
-
-                // Show reverse arrow when slider is snaking in at 40%
-                if (currentOpacity * 2 < 0.8 && sliderAppearance.snaking) {
-                    this.reverseArrow.alpha = 0;
-                } else {
-                    this.reverseArrow.alpha = currentOpacity;
-                }
-            } else {
-                const currentRepeat = Math.floor(currentPercentage * this.repeat);
-                if (currentRepeat < this.repeat - 1) {
-                    if (currentRepeat % 2 === 0) {
-                        // Set reverse arrow properties at slider end
-                        this.reverseArrow.x = ((this.angleList.at(-1).x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-                        this.reverseArrow.y =
-                            (((!mods.HR ? this.angleList.at(-1).y : 384 - this.angleList.at(-1).y) + this.stackHeight * currentStackOffset) *
-                                Game.WIDTH) /
-                            512;
-                        this.reverseArrow.rotation = this.angleE + (!mods.HR ? 0 : Math.PI * 2 - this.angleE * 2);
-                    } else {
-                        // Set reverse arrow properties at slider head
-                        this.reverseArrow.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-                        this.reverseArrow.y =
-                            (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) /
-                            512;
-                        this.reverseArrow.rotation = this.angleS + (!mods.HR ? 0 : Math.PI * 2 - this.angleS * 2);
-                    }
-
-                    // Set reverse arrow opacity (although it is kinda pointless?)
-                    this.reverseArrow.alpha = currentOpacity;
-                } else {
-                    // Hide reverse arrow if this is the last iteration of repeat
-                    this.reverseArrow.alpha = 0;
-                }
-            }
-
-            const offset = this.time % this.beatStep;
-            const revExpand = (timestamp - offset - Math.floor((timestamp - offset) / this.beatStep) * this.beatStep) / this.beatStep;
-            const revExpandRate = (1 - Clamp(Math.abs(revExpand), 0, 1)) * 0.7 + 0.8;
-            this.reverseArrow.scale.set(
-                ((revExpandRate * circleModScale * Game.WIDTH) / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize)
-            );
         }
 
         const sliderBallShowtime = this.time;
@@ -276,6 +225,7 @@ class Slider {
     draw(timestamp) {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
+        this.revArrows.forEach(arrow => arrow.draw(timestamp));
     }
 
     reInitialize() {
@@ -782,12 +732,12 @@ class Slider {
             this.angleE = angleE;
             this.angleS = angleS;
 
-            const revEndSprite = PIXI.Sprite.from("static/reversearrow@2x.png");
-            revEndSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
-            revEndSprite.anchor.set(0.5);
-            revEndSprite.alpha = 0;
+            this.sliderParts.filter(parts => parts.type === "Slider Repeat").forEach((info, idx) => {
+                const angle = idx % 2 === 0 ? this.angleE : this.angleS;
+                const revSprite = new ReverseArrow(this, info.time, info, angle, this.stackHeight, idx);
 
-            this.reverseArrow = revEndSprite;
+                this.revArrows.push(revSprite);
+            })
         }
 
         // console.log(this.time, this.angleList);
@@ -814,9 +764,7 @@ class Slider {
         const SliderContainer = new PIXI.Container();
         SliderContainer.addChild(this.SliderMeshContainer);
 
-        if (this.reverseArrow) {
-            SliderContainer.addChild(this.reverseArrow);
-        }
+        this.revArrows.forEach((arrow) => SliderContainer.addChild(arrow.obj));
 
         this.nodesContainer = new PIXI.Container();
         this.nodesLine = new PIXI.Graphics()
