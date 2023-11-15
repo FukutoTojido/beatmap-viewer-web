@@ -54,8 +54,8 @@ class ReverseArrow {
 
         const y = !mods.HR ? this.position.y : 384 - this.position.y;
 
-        this.obj.x = (this.position.x + this.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
-        this.obj.y = (y + this.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
+        this.obj.x = (this.position.x + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
+        this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.rotation = !mods.HR ? this.angle : Math.PI * 2 - this.angle;
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
