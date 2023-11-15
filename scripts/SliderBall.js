@@ -48,7 +48,7 @@ class SliderBall {
         const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
 
         let { x, y } = point;
-        if (mods.HR) {
+        if (mods.HR || mods.EZ) {
             y = 384 - y;
 
             const currentCircleRadius = 54.4 - 4.48 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier);
