@@ -10,6 +10,8 @@ function generateSprites(diameter) {
         arrow: PIXI.Texture.from("static/reversearrow@2x.png"),
         ring: PIXI.Texture.from("static/repeat-edge-piece.png"),
     };
+    sliderBallTexture = PIXI.Texture.from("static/arrow.png");
+    sliderBallGradientTexture = HitObjectSprite.createSprite("SLIDER_BALL_BG", diameter);
 }
 
 class Beatmap {

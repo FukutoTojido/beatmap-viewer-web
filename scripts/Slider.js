@@ -39,6 +39,7 @@ class Slider {
     hitCircle;
     reverseArrow;
     revArrows = [];
+    ball;
     sliderBall;
 
     angleE;
@@ -174,41 +175,10 @@ class Slider {
             this.SliderMesh.endt = 1;
         }
 
-        const sliderBallShowtime = this.time;
-        if (timestamp > sliderBallShowtime) {
-            // Calculate sliderball position
-            const currentRepeat = Math.floor(currentPercentage * this.repeat);
-            const repeatPercentage = (currentPercentage - currentRepeat / this.repeat) * this.repeat;
-            const pos =
-                currentRepeat % 2 === 0
-                    ? Math.ceil((this.angleList.length - 1) * repeatPercentage)
-                    : Math.ceil((this.angleList.length - 1) * (1 - repeatPercentage));
-
-            // Set sliderball position
-            if (currentRepeat <= this.repeat) {
-                this.sliderBall.x = ((this.angleList[pos].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-                this.sliderBall.y =
-                    (((!mods.HR ? this.angleList[pos].y : 384 - this.angleList[pos].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-            }
-
-            this.sliderBall.alpha = timestamp > this.endTime - fadeOutTime + 1 ? 0 : 1;
-        } else {
-            // Hide sliderball when not hitted
-            this.sliderBall.alpha = 0;
-            this.sliderBall.x = ((this.angleList[0].x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-            this.sliderBall.y =
-                (((!mods.HR ? this.angleList[0].y : 384 - this.angleList[0].y) + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-        }
-
-        // Set sliderball scale
-        this.sliderBall.scale.set(circleModScale);
         // this.sliderBall.tint = colour;
 
         // Set slider color
         this.SliderMesh.tintid = this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)));
-        // this.SliderMesh.tintid = !sliderAppearance.untint
-        //     ? this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)))
-        //     : 2 ** Math.ceil(Math.log2(colorsLength)) + colorsLength - 1;
 
         this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
         this.nodesContainer.y = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
@@ -225,7 +195,8 @@ class Slider {
     draw(timestamp) {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
-        this.revArrows.forEach(arrow => arrow.draw(timestamp));
+        this.revArrows.forEach((arrow) => arrow.draw(timestamp));
+        this.ball.draw(timestamp);
     }
 
     reInitialize() {
@@ -452,7 +423,26 @@ class Slider {
 
         // if (this.time === 130364) console.log(calculatedAngleLength);
 
-        return sliced.map((coord, idx) => {
+        return sliced.map((coord, idx, arr) => {
+            let angle = arr[idx - 1]?.angle ?? 0;
+
+            if (idx !== arr.length - 1) {
+                const nextEle = arr[idx + 1] ?? arr[idx];
+
+                const vec = {
+                    x: nextEle.x - coord.x,
+                    y: nextEle.y - coord.y,
+                };
+
+                const normVec = {
+                    x: vec.x / Math.hypot(vec.x, vec.y),
+                    y: vec.y / Math.hypot(vec.x, vec.y),
+                };
+
+                angle = (Math.atan2(normVec.y, normVec.x) * 180) / Math.PI;
+            }
+
+            coord.angle = angle;
             coord.t = idx / (sliced.length - 1);
             return coord;
         });
@@ -697,11 +687,25 @@ class Slider {
             .reduce((prev, curr, idx) => {
                 let ret = [];
                 if (idx % 2 === 0) ret = prev.concat(this.angleList.slice(0, -1));
-                if (idx % 2 !== 0) ret = prev.concat([...this.angleList].reverse().slice(0, -1));
+                if (idx % 2 !== 0)
+                    ret = prev.concat(
+                        [...this.angleList]
+                            .reverse()
+                            .slice(0, -1)
+                            .map((p) => {
+                                return {
+                                    ...p,
+                                    angle: p.angle + 180,
+                                };
+                            })
+                    );
 
                 if (idx === this.repeat - 1) {
                     if (idx % 2 === 0) ret.push(this.angleList.at(-1));
-                    else ret.push(this.angleList[0]);
+                    else ret.push({
+                        ...this.angleList[0],
+                        angle: this.angleList[0].angle + 180
+                    });
                 }
 
                 return ret;
@@ -732,12 +736,14 @@ class Slider {
             this.angleE = angleE;
             this.angleS = angleS;
 
-            this.sliderParts.filter(parts => parts.type === "Slider Repeat").forEach((info, idx) => {
-                const angle = idx % 2 === 0 ? this.angleE : this.angleS;
-                const revSprite = new ReverseArrow(this, info.time, info, angle, this.stackHeight, idx);
+            this.sliderParts
+                .filter((parts) => parts.type === "Slider Repeat")
+                .forEach((info, idx) => {
+                    const angle = idx % 2 === 0 ? this.angleE : this.angleS;
+                    const revSprite = new ReverseArrow(this, info.time, info, angle, this.stackHeight, idx);
 
-                this.revArrows.push(revSprite);
-            })
+                    this.revArrows.push(revSprite);
+                });
         }
 
         // console.log(this.time, this.angleList);
@@ -760,6 +766,8 @@ class Slider {
         sliderBall.y = (this.angleList[0].y * Game.WIDTH) / 512;
         sliderBall.anchor.set(0.5);
         this.sliderBall = sliderBall;
+
+        this.ball = new SliderBall(this);
 
         const SliderContainer = new PIXI.Container();
         SliderContainer.addChild(this.SliderMeshContainer);
@@ -795,7 +803,8 @@ class Slider {
 
         this.nodesContainer.addChild(this.nodesLine);
 
-        SliderContainer.addChild(this.sliderBall);
+        // SliderContainer.addChild(this.sliderBall);
+        SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);
         SliderContainer.addChild(this.nodesContainer);
 

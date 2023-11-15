@@ -120,6 +120,32 @@ class HitObjectSprite {
         return sliderBallContainer;
     }
 
+    static createSliderBallBG(diameter) {
+        const radius = (diameter / 2) * (Game.WIDTH / 512);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = radius * 2;
+        canvas.height = radius * 2;
+
+        const ctx = canvas.getContext("2d");
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, radius * 2);
+        gradient.addColorStop(0, "white");
+        gradient.addColorStop(1, "rgb(74, 74, 74)");
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, radius * 2, radius * 2);
+
+        const tx = PIXI.Texture.from(canvas);
+        return tx;
+
+        // const bg = new PIXI.Graphics().beginTextureFill(tx).drawRect(0, 0, radius * 2, radius * 2).endFill();
+        // const cont = new PIXI.Container();
+        // cont.addChild(bg);
+
+        // return cont;
+    }
+
     static createSprite(type, diameter) {
         let graphics = null;
 
@@ -145,6 +171,8 @@ class HitObjectSprite {
             case "SLIDER_BALL":
                 graphics = HitObjectSprite.createSliderBall(diameter);
                 break;
+            case "SLIDER_BALL_BG":
+                return HitObjectSprite.createSliderBallBG(diameter);
         }
 
         if (!graphics) return null;
