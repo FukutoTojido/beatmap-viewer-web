@@ -90,6 +90,8 @@ class ReverseArrow {
 
         if (mods.HD) {
             this.obj.alpha = 1;
+
+            if (timestamp > this.time) this.obj.alpha = 0;
             return;
         }
 
