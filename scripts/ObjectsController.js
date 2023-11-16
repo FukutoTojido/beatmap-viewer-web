@@ -86,8 +86,6 @@ class ObjectsController {
         if (this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
             this.tempW = Game.WIDTH;
             this.tempH = Game.HEIGHT;
-
-            generateSprites(Beatmap.stats.circleDiameter);
         }
         if (didMove && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();

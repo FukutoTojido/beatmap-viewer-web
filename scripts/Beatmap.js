@@ -1,19 +1,3 @@
-function generateSprites(diameter) {
-    selectedHitCircleTemplate = HitObjectSprite.createSprite("SELECTED_HIT_CIRCLE", diameter);
-    hitCircleTemplate = HitObjectSprite.createSprite("HIT_CIRCLE", diameter);
-    hitCircleLegacyTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_LEGACY", diameter);
-    hitCircleOverlayTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_OVERLAY", diameter);
-    hitCircleOverlayLegacyTemplate = HitObjectSprite.createSprite("HIT_CIRCLE_OVERLAY_LEGACY", diameter);
-    approachCircleTemplate = HitObjectSprite.createSprite("APPROACH_CIRCLE", diameter);
-    sliderBallTemplate = HitObjectSprite.createSprite("SLIDER_BALL", diameter);
-    reverseArrowTextures = {
-        arrow: PIXI.Texture.from("static/reversearrow@2x.png"),
-        ring: PIXI.Texture.from("static/repeat-edge-piece.png"),
-    };
-    sliderBallTexture = PIXI.Texture.from("static/arrow.png");
-    sliderBallGradientTexture = HitObjectSprite.createSprite("SLIDER_BALL_BG", diameter);
-}
-
 class Beatmap {
     objectsController;
     static difficultyMultiplier = 1;
@@ -171,7 +155,6 @@ class Beatmap {
         };
 
         Beatmap.stats.circleDiameter = (2 * (54.4 - 4.48 * Beatmap.stats.circleSize) * 236) / 256;
-        generateSprites(Beatmap.stats.circleDiameter);
 
         stackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize - 5)) / 5)) / 2;
         stackThreshold = Beatmap.stats.preempt * Beatmap.stats.stackLeniency;

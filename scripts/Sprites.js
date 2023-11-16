@@ -1,5 +1,5 @@
 class HitObjectSprite {
-    static createSelectedHitCircle(diameter) {
+    static createSelectedHitCircle() {
         return new PIXI.Graphics()
             .lineStyle({
                 width: 10,
@@ -11,7 +11,7 @@ class HitObjectSprite {
             .arc(0, 0, 59, 0, Math.PI * 2);
     }
 
-    static createHitCircle(diameter) {
+    static createHitCircle() {
         const hitCircle = new PIXI.Graphics();
 
         const circle_1 = new PIXI.Graphics();
@@ -36,7 +36,7 @@ class HitObjectSprite {
         return hitCircle;
     }
 
-    static createHitCircleLegacy(diameter) {
+    static createHitCircleLegacy() {
         const hitCircle = new PIXI.Graphics();
 
         const circle_0 = new PIXI.Graphics()
@@ -67,7 +67,7 @@ class HitObjectSprite {
         return hitCircle;
     }
 
-    static createHitCircleOverlay(diameter) {
+    static createHitCircleOverlay() {
         return new PIXI.Graphics()
             .lineStyle({
                 width: 4,
@@ -79,7 +79,7 @@ class HitObjectSprite {
             .arc(0, 0, 69, 0, Math.PI * 2);
     }
 
-    static createHitCircleOverlayLegacy(diameter) {
+    static createHitCircleOverlayLegacy() {
         return new PIXI.Graphics()
             .lineStyle({
                 width: 4,
@@ -91,7 +91,7 @@ class HitObjectSprite {
             .arc(0, 0, 59, 0, Math.PI * 2);
     }
 
-    static createApproachCircle(diameter) {
+    static createApproachCircle() {
         return new PIXI.Graphics()
             .lineStyle({
                 width: 4,
@@ -103,7 +103,7 @@ class HitObjectSprite {
             .arc(0, 0, 59, 0, Math.PI * 2);
     }
 
-    static createSliderBall(diameter) {
+    static createSliderBall() {
         const sliderBallOutLine = new PIXI.Graphics()
             .lineStyle({
                 width: 15,
@@ -120,7 +120,7 @@ class HitObjectSprite {
         return sliderBallContainer;
     }
 
-    static createSliderBallBG(diameter) {
+    static createSliderBallBG() {
         const radius = 59;
 
         const canvas = document.createElement("canvas");
@@ -146,33 +146,33 @@ class HitObjectSprite {
         // return cont;
     }
 
-    static createSprite(type, diameter) {
+    static createSprite(type) {
         let graphics = null;
 
         switch (type) {
             case "SELECTED_HIT_CIRCLE":
-                graphics = HitObjectSprite.createSelectedHitCircle(diameter);
+                graphics = HitObjectSprite.createSelectedHitCircle();
                 break;
             case "HIT_CIRCLE":
-                graphics = HitObjectSprite.createHitCircle(diameter);
+                graphics = HitObjectSprite.createHitCircle();
                 break;
             case "HIT_CIRCLE_LEGACY":
-                graphics = HitObjectSprite.createHitCircleLegacy(diameter);
+                graphics = HitObjectSprite.createHitCircleLegacy();
                 break;
             case "HIT_CIRCLE_OVERLAY":
-                graphics = HitObjectSprite.createHitCircleOverlay(diameter);
+                graphics = HitObjectSprite.createHitCircleOverlay();
                 break;
             case "HIT_CIRCLE_OVERLAY_LEGACY":
-                graphics = HitObjectSprite.createHitCircleOverlayLegacy(diameter);
+                graphics = HitObjectSprite.createHitCircleOverlayLegacy();
                 break;
             case "APPROACH_CIRCLE":
-                graphics = HitObjectSprite.createApproachCircle(diameter);
+                graphics = HitObjectSprite.createApproachCircle();
                 break;
             case "SLIDER_BALL":
-                graphics = HitObjectSprite.createSliderBall(diameter);
+                graphics = HitObjectSprite.createSliderBall();
                 break;
             case "SLIDER_BALL_BG":
-                return HitObjectSprite.createSliderBallBG(diameter);
+                return HitObjectSprite.createSliderBallBG();
         }
 
         if (!graphics) return null;

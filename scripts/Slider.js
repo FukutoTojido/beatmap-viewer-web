@@ -102,7 +102,6 @@ class Slider {
         // console.log(this.time, opacity, percentage);
 
         // Calculate object radius on HR / EZ toggle
-        const circleModScale = Beatmap.moddedStats.radius / Beatmap.stats.radius;;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         // Re-scale on playfield size change / on HR / EZ toggle
@@ -199,7 +198,6 @@ class Slider {
     }
 
     reInitialize() {
-        const circleModScale = Beatmap.moddedStats.radius / Beatmap.stats.radius;
         const inverse = mods.HR ? -1 : 1;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
