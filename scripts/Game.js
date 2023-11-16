@@ -14,6 +14,8 @@ class Game {
     static OFFSET_X;
     static OFFSET_Y;
 
+    static SCALE_RATE = 1;
+
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
@@ -95,6 +97,134 @@ class Game {
         grid.y = Game.OFFSET_Y;
         grid.alpha = 1;
 
+        grid.interactive = true;
+        grid.on("click", (e) => {
+            if (!beatmapFile || !beatmapFile.isLoaded) return;
+
+            const currentTime = beatmapFile.audioNode.getCurrentTime();
+
+            // console.log(isDragging);
+
+            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            x /= Game.SCALE_RATE;
+            y /= Game.SCALE_RATE;
+
+            const selectedObjList = beatmapFile.beatmapRenderData.objectsController.filtered.filter((o) => checkCollide(x, y, o));
+
+            const selectedObj = selectedObjList.length
+                ? selectedObjList.reduce((prev, curr) => {
+                      const prevOffset = Math.abs(prev.time - currentTime);
+                      const currOffset = Math.abs(curr.time - currentTime);
+
+                      return prevOffset > currOffset ? curr : prev;
+                  })
+                : undefined;
+
+            // console.log("x: " + x + " y: " + y, selectedObj);
+
+            if (selectedObj) {
+                if (!e.ctrlKey) selectedHitObject = [selectedObj.time];
+                else {
+                    selectedHitObject = selectedHitObject.concat([selectedObj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
+                }
+            } else if (!didMove) {
+                selectedHitObject = [];
+            }
+
+            // console.log(selectedHitObject);
+            if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
+            didMove = false;
+            // console.log("Mouse CLICK", didMove);
+        });
+
+        grid.on("mousedown", (e) => {
+            if (!beatmapFile || !beatmapFile.isLoaded) return;
+
+            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            x /= Game.WIDTH / 512;
+            y /= Game.WIDTH / 512;
+
+            isDragging = true;
+            draggingStartTime = beatmapFile.audioNode.getCurrentTime();
+            startX = x;
+            startY = y;
+
+            Game.DRAG_WINDOW.clear();
+            Game.DRAG_WINDOW.lineStyle({
+                width: 2,
+                color: 0xffffff,
+                alpha: 1,
+                alignment: 0,
+            });
+
+            Game.DRAG_WINDOW.drawRect(x, y, 0, 0);
+
+            Game.DRAG_WINDOW.alpha = 1;
+
+            // console.log("Mouse DOWN");
+        });
+
+        grid.on("mouseup", (e) => {
+            if (!beatmapFile || !beatmapFile.isLoaded) return;
+
+            if (currentX !== -1 && currentY !== -1) {
+                // console.log(selectedHitObject);
+                // console.log(startX, startY, currentX, currentY);
+            }
+            // currentX = -1;
+            // currentY = -1;
+            isDragging = false;
+            Game.DRAG_WINDOW.alpha = 0;
+            // console.log("Mouse UP");
+        });
+
+        grid.on("mousemove", (e) => {
+            if (!beatmapFile || !beatmapFile.isLoaded) return;
+
+            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            x /= Game.WIDTH / 512;
+            y /= Game.WIDTH / 512;
+
+            if (isDragging) {
+                didMove = true;
+                draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+                currentX = x;
+                currentY = y;
+                // console.log("Moving");
+                handleCanvasDrag(e);
+
+                Game.DRAG_WINDOW.clear();
+                Game.DRAG_WINDOW.lineStyle({
+                    width: 2,
+                    color: 0xffffff,
+                    alpha: 1,
+                    alignment: 0,
+                });
+
+                Game.DRAG_WINDOW.drawRect(
+                    (Math.min(startX, x) * Game.WIDTH) / 512,
+                    (Math.min(startY, y) * Game.WIDTH) / 512,
+                    (Math.abs(x - startX) * Game.WIDTH) / 512,
+                    (Math.abs(y - startY) * Game.WIDTH) / 512
+                );
+                // console.log(startX, startY, currentX, currentY);
+            }
+
+            const currentTime = beatmapFile.audioNode.getCurrentTime();
+            const inRender = beatmapFile.beatmapRenderData.objectsController.filtered.filter((o) => o.obj instanceof Slider && checkCollide(x, y, o));
+            const selectedSlider = inRender.reduce((selected, current) => {
+                if (Math.abs(current.obj.time - currentTime) < Math.abs(selected.obj.time - currentTime)) return current;
+
+                return selected;
+            }, inRender[0] ?? null);
+
+            beatmapFile.beatmapRenderData.objectsController.slidersList.forEach((o) => (o.obj.isHover = false));
+
+            if (selectedSlider) selectedSlider.obj.isHover = true;
+
+            if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
+        });
+
         return grid;
     }
 
@@ -154,6 +284,9 @@ class Game {
 
         // Re-scale Game Canvas on Retina / Mobile devices
         Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+
+        // ...
+        Game.SCALE_RATE = Game.WIDTH / 512;
     }
 
     static appInit() {

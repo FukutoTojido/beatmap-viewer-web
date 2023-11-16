@@ -27,6 +27,22 @@ class Beatmap {
         preempt: 1200,
         fadeIn: 800,
         sliderTickRate: 1,
+        radius: 54.4 - 4.48 * 5,
+        stackOffset: (-6.4 * (1 - (0.7 * (5 - 5)) / 5)) / 2,
+    };
+
+    static moddedStats = {
+        approachRate: 5,
+        circleSize: 5,
+        HPDrainRate: 5,
+        overallDifficulty: 5,
+        stackLeniency: 7,
+        circleDiameter: (2 * (54.4 - 4.48 * 5) * 236) / 256,
+        preempt: 1200,
+        fadeIn: 800,
+        sliderTickRate: 1,
+        radius: 54.4 - 4.48 * 5,
+        stackOffset: (-6.4 * (1 - (0.7 * (5 - 5)) / 5)) / 2,
     };
 
     static difficultyRange(val, min, mid, max) {
@@ -42,6 +58,41 @@ class Beatmap {
     };
 
     static beatStepsList = [];
+
+    static updateModdedStats() {
+        const HRMul = !mods.HR ? 1 : 1.4;
+        const EZMul = !mods.EZ ? 1 : 0.5;
+        const HRMulCS = !mods.HR ? 1 : 1.3;
+
+        const circleSize = Math.min(Beatmap.stats.circleSize * HRMulCS * EZMul, 10);
+        const approachRate = Math.min(Beatmap.stats.approachRate * HRMul * EZMul, 10);
+        const HPDrainRate = Math.min(Beatmap.stats.HPDrainRate * HRMul * EZMul, 10);
+        const overallDifficulty = Math.min(Beatmap.stats.overallDifficulty * HRMul * EZMul, 10);
+
+        Beatmap.moddedStats = {
+            ...Beatmap.stats,
+            circleSize,
+            approachRate,
+            HPDrainRate,
+            overallDifficulty,
+            preempt: Beatmap.difficultyRange(approachRate, 1800, 1200, 450),
+            fadeIn: Beatmap.difficultyRange(approachRate, 1200, 800, 300),
+            radius: 54.4 - 4.48 * circleSize,
+            stackOffset: (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2,
+        };
+    }
+
+    static updateStats() {
+        const { circleSize, approachRate } = Beatmap.stats;
+
+        Beatmap.stats = {
+            ...Beatmap.stats,
+            preempt: Beatmap.difficultyRange(approachRate, 1800, 1200, 450),
+            fadeIn: Beatmap.difficultyRange(approachRate, 1200, 800, 300),
+            radius: 54.4 - 4.48 * circleSize,
+            stackOffset: (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2,
+        };
+    }
 
     constructor(rawBeatmap, delay) {
         // Get Approach Rate
@@ -635,6 +686,9 @@ class Beatmap {
                     }
                 }
             }
+
+            Beatmap.updateStats();
+            Beatmap.updateModdedStats();
         }
 
         this.objectsController.objectsList.forEach((o) => {

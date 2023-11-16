@@ -38,13 +38,13 @@ function selectedTexture() {
     // console.log(colors);
     const borderwidth = 0.128;
     const blurrate = 0.03;
-    const width = 200;
+    const width = 400;
 
     let buff = new Uint8Array(width * 4);
 
     const innerPortion = 1 - borderwidth;
     let tint = 0xf2cc0f;
-    let bordertint = 0xf2cc0f;
+    let bordertint = 0xe8385b;
     let borderR = (bordertint >> 16) / 255;
     let borderG = ((bordertint >> 8) & 255) / 255;
     let borderB = (bordertint & 255) / 255;
@@ -82,12 +82,12 @@ function selectedTexture() {
             B *= (1 - position) / blurrate;
             A *= (1 - position) / blurrate;
         }
-        if (innerPortion - position > 0 && innerPortion - position < blurrate) {
-            let mu = (innerPortion - position) / blurrate;
+        if (innerPortion - position > 0 && innerPortion - position < 0.04) {
+            let mu = (innerPortion - position) / (0.04);
             R = mu * R + (1 - mu) * borderR * borderA;
             G = mu * G + (1 - mu) * borderG * borderA;
             B = mu * B + (1 - mu) * borderB * borderA;
-            A = mu * innerA + (1 - mu) * borderA;
+            A = mu * A + (1 - mu) * borderA;
         }
         buff[i * 4] = R * 255;
         buff[i * 4 + 1] = G * 255;
@@ -171,12 +171,12 @@ function newTexture(colors, SliderTrackOverride, SliderBorder) {
                         B *= (1 - position) / blurrate;
                         A *= (1 - position) / blurrate;
                     }
-                    if (innerPortion - position > 0 && innerPortion - position < blurrate) {
-                        let mu = (innerPortion - position) / blurrate;
+                    if (innerPortion - position > 0 && innerPortion - position < 0.04) {
+                        let mu = (innerPortion - position) / 0.04;
                         R = mu * R + (1 - mu) * borderR * borderA;
                         G = mu * G + (1 - mu) * borderG * borderA;
                         B = mu * B + (1 - mu) * borderB * borderA;
-                        A = mu * innerA + (1 - mu) * borderA;
+                        A = mu * A + (1 - mu) * borderA;
                     }
                     buff[(k * width + i) * 4 + s * roundedLength * width * 4] = R * 255;
                     buff[(k * width + i) * 4 + 1 + s * roundedLength * width * 4] = G * 255;

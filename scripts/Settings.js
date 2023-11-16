@@ -184,13 +184,15 @@ function handleCheckBox(checkbox) {
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
-    if (beatmapFile !== undefined) {
-        const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-        if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-        playbackRate = 1 * DTMultiplier * HTMultiplier;
-        if (originalIsPlaying) beatmapFile.audioNode.play();
-        if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    if (!beatmapFile) return;
 
-        calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
-    }
+    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    playbackRate = 1 * DTMultiplier * HTMultiplier;
+    Beatmap.updateModdedStats();
+
+    if (originalIsPlaying) beatmapFile.audioNode.play();
+    if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+
+    calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
 }

@@ -39,6 +39,7 @@ class Slider {
     hitCircle;
     reverseArrow;
     revArrows = [];
+    ticks = [];
     ball;
     sliderBall;
 
@@ -85,11 +86,11 @@ class Slider {
     }
 
     drawSelected() {
-        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
+        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
             this.tempModsEZ = mods.EZ;
             this.tempModsHR = mods.HR;
-            this.tempW = Game.WIDTH;
-            this.tempH = Game.HEIGHT;
+            this.tempW = Game.APP.view.width;
+            this.tempH = Game.APP.view.height;
             this.reInitialize();
             this.sliderBall.texture = sliderBallTemplate;
         }
@@ -101,25 +102,22 @@ class Slider {
         // console.log(this.time, opacity, percentage);
 
         // Calculate object radius on HR / EZ toggle
-        const HRMultiplier = !mods.HR ? 1 : 1.3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const circleModScale = Beatmap.moddedStats.radius / Beatmap.stats.radius;;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         // Re-scale on playfield size change / on HR / EZ toggle
-        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
+        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
             this.tempModsEZ = mods.EZ;
             this.tempModsHR = mods.HR;
-            this.tempW = Game.WIDTH;
-            this.tempH = Game.HEIGHT;
+            this.tempW = Game.APP.view.width;
+            this.tempH = Game.APP.view.height;
             this.reInitialize();
             this.sliderBall.texture = sliderBallTemplate;
         }
 
         // Calculate current timing stats
-        const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
-        const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
-        const currentFadeIn = Beatmap.difficultyRange(currentAR, 1200, 800, 300);
+        const currentPreempt = Beatmap.moddedStats.preempt;
+        const currentFadeIn = Beatmap.moddedStats.fadeIn;
         const fadeOutTime = 240;
 
         // Calculate object opacity
@@ -196,15 +194,14 @@ class Slider {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
+        this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
     }
 
     reInitialize() {
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const circleModScale = (54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier) / (54.4 - 4.48 * Beatmap.stats.circleSize);
+        const circleModScale = Beatmap.moddedStats.radius / Beatmap.stats.radius;
         const inverse = mods.HR ? -1 : 1;
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const dx = (2 * Game.WIDTH) / Game.APP.view.width / 512;
         const dy = (inverse * (-2 * Game.HEIGHT)) / Game.APP.view.height / 384;
@@ -216,7 +213,7 @@ class Slider {
             oy: inverse * (1 - (2 * Game.OFFSET_Y) / Game.APP.view.height) + inverse * dy * this.stackHeight * currentStackOffset,
         };
 
-        this.sliderGeometryContainer.initiallize((Beatmap.stats.circleDiameter / 2) * circleModScale, transform);
+        this.sliderGeometryContainer.initiallize(Beatmap.moddedStats.radius * (236 / 256), transform);
     }
 
     createEquiDistCurve(points, actualLength, calculatedLength) {
@@ -500,8 +497,6 @@ class Slider {
     }
 
     eval(inputIdx) {
-        const HRMultiplier = !mods.HR ? 1 : 4 / 3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
         const endTime = this.endTime - 240;
 
         const radius = 54.4 - 4.48 * Beatmap.stats.circleSize;
@@ -524,7 +519,7 @@ class Slider {
 
         // if (this.time === 9596) console.log(sliderParts);
 
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const additionalMemory = {
             x: this.stackHeight * currentStackOffset,
             y: this.stackHeight * currentStackOffset,
@@ -702,10 +697,11 @@ class Slider {
 
                 if (idx === this.repeat - 1) {
                     if (idx % 2 === 0) ret.push(this.angleList.at(-1));
-                    else ret.push({
-                        ...this.angleList[0],
-                        angle: this.angleList[0].angle + 180
-                    });
+                    else
+                        ret.push({
+                            ...this.angleList[0],
+                            angle: this.angleList[0].angle + 180,
+                        });
                 }
 
                 return ret;
@@ -746,15 +742,16 @@ class Slider {
                 });
         }
 
+        this.sliderParts
+            .filter((parts) => parts.type === "Slider Tick")
+            .forEach((info, spanIdx) => {
+                const tick = new SliderTick(info, this, spanIdx);
+                this.ticks.push(tick);
+            });
+
         // console.log(this.time, this.angleList);
 
-        let w_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width);
-        let h_z = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height);
-
-        if (w_z / 512 > h_z / 384) w_z = (h_z / 384) * 512;
-        else h_z = (w_z / 512) * 384;
-
-        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, Beatmap.stats.circleDiameter / 2, 0);
+        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, Beatmap.moddedStats.radius * (236 / 256), 0);
         this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
         this.selected = this.sliderGeometryContainer.selSliderContainer;
 
@@ -773,6 +770,7 @@ class Slider {
         SliderContainer.addChild(this.SliderMeshContainer);
 
         this.revArrows.forEach((arrow) => SliderContainer.addChild(arrow.obj));
+        this.ticks.forEach((tick) => SliderContainer.addChild(tick.obj));
 
         this.nodesContainer = new PIXI.Container();
         this.nodesLine = new PIXI.Graphics()

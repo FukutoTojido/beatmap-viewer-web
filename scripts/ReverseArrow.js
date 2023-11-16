@@ -48,9 +48,7 @@ class ReverseArrow {
     }
 
     draw(timestamp) {
-        const HRMultiplier = !mods.HR ? 1 : 1.3;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const y = !mods.HR ? this.position.y : 384 - this.position.y;
 
@@ -60,7 +58,7 @@ class ReverseArrow {
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
-        const radius = 54.4 - 4.48 * Beatmap.stats.circleSize * HRMultiplier * EZMultiplier;
+        const radius = Beatmap.moddedStats.radius;
         const baseScale = (radius / (this.baseUnit * (640 / 1024))) * (Game.WIDTH / 512);
 
         this.arrowSprite.scale.set(baseScale + easeOutSine(pulseRate) * 0.3);

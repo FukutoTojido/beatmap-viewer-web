@@ -51,10 +51,7 @@ class Judgement {
         this.obj = judgementContainer;
         this.text = text;
 
-        const HRMultiplier = !mods.HR ? 1 : 1.4;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
-
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
         const y = !mods.HR
@@ -69,10 +66,8 @@ class Judgement {
     draw(timestamp) {
         // if (this.val === 300)
         //     return;
-        const HRMultiplier = !mods.HR ? 1 : 1.4;
-        const EZMultiplier = !mods.EZ ? 1 : 1 / 2;
 
-        const currentStackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize * HRMultiplier * EZMultiplier - 5)) / 5)) / 2;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
         const y = !mods.HR
