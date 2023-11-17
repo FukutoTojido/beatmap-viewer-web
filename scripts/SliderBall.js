@@ -56,7 +56,7 @@ class SliderBall {
         this.followCircle.alpha = 1;
         this.followCircle.scale.set(2.4);
 
-        if (timestamp < this.baseSlider.time || timestamp > this.baseSlider.endTime - 39) this.obj.alpha = 0;
+        if (timestamp < this.baseSlider.time || timestamp >= this.baseSlider.endTime - 39) this.obj.alpha = 0;
         if (timestamp >= this.baseSlider.time && timestamp < this.baseSlider.time + 300) {
             const alphaB = Clamp((timestamp - this.baseSlider.time) / 200, 0, 1);
             const alphaF = Clamp((timestamp - this.baseSlider.time) / 100, 0, 1);
