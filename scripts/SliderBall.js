@@ -24,15 +24,17 @@ class SliderBall {
             .drawCircle(0, 0, 54.4)
             .endFill();
 
-        const sprite = new PIXI.Sprite(sliderBallTexture);
-        const outerRing = new PIXI.Sprite(sliderBallTemplate);
+        const sprite = new PIXI.Sprite(Texture.SLIDER_B.arrow.texture);
+        const outerRing = new PIXI.Sprite(Texture.SLIDER_B.ring.texture);
         const bgMask = new PIXI.Graphics().beginFill(0xffffff).drawCircle(0, 0, 59).endFill();
-        const bgSprite = new PIXI.Sprite(sliderBallGradientTexture);
+        const bgSprite = new PIXI.Sprite(Texture.SLIDER_B.gradient.texture);
         bgSprite.mask = bgMask;
 
         sprite.anchor.set(0.5);
         outerRing.anchor.set(0.5);
         bgSprite.anchor.set(0.5);
+
+        outerRing.scale.set(Texture.SLIDER_B.ring.isHD ? 0.5 : 1);
 
         const sliderB = new PIXI.Container();
         sliderB.addChild(bgMask);
@@ -51,6 +53,12 @@ class SliderBall {
     }
 
     draw(timestamp) {
+        this.arrow.texture = (Texture.SLIDER_B.arrow.texture);
+        this.ring.texture = (Texture.SLIDER_B.ring.texture);
+        this.bg.texture = (Texture.SLIDER_B.gradient.texture);
+        this.ring.scale.set(Texture.SLIDER_B.ring.isHD ? 0.5 : 1);
+
+
         this.obj.alpha = 1;
         this.sliderB.alpha = 1;
         this.followCircle.alpha = 1;

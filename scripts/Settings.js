@@ -39,6 +39,19 @@ document.body.addEventListener("change", (e) => {
         currentLocalStorage.mirror.val = target.value;
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
+
+    if (["0", "1", "2", "3"].includes(target.value)) {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.skinning.type = target.value;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        skinning.type = target.value;
+
+        const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+        if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+        if (originalIsPlaying) beatmapFile.audioNode.play();
+        if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    }
 });
 
 function setCustomMirror(input) {
@@ -178,7 +191,7 @@ function handleCheckBox(checkbox) {
     const DTMultiplier = !mods.DT ? 1 : 1.5;
     const HTMultiplier = !mods.HT ? 1 : 0.75;
 
-    if (["snaking", "untint", "legacy", "hitAnim"].includes(checkbox.name)) {
+    if (["snaking", "hitAnim"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = sliderAppearance[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));

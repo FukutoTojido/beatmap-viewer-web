@@ -238,7 +238,7 @@ class Beatmap {
         colorsLength = coloursList.length;
         // console.log(colorsLength);
         SliderTexture = newTexture(coloursList);
-        SelectedTexture = selectedTexture();
+        SelectedTexture = newTexture();
 
         const breakPeriods = rawBeatmap
             .split("\r\n")

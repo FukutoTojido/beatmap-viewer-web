@@ -21,11 +21,11 @@ class ReverseArrow {
         this.stackHeight = stackHeight;
         this.idx = idx;
 
-        const arrowSprite = new PIXI.Sprite(reverseArrowTextures.arrow);
+        const arrowSprite = new PIXI.Sprite(Texture.REVERSE_ARROW.arrow.texture);
         arrowSprite.anchor.set(0.5);
         this.arrowSprite = arrowSprite;
 
-        const ringSprite = new PIXI.Sprite(reverseArrowTextures.ring);
+        const ringSprite = new PIXI.Sprite(Texture.REVERSE_ARROW.ring.texture);
         ringSprite.anchor.set(0.5);
         ringSprite.scale.set(0.5 * (229 / 200));
         this.ringSprite = ringSprite;
@@ -48,7 +48,11 @@ class ReverseArrow {
     }
 
     draw(timestamp) {
+        this.ringSprite.texture = Texture.REVERSE_ARROW.ring.texture;
+        this.arrowSprite.texture = Texture.REVERSE_ARROW.arrow.texture;
+        
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
+        const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
         const y = !mods.HR ? this.position.y : 384 - this.position.y;
 
@@ -58,10 +62,9 @@ class ReverseArrow {
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
-        const radius = Beatmap.moddedStats.radius;
-        const baseScale = (radius / (this.baseUnit * (640 / 1024))) * (Game.WIDTH / 512);
+        const baseScale = circleBaseScale * Game.SCALE_RATE * (Texture.REVERSE_ARROW.arrow.isHD ? 0.5 : 1) * (236 / 256) ** 2;
 
-        this.arrowSprite.scale.set(baseScale + easeOutSine(pulseRate) * 0.3);
+        this.arrowSprite.scale.set(baseScale * (1 + easeOutSine(pulseRate) * 0.2));
         this.ringSprite.scale.set(0.5 * (229 / 200) * baseScale);
         this.ringSprite.x = easeOutSine(pulseRate) * -12 * (512 / Game.WIDTH);
         this.obj.scale.set(1);

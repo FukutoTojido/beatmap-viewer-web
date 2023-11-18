@@ -1,9 +1,23 @@
 function loadLocalStorage() {
+    // const dbRequest = window.indexedDB.open("settingsDB");
+
+    // dbRequest.onerror = (event) => {
+    //     console.error(event);
+    // }
+
+    // dbRequest.onsuccess = (event) => {
+
+    // }
+
     if (localStorage.getItem("settings")) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
 
         [...document.querySelectorAll('[name="mirror"]')].forEach((ele) => {
             ele.checked = ele.value === currentLocalStorage.mirror.val;
+        });
+
+        [...document.querySelectorAll('[name="skinning"]')].forEach((ele) => {
+            ele.checked = ele.value === currentLocalStorage.skinning.type;
         });
 
         document.querySelector("#custom-mirror").value = currentLocalStorage.mirror.custom;
@@ -32,7 +46,7 @@ function loadLocalStorage() {
         // hsVol = currentLocalStorage.volume.hs;
 
         Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
-            if (["snaking", "legacy", "hitAnim"].includes(k)) {
+            if (["snaking", "hitAnim"].includes(k)) {
                 document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
             }
         });

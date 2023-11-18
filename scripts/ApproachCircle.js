@@ -13,7 +13,7 @@ class ApproachCircle {
         this.positionX = positionX
         this.positionY = positionY
 
-        const approachCircle = new PIXI.Sprite(approachCircleTemplate);
+        const approachCircle = new PIXI.Sprite(Texture.APPROACH_CIRCLE.texture);
         approachCircle.x = (positionX * Game.WIDTH) / 512;
         approachCircle.y = (positionY * Game.HEIGHT) / 512;
         approachCircle.anchor.set(0.5);

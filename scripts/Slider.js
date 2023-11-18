@@ -41,7 +41,6 @@ class Slider {
     revArrows = [];
     ticks = [];
     ball;
-    sliderBall;
 
     angleE;
     angleS;
@@ -86,16 +85,16 @@ class Slider {
     }
 
     drawSelected() {
-        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
-            this.tempModsEZ = mods.EZ;
-            this.tempModsHR = mods.HR;
-            this.tempW = Game.APP.view.width;
-            this.tempH = Game.APP.view.height;
-            this.reInitialize();
-            this.sliderBall.texture = sliderBallTemplate;
-        }
+        // if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
+        //     this.tempModsEZ = mods.EZ;
+        //     this.tempModsHR = mods.HR;
+        //     this.tempW = Game.APP.view.width;
+        //     this.tempH = Game.APP.view.height;
+        //     this.reInitialize();
+        // }
 
         this.selected.alpha = 1;
+        this.selected.tint = Object.values(d3.rgb(`#f2cc0f`)).map((val) => val / 255);
     }
 
     drawBorder(timestamp) {
@@ -105,14 +104,13 @@ class Slider {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         // Re-scale on playfield size change / on HR / EZ toggle
-        if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
-            this.tempModsEZ = mods.EZ;
-            this.tempModsHR = mods.HR;
-            this.tempW = Game.APP.view.width;
-            this.tempH = Game.APP.view.height;
-            this.reInitialize();
-            this.sliderBall.texture = sliderBallTemplate;
-        }
+        // if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
+        //     this.tempModsEZ = mods.EZ;
+        //     this.tempModsHR = mods.HR;
+        //     this.tempW = Game.APP.view.width;
+        //     this.tempH = Game.APP.view.height;
+        //     this.reInitialize();
+        // }
 
         // Calculate current timing stats
         const currentPreempt = Beatmap.moddedStats.preempt;
@@ -175,7 +173,8 @@ class Slider {
         // this.sliderBall.tint = colour;
 
         // Set slider color
-        this.SliderMesh.tintid = this.colourIdx + (!sliderAppearance.legacy ? 0 : 2 ** Math.ceil(Math.log2(colorsLength)));
+        this.SliderMesh.tintid = 0;
+        this.SliderMesh.tint = Object.values(d3.rgb(`#${this.colour.toString(16)}`)).map((val) => val / 255);
 
         this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
         this.nodesContainer.y = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
@@ -198,20 +197,7 @@ class Slider {
     }
 
     reInitialize() {
-        const inverse = mods.HR ? -1 : 1;
-        const currentStackOffset = Beatmap.moddedStats.stackOffset;
-
-        const dx = (2 * Game.WIDTH) / Game.APP.view.width / 512;
-        const dy = (inverse * (-2 * Game.HEIGHT)) / Game.APP.view.height / 384;
-
-        const transform = {
-            dx: dx,
-            ox: -1 + (2 * Game.OFFSET_X) / Game.APP.view.width + dx * this.stackHeight * currentStackOffset,
-            dy: dy,
-            oy: inverse * (1 - (2 * Game.OFFSET_Y) / Game.APP.view.height) + inverse * dy * this.stackHeight * currentStackOffset,
-        };
-
-        this.sliderGeometryContainer.initiallize(Beatmap.moddedStats.radius * (236 / 256), transform);
+        this.sliderGeometryContainer.initiallize(54.4 * (236 / 256));
     }
 
     createEquiDistCurve(points, actualLength, calculatedLength) {
@@ -749,18 +735,13 @@ class Slider {
 
         // console.log(this.time, this.angleList);
 
-        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, Beatmap.moddedStats.radius * (236 / 256), 0);
+        this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, this);
+        this.reInitialize();
         this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
         this.selected = this.sliderGeometryContainer.selSliderContainer;
 
         this.SliderMeshContainer = new PIXI.Container();
         this.SliderMeshContainer.addChild(this.SliderMesh);
-
-        const sliderBall = new PIXI.Sprite(sliderBallTemplate);
-        sliderBall.x = (this.angleList[0].x * Game.WIDTH) / 512;
-        sliderBall.y = (this.angleList[0].y * Game.WIDTH) / 512;
-        sliderBall.anchor.set(0.5);
-        this.sliderBall = sliderBall;
 
         this.ball = new SliderBall(this);
 
@@ -799,7 +780,6 @@ class Slider {
 
         this.nodesContainer.addChild(this.nodesLine);
 
-        // SliderContainer.addChild(this.sliderBall);
         SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);
         SliderContainer.addChild(this.nodesContainer);

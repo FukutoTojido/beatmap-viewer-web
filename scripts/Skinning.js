@@ -1,0 +1,124 @@
+class Skinning {
+    static HIT_CIRCLE = null;
+    static HIT_CIRCLE_OVERLAY = null;
+    static SLIDER_B = null;
+    static REVERSE_ARROW = null;
+    static APPROACH_CIRCLE = null;
+    static DEFAULTS = [...Array(10)].fill(null, 0, 10);
+
+    static SLIDER_BORDER = null;
+    static SLIDER_TRACK_OVERRIDE = null;
+    static HIT_CIRCLE_OVERLAP = 0;
+    static HIT_CIRCLE_OVERLAP_ARGON = 20;
+    static HIT_CIRCLE_PREFIX = "default";
+
+    static async getBase64(allEntries, filename) {
+        const entry =
+            allEntries.find((entry) => entry.filename === `${filename}@2x.png`) ??
+            allEntries.find((entry) => entry.filename === `${filename}.png`) ??
+            null;
+
+        if (!entry) return {};
+        // console.log(entry);
+
+        const base64 = await entry.getData(new zip.Data64URIWriter("image/png"));
+        return {
+            base64,
+            isHD: entry.filename.includes("@2x"),
+        };
+    }
+
+    static async readSkinIni(allEntries) {
+        const entry = allEntries.find((entry) => entry.filename === "skin.ini");
+        const blob = await entry.getData(new zip.BlobWriter("text/plain"));
+        const text = await blob.text();
+
+        const lines = text.split("\n");
+        const sliderBorder = lines
+            .find((line) => line.includes("SliderBorder:"))
+            ?.replaceAll(" ", "")
+            .match(/[0-9]{0,3},[0-9]{0,3},[0-9]{0,3}/g)
+            .shift()
+            .split(",")
+            .map((value) => value / 255)
+            .concat([1.0]);
+
+        const sliderTrackOverride = lines
+            .find((line) => line.includes("SliderTrackOverride:"))
+            ?.replaceAll(" ", "")
+            .match(/[0-9]{0,3},[0-9]{0,3},[0-9]{0,3}/g)
+            .shift()
+            .split(",")
+            .map((value) => value / 255)
+            .concat([1.0]);
+
+        const hitCircleOverlap = parseInt(
+            lines
+                .find((line) => line.includes("HitCircleOverlap:"))
+                ?.replaceAll(" ", "")
+                .match(/[0-9]+/g)
+                .shift() ?? "0"
+        );
+
+        const hitCirclePrefix = lines
+            .find((line) => line.includes("HitCirclePrefix:"))
+            ?.replaceAll(" ", "")
+            .replaceAll("HitCirclePrefix:", "")
+            .replaceAll("\r", "");
+
+        Skinning.SLIDER_BORDER = sliderBorder ?? null;
+        Skinning.SLIDER_TRACK_OVERRIDE = sliderTrackOverride ?? null;
+        Skinning.HIT_CIRCLE_OVERLAP = hitCircleOverlap;
+        Skinning.HIT_CIRCLE_PREFIX = hitCirclePrefix ?? "default";
+    }
+
+    static async import(blob) {
+        Skinning.HIT_CIRCLE = null;
+        Skinning.HIT_CIRCLE_OVERLAY = null;
+        Skinning.SLIDER_B = null;
+        Skinning.REVERSE_ARROW = null;
+        Skinning.APPROACH_CIRCLE = null;
+        Skinning.DEFAULTS = [...Array(10)].fill(null, 0, 10);
+
+        Skinning.SLIDER_BORDER = null;
+        Skinning.SLIDER_TRACK_OVERRIDE = null;
+        Skinning.HIT_CIRCLE_OVERLAP = 0;
+
+        const blobReader = new zip.BlobReader(blob);
+        const zipReader = new zip.ZipReader(blobReader);
+
+        const allEntries = await zipReader.getEntries();
+        console.log(allEntries);
+        Skinning.readSkinIni(allEntries);
+
+        Skinning.HIT_CIRCLE = await Skinning.getBase64(allEntries, "hitcircle");
+        Skinning.HIT_CIRCLE_OVERLAY = await Skinning.getBase64(allEntries, "hitcircleoverlay");
+        Skinning.SLIDER_B = (await Skinning.getBase64(allEntries, "sliderb0")) ?? (await Skinning.getBase64(allEntries, "sliderb"));
+        Skinning.REVERSE_ARROW = await Skinning.getBase64(allEntries, "reversearrow");
+        Skinning.APPROACH_CIRCLE = await Skinning.getBase64(allEntries, "approachcircle");
+
+        for (let i = 0; i < 10; i++) {
+            Skinning.DEFAULTS[i] = (await Skinning.getBase64(allEntries, `${Skinning.HIT_CIRCLE_PREFIX}-${i}`)) ?? {};
+        }
+
+        // console.log(Skinning.HIT_CIRCLE);
+        // console.log(Skinning.HIT_CIRCLE_OVERLAY);
+        // console.log(Skinning.SLIDER_B);
+        // console.log(Skinning.REVERSE_ARROW);
+        // console.log(Skinning.APPROACH_CIRCLE);
+
+        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS"].forEach((element) => {
+            if (!Skinning[element]) return;
+
+            if (element === "DEFAULTS") {
+                Texture.updateNumberTextures(Skinning[element]);
+                return;
+            }
+
+            const { base64, isHD } = Skinning[element];
+            Texture.updateTextureFor(element, base64, isHD);
+        });
+
+        zipReader.close();
+    }
+}

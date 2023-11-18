@@ -17,12 +17,13 @@ class HitCircle {
     obj;
     selected;
     judgementObj;
-
+    
     hitCircleSprite;
     hitCircleLegacySprite;
     hitCircleOverlaySprite;
     hitCircleOverlayLegacySprite;
-
+    
+    number;
     numberSprite;
     approachCircleObj;
 
@@ -50,10 +51,22 @@ class HitCircle {
         this.selected.x = x * Game.SCALE_RATE;
         this.selected.y = y * Game.SCALE_RATE;
 
-        this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (hitCircleTemplate.width / hitCircleOverlayTemplate.width));
+        this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
     }
 
     draw(timestamp) {
+        this.hitCircleSprite.texture = Texture.HIT_CIRCLE.texture;
+        this.hitCircleSprite.scale.set(Texture.HIT_CIRCLE.isHD ? 0.5 : 1);
+
+        this.hitCircleOverlaySprite.texture = Texture.HIT_CIRCLE_OVERLAY.texture;
+        this.hitCircleOverlaySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
+
+        this.hitCircleLegacySprite.texture = Texture.HIT_CIRCLE_LEGACY.texture;
+        this.hitCircleLegacySprite.scale.set(Texture.HIT_CIRCLE_LEGACY.isHD ? 0.5 : 1);
+
+        this.hitCircleOverlayLegacySprite.texture = Texture.HIT_CIRCLE_OVERLAY_LEGACY.texture;
+        this.hitCircleOverlayLegacySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY_LEGACY.isHD ? 0.5 : 1);
+
         // if (this.time === 468) console.log(this.time, opacity, opacityHD);
 
         // Calculate object radius on HR / EZ toggle
@@ -64,12 +77,6 @@ class HitCircle {
         if (this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
             this.tempW = Game.APP.view.width;
             this.tempH = Game.APP.view.height;
-
-            this.hitCircleOverlaySprite.texture = hitCircleOverlayTemplate;
-            this.hitCircleOverlayLegacySprite.texture = hitCircleOverlayLegacyTemplate;
-            this.hitCircleSprite.texture = hitCircleTemplate;
-            this.hitCircleLegacySprite.texture = hitCircleLegacyTemplate;
-            this.approachCircleObj.obj.texture = approachCircleTemplate;
 
             // this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         }
@@ -106,7 +113,7 @@ class HitCircle {
         // Calculate object expandation
         let currentExpand = 1;
         if (sliderAppearance.hitAnim && timestamp > this.hitTime) {
-            currentExpand = (timestamp - this.hitTime) / 240 + 1;
+            currentExpand = 0.5 * Clamp((timestamp - this.hitTime) / 240, 0, 1) + 1;
         }
         currentExpand = Math.max(currentExpand, 1);
 
@@ -121,6 +128,12 @@ class HitCircle {
         if (sliderAppearance.hitAnim || timestamp < this.hitTime) {
             this.hitCircleSprite.tint = this.colour;
             this.hitCircleLegacySprite.tint = this.colour;
+
+            if (skinning.type === "1") {
+                const colour = parseInt(d3.color(`#${this.colour.toString(16)}`).darker().hex().slice(1), 16);
+                this.hitCircleSprite.tint = colour;
+                this.hitCircleLegacySprite.tint = colour;
+            }
         } else {
             this.hitCircleSprite.tint = 0xffffff;
             this.hitCircleLegacySprite.tint = 0xffffff;
@@ -138,7 +151,7 @@ class HitCircle {
         this.obj.x = x * Game.SCALE_RATE;
         this.obj.y = y * Game.SCALE_RATE;
 
-        if (sliderAppearance.legacy) {
+        if (skinning.type !== "0") {
             // Hide Lazer HitCircle
             this.hitCircleSprite.alpha = 0;
             this.hitCircleOverlaySprite.alpha = 0;
@@ -169,6 +182,8 @@ class HitCircle {
         } else {
             this.numberSprite.alpha = 0;
         }
+
+        this.number.draw(timestamp);
 
         // Set Approach Circle opacity and expand
         let approachRateExpandRate = 1;
@@ -280,24 +295,28 @@ class HitCircle {
 
         this.isNewCombo = isNewCombo;
 
-        const selected = new PIXI.Sprite(selectedHitCircleTemplate);
+        const selected = new PIXI.Sprite(Texture.SELECTED.texture);
         selected.anchor.set(0.5);
         this.selected = selected;
 
-        const hitCircleOverlaySprite = new PIXI.Sprite(hitCircleOverlayTemplate);
+        const hitCircleOverlaySprite = new PIXI.Sprite(Texture.HIT_CIRCLE_OVERLAY.texture);
         hitCircleOverlaySprite.anchor.set(0.5);
+        hitCircleOverlaySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
         this.hitCircleOverlaySprite = hitCircleOverlaySprite;
 
-        const hitCircleOverlayLegacySprite = new PIXI.Sprite(hitCircleOverlayLegacyTemplate);
+        const hitCircleOverlayLegacySprite = new PIXI.Sprite(Texture.HIT_CIRCLE_OVERLAY_LEGACY.texture);
         hitCircleOverlayLegacySprite.anchor.set(0.5);
+        hitCircleOverlayLegacySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY_LEGACY.isHD ? 0.5 : 1);
         this.hitCircleOverlayLegacySprite = hitCircleOverlayLegacySprite;
 
-        const hitCircleSprite = new PIXI.Sprite(hitCircleTemplate);
+        const hitCircleSprite = new PIXI.Sprite(Texture.HIT_CIRCLE.texture);
         hitCircleSprite.anchor.set(0.5);
+        hitCircleSprite.scale.set(Texture.HIT_CIRCLE.isHD ? 0.5 : 1);
         this.hitCircleSprite = hitCircleSprite;
 
-        const hitCircleLegacySprite = new PIXI.Sprite(hitCircleLegacyTemplate);
+        const hitCircleLegacySprite = new PIXI.Sprite(Texture.HIT_CIRCLE_LEGACY.texture);
         hitCircleLegacySprite.anchor.set(0.5);
+        hitCircleLegacySprite.scale.set(Texture.HIT_CIRCLE_LEGACY.isHD ? 0.5 : 1);
         this.hitCircleLegacySprite = hitCircleLegacySprite;
 
         const numberSprite = new PIXI.Text("0", {
@@ -312,12 +331,15 @@ class HitCircle {
         // numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
         this.numberSprite = numberSprite;
 
+        this.number = new NumberSprite(this);
+
         const hitCircleContainer = new PIXI.Container();
         hitCircleContainer.addChild(hitCircleSprite);
         hitCircleContainer.addChild(hitCircleLegacySprite);
         hitCircleContainer.addChild(hitCircleOverlaySprite);
         hitCircleContainer.addChild(hitCircleOverlayLegacySprite);
-        hitCircleContainer.addChild(numberSprite);
+        // hitCircleContainer.addChild(numberSprite);
+        hitCircleContainer.addChild(this.number.obj);
         hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;
         hitCircleContainer.y = (this.originalY * Game.WIDTH) / 512;
 

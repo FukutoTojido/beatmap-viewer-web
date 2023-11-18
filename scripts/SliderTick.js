@@ -46,7 +46,8 @@ class SliderTick {
         this.obj.x = (x + this.slider.stackHeight * currentStackOffset) * Game.SCALE_RATE;
         this.obj.y = (y + this.slider.stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
-        this.graphic.tint = this.slider.colour;
+        this.graphic.tint = 0xffffff;
+        if (skinning.type != "2") this.graphic.tint = this.slider.colour;
 
         if (timestamp < appearTime) {
             this.obj.alpha = 0;

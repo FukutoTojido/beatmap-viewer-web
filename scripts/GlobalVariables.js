@@ -16,11 +16,15 @@ const settingsTemplate = {
         music: 0.5,
         hs: 0.2,
     },
+    skinning: {
+        type: "0"
+    },
     sliderAppearance: {
         snaking: true,
         untint: false,
         legacy: true,
         hitAnim: true,
+        override: true
     },
 };
 
@@ -89,6 +93,7 @@ let tempHR = false;
 let tempEZ = false;
 
 let sliderAppearance = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
+let skinning = JSON.parse(localStorage.getItem("settings")).skinning;
 
 let animation = {
     ms1digit: new CountUp("millisecond1digit", 0, 0, 0, 0.2, {
