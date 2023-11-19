@@ -14,16 +14,11 @@ class Slider {
     startTime;
     endTime;
 
-    preempt;
-    fadeIn;
-
     isNewCombo;
 
     repeat;
 
     sliderType;
-
-    endPosition;
 
     stackHeight = 0;
 
@@ -35,20 +30,15 @@ class Slider {
 
     obj;
     selected;
+    selectedSliderEnd;
 
     hitCircle;
-    reverseArrow;
     revArrows = [];
     ticks = [];
     ball;
 
     angleE;
     angleS;
-
-    tempModsHR = mods.HR;
-    tempModsEZ = mods.EZ;
-    tempW = Game.WIDTH;
-    tempH = Game.HEIGHT;
 
     colour;
     colourIdx;
@@ -85,16 +75,24 @@ class Slider {
     }
 
     drawSelected() {
-        // if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
-        //     this.tempModsEZ = mods.EZ;
-        //     this.tempModsHR = mods.HR;
-        //     this.tempW = Game.APP.view.width;
-        //     this.tempH = Game.APP.view.height;
-        //     this.reInitialize();
-        // }
-
         this.selected.alpha = 1;
-        this.selected.tint = Object.values(d3.rgb(`#f2cc0f`)).map((val) => val / 255);
+        this.selected.tint = Object.values(d3.rgb(`#3197ff`)).map((val) => val / 255);
+
+        this.hitCircle.drawSelected();
+
+        const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
+        const stackHeight = this.stackHeight;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
+
+        const x = this.sliderEndEvalPosition.x + stackHeight * currentStackOffset;
+        const y = !mods.HR
+            ? this.sliderEndEvalPosition.y + stackHeight * currentStackOffset
+            : 384 - this.sliderEndEvalPosition.y + stackHeight * currentStackOffset;
+
+        this.selectedSliderEnd.x = x * Game.SCALE_RATE;
+        this.selectedSliderEnd.y = y * Game.SCALE_RATE;
+
+        this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
     }
 
     drawBorder(timestamp) {
@@ -102,15 +100,6 @@ class Slider {
 
         // Calculate object radius on HR / EZ toggle
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
-
-        // Re-scale on playfield size change / on HR / EZ toggle
-        // if (this.tempModsEZ !== mods.EZ || this.tempModsHR !== mods.HR || this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
-        //     this.tempModsEZ = mods.EZ;
-        //     this.tempModsHR = mods.HR;
-        //     this.tempW = Game.APP.view.width;
-        //     this.tempH = Game.APP.view.height;
-        //     this.reInitialize();
-        // }
 
         // Calculate current timing stats
         const currentPreempt = Beatmap.moddedStats.preempt;
@@ -439,12 +428,12 @@ class Slider {
         const baseTicksList = [];
         const endTime = this.endTime - 240;
         for (let i = 0; i < this.sliderTicksCount / this.repeat; i++) {
-            baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime) * this.angleList.length)]);
+            baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime) * (this.angleList.length - 1))]);
         }
 
         const sliderParts = [];
         const sliderEndEvalPosition = {
-            ...this.realTrackPoints[Math.round(Clamp((this.endTime - this.time - 36) / (endTime - this.time), 0, 1) * this.realTrackPoints.length)],
+            ...this.realTrackPoints[Math.round(Clamp((this.endTime - this.time - 36) / (endTime - this.time), 0, 1) * (this.realTrackPoints.length - 1))],
             type: "Slider End",
             time: endTime - 36 < this.time ? endTime - 15 : endTime - 36,
         };
@@ -659,7 +648,7 @@ class Slider {
         this.sliderTicksCount =
             (Math.ceil(Fixed(this.sliderLength / this.svMultiplier / (baseSV / Beatmap.stats.sliderTickRate), 2)) - 1) * this.repeat;
 
-        this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time, false);
+        this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time);
         this.hitCircle.hitTime = this.hitTime;
 
         this.angleList = this.getAngleList(originalArr);
@@ -780,6 +769,9 @@ class Slider {
         });
 
         this.nodesContainer.addChild(this.nodesLine);
+
+        this.selectedSliderEnd = new PIXI.Sprite(Texture.SELECTED.texture);
+        this.selectedSliderEnd.anchor.set(0.5);
 
         SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);

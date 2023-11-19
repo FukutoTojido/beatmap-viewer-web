@@ -22,13 +22,7 @@ class HitCircle {
     hitCircleOverlaySprite;
     
     number;
-    numberSprite;
     approachCircleObj;
-
-    tempModsHR = mods.HR;
-    tempModsEZ = mods.EZ;
-    tempW = Game.WIDTH;
-    tempH = Game.HEIGHT;
 
     hitTime;
     colour;
@@ -203,7 +197,7 @@ class HitCircle {
         return { val, valV2: val, delta: currentInput.time - this.time, inputTime: currentInput.time };
     }
 
-    constructor(positionX, positionY, time, isSliderHead, isNewCombo) {
+    constructor(positionX, positionY, time, isNewCombo) {
         this.originalX = parseInt(positionX);
         this.originalY = parseInt(positionY);
 
@@ -228,24 +222,11 @@ class HitCircle {
         hitCircleSprite.scale.set(Texture.ARGON.HIT_CIRCLE.isHD ? 0.5 : 1);
         this.hitCircleSprite = hitCircleSprite;
 
-        const numberSprite = new PIXI.Text("0", {
-            fontFamily: "Torus",
-            fontSize: 40,
-            fontWeight: 600,
-            fill: 0xffffff,
-            align: "center",
-        });
-        numberSprite.anchor.set(0.5);
-        numberSprite.y = (-1 * Game.WIDTH) / 512;
-        // numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
-        this.numberSprite = numberSprite;
-
         this.number = new NumberSprite(this);
 
         const hitCircleContainer = new PIXI.Container();
         hitCircleContainer.addChild(hitCircleSprite);
         hitCircleContainer.addChild(hitCircleOverlaySprite);
-        // hitCircleContainer.addChild(numberSprite);
         hitCircleContainer.addChild(this.number.obj);
         hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;
         hitCircleContainer.y = (this.originalY * Game.WIDTH) / 512;

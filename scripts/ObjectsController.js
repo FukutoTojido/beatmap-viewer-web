@@ -160,7 +160,7 @@ class ObjectsController {
             ...approachCircleList,
             ...selected.reduce((accm, o) => {
                 accm.push({ obj: o.obj.selected });
-                if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected });
+                if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
                 return accm;
             }, []),
         ]);
@@ -171,7 +171,7 @@ class ObjectsController {
             ...noRenderApproachCircleList,
             ...noSelected.reduce((accm, o) => {
                 accm.push({ obj: o.obj.selected });
-                if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected });
+                if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
                 return accm;
             }, []),
         ]);
@@ -193,7 +193,6 @@ class ObjectsController {
 
             selected.forEach((o) => {
                 o.obj.drawSelected();
-                if (o.obj instanceof Slider) o.obj.hitCircle.drawSelected(o.obj.stackHeight);
             });
 
             if (timestamp < objStartTime) return;

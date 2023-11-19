@@ -186,7 +186,7 @@ class Texture {
 
     static generateDefaultTextures() {
         Texture.SELECTED = {
-            texture: Texture.createTexture("SELECTED_HIT_CIRCLE"),
+            texture: PIXI.Texture.from("static/legacy/hitcircleselect@2x.png"),
             isHD: false,
         };
         Texture.ARGON.HIT_CIRCLE = {

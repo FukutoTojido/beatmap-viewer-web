@@ -349,7 +349,6 @@ class Beatmap {
                             params[0],
                             params[1],
                             parseInt(params[2]),
-                            false,
                             ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1
                         ),
                         time: parseInt(params[2]) + delay,
