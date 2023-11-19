@@ -174,7 +174,8 @@ class Slider {
 
         // Set slider color
         this.SliderMesh.tintid = 0;
-        this.SliderMesh.tint = Object.values(d3.rgb(`#${this.colour.toString(16)}`)).map((val) => val / 255);
+        this.SliderMesh.tint = Object.values(d3.rgb(`#${this.colour.toString(16).padStart(6, "0")}`)).map((val) => val / 255);
+        // console.log(this.SliderMesh.tint);
 
         this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
         this.nodesContainer.y = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);

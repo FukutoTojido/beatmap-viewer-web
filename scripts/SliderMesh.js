@@ -73,7 +73,10 @@ void main() {
 
     if (skinning != 2.0) color_mixed = tint;
 
-    float position = vec2(dist, texturepos).x / circleBaseScale;
+    float scale = circleBaseScale;
+    if (skinning == 0.0) scale *= 0.95;
+
+    float position = vec2(dist, texturepos).x / scale;
 
     vec4 outerColor = darken(color_mixed, 0.1);
     vec4 innerColor = lighten(color_mixed, 0.5);

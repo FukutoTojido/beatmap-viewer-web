@@ -18,6 +18,8 @@ class ObjectsController {
 
     _in = [];
 
+    static requestID = null;
+
     // static preempt = 0;
 
     compare(a, b) {
@@ -66,27 +68,16 @@ class ObjectsController {
     }
 
     draw(timestamp, staticDraw) {
-        const DTMultiplier = !mods.DT ? 1 : 1.5;
-        const HTMultiplier = !mods.HT ? 1 : 0.75;
-
-        this.fpsArr.push(Math.max(0, timestamp - this.lastTimestamp));
+        this.fpsArr.push(Math.max(0, performance.now() - this.lastTime));
         if (this.fpsArr.length > 100) {
             this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 100);
         }
 
         Game.FPS.text = `${Math.round(
-            (1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)) * DTMultiplier * HTMultiplier
-        )}fps\n${(
-            this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) /
-            this.fpsArr.length /
-            (DTMultiplier * HTMultiplier)
-        ).toFixed(2)}ms`;
+            1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)
+        )}fps\n${(this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length).toFixed(2)}ms`;
         this.lastTime = performance.now();
 
-        if (this.tempW !== Game.WIDTH || this.tempH !== Game.HEIGHT) {
-            this.tempW = Game.WIDTH;
-            this.tempH = Game.HEIGHT;
-        }
         if (didMove && currentX !== -1 && currentY !== -1) {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
             handleCanvasDrag(false, true);
@@ -210,7 +201,7 @@ class ObjectsController {
             object.obj.draw(Math.max(timestamp, 0));
 
             if (object.obj instanceof HitCircle) {
-                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
+                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && beatmapFile.audioNode.isPlaying) {
                     // console.log(object.time, timestamp, this.lastTimestamp);
 
                     if (!ScoreParser.REPLAY_DATA) object.hitsounds.play();
@@ -222,7 +213,7 @@ class ObjectsController {
             }
 
             if (object.obj instanceof Slider) {
-                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && !staticDraw) {
+                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && beatmapFile.audioNode.isPlaying) {
                     // console.log(object.time, timestamp, this.lastTimestamp);
                     if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderHead.play();
                     else {
@@ -232,7 +223,7 @@ class ObjectsController {
                     }
                 }
 
-                if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && !staticDraw) {
+                if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && beatmapFile.audioNode.isPlaying) {
                     // console.log(object.time, timestamp, this.lastTimestamp);
 
                     if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderTail.play();
@@ -251,7 +242,12 @@ class ObjectsController {
                     const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
                     const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
 
-                    if (currentRepeatIdx > lastRepeatIdx && currentRepeatIdx < object.obj.repeat && currentRepeatIdx >= 1 && !staticDraw) {
+                    if (
+                        currentRepeatIdx > lastRepeatIdx &&
+                        currentRepeatIdx < object.obj.repeat &&
+                        currentRepeatIdx >= 1 &&
+                        beatmapFile.audioNode.isPlaying
+                    ) {
                         if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
                         else {
                             const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
@@ -267,7 +263,7 @@ class ObjectsController {
             }
 
             if (object.obj instanceof Spinner) {
-                if (timestamp >= object.endTime && this.lastTimestamp < object.endTime && !staticDraw) {
+                if (timestamp >= object.endTime && this.lastTimestamp < object.endTime && beatmapFile.audioNode.isPlaying) {
                     // console.log(object.time, timestamp, this.lastTimestamp);
                     object.hitsounds.play();
                 }
@@ -297,32 +293,15 @@ class ObjectsController {
             }
         }
 
-        if (isPlaying && playingFlag && !staticDraw && beatmapFile.audioNode.isPlaying) {
-            if (beatmapFile.audioNode.getCurrentTime() > beatmapFile.audioNode.buf.duration * 1000) {
-                if (playingFlag) {
-                    playToggle();
-                    beatmapFile.audioNode.play(beatmapFile.audioNode.getCurrentTime());
-                }
+        ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
+            if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
+                const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
+                const timestampNext = currentAudioTime;
+                this.lastTimestamp = timestamp;
+
+                return this.draw(timestampNext);
             }
-            window.requestAnimationFrame((currentTime) => {
-                // if (!document.querySelector("audio")) return;
-                // const currentAudioTime = document.querySelector("audio").currentTime * 1000;
-                // const currentAudioTime = currentTime - this.drawTime;
-                if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
-                    const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-                    const timestampNext = currentAudioTime;
-                    this.lastTimestamp = timestamp;
-
-                    // console.log(timestampNext - timestamp);
-                    return this.draw(timestampNext);
-                }
-
-                // console.log(timestamp);
-            });
-        } else {
-            this.fpsArr = [];
-            Game.FPS.text = `0fps\nInfinite ms`;
-        }
+        });
     }
 
     reinitializeAllSliders() {
@@ -334,10 +313,7 @@ class ObjectsController {
     }
 
     render() {
-        this.drawTime = new Date().getTime() - originalTime;
-        window.requestAnimationFrame((currentTime) => {
-            // const currentAudioTime = document.querySelector("audio").currentTime * 1000;
-            // const currentAudioTime = currentTime - this.drawTime;
+        ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
             const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
             const timestamp = currentAudioTime;
             return this.draw(timestamp);

@@ -146,22 +146,31 @@ const loadColorPalette = (bg) => {
     }
 };
 
+async function loadDefaultSamples() {
+    for (const skin of ["ARGON", "LEGACY"])
+        for (const sampleset of ["normal", "soft", "drum"]) {
+            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap"]) {
+                const res = (
+                    await axios.get(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
+                        responseType: "arraybuffer",
+                    })
+                ).data;
+
+                const buffer = await audioCtx.decodeAudioData(res);
+                HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+            }
+        }
+}
+
 async function loadSampleSound(sample, idx, buf) {
     try {
-        if (buf === undefined) {
-            const res = (
-                await axios.get(`./static/sample/${sample}${idx === 0 ? "" : idx}.wav`, {
-                    responseType: "arraybuffer",
-                })
-            ).data;
-
-            const buffer = await audioCtx.decodeAudioData(res);
-            // console.log(`${sample} decoded`);
-            hitsoundsBuffer[`${sample}${idx}`] = buffer;
-        } else {
-            const buffer = await audioCtx.decodeAudioData(buf);
-            hitsoundsBuffer[`${sample}${idx}`] = buffer;
+        if (!buf) {
+            HitSample.SAMPLES.MAP[`${sample}${idx}`] = null;
+            return;
         }
+
+        const buffer = await audioCtx.decodeAudioData(buf);
+        HitSample.SAMPLES.MAP[`${sample}${idx}`] = buffer;
     } catch {
         console.log("Unable to decode " + `${sample}${idx}`);
     }
@@ -246,9 +255,5 @@ const easeOutBack = (x) => {
 const easeOutElastic = (x) => {
     const c4 = (2 * Math.PI) / 3;
 
-    return x === 0
-      ? 0
-      : x === 1
-      ? 1
-      : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+    return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
 };

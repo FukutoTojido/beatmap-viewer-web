@@ -48,9 +48,9 @@ document.body.addEventListener("change", (e) => {
         skinning.type = target.value;
 
         const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-        if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-        if (originalIsPlaying) beatmapFile.audioNode.play();
-        if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+        // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+        // if (originalIsPlaying) beatmapFile.audioNode.play();
+        // if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
 });
 
@@ -205,7 +205,7 @@ function handleCheckBox(checkbox) {
     Beatmap.updateModdedStats();
 
     if (originalIsPlaying) beatmapFile.audioNode.play();
-    if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    // if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 
     calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
 }

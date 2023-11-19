@@ -276,6 +276,8 @@ class BeatmapFile {
             return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
         });
 
+        console.log(hitsoundFiles);
+
         const hitsoundArrayBuffer = [];
         document.querySelector("#loadingText").innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
         for (const file of hitsoundFiles) {
@@ -324,37 +326,16 @@ class BeatmapFile {
     }
 
     async loadHitsounds() {
-        for (const sampleset of ["normal", "soft", "drum"]) {
-            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap"]) {
-                await loadSampleSound(`${sampleset}-${hs}`, 0);
-            }
-        }
-
+        HitSample.SAMPLES.MAP = {};
         for (const hs of this.hitsoundList) {
-            // console.log(hs);
             const idx = hs.filename
                 .replace(hs.filename.match(/normal|soft|drum/)[0], "")
                 .replaceAll(hs.filename.match(/hitnormal|hitwhistle|hitfinish|hitclap/), "")
                 .replace("-", "")
                 .split(".")[0];
 
-            // console.log(hs.filename.split(".")[0].replaceAll(`${idx}`, ""), idx);
-
             await loadSampleSound(hs.filename.split(".")[0].replaceAll(`${idx}`, ""), idx === "" ? 1 : parseInt(idx), hs.buf);
         }
-
-        // console.log(hitsoundsBuffer);
-
-        // ["normal", "soft", "drum"].forEach((sampleset) => {
-        //     ["hitnormal", "hitwhistle", "hitfinish", "hitclap"].forEach((hs) => {
-        //         const src = audioCtx.createBufferSource();
-        //         src.buffer = hitsoundsBuffer[`${sampleset}-${hs}`];
-
-        //         // defaultHitsoundsList[`${sampleset}-${hs}`] = src;
-        //     });
-        // });
-
-        // console.log(defaultHitsoundsList);
     }
 
     async constructMap() {
@@ -366,16 +347,13 @@ class BeatmapFile {
             Game.APP.stage.addChild(Game.CURSOR.obj);
 
             currentMapId = this.mapId;
-            audioCtx = new AudioContext();
+            // audioCtx = new AudioContext();
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
             const audioArrayBuffer = await this.getOsz();
             this.audioArrayBuffer = audioArrayBuffer;
             // console.log(this.audioArrayBuffer, audioArrayBuffer);
             this.audioNode = new PAudio(audioArrayBuffer);
-            HitSample.masterGainNode = audioCtx.createGain();
-            HitSample.masterGainNode.gain.value = hsVol * masterVol;
-            HitSample.masterGainNode.connect(audioCtx.destination);
             await this.loadHitsounds();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 

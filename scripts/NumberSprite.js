@@ -18,9 +18,9 @@ class NumberSprite {
             .toString()
             .split("")
             .forEach((value, idx) => {
-                const skinType = skinning.type === "0" ? "ARGON_DEFAULTS" : "DEFAULTS";
-                const sprite = new PIXI.Sprite(Texture[skinType][value].texture);
-                sprite.scale.set(Texture[skinType][value].isHD ? 0.5 * 0.8 : 0.8);
+                const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
+                const sprite = new PIXI.Sprite(Texture[skinType].DEFAULTS[value].texture);
+                sprite.scale.set(Texture[skinType].DEFAULTS[value].isHD ? 0.5 * 0.8 : 0.8);
                 sprite.anchor.set(0.5);
 
                 if (prevSprite) {

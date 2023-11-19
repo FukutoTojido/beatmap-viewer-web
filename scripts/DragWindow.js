@@ -38,8 +38,8 @@ const handleCanvasDrag = (e, calledFromDraw) => {
             };
 
             if (o.obj instanceof HitCircle) {
-                const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
-                const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
+                const positionX = o.obj.originalX + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
+                const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
 
                 // console.log(
                 //     o.time,
@@ -62,14 +62,14 @@ const handleCanvasDrag = (e, calledFromDraw) => {
                 const renderableAngleList = o.obj.angleList;
 
                 const res = renderableAngleList.some((point) => {
-                    const positionX = point.x + stackOffset * o.obj.stackHeight;
-                    const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+                    const positionX = point.x + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
+                    const positionY = (!mods.HR ? point.y : 384 - point.y) + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
 
                     return (
-                        positionX + stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
-                        positionX + stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
-                        positionY + stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
-                        positionY + stackOffset * o.obj.stackHeight <= coordUpperBound.y
+                        positionX + Beatmap.moddedStats.stackOffset * o.obj.stackHeight >= coordLowerBound.x &&
+                        positionX + Beatmap.moddedStats.stackOffset * o.obj.stackHeight <= coordUpperBound.x &&
+                        positionY + Beatmap.moddedStats.stackOffset * o.obj.stackHeight >= coordLowerBound.y &&
+                        positionY + Beatmap.moddedStats.stackOffset * o.obj.stackHeight <= coordUpperBound.y
                     );
                 });
 
@@ -88,7 +88,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
         selectedHitObject = [];
     }
 
-    if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
+    // if (!calledFromDraw) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
 
     // console.log(selectedHitObject);
 };
@@ -98,8 +98,8 @@ const checkCollide = (x, y, o) => {
     const drawOffset = currentHitCircleSize;
 
     if (o.obj instanceof HitCircle) {
-        const positionX = o.obj.originalX + stackOffset * o.obj.stackHeight;
-        const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + stackOffset * o.obj.stackHeight;
+        const positionX = o.obj.originalX + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
+        const positionY = (!mods.HR ? o.obj.originalY : 384 - o.obj.originalY) + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
 
         return (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
     }
@@ -108,8 +108,8 @@ const checkCollide = (x, y, o) => {
         const renderableAngleList = o.obj.angleList;
 
         const res = renderableAngleList.some((point) => {
-            const positionX = point.x + stackOffset * o.obj.stackHeight;
-            const positionY = (!mods.HR ? point.y : 384 - point.y) + stackOffset * o.obj.stackHeight;
+            const positionX = point.x + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
+            const positionY = (!mods.HR ? point.y : 384 - point.y) + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;
 
             return (x - positionX) ** 2 + (y - positionY) ** 2 <= drawOffset ** 2;
         });

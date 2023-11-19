@@ -2,6 +2,7 @@ class Skinning {
     static HIT_CIRCLE = null;
     static HIT_CIRCLE_OVERLAY = null;
     static SLIDER_B = null;
+    static SLIDER_FOLLOW_CIRCLE = null;
     static REVERSE_ARROW = null;
     static APPROACH_CIRCLE = null;
     static DEFAULTS = [...Array(10)].fill(null, 0, 10);
@@ -19,7 +20,7 @@ class Skinning {
             null;
 
         if (!entry) return {};
-        // console.log(entry);
+        console.log(entry);
 
         const base64 = await entry.getData(new zip.Data64URIWriter("image/png"));
         return {
@@ -72,12 +73,52 @@ class Skinning {
         Skinning.HIT_CIRCLE_PREFIX = hitCirclePrefix ?? "default";
     }
 
+    static async loadHitsounds(allEntries) {
+        const hitsoundFiles = allEntries.filter((file) => {
+            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
+        });
+
+        const hitsoundArrayBuffer = [];
+        for (const file of hitsoundFiles) {
+            const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
+            const fileBlob = await file.getData(writer);
+            const fileArrayBuffer = await Skinning.readBlobAsBuffer(fileBlob);
+
+            hitsoundArrayBuffer.push({
+                filename: file.filename,
+                buf: fileArrayBuffer,
+            });
+        }
+
+        for (const hs of hitsoundArrayBuffer) {
+            try {
+                const filename = hs.filename.split(".")[0];
+                const buffer = await audioCtx.decodeAudioData(hs.buf);
+                HitSample.SAMPLES.LEGACY[filename] = buffer;
+            } catch {
+                continue;
+            }
+        }
+    }
+
+    static async readBlobAsBuffer(blob) {
+        const res = await new Promise((resolve) => {
+            let fileReader = new FileReader();
+            fileReader.onload = (event) => resolve(fileReader.result);
+            fileReader.readAsArrayBuffer(blob);
+        });
+
+        // console.log(res);
+        return res;
+    }
+
     static async import(blob) {
         Skinning.HIT_CIRCLE = null;
         Skinning.HIT_CIRCLE_OVERLAY = null;
         Skinning.SLIDER_B = null;
         Skinning.REVERSE_ARROW = null;
         Skinning.APPROACH_CIRCLE = null;
+        Skinning.SLIDER_FOLLOW_CIRCLE = null;
         Skinning.DEFAULTS = [...Array(10)].fill(null, 0, 10);
 
         Skinning.SLIDER_BORDER = null;
@@ -88,12 +129,15 @@ class Skinning {
         const zipReader = new zip.ZipReader(blobReader);
 
         const allEntries = await zipReader.getEntries();
-        console.log(allEntries);
+        // console.log(allEntries);
+
         Skinning.readSkinIni(allEntries);
+        Skinning.loadHitsounds(allEntries);
 
         Skinning.HIT_CIRCLE = await Skinning.getBase64(allEntries, "hitcircle");
         Skinning.HIT_CIRCLE_OVERLAY = await Skinning.getBase64(allEntries, "hitcircleoverlay");
         Skinning.SLIDER_B = (await Skinning.getBase64(allEntries, "sliderb0")) ?? (await Skinning.getBase64(allEntries, "sliderb"));
+        Skinning.SLIDER_FOLLOW_CIRCLE = await Skinning.getBase64(allEntries, "sliderfollowcircle");
         Skinning.REVERSE_ARROW = await Skinning.getBase64(allEntries, "reversearrow");
         Skinning.APPROACH_CIRCLE = await Skinning.getBase64(allEntries, "approachcircle");
 
@@ -107,7 +151,7 @@ class Skinning {
         // console.log(Skinning.REVERSE_ARROW);
         // console.log(Skinning.APPROACH_CIRCLE);
 
-        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS"].forEach((element) => {
+        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE"].forEach((element) => {
             if (!Skinning[element]) return;
 
             if (element === "DEFAULTS") {

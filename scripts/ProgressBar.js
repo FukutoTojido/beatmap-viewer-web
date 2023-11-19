@@ -12,8 +12,6 @@ function setAudioTime() {
     }
 
     beatmapFile.audioNode.seekTo(parseFloat(slider.value));
-
-    if (beatmapFile !== undefined && !playingFlag) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function setProgressMax() {
@@ -21,22 +19,15 @@ function setProgressMax() {
 }
 
 function playToggle() {
-    if (isPlaying) {
-        document.querySelector("#playButton").style.backgroundImage =
-            document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
+    document.querySelector("#playButton").style.backgroundImage =
+        document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
 
-        if (!beatmapFile.audioNode.isPlaying) {
-            playingFlag = true;
-            beatmapFile.audioNode.play();
-            beatmapFile.beatmapRenderData.render();
-        } else {
-            playingFlag = false;
-            beatmapFile.audioNode.pause();
-            beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
-        }
-    } else {
+    if (!beatmapFile.audioNode.isPlaying) {
         beatmapFile.audioNode.play();
-        beatmapFile.beatmapRenderData.render();
+        // beatmapFile.beatmapRenderData.render();
+    } else {
+        beatmapFile.audioNode.pause();
+        // beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
 }
 
@@ -89,7 +80,7 @@ function goNext(precise) {
 
         beatmapFile.audioNode.seekTo(goTo);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
+        // beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
     }
 }
 
@@ -113,7 +104,7 @@ function goBack(precise) {
 
         beatmapFile.audioNode.seekTo(goTo);
         document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
+        // beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
     }
 }
 

@@ -1,41 +1,3 @@
-class Audio {
-    audioObj;
-
-    constructor(src) {
-        const audio = document.createElement("audio");
-        audio.src = src;
-        audio.volume = 0.1;
-        audio.mute = "true";
-        audio.playbackRate = playbackRate;
-        audio.currentTime = 0.001;
-
-        audio.onended = () => {
-            audio.currentTime = 0.001;
-            document.querySelector("#playButton").style.backgroundImage = "";
-
-            playingFlag = false;
-        };
-
-        audio.onpause = () => {
-            document.querySelector("#playButton").style.backgroundImage = "";
-            if (beatmapFile.beatmapRenderData === undefined) return;
-            if (beatmapFile !== undefined || beatmapFile.beatmapRenderData !== undefined || document.querySelector("audio") === undefined)
-                beatmapFile.beatmapRenderData.objectsController.draw(document.querySelector("audio").currentTime * 1000, true);
-        };
-
-        audio.preload = "metadata";
-        audio.onloadedmetadata = setProgressMax;
-        audio.ontimeupdate = setSliderTime;
-
-        this.audioObj = audio;
-        document.body.appendChild(this.audioObj);
-    }
-
-    play() {
-        this.audioObj.play();
-    }
-}
-
 class PAudio {
     buf;
     src;
@@ -146,6 +108,12 @@ class HitSample {
     vol = 1;
 
     static masterGainNode;
+    static SAMPLES = {
+        ARGON: {},
+        LEGACY: {},
+        CUSTOM: {},
+        MAP: {},
+    };
 
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
@@ -159,11 +127,18 @@ class HitSample {
             gainNode.gain.value = this.vol;
 
             const src = audioCtx.createBufferSource();
-            src.buffer = hitsoundsBuffer[Object.keys(hitsoundsBuffer).includes(hs) ? hs : `${hs.replaceAll(/\d/g, "")}0`];
+
+            if (HitSample.SAMPLES.MAP[hs]) {
+                src.buffer = HitSample.SAMPLES.MAP[hs];
+            } else {
+                const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
+                src.buffer = HitSample.SAMPLES[skinType][hs.replaceAll(/\d/g, "")];
+            }
+
             src.connect(gainNode);
 
             gainNode.connect(HitSample.masterGainNode);
-            
+
             src.start();
         });
     }

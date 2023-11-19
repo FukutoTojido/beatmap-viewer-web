@@ -156,7 +156,6 @@ class Beatmap {
 
         Beatmap.stats.circleDiameter = (2 * (54.4 - 4.48 * Beatmap.stats.circleSize) * 236) / 256;
 
-        stackOffset = (-6.4 * (1 - (0.7 * (Beatmap.stats.circleSize - 5)) / 5)) / 2;
         stackThreshold = Beatmap.stats.preempt * Beatmap.stats.stackLeniency;
 
         // console.log(approachRate, circleSize, stackLeniency, stackThreshold);

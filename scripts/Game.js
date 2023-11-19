@@ -132,7 +132,7 @@ class Game {
             }
 
             // console.log(selectedHitObject);
-            if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
+            // if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
             didMove = false;
             // console.log("Mouse CLICK", didMove);
         });
@@ -222,7 +222,7 @@ class Game {
 
             if (selectedSlider) selectedSlider.obj.isHover = true;
 
-            if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
+            // if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
         });
 
         return grid;
@@ -319,5 +319,9 @@ class Game {
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
         globalThis.__PIXI_APP__ = Game.APP;
+
+        HitSample.masterGainNode = audioCtx.createGain();
+        HitSample.masterGainNode.gain.value = hsVol * masterVol;
+        HitSample.masterGainNode.connect(audioCtx.destination);
     }
 }

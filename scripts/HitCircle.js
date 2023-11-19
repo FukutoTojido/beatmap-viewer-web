@@ -19,9 +19,7 @@ class HitCircle {
     judgementObj;
     
     hitCircleSprite;
-    hitCircleLegacySprite;
     hitCircleOverlaySprite;
-    hitCircleOverlayLegacySprite;
     
     number;
     numberSprite;
@@ -55,36 +53,16 @@ class HitCircle {
     }
 
     draw(timestamp) {
-        this.hitCircleSprite.texture = Texture.HIT_CIRCLE.texture;
-        this.hitCircleSprite.scale.set(Texture.HIT_CIRCLE.isHD ? 0.5 : 1);
+        const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
 
-        this.hitCircleOverlaySprite.texture = Texture.HIT_CIRCLE_OVERLAY.texture;
-        this.hitCircleOverlaySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
+        this.hitCircleSprite.texture = Texture[skinType].HIT_CIRCLE.texture;
+        this.hitCircleSprite.scale.set(Texture[skinType].HIT_CIRCLE.isHD ? 0.5 : 1);
 
-        this.hitCircleLegacySprite.texture = Texture.HIT_CIRCLE_LEGACY.texture;
-        this.hitCircleLegacySprite.scale.set(Texture.HIT_CIRCLE_LEGACY.isHD ? 0.5 : 1);
-
-        this.hitCircleOverlayLegacySprite.texture = Texture.HIT_CIRCLE_OVERLAY_LEGACY.texture;
-        this.hitCircleOverlayLegacySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY_LEGACY.isHD ? 0.5 : 1);
-
-        // if (this.time === 468) console.log(this.time, opacity, opacityHD);
+        this.hitCircleOverlaySprite.texture = Texture[skinType].HIT_CIRCLE_OVERLAY.texture;
+        this.hitCircleOverlaySprite.scale.set(Texture[skinType].HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
         // Calculate object radius on HR / EZ toggle
-        const circleModScale = Beatmap.moddedStats.radius / Beatmap.stats.radius;
-        const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
-
-        // Re-scale on playfield size change
-        if (this.tempW !== Game.APP.view.width || this.tempH !== Game.APP.view.height) {
-            this.tempW = Game.APP.view.width;
-            this.tempH = Game.APP.view.height;
-
-            // this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
-        }
-
-        // Re-scale on HR / EZ toggle
-        if (this.tempModsHR !== mods.HR || this.tempModsEZ !== mods.EZ) {
-            // this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
-        }
+        const circleBaseScale = Beatmap.moddedStats.radius / 54.4 * (skinType === "ARGON" ? 0.95 : 1);
 
         // Calculate current timing stats
         const currentPreempt = Beatmap.moddedStats.preempt;
@@ -127,16 +105,13 @@ class HitCircle {
         // Untint HitCircle on hit when hit animation is disabled
         if (sliderAppearance.hitAnim || timestamp < this.hitTime) {
             this.hitCircleSprite.tint = this.colour;
-            this.hitCircleLegacySprite.tint = this.colour;
 
             if (skinning.type === "1") {
                 const colour = parseInt(d3.color(`#${this.colour.toString(16)}`).darker().hex().slice(1), 16);
                 this.hitCircleSprite.tint = colour;
-                this.hitCircleLegacySprite.tint = colour;
             }
         } else {
             this.hitCircleSprite.tint = 0xffffff;
-            this.hitCircleLegacySprite.tint = 0xffffff;
         }
 
         // Set HitCircle alpha and scale
@@ -152,35 +127,9 @@ class HitCircle {
         this.obj.y = y * Game.SCALE_RATE;
 
         if (skinning.type !== "0") {
-            // Hide Lazer HitCircle
-            this.hitCircleSprite.alpha = 0;
-            this.hitCircleOverlaySprite.alpha = 0;
-
-            // Show Legacy HitCircle
-            this.hitCircleLegacySprite.alpha = 0.9;
-            this.hitCircleOverlayLegacySprite.alpha = 1;
-
-            // Re-scale Number Sprite
-            // this.numberSprite.scale.set(((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize)) / 1.3);
+            this.hitCircleSprite.alpha = 0.9;
         } else {
-            // Show Lazer HitCircle
             this.hitCircleSprite.alpha = 1;
-            this.hitCircleOverlaySprite.alpha = 1;
-
-            // Hide Legacy HitCircle
-            this.hitCircleLegacySprite.alpha = 0;
-            this.hitCircleOverlayLegacySprite.alpha = 0;
-
-            // Re-scale Number Sprite
-            // this.numberSprite.scale.set((Game.WIDTH / 1024 / (54.4 - 4.48 * 4)) * (54.4 - 4.48 * Beatmap.stats.circleSize));
-        }
-
-        // Set Number Sprite text and alpha
-        this.numberSprite.text = this.comboIdx.toString();
-        if (timestamp < this.hitTime || !sliderAppearance.hitAnim) {
-            this.numberSprite.alpha = 1;
-        } else {
-            this.numberSprite.alpha = 0;
         }
 
         this.number.draw(timestamp);
@@ -199,11 +148,6 @@ class HitCircle {
         } else {
             this.approachCircleObj.draw(currentOpacity, approachRateSize, this.colour);
         }
-
-        // if (this.judgementObj) {
-        //     if (timestamp >= this.hitTime) this.judgementObj.draw(timestamp);
-        // }
-        // console.log(this.time, currentExpand, timestamp - this.time > 0, timestamp);
     }
 
     eval(inputIdx) {
@@ -299,25 +243,15 @@ class HitCircle {
         selected.anchor.set(0.5);
         this.selected = selected;
 
-        const hitCircleOverlaySprite = new PIXI.Sprite(Texture.HIT_CIRCLE_OVERLAY.texture);
+        const hitCircleOverlaySprite = new PIXI.Sprite(Texture.ARGON.HIT_CIRCLE_OVERLAY.texture);
         hitCircleOverlaySprite.anchor.set(0.5);
-        hitCircleOverlaySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
+        hitCircleOverlaySprite.scale.set(Texture.ARGON.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
         this.hitCircleOverlaySprite = hitCircleOverlaySprite;
 
-        const hitCircleOverlayLegacySprite = new PIXI.Sprite(Texture.HIT_CIRCLE_OVERLAY_LEGACY.texture);
-        hitCircleOverlayLegacySprite.anchor.set(0.5);
-        hitCircleOverlayLegacySprite.scale.set(Texture.HIT_CIRCLE_OVERLAY_LEGACY.isHD ? 0.5 : 1);
-        this.hitCircleOverlayLegacySprite = hitCircleOverlayLegacySprite;
-
-        const hitCircleSprite = new PIXI.Sprite(Texture.HIT_CIRCLE.texture);
+        const hitCircleSprite = new PIXI.Sprite(Texture.ARGON.HIT_CIRCLE.texture);
         hitCircleSprite.anchor.set(0.5);
-        hitCircleSprite.scale.set(Texture.HIT_CIRCLE.isHD ? 0.5 : 1);
+        hitCircleSprite.scale.set(Texture.ARGON.HIT_CIRCLE.isHD ? 0.5 : 1);
         this.hitCircleSprite = hitCircleSprite;
-
-        const hitCircleLegacySprite = new PIXI.Sprite(Texture.HIT_CIRCLE_LEGACY.texture);
-        hitCircleLegacySprite.anchor.set(0.5);
-        hitCircleLegacySprite.scale.set(Texture.HIT_CIRCLE_LEGACY.isHD ? 0.5 : 1);
-        this.hitCircleLegacySprite = hitCircleLegacySprite;
 
         const numberSprite = new PIXI.Text("0", {
             fontFamily: "Torus",
@@ -335,9 +269,7 @@ class HitCircle {
 
         const hitCircleContainer = new PIXI.Container();
         hitCircleContainer.addChild(hitCircleSprite);
-        hitCircleContainer.addChild(hitCircleLegacySprite);
         hitCircleContainer.addChild(hitCircleOverlaySprite);
-        hitCircleContainer.addChild(hitCircleOverlayLegacySprite);
         // hitCircleContainer.addChild(numberSprite);
         hitCircleContainer.addChild(this.number.obj);
         hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;

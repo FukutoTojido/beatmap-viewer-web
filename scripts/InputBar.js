@@ -98,6 +98,8 @@ async function readZip(file) {
 }
 
 function submitMap(isDragAndDrop, beatmapID) {
+    window.cancelAnimationFrame(ObjectsController.requestID);
+    
     const inputValue = beatmapID ?? document.querySelector("#mapInput").value.trim();
     if (!isDragAndDrop && !/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
         document.querySelector("#mapInput").value = "";
@@ -113,9 +115,8 @@ function submitMap(isDragAndDrop, beatmapID) {
     const bID = inputValue.split("/").at(-1);
 
     if (beatmapFile !== undefined) {
-        playingFlag = false;
         beatmapFile.audioNode?.pause();
-        beatmapFile.beatmapRenderData?.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+        // beatmapFile.beatmapRenderData?.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
 
     const origin = window.location.origin;

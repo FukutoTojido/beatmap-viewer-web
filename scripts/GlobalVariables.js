@@ -47,24 +47,11 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 let currentMapId;
 
-const originalTime = new Date().getTime();
 const axios = window.axios;
 
-let audioCtx;
-let hitsoundsBuffer = {};
-let defaultHitsoundsList = {};
-
-// console.log(defaultHitsoundsList);
-// const HARD_OFFSET = 0;
-
-const sliderSnaking = true;
-const sliderBorderColor = "#ffffff";
+let audioCtx = new AudioContext();
 
 let selectedHitObject = [];
-
-let isPlaying = true;
-let debugPosition = 52029;
-const mapId = 3939123;
 
 let playbackRate = 1;
 let masterVol = JSON.parse(localStorage.getItem("settings")).volume.master;
@@ -73,10 +60,8 @@ let hsVol = JSON.parse(localStorage.getItem("settings")).volume.hs;
 let beatsnap = JSON.parse(localStorage.getItem("settings")).mapping.beatsnap;
 let beatsteps = [];
 
-let stackOffset;
 let stackThreshold;
 
-let playingFlag = false;
 let sliderOnChange = false;
 
 const curve = new UnitBezier(0, 0.57, 0, 1.46);
@@ -88,9 +73,6 @@ let mods = {
     DT: false,
     HT: false,
 };
-
-let tempHR = false;
-let tempEZ = false;
 
 let sliderAppearance = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
 let skinning = JSON.parse(localStorage.getItem("settings")).skinning;
