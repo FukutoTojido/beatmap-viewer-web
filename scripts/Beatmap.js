@@ -191,7 +191,6 @@ class Beatmap {
                 };
             });
 
-        beatsteps = beatStepsList;
         Beatmap.beatStepsList = beatStepsList;
 
         const timingPointsList = rawBeatmap

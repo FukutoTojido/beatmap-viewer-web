@@ -405,11 +405,11 @@ class BeatmapFile {
                 switch (e.key) {
                     case "ArrowLeft":
                         // Left pressed
-                        goBack(e.shiftKey);
+                        go(e.shiftKey, false);
                         break;
                     case "ArrowRight":
                         // Right pressed
-                        goNext(e.shiftKey);
+                        go(e.shiftKey, true);
                         break;
                     case " ":
                         if (document.querySelector(".difficultySelector").style.display !== "block") playToggle();
@@ -455,8 +455,8 @@ class BeatmapFile {
                         handleCanvasDrag();
                     }
 
-                    if (event.deltaY > 0) goNext(event.shiftKey);
-                    if (event.deltaY < 0) goBack(event.shiftKey);
+                    if (event.deltaY > 0) go(event.shiftKey, true);
+                    if (event.deltaY < 0) go(event.shiftKey, false);
 
                     // console.log("Scrolled");
                 },

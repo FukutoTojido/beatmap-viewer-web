@@ -65,7 +65,7 @@ class Texture {
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, 69, 0, Math.PI * 2);
+            .arc(0, 0, 67, 0, Math.PI * 2);
     }
 
     static createApproachCircle() {

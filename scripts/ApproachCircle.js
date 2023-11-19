@@ -33,7 +33,9 @@ class ApproachCircle {
 
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
-        this.obj.scale.set(hdScale * approachRateExpandRate * Game.SCALE_RATE * circleBaseScale * (236 / 256) ** 2);
+        this.obj.scale.set(
+            hdScale * approachRateExpandRate * Game.SCALE_RATE * circleBaseScale * (236 / 256) ** 2 * (skinType === "ARGON" ? 0.95 : 1)
+        );
         this.obj.alpha = this.hitCircle.opacity;
 
         if (mods.HD || timestamp > this.hitCircle.time) this.obj.alpha = 0;

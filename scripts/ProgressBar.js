@@ -60,52 +60,25 @@ function updateTime(timestamp) {
     // console.log(mDigits.reverse(), sDigits.reverse(), msDigits.reverse());
 }
 
-function goNext(precise) {
-    if (beatmapFile !== undefined) {
-        let step = 10;
-        let currentBeatstep;
-        const current = beatmapFile.audioNode.getCurrentTime();
+function go(precise, isForward) {
+    if (!beatmapFile) return;
+    let step = 1;
+    let side = isForward ? 1 : -1;
+    let currentBeatstep;
+    const current = beatmapFile.audioNode.getCurrentTime();
 
-        if (beatsteps.length) {
-            currentBeatstep =
-                beatsteps.findLast((timingPoint) => timingPoint.time <= current) !== undefined
-                    ? beatsteps.findLast((timingPoint) => timingPoint.time <= current)
-                    : beatsteps[0];
-
-            step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
-        }
-
-        const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
-        const goTo = Clamp(localOffset + (Math.ceil(current / step) + 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
-
-        beatmapFile.audioNode.seekTo(goTo);
-        document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        // beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
+    if (Beatmap.beatStepsList.length) {
+        currentBeatstep = Beatmap.beatStepsList.findLast((timingPoint) => timingPoint.time <= current) ?? Beatmap.beatStepsList[0];
+        step = precise ? 1 : currentBeatstep.beatstep / parseInt(beatsnap);
     }
-}
 
-function goBack(precise) {
-    if (beatmapFile !== undefined) {
-        let step = 10;
-        let currentBeatstep;
-        const current = beatmapFile.audioNode.getCurrentTime();
+    const relativePosition = current - currentBeatstep.time;
+    const relativeTickPassed = Math.round(relativePosition / step);
 
-        if (beatsteps.length) {
-            currentBeatstep =
-                beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime()) !== undefined
-                    ? beatsteps.findLast((timingPoint) => timingPoint.time <= beatmapFile.audioNode.getCurrentTime())
-                    : beatsteps[0];
+    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, beatmapFile.audioNode.buf.duration * 1000);
 
-            step = currentBeatstep.beatstep / (precise ? 48 : parseInt(beatsnap));
-        }
-
-        const localOffset = currentBeatstep.time > 0 ? (currentBeatstep.time % step) - step : currentBeatstep.time;
-        const goTo = Clamp(localOffset + (Math.ceil(current / step) - 1) * step, 0, beatmapFile.audioNode.buf.duration * 1000);
-
-        beatmapFile.audioNode.seekTo(goTo);
-        document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
-        // beatmapFile.beatmapRenderData.objectsController.draw(goTo, true);
-    }
+    beatmapFile.audioNode.seekTo(goTo);
+    document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
 }
 
 function copyUrlToClipboard() {
