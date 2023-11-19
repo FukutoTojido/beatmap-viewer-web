@@ -35,6 +35,8 @@ class HitCircle {
     colourIdx;
     comboIdx;
 
+    opacity = 0;
+
     drawSelected() {
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -85,6 +87,7 @@ class HitCircle {
             }
         }
         currentOpacity = Clamp(currentOpacity, 0, 1);
+        this.opacity = currentOpacity;
 
         if (this.hitTime > this.endTime && timestamp > this.endTime) currentOpacity = 0;
 
@@ -133,21 +136,7 @@ class HitCircle {
         }
 
         this.number.draw(timestamp);
-
-        // Set Approach Circle opacity and expand
-        let approachRateExpandRate = 1;
-        if (timestamp <= this.time) {
-            const preemptRate = (timestamp - (this.time - currentPreempt)) / currentPreempt;
-            approachRateExpandRate = Math.max(-3 * Math.min(preemptRate, 1) + 4, 1);
-        }
-        this.approachCircleObj.obj.x = x * Game.SCALE_RATE;
-        this.approachCircleObj.obj.y = y * Game.SCALE_RATE;
-        const approachRateSize = approachRateExpandRate * circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2;
-        if (mods.HD || timestamp > this.time) {
-            this.approachCircleObj.draw(0, approachRateSize, this.colour);
-        } else {
-            this.approachCircleObj.draw(currentOpacity, approachRateSize, this.colour);
-        }
+        this.approachCircleObj.draw(timestamp);
     }
 
     eval(inputIdx) {
@@ -184,20 +173,6 @@ class HitCircle {
             x: this.stackHeight * currentStackOffset,
             y: this.stackHeight * currentStackOffset,
         };
-
-        // if (this.time === 45886) {
-        //     console.log(
-        //         Fixed(
-        //             Dist(
-        //                 currentInput,
-        //                 mods.HR
-        //                     ? Add(FlipHR({ x: this.originalX, y: this.originalY }), additionalMemory)
-        //                     : Add({ x: this.originalX, y: this.originalY }, additionalMemory)
-        //             ) / radius,
-        //             2
-        //         )
-        //     );
-        // }
 
         // Misaim
         if (
@@ -275,7 +250,7 @@ class HitCircle {
         hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;
         hitCircleContainer.y = (this.originalY * Game.WIDTH) / 512;
 
-        this.approachCircleObj = new ApproachCircle(this.originalX, this.originalY);
+        this.approachCircleObj = new ApproachCircle(this);
 
         this.obj = hitCircleContainer;
     }

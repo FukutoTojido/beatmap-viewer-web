@@ -151,7 +151,7 @@ class Skinning {
         // console.log(Skinning.REVERSE_ARROW);
         // console.log(Skinning.APPROACH_CIRCLE);
 
-        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE"].forEach((element) => {
+        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"].forEach((element) => {
             if (!Skinning[element]) return;
 
             if (element === "DEFAULTS") {

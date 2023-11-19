@@ -71,7 +71,7 @@ void main() {
     vec4 baseColor = texture2D(uSampler2, vec2(dist, texturepos));
     vec4 color_mixed = sliderTrackOverride;
 
-    if (skinning != 2.0) color_mixed = tint;
+    if (skinning != 2.0 && skinning != 3.0) color_mixed = tint;
 
     float scale = circleBaseScale;
     if (skinning == 0.0) scale *= 0.95;

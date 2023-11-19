@@ -1,14 +1,5 @@
 class Texture {
     static SELECTED;
-    static HIT_CIRCLE;
-    static HIT_CIRCLE_OVERLAY;
-    static HIT_CIRCLE_LEGACY;
-    static HIT_CIRCLE_OVERLAY_LEGACY;
-    static APPROACH_CIRCLE;
-    static SLIDER_B;
-    static REVERSE_ARROW;
-    static DEFAULTS;
-    static ARGON_DEFAULTS;
     static ARGON = {
         DEFAULTS: null,
         HIT_CIRCLE: null,
@@ -16,6 +7,7 @@ class Texture {
         SLIDER_B: null,
         REVERSE_ARROW: null,
         SLIDER_FOLLOW_CIRCLE: null,
+        APPROACH_CIRCLE: null,
     };
     static LEGACY = {
         DEFAULTS: null,
@@ -24,6 +16,7 @@ class Texture {
         SLIDER_B: null,
         REVERSE_ARROW: null,
         SLIDER_FOLLOW_CIRCLE: null,
+        APPROACH_CIRCLE: null,
     };
 
     static createSelectedHitCircle() {
@@ -84,7 +77,7 @@ class Texture {
                 cap: "round",
                 alignment: 1,
             })
-            .arc(0, 0, 59, 0, Math.PI * 2);
+            .drawCircle(0, 0, 59);
     }
 
     static createSliderBall() {
@@ -159,9 +152,6 @@ class Texture {
             case "HIT_CIRCLE_OVERLAY":
                 graphics = Texture.createHitCircleOverlay();
                 break;
-            case "APPROACH_CIRCLE":
-                graphics = Texture.createApproachCircle();
-                break;
             case "SLIDER_BALL":
                 graphics = Texture.createSliderBall();
                 break;
@@ -235,8 +225,8 @@ class Texture {
             texture: Texture.createTexture("SLIDER_FOLLOW_CIRCLE"),
             isHD: false,
         };
-        Texture.APPROACH_CIRCLE = {
-            texture: Texture.createTexture("APPROACH_CIRCLE"),
+        Texture.ARGON.APPROACH_CIRCLE = {
+            texture: PIXI.Texture.from("static/argon/approachcircle@2x.png"),
             isHD: false,
         };
         Texture.ARGON.DEFAULTS = [...Array(10)].fill(null, 0, 10).map((_, idx) => {
@@ -245,12 +235,13 @@ class Texture {
                 isHD: false,
             };
         });
-        
+
         Texture.updateTextureFor("HIT_CIRCLE");
         Texture.updateTextureFor("HIT_CIRCLE_OVERLAY");
         Texture.updateTextureFor("SLIDER_B");
         Texture.updateTextureFor("SLIDER_FOLLOW_CIRCLE");
         Texture.updateTextureFor("REVERSE_ARROW");
+        Texture.updateTextureFor("APPROACH_CIRCLE");
         Texture.updateNumberTextures([...Array(10)].fill({}, 0, 10));
     }
 
@@ -281,7 +272,7 @@ class Texture {
                 Texture.LEGACY.SLIDER_B = {
                     ring: {
                         texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/sliderb0@2x.png"),
-                        isHD,
+                        isHD: base64 ? isHD : false,
                     },
                     arrow: {
                         texture: PIXI.Texture.from("static/empty.png"),
@@ -297,7 +288,7 @@ class Texture {
                 Texture.LEGACY.REVERSE_ARROW = {
                     arrow: {
                         texture: PIXI.Texture.from(base64 ?? "static/legacy/reversearrow@2x.png"),
-                        isHD,
+                        isHD: base64 ? isHD : false,
                     },
                     ring: {
                         texture: PIXI.Texture.from("static/empty.png"),
@@ -308,6 +299,12 @@ class Texture {
             case "SLIDER_FOLLOW_CIRCLE":
                 Texture.LEGACY.SLIDER_FOLLOW_CIRCLE = {
                     texture: PIXI.Texture.from(base64 ?? "static/legacy/sliderfollowcircle@2x.png"),
+                    isHD: base64 ? isHD : false,
+                };
+                break;
+            case "APPROACH_CIRCLE":
+                Texture.LEGACY.APPROACH_CIRCLE = {
+                    texture: PIXI.Texture.from(base64 ?? "static/legacy/approachcircle@2x.png"),
                     isHD: base64 ? isHD : false,
                 };
                 break;
