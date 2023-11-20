@@ -70,7 +70,13 @@ class Skinning {
             .replaceAll("\r", "");
 
         let coloursList = lines
-            .filter((line) => /Combo[0-9]+:/g.test(line.replaceAll(" ", "").replaceAll("\r")) && line.replaceAll(" ", "").slice(0, 2) !== "//")
+            .filter(
+                (line) =>
+                    /Combo[0-9]+:/g.test(line.replaceAll(" ", "").replaceAll("\r")) &&
+                    line.replaceAll(" ", "").slice(0, 2) !== "//" &&
+                    line.replaceAll(" ", "")[0] !== ";" &&
+                    line.replaceAll(" ", "")[0] !== "#"
+            )
             .map(
                 (colour) =>
                     `rgb(${colour
@@ -163,7 +169,7 @@ class Skinning {
 
         Skinning.HIT_CIRCLE = await Skinning.getBase64(allEntries, "hitcircle");
         Skinning.HIT_CIRCLE_OVERLAY = await Skinning.getBase64(allEntries, "hitcircleoverlay");
-        
+
         Skinning.SLIDER_B = await Skinning.getBase64(allEntries, "sliderb0");
         if (!Skinning.SLIDER_B.base64) Skinning.SLIDER_B = await Skinning.getBase64(allEntries, "sliderb");
 
