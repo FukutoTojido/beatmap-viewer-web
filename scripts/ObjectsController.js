@@ -23,46 +23,19 @@ class ObjectsController {
     // static preempt = 0;
 
     compare(a, b) {
-        if (a.time < b.time) {
+        if (a.obj.time < b.obj.time) {
             return -1;
         }
-        if (a.time > b.time) {
+        if (a.obj.time > b.obj.time) {
             return 1;
         }
         return 0;
     }
 
-    constructor(hitCirclesList, slidersList, coloursList, breakPeriods) {
-        this.hitCirclesList = hitCirclesList;
-        this.slidersList = slidersList;
-        this.objectsList = hitCirclesList.concat(slidersList).sort(this.compare);
-        this.currentColor = 1 % coloursList.length;
-        this.comboIdx = 1;
-
-        this.objectsList = this.objectsList.map((object, idx) => {
-            if (object.obj.isNewCombo && idx !== 0) {
-                this.currentColor = (this.currentColor + 1) % coloursList.length;
-                this.comboIdx = 1;
-            }
-
-            object.obj.colour = coloursList[this.currentColor];
-            object.obj.colourIdx = this.currentColor;
-            object.obj.comboIdx = this.comboIdx++;
-
-            if (object.obj instanceof Slider) {
-                object.obj.hitCircle.colour = object.obj.colour;
-                object.obj.hitCircle.colourIdx = object.obj.colourIdx;
-                object.obj.hitCircle.comboIdx = object.obj.comboIdx;
-            }
-
-            return {
-                ...object,
-                colour: object.obj.colour,
-                colourIdx: object.obj.colourIdx,
-                comboIdx: object.obj.comboIdx,
-                idx,
-            };
-        });
+    constructor(objectsList, coloursList, breakPeriods) {
+        this.objectsList = objectsList.sort(this.compare);
+        this.hitCirclesList = objectsList.filter(o => o.obj instanceof HitCircle || o.obj instanceof Spinner);
+        this.slidersList = objectsList.filter(o => o.obj instanceof Slider);
 
         this.breakPeriods = breakPeriods;
     }
@@ -122,8 +95,8 @@ class ObjectsController {
         const filtered = this.objectsList
             .filter(
                 (object) =>
-                    object.time - currentPreempt < timestamp &&
-                    (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
+                    object.obj.time - currentPreempt < timestamp &&
+                    (sliderAppearance.hitAnim ? object.obj.killTime : Math.max(object.obj.killTime + 800, object.obj.killTime)) > timestamp
             )
             .reverse();
 
@@ -131,8 +104,8 @@ class ObjectsController {
 
         const approachCircleList = filtered.map((o) => o.obj.approachCircleObj);
 
-        const selected = this.objectsList.filter((object) => selectedHitObject.includes(object.time)).reverse();
-        const noSelected = this.objectsList.filter((object) => !selectedHitObject.includes(object.time)).reverse();
+        const selected = this.objectsList.filter((object) => selectedHitObject.includes(object.obj.time)).reverse();
+        const noSelected = this.objectsList.filter((object) => !selectedHitObject.includes(object.obj.time)).reverse();
 
         const judgementRenderList = this.judgementList.filter(
             (judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp
@@ -147,8 +120,8 @@ class ObjectsController {
         const noRender = this.objectsList.filter(
             (object) =>
                 !(
-                    object.time - currentPreempt < timestamp &&
-                    (sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime)) > timestamp
+                    object.obj.time - currentPreempt < timestamp &&
+                    (sliderAppearance.hitAnim ? object.obj.killTime : Math.max(object.obj.endTime + 800, object.obj.killTime)) > timestamp
                 )
         );
 
@@ -189,7 +162,7 @@ class ObjectsController {
         });
 
         filtered.forEach((object) => {
-            const objStartTime = object.time - currentPreempt;
+            const objStartTime = object.obj.time - currentPreempt;
 
             selected.forEach((o) => {
                 o.obj.drawSelected();
@@ -222,7 +195,7 @@ class ObjectsController {
                     }
                 }
 
-                if (timestamp >= object.obj.endTime - 240 && this.lastTimestamp < object.obj.endTime - 240 && beatmapFile.audioNode.isPlaying) {
+                if (timestamp >= object.obj.endTime && this.lastTimestamp < object.obj.endTime && beatmapFile.audioNode.isPlaying) {
                     // console.log(object.time, timestamp, this.lastTimestamp);
 
                     if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderTail.play();
@@ -234,9 +207,9 @@ class ObjectsController {
                 }
 
                 if (object.hitsounds.sliderReverse.length > 0) {
-                    const currentOffsetFromStart = timestamp - object.time;
-                    const lastOffsetFromStart = this.lastTimestamp - object.time;
-                    const totalLength = object.endTime - object.time;
+                    const currentOffsetFromStart = timestamp - object.obj.time;
+                    const lastOffsetFromStart = this.lastTimestamp - object.obj.time;
+                    const totalLength = object.obj.endTime - object.obj.time;
 
                     const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
                     const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
@@ -262,7 +235,7 @@ class ObjectsController {
             }
 
             if (object.obj instanceof Spinner) {
-                if (timestamp >= object.endTime && this.lastTimestamp < object.endTime && beatmapFile.audioNode.isPlaying) {
+                if (timestamp >= object.obj.endTime && this.lastTimestamp < object.obj.endTime && beatmapFile.audioNode.isPlaying) {
                     // console.log(object.time, timestamp, this.lastTimestamp);
                     object.hitsounds.play();
                 }

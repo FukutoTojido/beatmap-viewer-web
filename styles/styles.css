@@ -913,7 +913,7 @@ button:hover {
 
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
 .selection {
@@ -1089,7 +1089,7 @@ input[type="checkbox"]:disabled:hover {
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 5px 0;
+    /* padding: 5px 0; */
     opacity: 0.5;
     font-weight: 400;
     transition: ease-in-out 100ms;

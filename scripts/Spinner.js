@@ -63,7 +63,7 @@ class Spinner {
                 idx++;
                 continue;
             }
-            
+
             const currInput = TranslateToZero(ScoreParser.CURSOR_DATA[idx]);
             const currentAngle = Math.atan2(currInput.y, currInput.x);
 
@@ -107,7 +107,6 @@ class Spinner {
                 if (zeroCount < 2) {
                     velocityOnPaper /= 3;
                 } else {
-
                     velocityOnPaper = 0;
                 }
             } else {
@@ -120,11 +119,11 @@ class Spinner {
                     // velocityOnPaper = (delta / 100) * 6;
                     // velocityOnPaper = delta / timeDiff;
 
-                    if (ApplyModsToTime(totalScoreFrameVariance, ScoreParser.MODS) > 100 / 6 * 1.04) {
+                    if (ApplyModsToTime(totalScoreFrameVariance, ScoreParser.MODS) > (100 / 6) * 1.04) {
                         if (timeDiff > 0) {
                             velocityOnPaper = delta / ApplyModsToTime(totalScoreFrameVariance, ScoreParser.MODS);
                         } else {
-                            velocityOnPaper = 0
+                            velocityOnPaper = 0;
                         }
                     } else {
                         velocityOnPaper = delta / (100 / 6);
@@ -222,7 +221,8 @@ class Spinner {
     constructor(startTime, endTime) {
         this.time = startTime;
         this.hitTime = endTime;
-        this.endTime = endTime + 240;
+        this.killTime = endTime + 240;
+        this.endTime = endTime;
 
         const container = new PIXI.Container();
 

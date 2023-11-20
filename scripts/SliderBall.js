@@ -45,7 +45,7 @@ class SliderBall {
     draw(timestamp) {
         const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
         const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);
-        const sliderFollowSkinScale = (Texture[skinType].SLIDER_FOLLOW_CIRCLE.isHD ? 0.25 : 0.5);
+        const sliderFollowSkinScale = Texture[skinType].SLIDER_FOLLOW_CIRCLE.isHD ? 0.25 : 0.5;
 
         this.followCircle.texture = Texture[skinType].SLIDER_FOLLOW_CIRCLE.texture;
         this.arrow.texture = Texture[skinType].SLIDER_B.arrow.texture;
@@ -60,7 +60,7 @@ class SliderBall {
         this.followCircle.alpha = 1;
         this.followCircle.scale.set(2.4 * sliderFollowSkinScale);
 
-        if (timestamp < this.baseSlider.time || timestamp >= this.baseSlider.endTime - 39) this.obj.alpha = 0;
+        if (timestamp < this.baseSlider.time || timestamp >= this.baseSlider.endTime + 200) this.obj.alpha = 0;
         if (timestamp >= this.baseSlider.time && timestamp < this.baseSlider.time + 300) {
             const alphaB = Clamp((timestamp - this.baseSlider.time) / 200, 0, 1);
             const alphaF = Clamp((timestamp - this.baseSlider.time) / 150, 0, 1);
@@ -88,15 +88,18 @@ class SliderBall {
         this.obj.x = (x + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
 
-        this.bg.tint = this.baseSlider.colour;
+        const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = this.baseSlider.colourIdx % colors.length;
+        
+        this.bg.tint = colors[idx];
         this.bg.angle = -this.obj.angle;
 
         this.followCircle.tint = 0xffffff;
-        if (skinType === "ARGON") this.followCircle.tint = this.baseSlider.colour;
+        if (skinType === "ARGON") this.followCircle.tint = colors[idx];
 
-        if (timestamp >= this.baseSlider.endTime - 239 && timestamp < this.baseSlider.endTime - 39) {
-            const alphaB = Clamp((timestamp - (this.baseSlider.endTime - 239)) / 200, 0, 1);
-            const alphaF = Clamp((timestamp - (this.baseSlider.endTime - 239)) / 200, 0, 1);
+        if (timestamp > this.baseSlider.endTime && timestamp < this.baseSlider.endTime + 200) {
+            const alphaB = Clamp((timestamp - this.baseSlider.endTime) / 200, 0, 1);
+            const alphaF = Clamp((timestamp - this.baseSlider.endTime) / 200, 0, 1);
 
             this.sliderB.alpha = 1 - easeOutQuint(alphaB);
             this.followCircle.alpha = 1 - easeOutQuint(alphaF);

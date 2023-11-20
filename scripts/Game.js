@@ -123,9 +123,9 @@ class Game {
             // console.log("x: " + x + " y: " + y, selectedObj);
 
             if (selectedObj) {
-                if (!e.ctrlKey) selectedHitObject = [selectedObj.time];
+                if (!e.ctrlKey) selectedHitObject = [selectedObj.obj.time];
                 else {
-                    selectedHitObject = selectedHitObject.concat([selectedObj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
+                    selectedHitObject = selectedHitObject.concat([selectedObj.obj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
                 }
             } else if (!didMove) {
                 selectedHitObject = [];

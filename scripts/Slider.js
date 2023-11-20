@@ -41,8 +41,8 @@ class Slider {
     angleS;
 
     colour;
-    colourIdx;
-    comboIdx;
+    colourIdx = 1;
+    comboIdx = 1;
 
     isHover = false;
     opacity = 0;
@@ -109,42 +109,33 @@ class Slider {
         // Calculate object opacity
         let currentOpacity = 0;
         if (!mods.HD) {
+            currentOpacity = 1;
+
             if (timestamp < this.time) {
                 currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
-            } else if (timestamp > this.endTime - (fadeOutTime - 1)) {
-                if (sliderAppearance.snaking) {
-                    if (this.hitTime <= this.endTime - fadeOutTime) currentOpacity = 0;
-                    else currentOpacity = 1 - (timestamp - (this.endTime - (fadeOutTime - 1))) / fadeOutTime;
-                } else {
-                    currentOpacity = 1 - (timestamp - (this.endTime - (fadeOutTime - 1))) / fadeOutTime;
-                }
-            } else {
-                currentOpacity = 1;
+            }
+            if (timestamp > this.endTime) {
+                currentOpacity = 1 - (timestamp - this.endTime) / fadeOutTime;
+                if (sliderAppearance.snaking && this.hitTime <= this.killTime) currentOpacity = 0;
             }
         } else {
-            if (timestamp < this.time) {
-                currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
-            } else {
-                currentOpacity = 1 - (timestamp - this.time) / (this.endTime - (fadeOutTime - 1) - this.time);
-            }
+            currentOpacity = 1 - (timestamp - this.time) / (this.endTime - this.time);
+            if (timestamp < this.time) currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
         }
         currentOpacity = Clamp(currentOpacity, 0, 1);
         this.opacity = currentOpacity;
         this.SliderMesh.alpha = currentOpacity;
 
         // Calculate object progress percentage
-        const currentPercentage = Clamp((timestamp - this.time) / (this.endTime - fadeOutTime - this.time), 0, 1);
+        const currentPercentage = Clamp((timestamp - this.time) / (this.endTime - this.time), 0, 1);
 
         // Set object snaking section
         if (sliderAppearance.snaking) {
             if (timestamp < this.hitTime) {
                 this.SliderMesh.startt = 0;
 
-                if (this.hitTime > this.endTime) {
-                    this.SliderMesh.endt = 1;
-                } else {
-                    this.SliderMesh.endt = Clamp(currentOpacity * 2, 0, 1);
-                }
+                this.SliderMesh.endt = Clamp(currentOpacity * 2, 0, 1);
+                if (this.hitTime > this.endTime) this.SliderMesh.endt = 1;
             } else if (timestamp >= this.hitTime) {
                 if (this.repeat % 2 === 0) {
                     this.SliderMesh.startt = 0;
@@ -162,8 +153,10 @@ class Slider {
         // this.sliderBall.tint = colour;
 
         // Set slider color
+        const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = this.colourIdx % colors.length;
         this.SliderMesh.tintid = 0;
-        this.SliderMesh.tint = Object.values(d3.rgb(`#${this.colour.toString(16).padStart(6, "0")}`)).map((val) => val / 255);
+        this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
         // console.log(this.SliderMesh.tint);
 
         this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
@@ -421,19 +414,21 @@ class Slider {
 
     getPointAtTime(time) {
         // console.log(this.time, Math.round(((time - this.time) / (this.sliderEndEvalPosition.time - this.time + 35)) * (this.actualTrackPoints.length - 1)));
-        return this.realTrackPoints[Math.ceil(((time - this.time) / (this.endTime - 240 - this.time)) * (this.realTrackPoints.length - 1))];
+        return this.realTrackPoints[Math.ceil(((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1))];
     }
 
     getSliderPart() {
         const baseTicksList = [];
-        const endTime = this.endTime - 240;
+        const endTime = this.endTime;
         for (let i = 0; i < this.sliderTicksCount / this.repeat; i++) {
             baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime) * (this.angleList.length - 1))]);
         }
 
         const sliderParts = [];
         const sliderEndEvalPosition = {
-            ...this.realTrackPoints[Math.round(Clamp((this.endTime - this.time - 36) / (endTime - this.time), 0, 1) * (this.realTrackPoints.length - 1))],
+            ...this.realTrackPoints[
+                Math.round(Clamp((this.killTime - this.time - 36) / (endTime - this.time), 0, 1) * (this.realTrackPoints.length - 1))
+            ],
             type: "Slider End",
             time: endTime - 36 < this.time ? endTime - 15 : endTime - 36,
         };
@@ -471,7 +466,7 @@ class Slider {
     }
 
     eval(inputIdx) {
-        const endTime = this.endTime - 240;
+        const endTime = this.endTime;
 
         const radius = 54.4 - 4.48 * Beatmap.stats.circleSize;
         let currentInput = ScoreParser.CURSOR_DATA[inputIdx];
@@ -641,9 +636,12 @@ class Slider {
         this.beatStep = parseFloat(beatStep);
 
         this.time = time;
-        this.startTime = time - Beatmap.stats.preempt;
-        this.endTime = time + ((this.sliderLength * this.repeat) / (this.svMultiplier * this.baseSV)) * beatStep + 240;
+        this.endTime = time + ((this.sliderLength * this.repeat) / (this.svMultiplier * this.baseSV)) * beatStep;
         this.hitTime = this.time;
+
+        this.startTime = time - Beatmap.stats.preempt;
+        this.killTime = this.endTime + 240;
+
         this.sliderTime = (beatStep * this.sliderLength) / (this.svMultiplier * this.baseSV);
         this.sliderTicksCount =
             (Math.ceil(Fixed(this.sliderLength / this.svMultiplier / (baseSV / Beatmap.stats.sliderTickRate), 2)) - 1) * this.repeat;

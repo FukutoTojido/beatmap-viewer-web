@@ -46,7 +46,7 @@ function loadLocalStorage() {
         // hsVol = currentLocalStorage.volume.hs;
 
         Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
-            if (["snaking", "hitAnim"].includes(k)) {
+            if (["snaking", "hitAnim", "ignoreSkin"].includes(k)) {
                 document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
             }
         });

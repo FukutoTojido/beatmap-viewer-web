@@ -1,6 +1,7 @@
 class HitCircle {
     startTime;
     endTime;
+    killTime;
 
     positionX;
     positionY;
@@ -17,17 +18,17 @@ class HitCircle {
     obj;
     selected;
     judgementObj;
-    
+
     hitCircleSprite;
     hitCircleOverlaySprite;
-    
+
     number;
     approachCircleObj;
 
     hitTime;
     colour;
-    colourIdx;
-    comboIdx;
+    colourIdx = 1;
+    comboIdx = 1;
 
     opacity = 0;
 
@@ -37,10 +38,8 @@ class HitCircle {
         const stackHeight = this.stackHeight;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
-        const x = (this.originalX + stackHeight * currentStackOffset);
-        const y = !mods.HR
-            ? (this.originalY + stackHeight * currentStackOffset) 
-            : (384 - this.originalY + stackHeight * currentStackOffset);
+        const x = this.originalX + stackHeight * currentStackOffset;
+        const y = !mods.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
 
         this.selected.x = x * Game.SCALE_RATE;
         this.selected.y = y * Game.SCALE_RATE;
@@ -58,7 +57,7 @@ class HitCircle {
         this.hitCircleOverlaySprite.scale.set(Texture[skinType].HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
         // Calculate object radius on HR / EZ toggle
-        const circleBaseScale = Beatmap.moddedStats.radius / 54.4 * (skinType === "ARGON" ? 0.95 : 1);
+        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);
 
         // Calculate current timing stats
         const currentPreempt = Beatmap.moddedStats.preempt;
@@ -83,7 +82,7 @@ class HitCircle {
         currentOpacity = Clamp(currentOpacity, 0, 1);
         this.opacity = currentOpacity;
 
-        if (this.hitTime > this.endTime && timestamp > this.endTime) currentOpacity = 0;
+        if (this.hitTime > this.killTime && timestamp > this.killTime) currentOpacity = 0;
 
         // Calculate object expandation
         let currentExpand = 1;
@@ -101,11 +100,21 @@ class HitCircle {
 
         // Untint HitCircle on hit when hit animation is disabled
         if (sliderAppearance.hitAnim || timestamp < this.hitTime) {
-            this.hitCircleSprite.tint = this.colour;
+            const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+            const idx = this.colourIdx % colors.length;
+            const color = colors[idx];
+            
+            this.hitCircleSprite.tint = color;
 
             if (skinning.type === "1") {
-                const colour = parseInt(d3.color(`#${this.colour.toString(16)}`).darker().hex().slice(1), 16);
-                this.hitCircleSprite.tint = colour;
+                this.hitCircleSprite.tint = parseInt(
+                    d3
+                        .color(`#${color.toString(16).padStart(6, "0")}`)
+                        .darker()
+                        .hex()
+                        .slice(1),
+                    16
+                );
             }
         } else {
             this.hitCircleSprite.tint = 0xffffff;
@@ -116,10 +125,8 @@ class HitCircle {
         this.obj.scale.set(currentExpand * circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
 
         // Set HitCircle position
-        const x = (this.originalX + stackHeight * currentStackOffset);
-        const y = !mods.HR
-            ? (this.originalY + stackHeight * currentStackOffset)
-            : (384 - this.originalY + stackHeight * currentStackOffset);
+        const x = this.originalX + stackHeight * currentStackOffset;
+        const y = !mods.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
         this.obj.x = x * Game.SCALE_RATE;
         this.obj.y = y * Game.SCALE_RATE;
 
@@ -180,8 +187,8 @@ class HitCircle {
                 2
             ) > 1
         ) {
-            this.hitTime = this.endTime;
-            this.endTime = this.time + Beatmap.hitWindows.MEH;
+            this.hitTime = this.killTime;
+            this.killTime = this.time + Beatmap.hitWindows.MEH;
             return null;
         }
 
@@ -202,9 +209,11 @@ class HitCircle {
         this.originalY = parseInt(positionY);
 
         this.time = time;
+        this.endTime = time;
         this.hitTime = time;
+
         this.startTime = time - Beatmap.stats.preempt;
-        this.endTime = time + 240;
+        this.killTime = time + 240;
 
         this.isNewCombo = isNewCombo;
 

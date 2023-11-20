@@ -102,7 +102,7 @@ class ReverseArrow {
         //     return;
         // }
 
-        const spanTime = this.baseSlider.endTime - 240 - this.baseSlider.time;
+        const spanTime = this.baseSlider.endTime - this.baseSlider.time;
         const animationDuration = Math.min(300, spanTime);
         this.arrowSprite.scale.set(baseScale);
         this.ringSprite.x = 0;

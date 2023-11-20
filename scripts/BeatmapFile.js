@@ -271,12 +271,32 @@ class BeatmapFile {
         const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
         console.log("Audio Loaded");
 
+        const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).shift();
+        if (backgroundFile) {
+            const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
+
+            // console.log("Background Blob Generated");
+            this.backgroundBlobURL = URL.createObjectURL(data);
+            console.log("Background Loaded");
+            document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+
+            const bg = new Image();
+            bg.src = this.backgroundBlobURL;
+
+            if (bg.complete) {
+                loadColorPalette(bg);
+            } else {
+                bg.addEventListener("load", () => loadColorPalette(bg));
+            }
+        }
+
         const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);
             return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
         });
 
-        console.log(hitsoundFiles);
+        // console.log(hitsoundFiles);
 
         const hitsoundArrayBuffer = [];
         document.querySelector("#loadingText").innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
@@ -295,29 +315,6 @@ class BeatmapFile {
 
         this.hitsoundList = hitsoundArrayBuffer;
         console.log("Hitsound Loaded");
-
-        // document.querySelector(
-        //     "#loadingText"
-        // ).innerHTML = `Setting up Background<br>In case this takes too long, please refresh the page. I'm having issue with files not being able to read randomly`;
-        const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).shift();
-        if (backgroundFile) {
-            backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`)).then((data) => {
-                // console.log("Background Blob Generated");
-                this.backgroundBlobURL = URL.createObjectURL(data);
-                console.log("Background Loaded");
-                document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
-                document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
-
-                const bg = new Image();
-                bg.src = this.backgroundBlobURL;
-
-                if (bg.complete) {
-                    loadColorPalette(bg);
-                } else {
-                    bg.addEventListener("load", () => loadColorPalette(bg));
-                }
-            });
-        }
 
         zipReader.close();
         document.querySelector("#loadingText").innerHTML = `Setting up HitObjects`;
@@ -340,11 +337,8 @@ class BeatmapFile {
 
     async constructMap() {
         try {
-            Game.APP.stage.removeChild(Game.CONTAINER);
-            Game.APP.stage.removeChild(Game.CURSOR);
-            Game.CONTAINER = Game.containerInit();
-            Game.APP.stage.addChild(Game.CONTAINER);
-            Game.APP.stage.addChild(Game.CURSOR.obj);
+            const removedChildren = Game.CONTAINER.removeChildren();
+            removedChildren.forEach((ele) => ele.destroy());
 
             currentMapId = this.mapId;
             // audioCtx = new AudioContext();
@@ -419,15 +413,15 @@ class BeatmapFile {
                 if (e.key === "c" && e.ctrlKey) {
                     // console.log("Copied");
                     if (selectedHitObject.length) {
-                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => selectedHitObject.includes(o.time));
-                        const obj = objs.reduce((prev, curr) => (prev.time > curr.time ? curr : prev));
-                        const currentMiliseconds = Math.floor(obj.time % 1000)
+                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => selectedHitObject.includes(o.obj.time));
+                        const obj = objs.reduce((prev, curr) => (prev.obj.time > curr.obj.time ? curr : prev));
+                        const currentMiliseconds = Math.floor(obj.obj.time % 1000)
                             .toString()
                             .padStart(3, "0");
-                        const currentSeconds = Math.floor((obj.time / 1000) % 60)
+                        const currentSeconds = Math.floor((obj.obj.time / 1000) % 60)
                             .toString()
                             .padStart(2, "0");
-                        const currentMinute = Math.floor(obj.time / 1000 / 60)
+                        const currentMinute = Math.floor(obj.obj.time / 1000 / 60)
                             .toString()
                             .padStart(2, "0");
 

@@ -14,8 +14,8 @@ const handleCanvasDrag = (e, calledFromDraw) => {
 
     const selectedObjList = beatmapFile.beatmapRenderData.objectsController.objectsList
         .filter((o) => {
-            const lowerBound = o.time - currentPreempt;
-            const upperBound = sliderAppearance.hitAnim ? o.endTime + 240 : Math.max(o.time + 800, o.endTime + 240);
+            const lowerBound = o.obj.time - currentPreempt;
+            const upperBound = sliderAppearance.hitAnim ? o.obj.killTime : Math.max(o.obj.time + 800, o.obj.killTime);
 
             return (
                 (lowerBound <= Math.min(draggingStartTime, draggingEndTime) && upperBound >= Math.max(draggingStartTime, draggingEndTime)) ||
@@ -83,7 +83,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
     // console.log("x: " + x + " y: " + y, selectedObj);
 
     if (selectedObjList.length) {
-        selectedHitObject = selectedObjList.map((o) => o.time);
+        selectedHitObject = selectedObjList.map((o) => o.obj.time);
     } else if (e && !e.ctrlKey) {
         selectedHitObject = [];
     }

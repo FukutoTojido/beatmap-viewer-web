@@ -21,10 +21,8 @@ const settingsTemplate = {
     },
     sliderAppearance: {
         snaking: true,
-        untint: false,
-        legacy: true,
         hitAnim: true,
-        override: true
+        ignoreSkin: false
     },
 };
 

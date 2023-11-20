@@ -191,7 +191,7 @@ function handleCheckBox(checkbox) {
     const DTMultiplier = !mods.DT ? 1 : 1.5;
     const HTMultiplier = !mods.HT ? 1 : 0.75;
 
-    if (["snaking", "hitAnim"].includes(checkbox.name)) {
+    if (["snaking", "hitAnim", "ignoreSkin"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = sliderAppearance[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));

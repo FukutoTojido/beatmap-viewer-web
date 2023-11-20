@@ -35,6 +35,7 @@
     <script src="./scripts/Cursor.js"></script>
     <script src="./scripts/Game.js"></script>
     <script src="./scripts/Audio.js"></script>
+    <script src="./scripts/HitSound.js"></script>
     <script src="./scripts/ApproachCircle.js"></script>
     <script src="./scripts/Judgement.js"></script>
     <script src="./scripts/NumberSprite.js"></script>
@@ -180,7 +181,7 @@
         </div>
         <div class="section">
             <div class="title">skinning</div>
-            <div class="description">change skinning type</div>
+            <div class="description">change gameplay appearance</div>
             <div class="list">
                 <div class="radioSel">
                     <input type="radio" name="skinning" id="argon" value="0">
@@ -197,6 +198,18 @@
                 <div class="radioSel">
                     <input type="radio" name="skinning" id="legacy_" value="2">
                     <label for="legacy_">Legacy</label>
+                </div>
+                <div class="selection">
+                    <label for="snaking">snaking sliders</label>
+                    <input type="checkbox" id="snaking" name="snaking" onchange='handleCheckBox(this);' checked>
+                </div>
+                <div class="selection">
+                    <label for="hitAnim">hit animations</label>
+                    <input type="checkbox" id="hitAnim" name="hitAnim" onchange='handleCheckBox(this);' checked>
+                </div>
+                <div class="selection">
+                    <label for="ignoreSkin">ignore beatmap colours</label>
+                    <input type="checkbox" id="ignoreSkin" name="ignoreSkin" onchange='handleCheckBox(this);'>
                 </div>
             </div>
         </div>
@@ -262,19 +275,6 @@
                 <div class="selection">
                     <label for="HT">half time</label>
                     <input type="checkbox" id="HT" name="HT" onchange='handleCheckBox(this);'>
-                </div>
-            </div>
-        </div>
-        <div class="section">
-            <div class="title">visual</div>
-            <div class="list">
-                <div class="selection">
-                    <label for="snaking">snaking sliders</label>
-                    <input type="checkbox" id="snaking" name="snaking" onchange='handleCheckBox(this);' checked>
-                </div>
-                <div class="selection">
-                    <label for="hitAnim">hit animations</label>
-                    <input type="checkbox" id="hitAnim" name="hitAnim" onchange='handleCheckBox(this);' checked>
                 </div>
             </div>
         </div>

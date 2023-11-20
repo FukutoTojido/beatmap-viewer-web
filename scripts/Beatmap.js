@@ -1,5 +1,11 @@
+const HIT_SAMPLES = ["", "normal", "soft", "drum"];
+const HIT_SOUNDS = ["hitwhistle", "hitfinish", "hitclap"];
+
 class Beatmap {
     objectsController;
+    static SAMPLE_SET = "Normal";
+    static COLORS = Skinning.DEFAULT_COLORS;
+
     static difficultyMultiplier = 1;
     static stats = {
         approachRate: 5,
@@ -78,6 +84,89 @@ class Beatmap {
         };
     }
 
+    static constructSpinner(params, currentSVMultiplier) {
+        const parameters = params.map((p) => (p === "" || !p ? null : p));
+        const startTime = parseInt(parameters[2]);
+        const endTime = parseInt(parameters[5]);
+        const hitSoundIdx = parameters[4];
+        const hitSampleIdx = parameters.at(-1);
+
+        const samples = HitSound.GetName(hitSampleIdx, hitSoundIdx, currentSVMultiplier);
+        return {
+            obj: new Spinner(startTime, endTime),
+            hitsounds: new HitSample(samples, currentSVMultiplier.sampleVol / 100),
+            isNewCombo: true,
+        };
+    }
+
+    static constructSlider(params, timingPoints, beatSteps, initialSliderVelocity) {
+        const hitSoundIdx = parseInt(params[4]);
+        const time = parseInt(params[2]);
+        const svStart = timingPoints.findLast((timingPoint) => timingPoint.time <= time) ?? timingPoints[0];
+
+        const { beatstep: beatStep } = beatSteps.findLast((timingPoint) => timingPoint.time <= time) ?? beatSteps[0];
+        const slides = parseInt(params[6]);
+        const length = parseFloat(params[7]);
+        const endTime = time + ((slides * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
+        const svEnd = timingPoints.findLast((timingPoint) => timingPoint.time <= endTime) ?? timingPoints[0];
+
+        const edgeSounds = params[8];
+        const edgeSets = params[9];
+
+        const headSamples = HitSound.GetName(edgeSets?.split("|")[0] ?? "0:0:", edgeSounds?.split("|")[0] ?? hitSoundIdx, svStart);
+        const endSamples = HitSound.GetName(edgeSets?.split("|").at(-1) ?? "0:0:", edgeSounds?.split("|").at(-1) ?? hitSoundIdx, svEnd);
+
+        const reversesSamples = [...Array(slides - 1)].map((_, idx) => {
+            const reverseTime = time + (((idx + 1) * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
+            const sv = timingPoints.findLast((timingPoint) => timingPoint.time <= reverseTime) ?? timingPoints[0];
+
+            const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? "0:0:", edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
+            return new HitSample(samples, sv.sampleVol / 100);
+        });
+
+        const [x, y, , type] = params;
+        const anchors = params[5].slice(2);
+        const sliderType = params[5][0];
+        const isNewCombo = ("00000000" + parseInt(type).toString(2)).substr(-8).split("").reverse().join("")[2] == 1;
+
+        const obj = new Slider(
+            `${x}:${y}|${anchors}`,
+            sliderType,
+            length,
+            svStart.svMultiplier,
+            initialSliderVelocity,
+            beatStep,
+            time,
+            isNewCombo,
+            slides
+        );
+
+        return {
+            obj,
+            hitsounds: {
+                sliderHead: new HitSample(headSamples, svStart.sampleVol / 100),
+                sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
+                sliderReverse: reversesSamples,
+            },
+            isNewCombo,
+        };
+    }
+
+    static constructHitCircle(params, currentSVMultiplier) {
+        const parameters = params.map((p) => (p === "" || !p ? null : p));
+        const [x, y, time, type, hitSoundIdx, ...rest] = parameters;
+        const hitSampleIdx = rest.at(-1);
+
+        const samples = HitSound.GetName(hitSampleIdx, hitSoundIdx, currentSVMultiplier);
+        const isNewCombo = ("00000000" + parseInt(type).toString(2)).substr(-8).split("").reverse().join("")[2] == 1;
+
+        return {
+            obj: new HitCircle(x, y, parseInt(time), isNewCombo),
+            hitsounds: new HitSample(samples, currentSVMultiplier.sampleVol / 100),
+            isNewCombo,
+        };
+    }
+
     constructor(rawBeatmap, delay) {
         // Get Approach Rate
         if (rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0) {
@@ -126,6 +215,15 @@ class Beatmap {
                       .replaceAll("StackLeniency: ", "")
               )
             : 0.7;
+
+        // Get Stack Leniency
+        Beatmap.SAMPLE_SET = rawBeatmap.includes("SampleSet: ")
+            ? rawBeatmap
+                  .split("\r\n")
+                  .filter((line) => line.includes("SampleSet: "))
+                  .shift()
+                  .replaceAll("SampleSet: ", "")
+            : "Normal";
 
         // Get Slider Tick Rate
         Beatmap.stats.sliderTickRate = parseFloat(
@@ -205,36 +303,39 @@ class Beatmap {
                 return {
                     time: parseInt(params[0]),
                     svMultiplier: params[1] > 0 ? 1 : parseFloat(((-1 / params[1]) * 100).toFixed(2)),
-                    sampleSet: parseInt(params[3]),
-                    sampleIdx: parseInt(params[4]),
-                    sampleVol: parseInt(params[5]),
+                    sampleSet: parseInt(params[3] ?? "0"),
+                    sampleIdx: parseInt(params[4] ?? "0"),
+                    sampleVol: parseInt(params[5] ?? "100"),
                 };
             });
 
         // console.log(beatStepsList, timingPointsList);
-        const coloursList = (
+        let coloursList =
             rawBeatmap.indexOf("[Colours]") !== -1
                 ? rawBeatmap
                       .slice(colourPosition, hitObjectsPosition - "[HitObjects]\r\n".length)
                       .split("\r\n")
                       .filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
                       .map((colour) => `rgb(${colour.replaceAll(colour.match(/Combo[0-9]+\s:\s/g)[0], "")})`)
-                : ["rgb(235,64,52)", "rgb(235,192,52)", "rgb(52,235,101)", "rgb(52,125,235)"]
-        ).map((colour) =>
-            parseInt(
-                colour
-                    .replaceAll("rgb(", "")
-                    .replaceAll(")", "")
-                    .split(",")
-                    .map((val) => parseInt(val).toString(16).padStart(2, "0"))
-                    .join(""),
-                16
-            )
-        );
+                      .map((colour) =>
+                          parseInt(
+                              colour
+                                  .replaceAll("rgb(", "")
+                                  .replaceAll(")", "")
+                                  .split(",")
+                                  .map((val) => parseInt(val).toString(16).padStart(2, "0"))
+                                  .join(""),
+                              16
+                          )
+                      )
+                : [];
+
+        if (coloursList.length === 0) coloursList = Skinning.DEFAULT_COLORS;
+
+        Beatmap.COLORS = Skinning.DEFAULT_COLORS;
+        Beatmap.COLORS = coloursList;
         // console.log(coloursList);
 
-        colorsLength = coloursList.length;
-        // console.log(colorsLength);
         SliderTexture = newTexture(coloursList);
         SelectedTexture = newTexture();
 
@@ -254,330 +355,40 @@ class Beatmap {
             .split("\r\n")
             .filter((s) => s !== "");
 
-        // console.log(objectLists);
-        const hitsampleEnum = ["", "normal", "soft", "drum"];
-        const hitsoundEnum = ["hitwhistle", "hitfinish", "hitclap"];
-
-        const hitCircleList = objectLists
-            .map((object) => {
+        let combo = 1;
+        let colorIdx = 1;
+        const parsedHitObjects = objectLists
+            .map((object, idx) => {
                 const params = object.split(",");
+                const currentSVMultiplier = timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) ?? timingPointsList[0];
 
-                const currentSVMultiplier =
-                    timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
-                        ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
-                        : timingPointsList[0];
+                let returnObject;
 
-                if (params[3] === "12") {
-                    const startTime = parseInt(params[2]);
-                    const endTime = parseInt(params[5]);
+                if (params[3] === "12") returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
+                if (!["L", "P", "B", "C"].includes(params[5]?.[0])) returnObject = Beatmap.constructHitCircle(params, currentSVMultiplier);
+                if (["L", "P", "B", "C"].includes(params[5]?.[0]))
+                    returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
 
-                    let hitsoundList = ["hitnormal"];
-                    const sampleSet =
-                        params[6] !== undefined && params[5] !== ""
-                            ? params[6].split(":")[0] !== "0"
-                                ? hitsampleEnum[params[6].split(":")[0]]
-                                : hitsampleEnum[currentSVMultiplier.sampleSet]
-                            : hitsampleEnum[currentSVMultiplier.sampleSet];
-                    const additional =
-                        params[6] !== undefined && params[5] !== ""
-                            ? params[6].split(":")[1] !== "0"
-                                ? hitsampleEnum[params[6].split(":")[1]]
-                                : sampleSet
-                            : sampleSet;
-                    // console.log(parseInt(params[3]).toString(2)[2]);
-                    parseInt(params[4])
-                        .toString(2)
-                        .padStart(4, "0")
-                        .split("")
-                        .reverse()
-                        .slice(1)
-                        .forEach((flag, idx) => {
-                            if (flag === "1") hitsoundList.push(hitsoundEnum[idx]);
-                        });
-
-                    hitsoundList = hitsoundList.map((hs) =>
-                        hs === "hitnormal"
-                            ? `${sampleSet}-${hs}${currentSVMultiplier.sampleIdx}`
-                            : `${additional}-${hs}${currentSVMultiplier.sampleIdx}`
-                    );
-
-                    // console.log(startTime, endTime, hitsoundList);
-
-                    return {
-                        obj: new Spinner(startTime, endTime),
-                        time: startTime,
-                        endTime,
-                        hitsounds: new HitSample(hitsoundList, currentSVMultiplier.sampleVol / 100),
-                        raw: object,
-                    };
+                if (returnObject.isNewCombo && idx !== 0) {
+                    combo = 1;
+                    colorIdx++;
                 }
 
-                if (params[5] === undefined || !["L", "P", "B", "C"].includes(params[5][0])) {
-                    let hitsoundList = ["hitnormal"];
-                    const sampleSet =
-                        params[5] !== undefined && params[5] !== ""
-                            ? params[5].split(":")[0] !== "0"
-                                ? hitsampleEnum[params[5].split(":")[0]]
-                                : hitsampleEnum[currentSVMultiplier.sampleSet]
-                            : hitsampleEnum[currentSVMultiplier.sampleSet];
-                    const additional =
-                        params[5] !== undefined && params[5] !== ""
-                            ? params[5].split(":")[1] !== "0"
-                                ? hitsampleEnum[params[5].split(":")[1]]
-                                : sampleSet
-                            : sampleSet;
-                    // console.log(parseInt(params[3]).toString(2)[2]);
-                    parseInt(params[4])
-                        .toString(2)
-                        .padStart(4, "0")
-                        .split("")
-                        .reverse()
-                        .slice(1)
-                        .forEach((flag, idx) => {
-                            if (flag === "1") hitsoundList.push(hitsoundEnum[idx]);
-                        });
+                returnObject.obj.comboIdx = combo;
+                returnObject.obj.colourIdx = colorIdx;
 
-                    hitsoundList = hitsoundList.map((hs) =>
-                        hs === "hitnormal"
-                            ? `${sampleSet}-${hs}${currentSVMultiplier.sampleIdx}`
-                            : `${additional}-${hs}${currentSVMultiplier.sampleIdx}`
-                    );
-                    // console.log(hitsoundList);
-
-                    return {
-                        obj: new HitCircle(
-                            params[0],
-                            params[1],
-                            parseInt(params[2]),
-                            ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1
-                        ),
-                        time: parseInt(params[2]) + delay,
-                        endTime: parseInt(params[2]) + delay,
-                        hitsounds: new HitSample(hitsoundList, currentSVMultiplier.sampleVol / 100),
-                        raw: object,
-                    };
+                if (returnObject.obj instanceof Slider) {
+                    returnObject.obj.hitCircle.comboIdx = combo;
+                    returnObject.obj.hitCircle.colourIdx = colorIdx;
                 }
+
+                combo++;
+
+                return returnObject;
             })
             .filter((o) => o);
-        const slidersList = objectLists
-            .map((object) => {
-                const params = object.split(",");
 
-                const currentSVMultiplier =
-                    timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2]) !== undefined
-                        ? timingPointsList.findLast((timingPoint) => timingPoint.time <= params[2])
-                        : timingPointsList[0];
-
-                const currentbeatStep =
-                    beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay) !== undefined
-                        ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2]) + delay).beatstep
-                        : beatStepsList[0].beatstep;
-                // console.log(("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1);
-
-                // console.log(initialSliderVelocity, currentSVMultiplier.svMultiplier);
-                if (params[5] !== undefined && ["L", "P", "B", "C"].includes(params[5][0])) {
-                    const calculatedEndTime =
-                        parseInt(params[2]) + ((params[6] * params[7]) / currentSVMultiplier.svMultiplier / initialSliderVelocity) * currentbeatStep;
-                    // console.log(params[2], calculatedEndTime);
-
-                    const sliderEndSVMultiplier =
-                        timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedEndTime) !== undefined
-                            ? timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedEndTime)
-                            : timingPointsList[0];
-
-                    let headHitsoundList = ["hitnormal"];
-                    let tailHitsoundList = ["hitnormal"];
-                    let reverseList = [];
-
-                    if (params[8] === undefined) {
-                        const defaultHeadSampleSet = hitsampleEnum[currentSVMultiplier.sampleSet];
-                        const defaultTailSampleSet = hitsampleEnum[sliderEndSVMultiplier.sampleSet];
-
-                        parseInt(params[4])
-                            .toString(2)
-                            .padStart(4, "0")
-                            .split("")
-                            .reverse()
-                            .slice(1)
-                            .forEach((flag, idx) => {
-                                if (flag === "1") {
-                                    headHitsoundList.push(hitsoundEnum[idx]);
-                                    tailHitsoundList.push(hitsoundEnum[idx]);
-                                }
-                            });
-
-                        headHitsoundList = headHitsoundList.map((hs) => `${defaultHeadSampleSet}-${hs}`);
-                        tailHitsoundList = tailHitsoundList.map((hs) => `${defaultTailSampleSet}-${hs}`);
-                        for (let i = 0; i < parseInt(params[6]) - 1; i++) {
-                            reverseList.push(new HitSample(headHitsoundList));
-                        }
-                    } else {
-                        const headHs = params[8].split("|")[0];
-                        const tailHs = params[8].split("|").at(-1);
-
-                        let headSs = {
-                            default: "normal",
-                            additional: "normal",
-                        };
-                        let tailSs = {
-                            default: "normal",
-                            additional: "normal",
-                        };
-
-                        if (params[9] !== undefined) {
-                            const defaultHeadSampleSet =
-                                params[9].split("|")[0].split(":")[0] !== "0"
-                                    ? hitsampleEnum[params[9].split("|")[0].split(":")[0]]
-                                    : hitsampleEnum[currentSVMultiplier.sampleSet];
-
-                            const defaultTailSampleSet =
-                                params[9].split("|").at(-1).split(":")[0] !== "0"
-                                    ? hitsampleEnum[params[9].split("|").at(-1).split(":")[0]]
-                                    : hitsampleEnum[sliderEndSVMultiplier.sampleSet];
-
-                            headSs = {
-                                default: defaultHeadSampleSet,
-                                additional:
-                                    params[9].split("|")[0].split(":")[1] !== "0"
-                                        ? hitsampleEnum[params[9].split("|")[0].split(":")[1]]
-                                        : defaultHeadSampleSet,
-                            };
-
-                            tailSs = {
-                                default: defaultTailSampleSet,
-                                additional:
-                                    params[9].split("|").at(-1).split(":")[1] !== "0"
-                                        ? hitsampleEnum[params[9].split("|").at(-1).split(":")[1]]
-                                        : defaultTailSampleSet,
-                            };
-                        }
-
-                        parseInt(headHs)
-                            .toString(2)
-                            .padStart(4, "0")
-                            .split("")
-                            .reverse()
-                            .slice(1)
-                            .forEach((flag, idx) => {
-                                if (flag === "1") {
-                                    headHitsoundList.push(hitsoundEnum[idx]);
-                                }
-                            });
-
-                        parseInt(tailHs)
-                            .toString(2)
-                            .padStart(4, "0")
-                            .split("")
-                            .reverse()
-                            .slice(1)
-                            .forEach((flag, idx) => {
-                                if (flag === "1") {
-                                    tailHitsoundList.push(hitsoundEnum[idx]);
-                                }
-                            });
-
-                        headHitsoundList = headHitsoundList.map((hs) =>
-                            hs === "hitnormal"
-                                ? `${headSs.default}-${hs}${currentSVMultiplier.sampleIdx}`
-                                : `${headSs.additional}-${hs}${currentSVMultiplier.sampleIdx}`
-                        );
-                        tailHitsoundList = tailHitsoundList.map((hs) =>
-                            hs === "hitnormal"
-                                ? `${tailSs.default}-${hs}${sliderEndSVMultiplier.sampleIdx}`
-                                : `${tailSs.additional}-${hs}${sliderEndSVMultiplier.sampleIdx}`
-                        );
-
-                        const reverseHs = params[8].split("|").slice(1, -1);
-                        // console.log(params[2], reverseHs);
-                        reverseList = reverseHs.map((edge, idx) => {
-                            const calculatedTime =
-                                parseInt(params[2]) +
-                                (((idx + 1) * params[7]) / currentSVMultiplier.svMultiplier / initialSliderVelocity) * currentbeatStep;
-
-                            const edgeSVMultiplier =
-                                timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedTime) !== undefined
-                                    ? timingPointsList.findLast((timingPoint) => timingPoint.time <= calculatedTime)
-                                    : timingPointsList[0];
-                            let hitsoundList = ["hitnormal"];
-
-                            let ss = {
-                                default: "normal",
-                                additional: "normal",
-                            };
-
-                            if (params[9] !== undefined) {
-                                const defaultSampleSet =
-                                    params[9].split("|")[idx + 1].split(":")[0] !== "0"
-                                        ? hitsampleEnum[params[9].split("|")[idx + 1].split(":")[0]]
-                                        : hitsampleEnum[edgeSVMultiplier.sampleSet];
-
-                                ss = {
-                                    default: defaultSampleSet,
-                                    additional:
-                                        params[9].split("|")[idx + 1].split(":")[1] !== "0"
-                                            ? hitsampleEnum[params[9].split("|")[idx + 1].split(":")[1]]
-                                            : defaultSampleSet,
-                                };
-                            }
-
-                            parseInt(edge)
-                                .toString(2)
-                                .padStart(4, "0")
-                                .split("")
-                                .reverse()
-                                .slice(1)
-                                .forEach((flag, idx) => {
-                                    if (flag === "1") {
-                                        hitsoundList.push(hitsoundEnum[idx]);
-                                    }
-                                });
-
-                            hitsoundList = hitsoundList.map((hs) =>
-                                hs === "hitnormal"
-                                    ? `${ss.default}-${hs}${edgeSVMultiplier.sampleIdx}`
-                                    : `${ss.additional}-${hs}${edgeSVMultiplier.sampleIdx}`
-                            );
-
-                            return new HitSample(hitsoundList, edgeSVMultiplier.sampleVol / 100);
-                        });
-                    }
-
-                    // console.log(parseInt(params[2]), headHitsoundList, tailHitsoundList);
-                    const sliderObj = new Slider(
-                        `${params[0]}:${params[1]}|${params[5].slice(2)}`,
-                        params[5][0],
-                        parseFloat(params[7]),
-                        currentSVMultiplier.svMultiplier,
-                        initialSliderVelocity,
-                        beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])) !== undefined
-                            ? beatStepsList.findLast((timingPoint) => timingPoint.time <= parseInt(params[2])).beatstep
-                            : beatStepsList[0].beatstep,
-                        parseInt(params[2]),
-                        ("00000000" + parseInt(params[3]).toString(2)).substr(-8).split("").reverse().join("")[2] == 1,
-                        parseInt(params[6])
-                    );
-
-                    const endTime =
-                        parseInt(params[2]) +
-                        delay +
-                        ((sliderObj.sliderLength * sliderObj.repeat) / currentSVMultiplier.svMultiplier / sliderObj.baseSV) * currentbeatStep;
-
-                    return {
-                        obj: sliderObj,
-                        time: parseInt(params[2]) + delay,
-                        endTime: endTime,
-                        hitsounds: {
-                            sliderHead: new HitSample(headHitsoundList, currentSVMultiplier.sampleVol / 100),
-                            sliderTail: new HitSample(tailHitsoundList, sliderEndSVMultiplier.sampleVol / 100),
-                            sliderReverse: reverseList,
-                        },
-                        raw: object,
-                    };
-                }
-            })
-            .filter((s) => s);
-
-        this.objectsController = new ObjectsController(hitCircleList, slidersList, coloursList, breakPeriods);
+        this.objectsController = new ObjectsController(parsedHitObjects, coloursList, breakPeriods);
 
         // Ported from Lazer
         let extendedEndIndex = this.objectsController.objectsList.length - 1;
@@ -595,9 +406,9 @@ class Beatmap {
             if (currentObj.obj instanceof HitCircle) {
                 while (--n >= 0) {
                     const nObj = this.objectsController.objectsList[n];
-                    const endTime = nObj.endTime;
+                    const endTime = nObj.obj.endTime;
 
-                    if (currentObj.time - endTime > stackThreshold) break;
+                    if (currentObj.obj.time - endTime > stackThreshold) break;
                     if (n < extendedStartIndex) {
                         nObj.obj.stackHeight = 0;
                         extendedStartIndex = n;
@@ -649,7 +460,7 @@ class Beatmap {
                     // console.log(currentObj);
                     const nObj = this.objectsController.objectsList[n];
                     // console.log(nObj);
-                    if (currentObj.time - nObj.time > stackThreshold) break;
+                    if (currentObj.obj.time - nObj.obj.time > stackThreshold) break;
 
                     if (
                         this.calculateDistance(
@@ -671,11 +482,8 @@ class Beatmap {
             Beatmap.updateModdedStats();
         }
 
-        this.objectsController.objectsList.forEach((o) => {
-            if (o.obj instanceof Slider) {
-                o.obj.reInitialize();
-                o.obj.hitCircle.stackHeight = o.obj.stackHeight;
-            }
+        this.objectsController.slidersList.forEach((o) => {
+            o.obj.hitCircle.stackHeight = o.obj.stackHeight;
         });
 
         const drainTime =
