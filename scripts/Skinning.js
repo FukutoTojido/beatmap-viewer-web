@@ -107,6 +107,8 @@ class Skinning {
     }
 
     static async loadHitsounds(allEntries) {
+        await loadDefaultSamples();
+        
         const hitsoundFiles = allEntries.filter((file) => {
             return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
         });
@@ -123,15 +125,21 @@ class Skinning {
             });
         }
 
-        for (const hs of hitsoundArrayBuffer) {
-            try {
-                const filename = hs.filename.split(".")[0];
-                const buffer = await audioCtx.decodeAudioData(hs.buf);
-                HitSample.SAMPLES.LEGACY[filename] = buffer;
-            } catch {
-                continue;
+        for (const sample of ["normal", "soft", "drum"])
+            for (const hitsound of ["hitnormal", "hitwhistle", "hitclap", "hitfinish"]) {
+                const name = `${sample}-${hitsound}`;
+                const hs = hitsoundArrayBuffer.find(hitsound => hitsound.filename.includes(name));
+
+                if (!hs) continue;
+
+                try {
+                    const filename = hs.filename.split(".")[0];
+                    const buffer = await audioCtx.decodeAudioData(hs.buf);
+                    HitSample.SAMPLES.LEGACY[filename] = buffer;
+                } catch {
+                    continue;
+                }
             }
-        }
     }
 
     static async readBlobAsBuffer(blob) {
