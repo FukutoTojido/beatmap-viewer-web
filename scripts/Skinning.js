@@ -70,7 +70,7 @@ class Skinning {
             .replaceAll("\r", "");
 
         let coloursList = lines
-            .filter((line) => /Combo[0-9]+:/g.test(line.replaceAll(" ", "").replaceAll("\r")))
+            .filter((line) => /Combo[0-9]+:/g.test(line.replaceAll(" ", "").replaceAll("\r")) && line.replaceAll(" ", "").slice(0, 2) !== "//")
             .map(
                 (colour) =>
                     `rgb(${colour
