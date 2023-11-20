@@ -163,7 +163,10 @@ class Skinning {
 
         Skinning.HIT_CIRCLE = await Skinning.getBase64(allEntries, "hitcircle");
         Skinning.HIT_CIRCLE_OVERLAY = await Skinning.getBase64(allEntries, "hitcircleoverlay");
-        Skinning.SLIDER_B = (await Skinning.getBase64(allEntries, "sliderb0")) ?? (await Skinning.getBase64(allEntries, "sliderb"));
+        
+        Skinning.SLIDER_B = await Skinning.getBase64(allEntries, "sliderb0");
+        if (!Skinning.SLIDER_B.base64) Skinning.SLIDER_B = await Skinning.getBase64(allEntries, "sliderb");
+
         Skinning.SLIDER_FOLLOW_CIRCLE = await Skinning.getBase64(allEntries, "sliderfollowcircle");
         Skinning.REVERSE_ARROW = await Skinning.getBase64(allEntries, "reversearrow");
         Skinning.APPROACH_CIRCLE = await Skinning.getBase64(allEntries, "approachcircle");
