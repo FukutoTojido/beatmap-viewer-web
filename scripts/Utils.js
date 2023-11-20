@@ -158,6 +158,7 @@ async function loadDefaultSamples() {
 
                 const buffer = await audioCtx.decodeAudioData(res);
                 HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
             }
         }
 }

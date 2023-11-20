@@ -115,6 +115,11 @@ class HitSample {
         MAP: {},
     };
 
+    static DEFAULT_SAMPLES = {
+        ARGON: {},
+        LEGACY: {}
+    }
+
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
