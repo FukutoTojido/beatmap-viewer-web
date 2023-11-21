@@ -53,46 +53,36 @@ class BeatmapFile {
 
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
-            const requestClient = axios.create({
-                // baseURL: `https://txy1.sayobot.cn/beatmaps/download/full/`,
-                // baseURL: `https://chimu.moe/d/`,
-                // baseURL: `https://subapi.nerinyan.moe/d/`,
-                // baseURL: `https://proxy.nerinyan.moe/d/`,
-                baseURL: urls[selectedMirror] ?? customURL,
-                // params: { nv: 1, nh: 0, nsb: 1 },
-            });
+            let blob;
+            if (selectedMirror !== "nerinyan") {
+                const requestClient = axios.create({
+                    baseURL: urls[selectedMirror] ?? customURL,
+                });
 
-            // const blob = (
-            //     await requestClient.get(`${setId}`, {
-            //         responseType: "blob",
-            //         onDownloadProgress: (progressEvent) => {
-            //             document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-            //             // console.log(progressEvent);
-            //         },
-            //     })
-            // ).data;
-
-            const rawData = await ky.get(`${setId}/`, {
-                prefixUrl: urls[selectedMirror] ?? customURL,
-                onDownloadProgress: (progressEvent) => {
-                    document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-                    // console.log(progressEvent);
-                },
-                headers: {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                },
-            });
-
-            // const rawData = await fetch(`${urls[selectedMirror] ?? customURL}${setId}`, {
-            //     // onDownloadProgress: (progressEvent) => {
-            //     //     document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-            //     //     // console.log(progressEvent);
-            //     // },
-            //     mode: "no-cors",
-            // });
-
-            const blob = await rawData.blob();
+                blob = (
+                    await requestClient.get(`${setId}`, {
+                        responseType: "blob",
+                        onDownloadProgress: (progressEvent) => {
+                            document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                            // console.log(progressEvent);
+                        },
+                    })
+                ).data;
+            } else {
+                const rawData = await ky.get(`${setId}/`, {
+                    prefixUrl: urls[selectedMirror] ?? customURL,
+                    onDownloadProgress: (progressEvent) => {
+                        document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                        // console.log(progressEvent);
+                    },
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                    },
+                });
+                
+                blob = await rawData.blob();
+            }
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
