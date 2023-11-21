@@ -46,13 +46,14 @@ class HitCircle {
     }
 
     draw(timestamp) {
-        const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
-        this.hitCircleSprite.texture = Texture[skinType].HIT_CIRCLE.texture;
-        this.hitCircleSprite.scale.set(Texture[skinType].HIT_CIRCLE.isHD ? 0.5 : 1);
+        this.hitCircleSprite.texture = textures.HIT_CIRCLE.texture;
+        this.hitCircleSprite.scale.set(textures.HIT_CIRCLE.isHD ? 0.5 : 1);
 
-        this.hitCircleOverlaySprite.texture = Texture[skinType].HIT_CIRCLE_OVERLAY.texture;
-        this.hitCircleOverlaySprite.scale.set(Texture[skinType].HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
+        this.hitCircleOverlaySprite.texture = textures.HIT_CIRCLE_OVERLAY.texture;
+        this.hitCircleOverlaySprite.scale.set(textures.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
         // Calculate object radius on HR / EZ toggle
         const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);

@@ -1,13 +1,79 @@
-function loadLocalStorage() {
-    // const dbRequest = window.indexedDB.open("settingsDB");
+function selectSkin() {
+    const skinType = Skinning.SKIN_ENUM[this.parentElement.dataset.skinId.toUpperCase()];
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.skinning.type = skinType;
+    currentLocalStorage.skinning.val = this.parentElement.dataset.customIndex;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    // dbRequest.onerror = (event) => {
-    //     console.error(event);
-    // }
+    skinning.type = skinType;
 
-    // dbRequest.onsuccess = (event) => {
+    if (this.parentElement.dataset.skinId === "custom") {
+        Skinning.SKIN_IDX = this.parentElement.dataset.customIndex;
+    }
+    
+    Skinning.changeSkin();
 
-    // }
+    document.querySelector("#skinDropdown").close();
+    document.querySelector("#skinDropdown").style.display = "";
+}
+
+async function refreshSkinDB() {
+    const res = await Database.readObjStore("skins");
+    const allKeys = await Database.getAllKeys();
+
+    [...document.querySelectorAll('[data-skin-id="custom"]')].forEach((ele) => ele.remove());
+
+    const skinDropdown = document.querySelector("#skinDropdown");
+
+    for (const [idx, skin] of res.entries()) {
+        const skinId = allKeys[idx];
+        const { ini, base64s, samples } = skin;
+
+        const div = document.createElement("div");
+        div.classList.add("skinSelection");
+        div.dataset.skinId = "custom";
+        div.dataset.customIndex = skinId;
+
+        const button = document.createElement("button");
+        button.classList.add("skinName");
+        button.innerText = ini.NAME;
+        button.onclick = selectSkin;
+
+        div.appendChild(button);
+        skinDropdown.appendChild(div);
+
+        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"].forEach(
+            (element) => {
+                if (!base64s[element]) return;
+
+                if (element === "DEFAULTS") {
+                    Texture.updateNumberTextures(base64s[element], skinId);
+                    return;
+                }
+
+                const { base64, isHD } = base64s[element];
+                Texture.updateTextureFor(element, base64, isHD, skinId);
+            }
+        );
+
+        await Skinning.loadHitsounds(samples, skinId);
+    }
+
+    Skinning.SKIN_LIST = res.reduce((obj, curr, idx) => {
+        obj[allKeys[idx]] = curr;
+        return obj;
+    }, {});
+}
+
+async function loadLocalStorage() {
+    await loadDefaultSamples();
+    await Database.initDatabase();
+    await refreshSkinDB();
+    // const res = await Database.readObjStore("skins");
+    // const res = await Database.getAllKeys();
+    // const skin1 = await Database.readObjStoreAtKey(1);
+
+    // console.log(res);
 
     if (localStorage.getItem("settings")) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -16,9 +82,9 @@ function loadLocalStorage() {
             ele.checked = ele.value === currentLocalStorage.mirror.val;
         });
 
-        [...document.querySelectorAll('[name="skinning"]')].forEach((ele) => {
-            ele.checked = ele.value === currentLocalStorage.skinning.type;
-        });
+        
+        Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
+        Skinning.changeSkin();
 
         document.querySelector("#custom-mirror").value = currentLocalStorage.mirror.custom;
 

@@ -48,10 +48,11 @@ class ReverseArrow {
     }
 
     draw(timestamp) {
-        const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
-        this.ringSprite.texture = Texture[skinType].REVERSE_ARROW.ring.texture;
-        this.arrowSprite.texture = Texture[skinType].REVERSE_ARROW.arrow.texture;
+        this.ringSprite.texture = textures.REVERSE_ARROW.ring.texture;
+        this.arrowSprite.texture = textures.REVERSE_ARROW.arrow.texture;
         
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
@@ -64,7 +65,7 @@ class ReverseArrow {
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
-        const baseScale = circleBaseScale * Game.SCALE_RATE * (Texture[skinType].REVERSE_ARROW.arrow.isHD ? 0.5 : 1) * (236 / 256) ** 2 * (skinType === "ARGON" ? 0.95 : 1);
+        const baseScale = circleBaseScale * Game.SCALE_RATE * (textures.REVERSE_ARROW.arrow.isHD ? 0.5 : 1) * (236 / 256) ** 2 * (skinType === "ARGON" ? 0.95 : 1);
 
         this.arrowSprite.scale.set(baseScale * (1 + easeOutSine(pulseRate) * 0.2));
         this.ringSprite.scale.set(0.5 * (229 / 200) * baseScale);

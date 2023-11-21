@@ -1,25 +1,26 @@
-loadLocalStorage();
-loadDefaultSamples();
-
-// Init
-const mainGame = new Game();
-Texture.generateDefaultTextures();
-
 document.querySelector(".loading").style.display = "none";
-if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
-    beatmapFile = new BeatmapFile(urlParams.get("b"));
-    document.querySelector("#mapInput").value = urlParams.get("b");
-}
+(async () => {
+    await loadLocalStorage();
 
-window.onresize = debounce(() => {
-    setTimeout(() => {
-        Game.appResize();
-    }, 200);
-});
+    // Init
+    const mainGame = new Game();
+    Texture.generateDefaultTextures();
 
-screen.orientation.onchange = debounce(() => {
-    // console.log("Orientation Changed");
-    setTimeout(() => {
-        Game.appResize();
-    }, 200);
-});
+    if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
+        beatmapFile = new BeatmapFile(urlParams.get("b"));
+        document.querySelector("#mapInput").value = urlParams.get("b");
+    }
+
+    window.onresize = debounce(() => {
+        setTimeout(() => {
+            Game.appResize();
+        }, 200);
+    });
+
+    screen.orientation.onchange = debounce(() => {
+        // console.log("Orientation Changed");
+        setTimeout(() => {
+            Game.appResize();
+        }, 200);
+    });
+})();

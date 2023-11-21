@@ -40,18 +40,18 @@ document.body.addEventListener("change", (e) => {
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
-    if (["0", "1", "2", "3"].includes(target.value)) {
-        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-        currentLocalStorage.skinning.type = target.value;
-        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    // if (["0", "1", "2", "3"].includes(target.value)) {
+    //     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    //     currentLocalStorage.skinning.type = target.value;
+    //     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-        skinning.type = target.value;
+    //     skinning.type = target.value;
 
-        const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-        // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-        // if (originalIsPlaying) beatmapFile.audioNode.play();
-        // if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
-    }
+    //     const originalIsPlaying = beatmapFile.audioNode.isPlaying;
+    //     // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
+    //     // if (originalIsPlaying) beatmapFile.audioNode.play();
+    //     // if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    // }
 });
 
 function setCustomMirror(input) {
@@ -209,3 +209,36 @@ function handleCheckBox(checkbox) {
 
     calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
 }
+
+function openDialog() {
+    const dialog = document.querySelector("#skinDropdown");
+
+    if (!dialog.open) {
+        dialog.show();
+        dialog.style.display = "flex";
+        return;
+    }
+
+    dialog.close();
+    dialog.style.display = "";
+}
+
+document.body.addEventListener("click", (e) => {
+    const dialogDimensions = document.querySelector("#skinDropdown").getBoundingClientRect();
+
+    if (
+        (e.clientX < dialogDimensions.left ||
+            e.clientX > dialogDimensions.right ||
+            e.clientY < dialogDimensions.top ||
+            e.clientY > dialogDimensions.bottom) &&
+        document.querySelector("#skinDropdown").open &&
+        e.target !== document.querySelector(".skinSelector")
+    ) {
+        document.querySelector("#skinDropdown").close();
+        document.querySelector("#skinDropdown").style.display = "";
+    }
+});
+
+[...document.querySelectorAll(".skinName")].forEach((button) => {
+    button.onclick = selectSkin;
+});

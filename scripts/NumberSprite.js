@@ -13,18 +13,19 @@ class NumberSprite {
         removedChildren.forEach((element) => element.destroy());
 
         let prevSprite = null;
-        let accumulatedWidth = 0;
         this.hitObject.comboIdx
             .toString()
             .split("")
             .forEach((value, idx) => {
-                const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
-                const sprite = new PIXI.Sprite(Texture[skinType].DEFAULTS[value].texture);
-                sprite.scale.set(Texture[skinType].DEFAULTS[value].isHD ? 0.5 * 0.8 : 0.8);
+                const skinType = Skinning.SKIN_ENUM[skinning.type];
+                const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
+
+                const sprite = new PIXI.Sprite(textures.DEFAULTS[value].texture);
+                sprite.scale.set(textures.DEFAULTS[value].isHD ? 0.5 * 0.8 : 0.8);
                 sprite.anchor.set(0.5);
 
                 if (prevSprite) {
-                    const overlapValue = skinning.type === "0" ? Skinning.HIT_CIRCLE_OVERLAP_ARGON : Skinning.HIT_CIRCLE_OVERLAP;
+                    const overlapValue = skinType === "ARGON" ? Skinning.HIT_CIRCLE_OVERLAP_ARGON : Skinning.HIT_CIRCLE_OVERLAP;
                     sprite.x = prevSprite.x + prevSprite.width / 2 + sprite.width / 2 - overlapValue * 0.8;
                 }
 

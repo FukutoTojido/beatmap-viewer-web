@@ -11,9 +11,11 @@ class ApproachCircle {
     }
 
     draw(timestamp) {
-        const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
-        const hdScale = Texture[skinType].APPROACH_CIRCLE.isHD ? 0.5 : 1;
-        this.obj.texture = Texture[skinType].APPROACH_CIRCLE.texture;
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
+
+        const hdScale = textures.APPROACH_CIRCLE.isHD ? 0.5 : 1;
+        this.obj.texture = textures.APPROACH_CIRCLE.texture;
 
         const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
         const idx = sliderAppearance.ignoreSkin ? this.hitCircle.colourIdx : this.hitCircle.colourHaxedIdx;

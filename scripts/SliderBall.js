@@ -43,17 +43,19 @@ class SliderBall {
     }
 
     draw(timestamp) {
-        const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
-        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);
-        const sliderFollowSkinScale = Texture[skinType].SLIDER_FOLLOW_CIRCLE.isHD ? 0.25 : 0.5;
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
-        this.followCircle.texture = Texture[skinType].SLIDER_FOLLOW_CIRCLE.texture;
-        this.arrow.texture = Texture[skinType].SLIDER_B.arrow.texture;
-        this.ring.texture = Texture[skinType].SLIDER_B.ring.texture;
-        this.bg.texture = Texture[skinType].SLIDER_B.gradient.texture;
+        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);
+        const sliderFollowSkinScale = textures.SLIDER_FOLLOW_CIRCLE.isHD ? 0.25 : 0.5;
+
+        this.followCircle.texture = textures.SLIDER_FOLLOW_CIRCLE.texture;
+        this.arrow.texture = textures.SLIDER_B.arrow.texture;
+        this.ring.texture = textures.SLIDER_B.ring.texture;
+        this.bg.texture = textures.SLIDER_B.gradient.texture;
 
         this.followCircle.scale.set(sliderFollowSkinScale);
-        this.ring.scale.set(Texture[skinType].SLIDER_B.ring.isHD ? 0.5 : 1);
+        this.ring.scale.set(textures.SLIDER_B.ring.isHD ? 0.5 : 1);
 
         this.obj.alpha = 1;
         this.sliderB.alpha = 1;

@@ -31,6 +31,8 @@ class SliderTick {
     }
 
     draw(timestamp) {
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+
         // This appears to be a very bullshit implementation from me so please do not follow T.T
         const appearTime =
             this.slider.time -
@@ -50,7 +52,7 @@ class SliderTick {
         this.obj.y = (y + this.slider.stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
         this.graphic.tint = 0xffffff;
-        if (skinning.type != "2") {
+        if (skinType !== "LEGACY" && skinType !== "CUSTOM") {
             const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
             const idx = sliderAppearance.ignoreSkin ? this.slider.colourIdx : this.slider.colourHaxedIdx ;
             const color = colors[idx % colors.length];

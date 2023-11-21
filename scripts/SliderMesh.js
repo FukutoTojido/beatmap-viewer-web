@@ -74,7 +74,7 @@ void main() {
     vec4 baseColor = texture2D(uSampler2, vec2(dist, texturepos));
     vec4 color_mixed = sliderTrackOverride;
 
-    if (skinning != 2.0 && skinning != 3.0) color_mixed = tint;
+    if (skinning != 2.0 && skinning != 3.0 && skinning != 4.0) color_mixed = tint;
 
     float scale = circleBaseScale;
     if (skinning == 0.0 && !select) scale *= 0.95;
@@ -91,7 +91,7 @@ void main() {
     
     vec4 color = mix(innerColor, outerColor, position);
     if (skinning == 3.0) color = mix(outerColor, innerColor, position);
-    if ((skinning != 2.0 && skinning != 3.0) || select) borderColor = tint;
+    if ((skinning != 2.0 && skinning != 3.0 && skinning != 4.0) || select) borderColor = tint;
     if (skinning == 0.0) color = darken(color_mixed, 4.0);
 
     // Anti-aliasing at outer edge
@@ -175,7 +175,6 @@ function curveGeometry(curve0, radius) {
         let dy = y - ly;
         let length = Math.hypot(dx, dy);
 
-        
         let ox = (radius * -dy) / length;
         let oy = (radius * dx) / length;
 
@@ -302,6 +301,8 @@ class SliderMesh extends PIXI.Container {
             oy: inverse * 1 * (Game.HEIGHT / Game.APP.view.height) + inverse * dy * this.slider.stackHeight * currentStackOffset,
         };
 
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+
         this.ncolors = 1;
         this.uSampler2 = SliderTexture;
         this.select = isSelected;
@@ -318,8 +319,8 @@ class SliderMesh extends PIXI.Container {
             tint: this.tint,
             select: this.select,
             circleBaseScale,
-            sliderBorder: Skinning.SLIDER_BORDER ?? [1.0, 1.0, 1.0, 1.0],
-            sliderTrackOverride: Skinning.SLIDER_TRACK_OVERRIDE ?? this.tint,
+            sliderBorder: skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0] ?? [1.0, 1.0, 1.0, 1.0],
+            sliderTrackOverride: skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint ?? this.tint,
             skinning: parseFloat(skinning.type),
         };
         this.shader = PIXI.Shader.from(vertexSrc, fragmentSrc, this.uniforms);
@@ -352,6 +353,8 @@ class SliderMesh extends PIXI.Container {
         }
         renderer.batch.flush();
 
+        const skinType = Skinning.SKIN_ENUM[skinning.type];
+
         // upload color info to shared shader uniform
         this.uniforms.alpha = this.alpha;
         this.uniforms.texturepos = 0;
@@ -365,8 +368,8 @@ class SliderMesh extends PIXI.Container {
         this.uniforms.skinning = parseFloat(skinning.type);
         this.uniforms.select = this.select;
         this.uniforms.circleBaseScale = circleBaseScale;
-        this.uniforms.sliderBorder = Skinning.SLIDER_BORDER ?? [1.0, 1.0, 1.0, 1.0];
-        this.uniforms.sliderTrackOverride = Skinning.SLIDER_TRACK_OVERRIDE ?? this.tint;
+        this.uniforms.sliderBorder = (skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0]) ?? [1.0, 1.0, 1.0, 1.0];
+        this.uniforms.sliderTrackOverride = (skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint) ?? this.tint;
 
         let ox0 = this.uniforms.ox;
         let oy0 = this.uniforms.oy;

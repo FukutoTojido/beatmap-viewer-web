@@ -136,8 +136,10 @@ class HitSample {
             if (HitSample.SAMPLES.MAP[hs]) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
             } else {
-                const skinType = skinning.type === "0" ? "ARGON" : "LEGACY";
-                src.buffer = HitSample.SAMPLES[skinType][hs.replaceAll(/\d/g, "")];
+                const skinType = Skinning.SKIN_ENUM[skinning.type];
+                const samples = skinType !== "CUSTOM" ? HitSample.SAMPLES[skinType] : HitSample.SAMPLES.CUSTOM[Skinning.SKIN_IDX];
+
+                src.buffer = samples[hs.replaceAll(/\d/g, "")];
             }
 
             src.connect(gainNode);

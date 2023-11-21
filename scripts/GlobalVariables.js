@@ -17,7 +17,8 @@ const settingsTemplate = {
         hs: 0.2,
     },
     skinning: {
-        type: "0"
+        type: "0",
+        val: "-1"
     },
     sliderAppearance: {
         snaking: true,
@@ -59,6 +60,7 @@ let beatsnap = JSON.parse(localStorage.getItem("settings")).mapping.beatsnap;
 let beatsteps = [];
 
 let stackThreshold;
+let db = null;
 
 let sliderOnChange = false;
 

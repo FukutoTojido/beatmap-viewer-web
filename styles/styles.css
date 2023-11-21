@@ -1191,6 +1191,72 @@ a:visited {
     font-weight: 500;
 }
 
+.skinSelector {
+    border: none;
+    outline: none;
+
+    border-radius: 10px;
+
+    padding: 20px;
+    width: 100%;
+
+    font-family: Torus;
+    color: white;
+    text-align: left;
+    font-size: 14px;
+
+    background-color: var(--primary-2);
+}
+
+.skinSelector:hover {
+    filter: none;
+    background-color: var(--primary-5);
+}
+
+#skinDropdown {
+    position: absolute;
+    top: 100%;
+    margin: unset;
+    margin-top: 10px;
+
+    width: 100%;
+    border: none;
+    padding: 10px;
+
+    border-radius: 10px;
+
+    background-color: var(--primary-2);
+    opacity: 100%;
+
+    color: white;
+    font-size: 14px;
+
+    z-index: 1;
+
+    flex-direction: column;
+}
+
+.skinSelection {
+    display: flex;
+}
+
+.skinName {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    user-select: none;
+
+    font-family: Torus;
+    color: white;
+    text-align: left;
+    font-size: 14px;
+}
+
+.skinName:hover {
+    background-color: var(--primary-3);
+    filter: none;
+}
+
 * {
     box-sizing: border-box;
 }

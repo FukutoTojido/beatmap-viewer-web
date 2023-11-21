@@ -30,6 +30,7 @@
     <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
+    <script src="./scripts/Database.js"></script>
     <script src="./scripts/Skinning.js"></script>
     <script src="./scripts/Texture.js"></script>
     <script src="./scripts/Cursor.js"></script>
@@ -183,21 +184,25 @@
             <div class="title">skinning</div>
             <div class="description">change gameplay appearance</div>
             <div class="list skin">
-                <div class="radioSel">
-                    <input type="radio" name="skinning" id="argon" value="0">
-                    <label for="argon">Argon</label>
-                </div>
-                <div class="radioSel">
-                    <input type="radio" name="skinning" id="triangles" value="3">
-                    <label for="triangles">Triangles</label>
-                </div>
-                <div class="radioSel">
-                    <input type="radio" name="skinning" id="tinted" value="1">
-                    <label for="tinted">Tinted Legacy</label>
-                </div>
-                <div class="radioSel">
-                    <input type="radio" name="skinning" id="legacy_" value="2">
-                    <label for="legacy_">Legacy</label>
+                <div class="selection">
+                    <button class="skinSelector" onclick="openDialog()">Skin</button>
+                    <dialog id="skinDropdown">
+                        <div class="skinSelection" data-skin-id="argon">
+                            <button class="skinName">Argon</button>
+                        </div>
+                        <div class="skinSelection" data-skin-id="triangles">
+                            <button class="skinName">Triangles</button>
+                        </div>
+                        <div class="skinSelection" data-skin-id="tinted">
+                            <button class="skinName">Tinted Legacy</button>
+                        </div>
+                        <div class="skinSelection" data-skin-id="legacy">
+                            <button class="skinName">Legacy</button>
+                        </div>
+                        <!-- <div class="skinSelection" data-skin-id="custom" data-custom-index="0">
+                            <button class="skinName">Custom</button>
+                        </div> -->
+                    </dialog>
                 </div>
                 <div class="selection">
                     <label for="snaking">snaking sliders</label>

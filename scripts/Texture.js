@@ -18,6 +18,7 @@ class Texture {
         SLIDER_FOLLOW_CIRCLE: null,
         APPROACH_CIRCLE: null,
     };
+    static CUSTOM = {};
 
     static createSelectedHitCircle() {
         return new PIXI.Graphics()
@@ -245,7 +246,17 @@ class Texture {
         Texture.updateNumberTextures([...Array(10)].fill({}, 0, 10));
     }
 
-    static updateNumberTextures(arr) {
+    static updateNumberTextures(arr, forIdx) {
+        if (forIdx) {
+            Texture.CUSTOM[forIdx].DEFAULTS = arr.map(({ base64, isHD }, idx) => {
+                return {
+                    texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from(`static/legacy/default-${idx}@2x.png`),
+                    isHD: base64 ? isHD : false,
+                };
+            });
+            return;
+        }
+
         Texture.LEGACY.DEFAULTS = arr.map(({ base64, isHD }, idx) => {
             return {
                 texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from(`static/legacy/default-${idx}@2x.png`),
@@ -254,22 +265,37 @@ class Texture {
         });
     }
 
-    static updateTextureFor(type, base64, isHD) {
+    static updateTextureFor(type, base64, isHD, forIdx) {
+        if (forIdx && !Texture.CUSTOM[forIdx]) {
+            Texture.CUSTOM[forIdx] = {
+                DEFAULTS: null,
+                HIT_CIRCLE: null,
+                HIT_CIRCLE_OVERLAY: null,
+                SLIDER_B: null,
+                REVERSE_ARROW: null,
+                SLIDER_FOLLOW_CIRCLE: null,
+                APPROACH_CIRCLE: null,
+            };
+        }
+
+
+        const textureSet = forIdx ? Texture.CUSTOM[forIdx] : Texture.LEGACY;
+
         switch (type) {
             case "HIT_CIRCLE":
-                Texture.LEGACY.HIT_CIRCLE = {
+                textureSet.HIT_CIRCLE = {
                     texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircle@2x.png"),
                     isHD: base64 ? isHD : false,
                 };
                 break;
             case "HIT_CIRCLE_OVERLAY":
-                Texture.LEGACY.HIT_CIRCLE_OVERLAY = {
+                textureSet.HIT_CIRCLE_OVERLAY = {
                     texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircleoverlay@2x.png"),
                     isHD: base64 ? isHD : false,
                 };
                 break;
             case "SLIDER_B":
-                Texture.LEGACY.SLIDER_B = {
+                textureSet.SLIDER_B = {
                     ring: {
                         texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/sliderb0@2x.png"),
                         isHD: base64 ? isHD : false,
@@ -285,7 +311,7 @@ class Texture {
                 };
                 break;
             case "REVERSE_ARROW":
-                Texture.LEGACY.REVERSE_ARROW = {
+                textureSet.REVERSE_ARROW = {
                     arrow: {
                         texture: PIXI.Texture.from(base64 ?? "static/legacy/reversearrow@2x.png"),
                         isHD: base64 ? isHD : false,
@@ -297,13 +323,13 @@ class Texture {
                 };
                 break;
             case "SLIDER_FOLLOW_CIRCLE":
-                Texture.LEGACY.SLIDER_FOLLOW_CIRCLE = {
+                textureSet.SLIDER_FOLLOW_CIRCLE = {
                     texture: PIXI.Texture.from(base64 ?? "static/legacy/sliderfollowcircle@2x.png"),
                     isHD: base64 ? isHD : false,
                 };
                 break;
             case "APPROACH_CIRCLE":
-                Texture.LEGACY.APPROACH_CIRCLE = {
+                textureSet.APPROACH_CIRCLE = {
                     texture: PIXI.Texture.from(base64 ?? "static/legacy/approachcircle@2x.png"),
                     isHD: base64 ? isHD : false,
                 };
