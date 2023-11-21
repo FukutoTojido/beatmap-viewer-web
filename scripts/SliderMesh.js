@@ -18,7 +18,12 @@ varying float dist;
 uniform float dx,dy,dt,ox,oy,ot, circleBaseScale;
 void main() {
     dist = position[3];
-    gl_Position = vec4(position[0], position[1], position[3] + 2.0 * float(position[2]*dt>ot), 1.0);
+    float test = 0.0;
+
+    if (position[2] * dt > ot)
+        test = 1.0;
+
+    gl_Position = vec4(position[0], position[1], position[3] + 2.0 * test, 1.0);
     gl_Position.x = gl_Position.x * dx + ox;
     gl_Position.y = gl_Position.y * dy + oy;
 }`;
@@ -31,8 +36,6 @@ uniform sampler2D uSampler2;
 uniform float alpha;
 uniform float texturepos;
 uniform vec4 tint;
-uniform bool legacy;
-uniform bool override;
 uniform bool select;
 uniform float circleBaseScale;
 uniform vec4 sliderBorder;
@@ -60,7 +63,7 @@ void main() {
     float borderWidth = 0.128;
     float a = 1.0;
 
-    if (skinning == 0.0) borderWidth *= 1.65;
+    if (skinning == 0.0 && !select) borderWidth *= 1.65;
 
     float innerWidth = 1.0 - borderWidth;
     float outBlurRate = 0.03;
@@ -157,15 +160,22 @@ function curveGeometry(curve0, radius) {
 
     // add rectangles around each segment of curve
     for (let i = 1; i < curve.length; ++i) {
+        // Current point
         let x = curve[i].x;
         let y = curve[i].y;
         let t = curve[i].t;
+
+        // Previous point
         let lx = curve[i - 1].x;
         let ly = curve[i - 1].y;
         let lt = curve[i - 1].t;
+
+        // Delta x, y
         let dx = x - lx;
         let dy = y - ly;
         let length = Math.hypot(dx, dy);
+
+        
         let ox = (radius * -dy) / length;
         let oy = (radius * dx) / length;
 
@@ -287,9 +297,9 @@ class SliderMesh extends PIXI.Container {
 
         const transform = {
             dx: dx,
-            ox: -1 * (Game.WIDTH / Game.APP.view.width),
+            ox: -1 * (Game.WIDTH / Game.APP.view.width) + dx * this.slider.stackHeight * currentStackOffset,
             dy: dy,
-            oy: -1 * (Game.HEIGHT / Game.APP.view.height),
+            oy: inverse * 1 * (Game.HEIGHT / Game.APP.view.height) + inverse * dy * this.slider.stackHeight * currentStackOffset,
         };
 
         this.ncolors = 1;
@@ -306,8 +316,6 @@ class SliderMesh extends PIXI.Container {
             oy: transform.oy,
             texturepos: 0,
             tint: this.tint,
-            legacy: sliderAppearance.legacy,
-            override: sliderAppearance.override,
             select: this.select,
             circleBaseScale,
             sliderBorder: Skinning.SLIDER_BORDER ?? [1.0, 1.0, 1.0, 1.0],
@@ -354,8 +362,6 @@ class SliderMesh extends PIXI.Container {
         this.uniforms.dt = 0;
         this.uniforms.ot = 0.5;
         this.uniforms.tint = this.tint;
-        this.uniforms.legacy = sliderAppearance.legacy;
-        this.uniforms.override = sliderAppearance.override;
         this.uniforms.skinning = parseFloat(skinning.type);
         this.uniforms.select = this.select;
         this.uniforms.circleBaseScale = circleBaseScale;
