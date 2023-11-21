@@ -126,7 +126,10 @@ class Beatmap {
 
         const reversesSamples = [...Array(slides - 1)].map((_, idx) => {
             const reverseTime = time + (((idx + 1) * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
-            const sv = timingPoints.findLast((timingPoint) => timingPoint.time <= reverseTime) ?? timingPoints[0];
+            const sv =
+                timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - reverseTime) < 3) ??
+                timingPoints.findLast((timingPoint) => timingPoint.time <= reverseTime) ??
+                timingPoints[0];
 
             const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? "0:0:", edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
             return new HitSample(samples, sv.sampleVol / 100);
