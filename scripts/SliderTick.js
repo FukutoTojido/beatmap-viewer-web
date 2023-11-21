@@ -37,6 +37,9 @@ class SliderTick {
             Beatmap.moddedStats.preempt / 2 +
             this.spanIdx * (Beatmap.moddedStats.preempt / 2 / this.slider.sliderParts.filter((p) => p.type === "Slider Tick").length);
 
+        let expandTime = 600;
+        if (this.info.time - appearTime < expandTime) expandTime = this.info.time - appearTime;
+
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -60,11 +63,11 @@ class SliderTick {
             return;
         }
 
-        if (timestamp > appearTime && timestamp < appearTime + 600) {
+        if (timestamp >= appearTime && timestamp < appearTime + expandTime) {
             const alpha = Clamp((timestamp - appearTime) / 150, 0, 1);
             this.obj.alpha = alpha;
 
-            const t = Clamp((timestamp - appearTime) / 600, 0, 1);
+            const t = Clamp((timestamp - appearTime) / expandTime, 0, 1);
             const scale = easeOutElastic(t);
             this.obj.scale.set(circleBaseScale * Game.SCALE_RATE * (0.5 + scale * 0.5));
             return;
