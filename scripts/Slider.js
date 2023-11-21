@@ -419,7 +419,7 @@ class Slider {
         const baseTicksList = [];
         const endTime = this.endTime;
         for (let i = 0; i < this.sliderTicksCount / this.repeat; i++) {
-            baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime) * (this.angleList.length - 1))]);
+            baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime / Beatmap.stats.sliderTickRate) * (this.angleList.length - 1))]);
         }
 
         const sliderParts = [];
@@ -638,9 +638,9 @@ class Slider {
         this.startTime = time - Beatmap.stats.preempt;
         this.killTime = this.endTime + 240;
 
-        this.sliderTime = (beatStep * this.sliderLength) / (this.svMultiplier * this.baseSV);
+        this.sliderTime = beatStep * Fixed(this.sliderLength / (this.svMultiplier * this.baseSV), 2);
         this.sliderTicksCount =
-            (Math.ceil(Fixed(this.sliderLength / this.svMultiplier / (baseSV / Beatmap.stats.sliderTickRate), 2)) - 1) * this.repeat;
+            (Math.ceil(Fixed(this.sliderLength / this.svMultiplier / (baseSV / Beatmap.stats.sliderTickRate), 1)) - 1) * this.repeat;
 
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time);
         this.hitCircle.hitTime = this.hitTime;
