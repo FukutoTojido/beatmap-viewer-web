@@ -1167,6 +1167,9 @@ a:visited {
     padding: 10px 15px;
 
     display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 10px;
 
     background-color: var(--primary-3);
