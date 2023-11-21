@@ -124,7 +124,7 @@ void main() {
 
     color.a = 1.0;
 
-    gl_FragColor = color;
+    gl_FragColor = min(alpha * a, 1.0) * color;
 }`;
 
 function newTexture(colors, SliderTrackOverride, SliderBorder) {
