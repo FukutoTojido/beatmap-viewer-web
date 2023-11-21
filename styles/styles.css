@@ -41,7 +41,7 @@
 
 body {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     box-sizing: border-box;
     padding: 20px;
     margin: 0;
@@ -448,7 +448,7 @@ canvas {
     height: 100%;
 
     background-color: black;
-    opacity: .5;
+    opacity: 0.5;
 }
 
 .thePlayer img {
@@ -491,7 +491,7 @@ canvas {
     font-weight: 300;
     font-size: 12px;
     text-shadow: 0 2px 2px black;
-    line-height: .7em;
+    line-height: 0.7em;
 }
 
 .playerName {
@@ -870,7 +870,7 @@ button:hover {
 
     max-width: 90vw;
     width: 600px;
-    height: 100vh;
+    height: 100dvh;
 
     background-color: var(--primary-2);
 
@@ -1144,6 +1144,48 @@ input[type="checkbox"]:disabled:hover {
 .radioSel:has(input[type="radio"]:checked) {
     opacity: 1;
     font-weight: 600;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+a:visited {
+    color: white;
+}
+
+.horizontalList {
+    width: 100%;
+    padding-top: 20px;
+
+    display: flex;
+    gap: 10px;
+}
+
+.horizontalList a {
+    padding: 10px 15px;
+
+    display: flex;
+    gap: 10px;
+
+    background-color: var(--primary-3);
+    border-radius: 10px;
+
+    transition: ease-in-out 100ms;
+}
+
+.horizontalList a:hover {
+    background-color: var(--primary-5);
+}
+
+.horizontalList img {
+    width: 20px;
+    height: 20px;
+}
+
+.horizontalList .linkContent {
+    font-weight: 500;
 }
 
 * {
