@@ -5,25 +5,28 @@ class Spinner {
     approachCircle;
 
     draw(timestamp) {
+        this.obj.x = 256 * Game.SCALE_RATE;
+        this.obj.y = 192 * Game.SCALE_RATE;
+
         if (timestamp < this.time) {
             let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
             const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
 
             this.obj.alpha = 1 - Math.min(1, Math.max(0, (this.time - timestamp) / currentFadeIn));
-            this.approachCircle.scale.set(1.0);
+            this.approachCircle.scale.set(1.0 * Game.SCALE_RATE);
             return;
         }
 
         if (this.time <= timestamp && timestamp <= this.hitTime) {
             const scale = 1 - Math.max(0, Math.min(1, (timestamp - this.time) / (this.hitTime - this.time)));
-            this.approachCircle.scale.set(scale);
+            this.approachCircle.scale.set(scale * Game.SCALE_RATE);
             this.obj.alpha = 1;
             return;
         }
 
         if (timestamp > this.hitTime) {
             this.obj.alpha = 1 - Math.min(1, Math.max(0, (timestamp - this.hitTime) / 240));
-            this.approachCircle.scale.set(0.0);
+            this.approachCircle.scale.set(0.0 * Game.SCALE_RATE);
             return;
         }
     }
@@ -229,25 +232,25 @@ class Spinner {
         const approachCircleContainer = new PIXI.Container();
         const approachCircle = new PIXI.Graphics()
             .lineStyle({
-                width: (4 * Game.WIDTH) / 1024,
+                width: 2,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, (192 * Game.WIDTH) / 512, 0, Math.PI * 2);
+            .drawCircle(0, 0, 192);
 
         approachCircleContainer.addChild(approachCircle);
 
         const spinner = new PIXI.Graphics()
             .lineStyle({
-                width: (4 * Game.WIDTH) / 1024,
+                width: 2,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, (5 * Game.WIDTH) / 512, 0, Math.PI * 2);
+            .drawCircle(0, 0, 5);
 
         container.addChild(approachCircleContainer);
         container.addChild(spinner);
