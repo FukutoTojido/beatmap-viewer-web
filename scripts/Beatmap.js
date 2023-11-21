@@ -101,13 +101,22 @@ class Beatmap {
     static constructSlider(params, timingPoints, beatSteps, initialSliderVelocity) {
         const hitSoundIdx = parseInt(params[4]);
         const time = parseInt(params[2]);
-        const svStart = timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - time) < 2) ?? timingPoints[0];
+        const svStart =
+            timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - time) <= 2) ??
+            timingPoints.findLast((timingPoint) => timingPoint.time < time) ??
+            timingPoints[0];
 
-        const { beatstep: beatStep } = beatSteps.findLast((timingPoint) => Math.abs(timingPoint.time - time) < 2) ?? beatSteps[0];
+        const { beatstep: beatStep } =
+            beatSteps.findLast((timingPoint) => Math.abs(timingPoint.time - time) <= 2) ??
+            beatSteps.findLast((timingPoint) => timingPoint.time < time) ??
+            beatSteps[0];
         const slides = parseInt(params[6]);
         const length = parseFloat(params[7]);
         const endTime = time + ((slides * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
-        const svEnd = timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - endTime) < 2) ?? timingPoints[0];
+        const svEnd =
+            timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - endTime) <= 2) ??
+            timingPoints.findLast((timingPoint) => timingPoint.time < endTime) ??
+            timingPoints[0];
 
         const edgeSounds = params[8];
         const edgeSets = params[9];
@@ -145,6 +154,9 @@ class Beatmap {
         const hitSampleIdx = rest.at(-1);
 
         const samples = HitSound.GetName(hitSampleIdx, hitSoundIdx, currentSVMultiplier);
+        if (parseInt(time) === 208128) {
+            console.log(currentSVMultiplier, samples);
+        }
 
         return {
             obj: new HitCircle(x, y, parseInt(time)),
@@ -348,7 +360,10 @@ class Beatmap {
             .map((object, idx) => {
                 const params = object.split(",");
                 const time = parseInt(params[2]);
-                const currentSVMultiplier = timingPointsList.findLast((timingPoint) => Math.abs(timingPoint.time - time) < 2) ?? timingPointsList[0];
+                let currentSVMultiplier =
+                    timingPointsList.findLast((timingPoint) => Math.abs(timingPoint.time - time) <= 2) ??
+                    timingPointsList.findLast((timingPoint) => timingPoint.time < time) ??
+                    timingPointsList[0];
 
                 let returnObject;
 
