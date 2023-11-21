@@ -95,7 +95,7 @@ class SliderBall {
         this.bg.angle = -this.obj.angle;
 
         this.followCircle.tint = 0xffffff;
-        if (skinType === "ARGON") this.followCircle.tint = colors[idx];
+        if (skinType === "ARGON") this.followCircle.tint = colors[idx % colors.length];
 
         if (timestamp > this.baseSlider.endTime && timestamp < this.baseSlider.endTime + 200) {
             const alphaB = Clamp((timestamp - this.baseSlider.endTime) / 200, 0, 1);
