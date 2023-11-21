@@ -364,13 +364,14 @@ class Beatmap {
 
                 let returnObject;
 
-                if (params[3] === "12") returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
-                if (params[3] !== "12" && !["L", "P", "B", "C"].includes(params[5]?.[0]))
-                    returnObject = Beatmap.constructHitCircle(params, currentSVMultiplier);
-                if (["L", "P", "B", "C"].includes(params[5]?.[0]))
-                    returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
+                const typeBit = parseInt(params[3]).toString(2).reverse().map(bit => bit === "1" ? true : false);
 
-                if (returnObject.isNewCombo && idx !== 0) {
+                if (typeBit[0]) returnObject = Beatmap.constructHitCircle(params, currentSVMultiplier);
+                if (typeBit[1]) returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
+                if (typeBit[3]) returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
+
+
+                if (typeBit[2] && idx !== 0) {
                     combo = 1;
                     colorIdx++;
                 }

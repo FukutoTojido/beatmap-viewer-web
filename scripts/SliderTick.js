@@ -47,7 +47,13 @@ class SliderTick {
         this.obj.y = (y + this.slider.stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
         this.graphic.tint = 0xffffff;
-        if (skinning.type != "2") this.graphic.tint = this.slider.colour;
+        if (skinning.type != "2") {
+            const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+            const idx = this.slider.colourIdx % colors.length;
+            const color = colors[idx];
+
+            this.graphic.tint = color;
+        }
 
         if (timestamp < appearTime) {
             this.obj.alpha = 0;
