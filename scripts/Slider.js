@@ -14,8 +14,6 @@ class Slider {
     startTime;
     endTime;
 
-    isNewCombo;
-
     repeat;
 
     sliderType;
@@ -40,8 +38,8 @@ class Slider {
     angleE;
     angleS;
 
-    colour;
     colourIdx = 1;
+    colourHaxedIdx = 1;
     comboIdx = 1;
 
     isHover = false;
@@ -154,9 +152,9 @@ class Slider {
 
         // Set slider color
         const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = this.colourIdx % colors.length;
+        const idx = sliderAppearance.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
         this.SliderMesh.tintid = 0;
-        this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
+        this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
         // console.log(this.SliderMesh.tint);
 
         this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
@@ -597,7 +595,7 @@ class Slider {
         };
     }
 
-    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, isNewCombo, repeat) {
+    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, repeat) {
         this.sliderType = sliderType;
         const originalArr = pointLists.split("|").map((point) => {
             return {
@@ -629,8 +627,6 @@ class Slider {
         this.sliderLength = sliderLength;
         this.svMultiplier = svMultiplier;
         this.repeat = repeat;
-
-        this.isNewCombo = isNewCombo;
 
         this.baseSV = baseSV;
         this.beatStep = parseFloat(beatStep);

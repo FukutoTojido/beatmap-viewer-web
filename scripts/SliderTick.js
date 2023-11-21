@@ -49,8 +49,8 @@ class SliderTick {
         this.graphic.tint = 0xffffff;
         if (skinning.type != "2") {
             const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-            const idx = this.slider.colourIdx % colors.length;
-            const color = colors[idx];
+            const idx = sliderAppearance.ignoreSkin ? this.slider.colourIdx : this.slider.colourHaxedIdx ;
+            const color = colors[idx % colors.length];
 
             this.graphic.tint = color;
         }

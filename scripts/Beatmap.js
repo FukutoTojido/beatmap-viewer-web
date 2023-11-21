@@ -95,7 +95,6 @@ class Beatmap {
         return {
             obj: new Spinner(startTime, endTime),
             hitsounds: new HitSample(samples, currentSVMultiplier.sampleVol / 100),
-            isNewCombo: true,
         };
     }
 
@@ -127,19 +126,8 @@ class Beatmap {
         const [x, y, , type] = params;
         const anchors = params[5].slice(2);
         const sliderType = params[5][0];
-        const isNewCombo = ("00000000" + parseInt(type).toString(2)).substr(-8).split("").reverse().join("")[2] == 1;
 
-        const obj = new Slider(
-            `${x}:${y}|${anchors}`,
-            sliderType,
-            length,
-            svStart.svMultiplier,
-            initialSliderVelocity,
-            beatStep,
-            time,
-            isNewCombo,
-            slides
-        );
+        const obj = new Slider(`${x}:${y}|${anchors}`, sliderType, length, svStart.svMultiplier, initialSliderVelocity, beatStep, time, slides);
 
         return {
             obj,
@@ -148,7 +136,6 @@ class Beatmap {
                 sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
                 sliderReverse: reversesSamples,
             },
-            isNewCombo,
         };
     }
 
@@ -158,12 +145,10 @@ class Beatmap {
         const hitSampleIdx = rest.at(-1);
 
         const samples = HitSound.GetName(hitSampleIdx, hitSoundIdx, currentSVMultiplier);
-        const isNewCombo = ("00000000" + parseInt(type).toString(2)).substr(-8).split("").reverse().join("")[2] == 1;
 
         return {
-            obj: new HitCircle(x, y, parseInt(time), isNewCombo),
+            obj: new HitCircle(x, y, parseInt(time)),
             hitsounds: new HitSample(samples, currentSVMultiplier.sampleVol / 100),
-            isNewCombo,
         };
     }
 
@@ -357,6 +342,8 @@ class Beatmap {
 
         let combo = 1;
         let colorIdx = 1;
+        let colorHaxedIdx = 1;
+
         const parsedHitObjects = objectLists
             .map((object, idx) => {
                 const params = object.split(",");
@@ -364,24 +351,36 @@ class Beatmap {
 
                 let returnObject;
 
-                const typeBit = parseInt(params[3]).toString(2).reverse().map(bit => bit === "1" ? true : false);
+                const typeBit = parseInt(params[3])
+                    .toString(2)
+                    .padStart(8, "0")
+                    .split("")
+                    .reverse()
+                    .map((bit) => (bit === "1" ? true : false));
+                const colorHax = parseInt(parseInt(params[3]).toString(2).padStart(8, "0").split("").reverse().slice(4, 7).reverse().join(""), 2);
 
                 if (typeBit[0]) returnObject = Beatmap.constructHitCircle(params, currentSVMultiplier);
                 if (typeBit[1]) returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
                 if (typeBit[3]) returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
 
-
                 if (typeBit[2] && idx !== 0) {
                     combo = 1;
                     colorIdx++;
+                    colorHaxedIdx++;
+                }
+
+                if (colorHax !== 0 && typeBit[2]) {
+                    colorHaxedIdx += colorHax;
                 }
 
                 returnObject.obj.comboIdx = combo;
                 returnObject.obj.colourIdx = colorIdx;
+                returnObject.obj.colourHaxedIdx = colorHaxedIdx;
 
                 if (returnObject.obj instanceof Slider) {
                     returnObject.obj.hitCircle.comboIdx = combo;
                     returnObject.obj.hitCircle.colourIdx = colorIdx;
+                    returnObject.obj.hitCircle.colourHaxedIdx = colorHaxedIdx;
                 }
 
                 combo++;

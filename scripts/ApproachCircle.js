@@ -16,8 +16,8 @@ class ApproachCircle {
         this.obj.texture = Texture[skinType].APPROACH_CIRCLE.texture;
 
         const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = this.hitCircle.colourIdx % colors.length;
-        this.obj.tint = colors[idx];
+        const idx = sliderAppearance.ignoreSkin ? this.hitCircle.colourIdx : this.hitCircle.colourHaxedIdx;
+        this.obj.tint = colors[idx % colors.length];
 
         let approachRateExpandRate = 1;
 

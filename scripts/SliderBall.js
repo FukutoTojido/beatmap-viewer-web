@@ -89,9 +89,9 @@ class SliderBall {
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
 
         const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = this.baseSlider.colourIdx % colors.length;
-        
-        this.bg.tint = colors[idx];
+        const idx = sliderAppearance.ignoreSkin ? this.baseSlider.colourIdx : this.baseSlider.colourHaxedIdx;
+
+        this.bg.tint = colors[idx % colors.length];
         this.bg.angle = -this.obj.angle;
 
         this.followCircle.tint = 0xffffff;

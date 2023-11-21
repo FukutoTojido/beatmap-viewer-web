@@ -1,13 +1,12 @@
 class HitCircle {
     startTime;
+    hitTime;
+
     endTime;
     killTime;
 
     positionX;
     positionY;
-
-    isNewCombo;
-    isSliderHead;
 
     originalX;
     originalY;
@@ -25,10 +24,9 @@ class HitCircle {
     number;
     approachCircleObj;
 
-    hitTime;
-    colour;
-    colourIdx = 1;
     comboIdx = 1;
+    colourIdx = 1;
+    colourHaxedIdx = 1;
 
     opacity = 0;
 
@@ -101,8 +99,8 @@ class HitCircle {
         // Untint HitCircle on hit when hit animation is disabled
         if (sliderAppearance.hitAnim || timestamp < this.hitTime) {
             const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-            const idx = this.colourIdx % colors.length;
-            const color = colors[idx];
+            const idx = sliderAppearance.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
+            const color = colors[idx % colors.length];
             
             this.hitCircleSprite.tint = color;
 
@@ -204,7 +202,7 @@ class HitCircle {
         return { val, valV2: val, delta: currentInput.time - this.time, inputTime: currentInput.time };
     }
 
-    constructor(positionX, positionY, time, isNewCombo) {
+    constructor(positionX, positionY, time) {
         this.originalX = parseInt(positionX);
         this.originalY = parseInt(positionY);
 
@@ -214,8 +212,6 @@ class HitCircle {
 
         this.startTime = time - Beatmap.stats.preempt;
         this.killTime = time + 240;
-
-        this.isNewCombo = isNewCombo;
 
         const selected = new PIXI.Sprite(Texture.SELECTED.texture);
         selected.anchor.set(0.5);
