@@ -13,9 +13,9 @@ An osu! beatmap viewer on the web.
 - Change beatmap visual to match HR and EZ
 - Switching between Argon slider style and Legacy slider style
 - Background dim, background blur, etc. You know it
-- **VIEW A REPLAY**
-- **VIEW A REPLAY**
-- **VIEW A REPLAY**
+- **Watch replay (experimental, unstable af)**
+- Import skins
+
 
 
 ## osu! mapping features
