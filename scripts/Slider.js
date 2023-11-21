@@ -445,8 +445,8 @@ class Slider {
                         type: "Slider Tick",
                         time:
                             i % 2 === 0
-                                ? i * this.sliderTime + Math.floor(this.time + (idx + 1) * this.beatStep)
-                                : (i - 1) * this.sliderTime + Math.floor(this.time + this.sliderTime + idx * this.beatStep + tickEndDelta),
+                                ? i * this.sliderTime + Math.floor(this.time + (idx + 1) * this.beatStep / Beatmap.stats.sliderTickRate)
+                                : (i - 1) * this.sliderTime + Math.floor(this.time + this.sliderTime + idx * this.beatStep / Beatmap.stats.sliderTickRate + tickEndDelta),
                     };
                 })
             );
