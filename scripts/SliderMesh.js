@@ -77,7 +77,7 @@ void main() {
     if (skinning != 2.0 && skinning != 3.0) color_mixed = tint;
 
     float scale = circleBaseScale;
-    if (skinning == 0.0) scale *= 0.95;
+    if (skinning == 0.0 && !select) scale *= 0.95;
 
     float position = vec2(dist, texturepos).x / scale;
 
@@ -124,7 +124,7 @@ void main() {
 
     color.a = 1.0;
 
-    gl_FragColor = min(alpha * a, 1.0) * color;
+    gl_FragColor = color;
 }`;
 
 function newTexture(colors, SliderTrackOverride, SliderBorder) {
