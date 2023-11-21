@@ -61,7 +61,6 @@ class Skinning {
         Skinning.DEFAULT_COLORS = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.DEFAULT_COLORS;
 
         document.querySelector(".skinSelector").innerText = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.NAME;
-        skinning.type = "4";
     }
 
     static async getBase64(allEntries, filename) {
@@ -291,6 +290,7 @@ class Skinning {
         await refreshSkinDB();
 
         Skinning.SKIN_IDX = skinIdx;
+        skinning.type = "4";
         Skinning.changeSkin();
 
         zipReader.close();
