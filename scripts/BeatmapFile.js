@@ -422,6 +422,17 @@ class BeatmapFile {
                         );
                     }
                 }
+
+                if (e.key === "a" && e.ctrlKey) {
+                    e.preventDefault();
+                    selectedHitObject = this.beatmapRenderData.objectsController.objectsList
+                        .filter((o) => !(o.obj instanceof Spinner))
+                        .map((o) => o.obj.time);
+                }
+
+                if (e.key === "Escape") {
+                    selectedHitObject = [];
+                }
             };
 
             if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
