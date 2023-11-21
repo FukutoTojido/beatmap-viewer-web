@@ -80,7 +80,7 @@ class BeatmapFile {
                         "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
                     },
                 });
-                
+
                 blob = await rawData.blob();
             }
 
@@ -383,6 +383,8 @@ class BeatmapFile {
                 document.querySelector("#EZ").checked = false;
                 document.querySelector("#HT").checked = false;
             }
+
+            Game.appResize();
 
             document.onkeydown = (e) => {
                 e = e || window.event;
