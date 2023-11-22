@@ -992,7 +992,7 @@ button:hover {
     left: 0;
     right: 0;
 
-    width: 300px;
+    width: max-content;
 
     background-color: var(--primary-2);
     padding: 5px 15px;
@@ -1189,6 +1189,7 @@ a:visited {
 
 .horizontalList .linkContent {
     font-weight: 500;
+    text-align: center;
 }
 
 .skinSelector {
