@@ -1238,6 +1238,8 @@ a:visited {
 
 .skinSelection {
     display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .skinName {
@@ -1255,6 +1257,23 @@ a:visited {
 .skinName:hover {
     background-color: var(--primary-3);
     filter: none;
+}
+
+.deleteButton {
+    opacity: .2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    width: 18px;
+    height: 18px;
+}
+
+.deleteButton:hover {
+    filter: none;
+    opacity: 1;
 }
 
 * {

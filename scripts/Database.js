@@ -58,6 +58,25 @@ class Database {
         });
     }
 
+    static removeFromObjStore(key) {
+        return new Promise((resolve, reject) => {
+            const transaction = Database.db.transaction("skins", "readwrite");
+            const objStore = transaction.objectStore("skins");
+
+            let request = objStore.delete(+key);
+
+            request.onsuccess = (event) => {
+                console.log("Deleted skin from IDB", event.target.result);
+                resolve();
+            };
+
+            request.onerror = () => {
+                console.error("Cannot delete skin from IDB. Please delete skin manually from DevTools.", request.error);
+                reject(request.error);
+            };
+        })
+    }
+
     static addToObjStore(value) {
         return new Promise((resolve, reject) => {
             const transaction = Database.db.transaction("skins", "readwrite");

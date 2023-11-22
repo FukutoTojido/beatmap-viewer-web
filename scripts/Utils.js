@@ -1,3 +1,25 @@
+async function removeSkin() {
+    await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
+
+
+    if (Skinning.SKIN_IDX == this.parentElement.dataset.customIndex) {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.skinning.type = "2";
+        currentLocalStorage.skinning.val = -1;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    }
+
+    delete Skinning.SKIN_LIST[this.parentElement.dataset.customIndex];
+    Skinning.changeSkin();
+    delete Texture.CUSTOM[this.parentElement.dataset.customIndex];
+    delete HitSample.SAMPLES.CUSTOM[this.parentElement.dataset.customIndex];
+
+    document.querySelector("#skinDropdown").close();
+    document.querySelector("#skinDropdown").style.display = "";
+
+    await refreshSkinDB();
+}
+
 function selectSkin() {
     const skinType = Skinning.SKIN_ENUM[this.parentElement.dataset.skinId.toUpperCase()];
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -39,7 +61,14 @@ async function refreshSkinDB() {
         button.innerText = ini.NAME;
         button.onclick = selectSkin;
 
+        const delButton = document.createElement("button");
+        delButton.classList.add("deleteButton");
+        delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
+        delButton.onclick = removeSkin;
+
+
         div.appendChild(button);
+        div.appendChild(delButton);
         skinDropdown.appendChild(div);
 
         ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"].forEach(
@@ -66,7 +95,9 @@ async function refreshSkinDB() {
 }
 
 async function loadLocalStorage() {
+    document.querySelector("#loadingText").innerText = `Initializing: Default Samples`;
     await loadDefaultSamples();
+    document.querySelector("#loadingText").innerText = `Initializing: Default Skins`;
     await Database.initDatabase();
     await refreshSkinDB();
     // const res = await Database.readObjStore("skins");

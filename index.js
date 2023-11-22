@@ -1,6 +1,10 @@
-document.querySelector(".loading").style.display = "none";
+document.querySelector(".loading").style.opacity = 1;
+document.querySelector("#loadingText").innerText = `Initializing`;
+
 (async () => {
     await loadLocalStorage();
+    document.querySelector(".loading").style.opacity = 0;
+    document.querySelector(".loading").style.display = "none";
 
     // Init
     const mainGame = new Game();
