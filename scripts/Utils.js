@@ -123,9 +123,9 @@ async function loadLocalStorage() {
         document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
         document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
 
-        document.querySelector("#blur").value = currentLocalStorage.background.blur;
-        document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
-        document.querySelector("#overlay").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
+        // document.querySelector("#blur").value = currentLocalStorage.background.blur;
+        // document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
+        // document.querySelector("#overlay").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
 
         document.querySelector("#master").value = currentLocalStorage.volume.master;
         document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;

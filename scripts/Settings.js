@@ -74,12 +74,12 @@ function setBackgroundDim(slider) {
 
 function setBackgroundBlur(slider) {
     // console.log(slider.value);
-    document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
-    document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
+    // document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
+    // document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
 
-    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-    currentLocalStorage.background.blur = slider.value;
-    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    // const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    // currentLocalStorage.background.blur = slider.value;
+    // localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
 
 // AUDIO
