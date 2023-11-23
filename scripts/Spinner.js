@@ -4,9 +4,26 @@ class Spinner {
     obj;
     approachCircle;
 
+    hitSounds;
+
+    playHitsound(timestamp) {
+        if (!beatmapFile.audioNode.isPlaying) return;
+        if (timestamp < this.endTime || ObjectsController.lastTimestamp >= this.endTime) return;
+
+        if (!ScoreParser.REPLAY_DATA) {
+            this.hitSounds.play();
+            return;
+        }
+
+        // Will reimplement later for optimization
+        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+        // if (evaluation) this.hitSounds.play();
+    }
+
     draw(timestamp) {
         this.obj.x = 256 * Game.SCALE_RATE;
         this.obj.y = 192 * Game.SCALE_RATE;
+        this.playHitsound(timestamp);
 
         if (timestamp < this.time) {
             let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
@@ -221,7 +238,7 @@ class Spinner {
         };
     }
 
-    constructor(startTime, endTime) {
+    constructor(startTime, endTime, hitSounds) {
         this.time = startTime;
         this.hitTime = endTime;
         this.killTime = endTime + 240;
@@ -259,6 +276,7 @@ class Spinner {
 
         this.obj = container;
         this.approachCircle = approachCircleContainer;
+        this.hitSounds = hitSounds
     }
 
     get approachCircleObj() {

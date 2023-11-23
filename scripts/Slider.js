@@ -45,6 +45,8 @@ class Slider {
     isHover = false;
     opacity = 0;
 
+    hitSounds;
+
     binom(n, k) {
         if (k < 0 || k > n) return 0;
         if (k == 0 || k == n) return 1;
@@ -91,6 +93,36 @@ class Slider {
         this.selectedSliderEnd.y = y * Game.SCALE_RATE;
 
         this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
+    }
+
+    playHitsound(timestamp) {
+        if (!beatmapFile.audioNode.isPlaying) return;
+
+        if (timestamp >= this.hitTime && ObjectsController.lastTimestamp < this.hitTime) {
+            if (!ScoreParser.REPLAY_DATA) {
+                this.hitSounds.sliderHead.play();
+                return;
+            }
+
+            // Will reimplement later
+            // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+            // if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
+            //     object.hitsounds.sliderHead.play();
+            return;
+        }
+
+        if (timestamp >= this.endTime && ObjectsController.lastTimestamp < this.endTime) {
+            if (!ScoreParser.REPLAY_DATA) {
+                this.hitSounds.sliderTail.play();
+                return;
+            }
+
+            // Will reimplement later
+            // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+            // if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
+            //     object.hitsounds.sliderTail.play();
+            return;
+        }
     }
 
     drawBorder(timestamp) {
@@ -175,6 +207,7 @@ class Slider {
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
+        this.playHitsound(timestamp);
     }
 
     reInitialize() {
@@ -419,7 +452,9 @@ class Slider {
         const baseTicksList = [];
         const endTime = this.endTime;
         for (let i = 0; i < this.sliderTicksCount / this.repeat; i++) {
-            baseTicksList.push(this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime / Beatmap.stats.sliderTickRate) * (this.angleList.length - 1))]);
+            baseTicksList.push(
+                this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime / Beatmap.stats.sliderTickRate) * (this.angleList.length - 1))]
+            );
         }
 
         const sliderParts = [];
@@ -445,8 +480,9 @@ class Slider {
                         type: "Slider Tick",
                         time:
                             i % 2 === 0
-                                ? i * this.sliderTime + Math.floor(this.time + (idx + 1) * this.beatStep / Beatmap.stats.sliderTickRate)
-                                : (i - 1) * this.sliderTime + Math.floor(this.time + this.sliderTime + idx * this.beatStep / Beatmap.stats.sliderTickRate + tickEndDelta),
+                                ? i * this.sliderTime + Math.floor(this.time + ((idx + 1) * this.beatStep) / Beatmap.stats.sliderTickRate)
+                                : (i - 1) * this.sliderTime +
+                                  Math.floor(this.time + this.sliderTime + (idx * this.beatStep) / Beatmap.stats.sliderTickRate + tickEndDelta),
                     };
                 })
             );
@@ -595,7 +631,7 @@ class Slider {
         };
     }
 
-    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, repeat) {
+    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, repeat, hitSounds) {
         this.sliderType = sliderType;
         const originalArr = pointLists.split("|").map((point) => {
             return {
@@ -772,6 +808,7 @@ class Slider {
         SliderContainer.addChild(this.nodesContainer);
 
         this.obj = SliderContainer;
+        this.hitSounds = hitSounds;
         // this.obj.alpha = 0.0;
     }
 

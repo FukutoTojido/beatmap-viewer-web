@@ -47,7 +47,27 @@ class ReverseArrow {
         return pulseRate;
     }
 
+    playHitsound(timestamp) {
+        if (!beatmapFile.audioNode.isPlaying) return;
+        if (timestamp < this.time || ObjectsController.lastTimestamp >= this.time) return;
+
+        if (!ScoreParser.REPLAY_DATA) {
+            this.baseSlider.hitSounds.sliderReverse[this.idx].play();
+            return;
+        }
+
+        // Will reimplement later;
+        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+        // if (
+        //     evaluation &&
+        //     evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[currentRepeatIdx - 1].eval ===
+        //         1
+        // )
+        //     object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
+    }
+
     draw(timestamp) {
+        this.playHitsound(timestamp);
         const skinType = Skinning.SKIN_ENUM[skinning.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 

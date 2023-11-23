@@ -4,7 +4,7 @@
 <head>
     <title>JoSu!</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta property="og:title" content="JoSu! | osu! Beatmap Viewer">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://preview.tryz.id.vn">
@@ -52,6 +52,11 @@
     <script src="./scripts/BeatmapFile.js"></script>
     <script src="./scripts/ScoreParser.js"></script>
     <script src="./scripts/Utils.js"></script>
+    <script src="./scripts/Timeline/Timeline.js"></script>
+    <script src="./scripts/Timeline/BeatLines.js"></script>
+    <script src="./scripts/Timeline/HitCircle.js"></script>
+    <script src="./scripts/Timeline/NumberSprite.js"></script>
+    <script src="./scripts/Timeline/Slider.js"></script>
     <script src="./index.js" defer></script>
     <script src="./scripts/DragWindow.js" defer></script>
     <script src="./scripts/Settings.js" defer></script>
@@ -77,6 +82,13 @@
             <input type="file" name="map-dropper" id="map-dropper" accept=".osz,.osr,.osk">
             <button id="choose-diff" disabled>Change Difficulty</button>
         </div>
+    </div>
+    <div class="timelineContainer">
+        <div class="zoom">
+            <button onclick="changeZoomRate(1, this)"><img src="static/plus.png"></button>
+            <button onclick="changeZoomRate(-1, this)"><img src="static/minus.png"></button>
+        </div>
+        <div class="timeline"></div>
     </div>
     <div id="playerWrapper">
         <div id="playerContainer">
@@ -124,7 +136,6 @@
             <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
         </div>
     </div>
-
     <div class="loading">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
             <circle cx="45" cy="45" r="30" strokeLinecap="round" />
@@ -147,7 +158,6 @@
                 </div>
             </div>
         </div>
-
     </div>
     <div id="block"></div>
     <div id="settingsPanel">

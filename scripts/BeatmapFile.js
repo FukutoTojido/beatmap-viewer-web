@@ -140,7 +140,7 @@ class BeatmapFile {
                 const mode = rawFile
                     .split("\r\n")
                     .filter((line) => /Mode:\s[0-9]+/g.test(line))
-                    .shift()
+                    .at(0)
                     ?.replace("Mode: ", "");
                 if (parseInt(mode) !== 0) continue;
 
@@ -155,7 +155,7 @@ class BeatmapFile {
                 const diffName = rawFile
                     .split("\r\n")
                     .filter((line) => /Version:.+/g.test(line))
-                    .shift()
+                    .at(0)
                     ?.replace("Version:", "");
 
                 const ele = createDifficultyElement({
@@ -173,7 +173,7 @@ class BeatmapFile {
 
             for (const obj of diffs) diffList.appendChild(obj.ele);
         } else {
-            const map = allEntries.filter((e) => e.filename === diffFileName).shift();
+            const map = allEntries.filter((e) => e.filename === diffFileName).at(0);
             const blob = await map.getData(new zip.BlobWriter("text/plain"));
             this.osuFile = await blob.text();
 
@@ -181,27 +181,27 @@ class BeatmapFile {
 
             const artist = splitted
                 .filter((line) => /Artist:.+/g.test(line))
-                .shift()
+                .at(0)
                 ?.replace("Artist:", "");
             const artistUnicode = splitted
                 .filter((line) => /ArtistUnicode:.+/g.test(line))
-                .shift()
+                .at(0)
                 ?.replace("ArtistUnicode:", "");
             const title = splitted
                 .filter((line) => /Title:.+/g.test(line))
-                .shift()
+                .at(0)
                 ?.replace("Title:", "");
             const titleUnicode = splitted
                 .filter((line) => /TitleUnicode:.+/g.test(line))
-                .shift()
+                .at(0)
                 ?.replace("TitleUnicode:", "");
             const creator = splitted
                 .filter((line) => /Creator:.+/g.test(line))
-                .shift()
+                .at(0)
                 ?.replace("Creator:", "");
             const version = splitted
                 .filter((line) => /Version:.+/g.test(line))
-                .shift()
+                .at(0)
                 ?.replace("Version:", "");
 
             document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
@@ -241,7 +241,7 @@ class BeatmapFile {
         const backgroundFilename = this.osuFile
             .split("\r\n")
             .filter((line) => line.match(/0,0,"*.*"/g))
-            .shift()
+            .at(0)
             ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._-]+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
 
@@ -249,7 +249,7 @@ class BeatmapFile {
         // console.log(allEntries);
 
         document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
-        const audioFile = allEntries.filter((e) => e.filename === audioFilename).shift();
+        const audioFile = allEntries.filter((e) => e.filename === audioFilename).at(0);
 
         if (!audioFile) {
             throw "This map has no audio file";
@@ -261,7 +261,7 @@ class BeatmapFile {
         const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
         console.log("Audio Loaded");
 
-        const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).shift();
+        const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
         if (backgroundFile) {
             const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
 
@@ -328,6 +328,9 @@ class BeatmapFile {
     async constructMap() {
         try {
             const removedChildren = Game.CONTAINER.removeChildren();
+            removedChildren.forEach((ele) => ele.destroy());
+
+            const removedChildrenTimeline = Timeline.obj.removeChildren();
             removedChildren.forEach((ele) => ele.destroy());
 
             currentMapId = this.mapId;

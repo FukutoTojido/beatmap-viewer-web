@@ -58,7 +58,7 @@ class PAudio {
                 if (tempCurrentTime >= this.buf.duration * 1000) {
                     console.log("Ended");
                     this.pause();
-                    playingFlag = false;
+                    // playingFlag = false;
                     this.seekTo(0);
                 }
             };
@@ -98,6 +98,10 @@ class PAudio {
         if (!this.isPlaying) return this.currentTime;
         // return this.currentTime + (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
         return this.currentTime + (performance.now() - this.absStartTime) * playbackRate;
+    }
+
+    get duration() {
+        return this.buf?.duration * 1000 ?? 0;
     }
 }
 

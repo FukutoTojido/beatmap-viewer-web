@@ -150,6 +150,8 @@ async function loadLocalStorage() {
 
         document.querySelector("#beat").value = currentLocalStorage.mapping.beatsnap;
         document.querySelector("#beatVal").innerHTML = `1/${currentLocalStorage.mapping.beatsnap}`;
+
+        Timeline.ZOOM_DISTANCE = currentLocalStorage.timeline.zoomRate;
     }
 }
 
@@ -288,12 +290,69 @@ function toDataUrl(url, callback) {
     xhr.send();
 }
 
+function changeZoomRate(zoomStep, the) {
+    Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + zoomStep * 20, 20, 400);
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.timeline.zoomRate = Timeline.ZOOM_DISTANCE;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    the.blur();
+}
+
 function debounce(func) {
     let timer;
     return function (event) {
         if (timer) clearTimeout(timer);
         timer = setTimeout(func, 100, event);
     };
+}
+
+const binarySearchRange = (list, startValue, endValue, key) => {
+    let start = 0;
+    let end = list.length - 1;
+
+    if (list[start][key] > endValue || list[end][key] < startValue) return -1;
+
+    while (end >= start) {
+        const mid = start + Math.floor((end - start) / 2);
+
+        if (list[mid][key] < startValue) {
+            start = mid + 1;
+            continue;
+        }
+
+        if (list[mid][key] > endValue) {
+            end = mid - 1;
+            continue;
+        }
+
+        return mid;
+    }
+
+    return -1;
+}
+
+const binarySearch = (list, value, compareFunc) => {
+    let start = 0;
+    let end = list.length - 1;
+
+    while (end >= start) {
+        const mid = start + Math.floor((end - start) / 2);
+
+        if (compareFunc(list[mid], value) === 0) return mid;
+
+        if (compareFunc(list[mid], value) < 0) {
+            start = mid + 1;
+            continue;
+        }
+
+        if (compareFunc(list[mid], value) > 0) {
+            end = mid - 1;
+        }
+    }
+
+    return -1;
 }
 
 const Fixed = (val, decimalPlace) => Math.round(val * 10 ** decimalPlace) / 10 ** decimalPlace;

@@ -9,6 +9,8 @@ document.querySelector("#loadingText").innerText = `Initializing`;
     // Init
     const mainGame = new Game();
     Texture.generateDefaultTextures();
+    Timeline.init();
+
 
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
         beatmapFile = new BeatmapFile(urlParams.get("b"));
@@ -18,6 +20,7 @@ document.querySelector("#loadingText").innerText = `Initializing`;
     window.onresize = debounce(() => {
         setTimeout(() => {
             Game.appResize();
+            Timeline.resize();
         }, 200);
     });
 
@@ -25,6 +28,7 @@ document.querySelector("#loadingText").innerText = `Initializing`;
         // console.log("Orientation Changed");
         setTimeout(() => {
             Game.appResize();
+            Timeline.resize();
         }, 200);
     });
 })();

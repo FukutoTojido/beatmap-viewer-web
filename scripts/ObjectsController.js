@@ -14,11 +14,12 @@ class ObjectsController {
     tempW = Game.WIDTH;
     tempH = Game.HEIGHT;
 
-    filtered;
+    filtered = [];
 
     _in = [];
 
     static requestID = null;
+    static lastTimestamp;
 
     // static preempt = 0;
 
@@ -34,13 +35,17 @@ class ObjectsController {
 
     constructor(objectsList, coloursList, breakPeriods) {
         this.objectsList = objectsList.sort(this.compare);
-        this.hitCirclesList = objectsList.filter(o => o.obj instanceof HitCircle || o.obj instanceof Spinner);
-        this.slidersList = objectsList.filter(o => o.obj instanceof Slider);
+        this.hitCirclesList = objectsList.filter((o) => o.obj instanceof HitCircle || o.obj instanceof Spinner);
+        this.slidersList = objectsList.filter((o) => o.obj instanceof Slider);
 
         this.breakPeriods = breakPeriods;
     }
 
     draw(timestamp, staticDraw) {
+        if (timestamp > beatmapFile.audioNode.duration) {
+            beatmapFile.audioNode.pause();
+        }
+
         this.fpsArr.push(Math.max(0, performance.now() - this.lastTime));
         if (this.fpsArr.length > 100) {
             this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 100);
@@ -62,94 +67,65 @@ class ObjectsController {
         const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
-        // Experimental Algorithm, might change later
-        // let _out = [];
+        const compareFunc = (element, value) => {
+            if ((sliderAppearance.hitAnim ? element.obj.killTime : Math.max(element.obj.killTime + 800, element.obj.killTime)) < value) return -1;
+            if (element.obj.time - currentPreempt > value) return 1;
+            return 0;
+        };
 
-        // this.objectsList.forEach((object, idx) => {
-        //     const liveTime = {
-        //         start: object.time - currentPreempt,
-        //         end: sliderAppearance.hitAnim ? object.obj.endTime : Math.max(object.time + 800, object.obj.endTime),
-        //     };
+        const drawList = [];
+        const foundIndex = binarySearch(this.objectsList, timestamp, compareFunc);
+        if (foundIndex !== -1) {
+            let start = foundIndex - 1;
+            let end = foundIndex + 1;
 
-        //     // Timestamp in object's live time
-        //     if (liveTime.start <= timestamp && liveTime.end >= timestamp) {
-        //         // Do something here
-        //         if (!this._in.some((obj) => obj.idx === object.idx)) this._in.push(object);
-        //         return;
-        //     }
+            while (start >= 0 && compareFunc(this.objectsList[start], timestamp) === 0) {
+                drawList.push(this.objectsList[start]);
+                start--;
+            }
 
-        //     // Timestamp out of object's live time and was not in live time before
-        //     const objIndex = this._in.findIndex((obj) => obj.idx === object.idx);
-        //     if (objIndex === -1) return;
+            drawList.reverse();
+            drawList.push(this.objectsList[foundIndex]);
 
-        //     // Timestamp out of object's live time and was in live time before
-        //     _out.push(object);
-        //     this._in.splice(objIndex, 1);
-        // });
+            while (end <= this.objectsList.length - 1 && compareFunc(this.objectsList[end], timestamp) === 0) {
+                drawList.push(this.objectsList[end]);
+                end++;
+            }
+        }
 
-        // const _appr = this._in.map((o) => {
-        //     if (o.obj instanceof HitCircle) return o.obj.approachCircleObj;
-        //     if (o.obj instanceof Slider) return o.obj.hitCircle.approachCircleObj;
-        // });
+        this.filtered = drawList;
 
-        const filtered = this.objectsList
-            .filter(
-                (object) =>
-                    object.obj.time - currentPreempt < timestamp &&
-                    (sliderAppearance.hitAnim ? object.obj.killTime : Math.max(object.obj.killTime + 800, object.obj.killTime)) > timestamp
-            )
-            .reverse();
+        const selected = [];
+        selectedHitObject.forEach((time) => {
+            const objIndex = binarySearch(this.objectsList, time, (element, value) => {
+                if (element.obj.time === value) return 0;
+                if (element.obj.time < value) return -1;
+                if (element.obj.time > value) return 1;
+            });
 
-        this.filtered = filtered;
+            if (objIndex === -1) return;
 
-        const approachCircleList = filtered.map((o) => o.obj.approachCircleObj);
+            const o = this.objectsList[objIndex];
+            selected.push(o);
+        });
 
-        const selected = this.objectsList.filter((object) => selectedHitObject.includes(object.obj.time)).reverse();
-        const noSelected = this.objectsList.filter((object) => !selectedHitObject.includes(object.obj.time)).reverse();
-
-        const judgementRenderList = this.judgementList.filter(
+        const judgements = this.judgementList.filter(
             (judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp
         );
 
-        const judgementNoRender = this.judgementList.filter(
-            (judgement) => !(judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp)
-        );
-
-        // console.log(judgementList);
-
-        const noRender = this.objectsList.filter(
-            (object) =>
-                !(
-                    object.obj.time - currentPreempt < timestamp &&
-                    (sliderAppearance.hitAnim ? object.obj.killTime : Math.max(object.obj.endTime + 800, object.obj.killTime)) > timestamp
-                )
-        );
-
-        const noRenderApproachCircleList = noRender.map((o) => o.obj.approachCircleObj);
-
+        Game.CONTAINER.removeChildren();
         Game.addToContainer([
-            ...judgementRenderList,
-            ...filtered.map((o) => o.obj),
-            ...approachCircleList,
-            ...selected.reduce((accm, o) => {
-                accm.push({ obj: o.obj.selected });
-                if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
-                return accm;
-            }, []),
+            ...judgements,
+            ...this.filtered.map((o) => o.obj).toReversed(),
+            ...this.filtered.map((o) => o.obj.approachCircleObj).filter(o => o).toReversed(),
+            ...selected
+                .reduce((accm, o) => {
+                    if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
+                    accm.push({ obj: o.obj.selected });
+                    return accm;
+                }, [])
+                .toReversed(),
         ]);
-
-        Game.removeFromContainer([
-            ...judgementNoRender,
-            ...noRender.map((o) => o.obj),
-            ...noRenderApproachCircleList,
-            ...noSelected.reduce((accm, o) => {
-                accm.push({ obj: o.obj.selected });
-                if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
-                return accm;
-            }, []),
-        ]);
-
-        // console.log(filtered);
 
         if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
             document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
@@ -157,91 +133,15 @@ class ObjectsController {
             document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
         }
 
-        judgementRenderList.forEach((object) => {
+        Timeline.draw(timestamp);
+
+        judgements.forEach((object) => {
             object.draw(timestamp);
         });
 
-        filtered.forEach((object) => {
-            const objStartTime = object.obj.time - currentPreempt;
-
-            selected.forEach((o) => {
-                o.obj.drawSelected();
-            });
-
-            if (timestamp < objStartTime) return;
-
+        this.filtered.forEach((object) => {
+            selected.forEach((o) => o.obj.drawSelected());
             object.obj.draw(Math.max(timestamp, 0));
-
-            if (object.obj instanceof HitCircle) {
-                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && beatmapFile.audioNode.isPlaying) {
-                    // console.log(object.time, timestamp, this.lastTimestamp);
-
-                    if (!ScoreParser.REPLAY_DATA) object.hitsounds.play();
-                    else {
-                        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-                        if (evaluation) object.hitsounds.play();
-                    }
-                }
-            }
-
-            if (object.obj instanceof Slider) {
-                if (timestamp >= object.obj.hitTime && this.lastTimestamp < object.obj.hitTime && beatmapFile.audioNode.isPlaying) {
-                    // console.log(object.time, timestamp, this.lastTimestamp);
-                    if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderHead.play();
-                    else {
-                        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-                        if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
-                            object.hitsounds.sliderHead.play();
-                    }
-                }
-
-                if (timestamp >= object.obj.endTime && this.lastTimestamp < object.obj.endTime && beatmapFile.audioNode.isPlaying) {
-                    // console.log(object.time, timestamp, this.lastTimestamp);
-
-                    if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderTail.play();
-                    else {
-                        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-                        if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
-                            object.hitsounds.sliderTail.play();
-                    }
-                }
-
-                if (object.hitsounds.sliderReverse.length > 0) {
-                    const currentOffsetFromStart = timestamp - object.obj.time;
-                    const lastOffsetFromStart = this.lastTimestamp - object.obj.time;
-                    const totalLength = object.obj.endTime - object.obj.time;
-
-                    const currentRepeatIdx = Math.floor((currentOffsetFromStart / totalLength) * object.obj.repeat);
-                    const lastRepeatIdx = Math.floor((lastOffsetFromStart / totalLength) * object.obj.repeat);
-
-                    if (
-                        currentRepeatIdx > lastRepeatIdx &&
-                        currentRepeatIdx < object.obj.repeat &&
-                        currentRepeatIdx >= 1 &&
-                        beatmapFile.audioNode.isPlaying
-                    ) {
-                        if (!ScoreParser.REPLAY_DATA) object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
-                        else {
-                            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-                            if (
-                                evaluation &&
-                                evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[currentRepeatIdx - 1].eval ===
-                                    1
-                            )
-                                object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
-                        }
-                    }
-                }
-            }
-
-            if (object.obj instanceof Spinner) {
-                if (timestamp >= object.obj.endTime && this.lastTimestamp < object.obj.endTime && beatmapFile.audioNode.isPlaying) {
-                    // console.log(object.time, timestamp, this.lastTimestamp);
-                    object.hitsounds.play();
-                }
-            }
-
-            // if (selectedHitObject.includes(object.time)) object.obj.drawSelected();
         });
 
         if (ScoreParser.CURSOR_DATA) {
@@ -270,6 +170,7 @@ class ObjectsController {
                 const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
                 const timestampNext = currentAudioTime;
                 this.lastTimestamp = timestamp;
+                ObjectsController.lastTimestamp = timestamp;
 
                 return this.draw(timestampNext);
             }

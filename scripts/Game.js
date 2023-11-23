@@ -254,7 +254,7 @@ class Game {
 
         // Reposition drag window
         Game.DRAG_WINDOW.x = Game.OFFSET_X;
-        Game.DRAG_WINDOW.y = Game.OFFSET_Y;
+        Game.DRAG_WINDOW.y = Game.OFFSET_Y ;
 
         // Reposition FPS
         Game.FPS.x = Game.APP.view.width - 10;

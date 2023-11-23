@@ -65,7 +65,7 @@ async function readZip(file) {
         const mode = rawFile
             .split("\r\n")
             .filter((line) => /Mode:\s[0-9]+/g.test(line))
-            .shift()
+            .at(0)
             ?.replace("Mode: ", "");
         if (parseInt(mode) !== 0) continue;
 
@@ -80,7 +80,7 @@ async function readZip(file) {
         const diffName = rawFile
             .split("\r\n")
             .filter((line) => /Version:.+/g.test(line))
-            .shift()
+            .at(0)
             ?.replace("Version:", "");
 
         const ele = createDifficultyElement({

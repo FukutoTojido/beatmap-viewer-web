@@ -30,6 +30,8 @@ class HitCircle {
 
     opacity = 0;
 
+    hitSounds;
+
     drawSelected() {
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -43,6 +45,21 @@ class HitCircle {
         this.selected.y = y * Game.SCALE_RATE;
 
         this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
+    }
+
+    playHitsound(timestamp) {
+        if (!this.hitSounds) return;
+        if (!beatmapFile.audioNode.isPlaying) return;
+        if (timestamp < this.hitTime || ObjectsController.lastTimestamp >= this.hitTime) return;
+
+        if (!ScoreParser.REPLAY_DATA) {
+            this.hitSounds.play();
+            return;
+        }
+
+        // Will reimplement later for optimization
+        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
+        // if (evaluation) this.hitSounds.play();
     }
 
     draw(timestamp) {
@@ -137,6 +154,7 @@ class HitCircle {
 
         this.number.draw(timestamp);
         this.approachCircleObj.draw(timestamp);
+        this.playHitsound(timestamp);
     }
 
     eval(inputIdx) {
@@ -203,7 +221,7 @@ class HitCircle {
         return { val, valV2: val, delta: currentInput.time - this.time, inputTime: currentInput.time };
     }
 
-    constructor(positionX, positionY, time) {
+    constructor(positionX, positionY, time, hitSounds) {
         this.originalX = parseInt(positionX);
         this.originalY = parseInt(positionY);
 
@@ -240,5 +258,7 @@ class HitCircle {
         this.approachCircleObj = new ApproachCircle(this);
 
         this.obj = hitCircleContainer;
+
+        this.hitSounds = hitSounds;
     }
 }

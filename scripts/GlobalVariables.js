@@ -25,6 +25,9 @@ const settingsTemplate = {
         hitAnim: true,
         ignoreSkin: false
     },
+    timeline: {
+        zoomRate: 200
+    }
 };
 
 if (!localStorage.getItem("settings")) {

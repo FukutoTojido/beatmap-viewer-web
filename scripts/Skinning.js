@@ -95,7 +95,7 @@ class Skinning {
             .find((line) => line.includes("SliderBorder:"))
             ?.replaceAll(" ", "")
             .match(/[0-9]{0,3},[0-9]{0,3},[0-9]{0,3}/g)
-            .shift()
+            .at(0)
             .split(",")
             .map((value) => value / 255)
             .concat([1.0]);
@@ -104,7 +104,7 @@ class Skinning {
             .find((line) => line.includes("SliderTrackOverride:"))
             ?.replaceAll(" ", "")
             .match(/[0-9]{0,3},[0-9]{0,3},[0-9]{0,3}/g)
-            .shift()
+            .at(0)
             .split(",")
             .map((value) => value / 255)
             .concat([1.0]);
@@ -114,7 +114,7 @@ class Skinning {
                 .find((line) => line.includes("HitCircleOverlap:"))
                 ?.replaceAll(" ", "")
                 .match(/[0-9]+/g)
-                .shift() ?? "0"
+                .at(0) ?? "0"
         );
 
         const hitCirclePrefix = lines

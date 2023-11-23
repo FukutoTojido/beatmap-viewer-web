@@ -100,6 +100,52 @@ body {
     display: none;
 }
 
+.timelineContainer {
+    position: relative;
+
+    width: 100%;
+    height: 60px;
+
+    background: rgba(0 0 0 / .5);
+    border-radius: 10px;
+
+    margin-bottom: 10px;
+    overflow: hidden;
+
+    display: flex;
+}
+
+.zoom {
+    height: 100%;
+    width: 40px;
+
+    background-color: var(--primary-5);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: space-between;
+
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.zoom img {
+    width: 18px;
+    height: 18px;
+}
+
+.zoom button {
+    border-radius: none;
+    padding: 0;
+
+    height: 18px;
+}
+
+.timeline {
+    flex: 1;
+}
+
 #inputContainer {
     position: relative;
 
@@ -111,6 +157,8 @@ body {
     gap: 10px;
 
     box-sizing: border-box;
+
+    /* display: none; */
 }
 
 .legacyPart {
@@ -1299,6 +1347,24 @@ a:visited {
         /* background-color: transparent; */
         /* backdrop-filter: none; */
         overflow: hidden;
+    }
+
+    .timelineContainer {
+        height: 40px;
+        width: calc(100% - 20px);
+        margin-inline: 10px;
+    }
+
+    .zoom {
+        padding: 0;
+        justify-content: center;
+
+        display: none;
+    }
+
+    .zoom img {
+        width: 10px;
+        height: 10px;
     }
 
     #inputContainer {

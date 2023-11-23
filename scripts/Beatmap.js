@@ -92,9 +92,10 @@ class Beatmap {
         const hitSampleIdx = parameters.at(-1);
 
         const samples = HitSound.GetName(hitSampleIdx, hitSoundIdx, currentSVMultiplier);
+        const hitsounds = new HitSample(samples, currentSVMultiplier.sampleVol / 100);
         return {
-            obj: new Spinner(startTime, endTime),
-            hitsounds: new HitSample(samples, currentSVMultiplier.sampleVol / 100),
+            obj: new Spinner(startTime, endTime, hitsounds),
+            hitsounds,
         };
     }
 
@@ -139,15 +140,17 @@ class Beatmap {
         const anchors = params[5].slice(2);
         const sliderType = params[5][0];
 
-        const obj = new Slider(`${x}:${y}|${anchors}`, sliderType, length, svStart.svMultiplier, initialSliderVelocity, beatStep, time, slides);
+        const hitsounds =  {
+            sliderHead: new HitSample(headSamples, svStart.sampleVol / 100),
+            sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
+            sliderReverse: reversesSamples,
+        };
+
+        const obj = new Slider(`${x}:${y}|${anchors}`, sliderType, length, svStart.svMultiplier, initialSliderVelocity, beatStep, time, slides, hitsounds);
 
         return {
             obj,
-            hitsounds: {
-                sliderHead: new HitSample(headSamples, svStart.sampleVol / 100),
-                sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
-                sliderReverse: reversesSamples,
-            },
+            hitsounds
         };
     }
 
@@ -161,9 +164,11 @@ class Beatmap {
             console.log(currentSVMultiplier, samples);
         }
 
+        const hitsounds = new HitSample(samples, currentSVMultiplier.sampleVol / 100);
+
         return {
-            obj: new HitCircle(x, y, parseInt(time)),
-            hitsounds: new HitSample(samples, currentSVMultiplier.sampleVol / 100),
+            obj: new HitCircle(x, y, parseInt(time), hitsounds),
+            hitsounds
         };
     }
 
@@ -174,7 +179,7 @@ class Beatmap {
                 rawBeatmap
                     .split("\r\n")
                     .filter((line) => line.includes("OverallDifficulty:"))
-                    .shift()
+                    .at(0)
                     .replaceAll("OverallDifficulty:", "")
             );
         } else {
@@ -182,7 +187,7 @@ class Beatmap {
                 rawBeatmap
                     .split("\r\n")
                     .filter((line) => line.includes("ApproachRate:"))
-                    .shift()
+                    .at(0)
                     .replaceAll("ApproachRate:", "")
             );
         }
@@ -192,7 +197,7 @@ class Beatmap {
             rawBeatmap
                 .split("\r\n")
                 .filter((line) => line.includes("CircleSize:"))
-                .shift()
+                .at(0)
                 .replaceAll("CircleSize:", "")
         );
 
@@ -201,7 +206,7 @@ class Beatmap {
             rawBeatmap
                 .split("\r\n")
                 .filter((line) => line.includes("HPDrainRate:"))
-                .shift()
+                .at(0)
                 .replaceAll("HPDrainRate:", "")
         );
 
@@ -211,7 +216,7 @@ class Beatmap {
                   rawBeatmap
                       .split("\r\n")
                       .filter((line) => line.includes("StackLeniency: "))
-                      .shift()
+                      .at(0)
                       .replaceAll("StackLeniency: ", "")
               )
             : 0.7;
@@ -221,7 +226,7 @@ class Beatmap {
             ? rawBeatmap
                   .split("\r\n")
                   .filter((line) => line.includes("SampleSet: "))
-                  .shift()
+                  .at(0)
                   .replaceAll("SampleSet: ", "")
             : "Normal";
 
@@ -230,7 +235,7 @@ class Beatmap {
             rawBeatmap
                 .split("\r\n")
                 .filter((line) => line.includes("SliderTickRate:"))
-                .shift()
+                .at(0)
                 .replaceAll("SliderTickRate:", "")
         );
 
@@ -239,7 +244,7 @@ class Beatmap {
             rawBeatmap
                 .split("\r\n")
                 .filter((line) => line.includes("OverallDifficulty:"))
-                .shift()
+                .at(0)
                 .replaceAll("OverallDifficulty:", "")
         );
 
@@ -369,6 +374,7 @@ class Beatmap {
                     timingPointsList[0];
 
                 let returnObject;
+                let timelineObject = null;
 
                 const typeBit = parseInt(params[3])
                     .toString(2)
@@ -378,8 +384,15 @@ class Beatmap {
                     .map((bit) => (bit === "1" ? true : false));
                 const colorHax = parseInt(parseInt(params[3]).toString(2).padStart(8, "0").split("").reverse().slice(4, 7).reverse().join(""), 2);
 
-                if (typeBit[0]) returnObject = Beatmap.constructHitCircle(params, currentSVMultiplier);
-                if (typeBit[1]) returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
+                if (typeBit[0]) {
+                    returnObject = Beatmap.constructHitCircle(params, currentSVMultiplier);
+                    timelineObject = new TimelineHitCircle(returnObject.obj);
+                }
+                if (typeBit[1]) {
+                    returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
+                    timelineObject = new TimelineSlider(returnObject.obj);
+
+                }
                 if (typeBit[3]) returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
 
                 if (typeBit[2] && idx !== 0) {
@@ -404,7 +417,10 @@ class Beatmap {
 
                 combo++;
 
-                return returnObject;
+                return {
+                    ...returnObject,
+                    timelineObject
+                };
             })
             .filter((o) => o);
 
