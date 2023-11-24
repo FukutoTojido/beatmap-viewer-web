@@ -65,7 +65,7 @@ class Timeline {
             .lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
         Timeline.APP.stage.addChild(Timeline.centerLine);
 
-        Timeline.hitArea.clear().beginFill(0xffffff, 0.01).drawRect(0, 0, Timeline.WIDTH, Timeline.HEIGHT);
+        Timeline.hitArea.resize();
     }
 
     static draw(timestamp) {

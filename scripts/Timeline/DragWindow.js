@@ -15,6 +15,10 @@ class TimelineDragWindow {
         });
     }
 
+    resize() {
+        this.obj.clear().beginFill(0xffffff, 0.01).drawRect(0, 0, Timeline.WIDTH, Timeline.HEIGHT)
+    }
+
     draw() {
 
     }
