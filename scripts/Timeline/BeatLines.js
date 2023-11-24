@@ -1,5 +1,27 @@
+class BeatTick {
+    obj;
+
+    constructor() {
+        this.obj = new PIXI.Sprite(Timeline.beatLines.tickTexture);
+        this.obj.anchor.set(0.5, 1);
+        Timeline.beatLines.obj.addChild(this.obj);
+    }
+
+    draw(denominator, index, step, delta) {
+        const center = Timeline.WIDTH / 2;
+
+        this.obj.tint = BeatLines.BEAT_LINE_COLOR[denominator] ?? 0x929292;
+
+        this.obj.x = center + index * step - delta;
+        this.obj.y = Timeline.HEIGHT;
+
+        if (denominator !== 1) this.obj.scale.set(1, 0.5);
+    }
+}
+
 class BeatLines {
     obj;
+    ticks = [];
     tickTexture;
 
     static BEAT_LINE_COLOR = {
@@ -12,7 +34,7 @@ class BeatLines {
         7: 0xe6e605,
         8: 0xe6e605,
         9: 0xe6e605,
-    }
+    };
 
     constructor() {
         this.obj = new PIXI.Container();
@@ -53,53 +75,33 @@ class BeatLines {
         const relativeTickPassed = Math.round(relativePosition / dividedStep);
         const nearestTick = offset + relativeTickPassed * dividedStep;
 
-        const center = Timeline.WIDTH / 2;
-
-        const removedChildren = this.obj.removeChildren();
-        removedChildren.forEach((sprite) => sprite.destroy());
-    
         // console.log(whiteTicksNum);
-        const step = (dividedStep) * (Timeline.ZOOM_DISTANCE / 500);
-        const delta = (timestamp - nearestTick) * (Timeline.ZOOM_DISTANCE / 500); 
+        const step = dividedStep * (Timeline.ZOOM_DISTANCE / 500);
+        const delta = (timestamp - nearestTick) * (Timeline.ZOOM_DISTANCE / 500);
+        const ticksNumber = Math.floor(range / dividedStep);
 
-        for (let i = 0; nearestTick - i * dividedStep > nearestTick - range; i++) {
-            const sprite = new PIXI.Sprite(this.tickTexture);
-            sprite.anchor.set(0.5, 1);
-
-            const tickTime = nearestTick - i * dividedStep - offset;
-            const whiteTickPassed = Math.round(tickTime / currentBeatStep);
-            const nearestWhiteTick = offset + whiteTickPassed * currentBeatStep;
-            let denominator = Math.round((currentBeatStep) / Math.abs(nearestWhiteTick - (nearestTick - i * dividedStep)));
-
-            if (denominator > 48) denominator = 1;
-
-            sprite.tint = BeatLines.BEAT_LINE_COLOR[denominator] ?? 0x929292;
-
-            sprite.x = center - i * step - delta;
-            sprite.y = Timeline.HEIGHT;
-
-            if (denominator !== 1) sprite.scale.set(1, 0.5);
-            this.obj.addChild(sprite);
+        while (this.ticks.length < ticksNumber * 2 + 1) {
+            this.ticks.push(new BeatTick());
         }
 
-        for (let i = 0; nearestTick + i * dividedStep < nearestTick + range; i++) {
-            const sprite = new PIXI.Sprite(this.tickTexture);
-            sprite.anchor.set(0.5, 1);
+        while (this.ticks.length > ticksNumber * 2 + 1) {
+            const sprite = this.ticks.pop();
 
+            if (!sprite) break;
+            this.obj.removeChild(sprite.obj);
+            sprite.obj.destroy();
+        }
+
+        for (let i = -ticksNumber; i <= ticksNumber; i++) {
             const tickTime = nearestTick + i * dividedStep - offset;
             const whiteTickPassed = Math.round(tickTime / currentBeatStep);
             const nearestWhiteTick = offset + whiteTickPassed * currentBeatStep;
-            let denominator = Math.round((currentBeatStep) / Math.abs(nearestWhiteTick - (nearestTick + i * dividedStep)));
+            let denominator = Math.round(currentBeatStep / Math.abs(nearestWhiteTick - (nearestTick + i * dividedStep)));
 
+            if (snap === 5 || snap === 10) denominator = 5;
             if (denominator > 48) denominator = 1;
 
-            sprite.tint = BeatLines.BEAT_LINE_COLOR[denominator] ?? 0x929292;
-
-            sprite.x = center + i * step - delta;
-            sprite.y = Timeline.HEIGHT;
-
-            if (denominator !== 1) sprite.scale.set(1, 0.5);
-            this.obj.addChild(sprite);
+            this.ticks[i + ticksNumber].draw(denominator, i, step, delta);
         }
     }
 }
