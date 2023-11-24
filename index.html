@@ -131,7 +131,7 @@
                 <span id="millisecond1digit" class="digit">0</span>
             </div>
             <button id="prevButton" onclick="go(null, false)"></button>
-            <button id="playButton" onclick="playToggle()"></button>
+            <button id="playButton" onclick="playToggle(this)"></button>
             <button id="nextButton" onclick="go(null, true)"></button>
             <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
                 onkeydown="event.preventDefault()">

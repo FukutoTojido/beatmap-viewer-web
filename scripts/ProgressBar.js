@@ -18,7 +18,8 @@ function setProgressMax() {
     document.querySelector("#progress").max = beatmapFile.audioNode.buf.duration * 1000;
 }
 
-function playToggle() {
+function playToggle(ele) {
+    ele?.blur();
     document.querySelector("#playButton").style.backgroundImage =
         document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
 
