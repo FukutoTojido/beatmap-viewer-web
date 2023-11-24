@@ -118,6 +118,8 @@ class BeatmapFile {
         }
 
         const setId = mapsetData?.id;
+        if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
+        else document.querySelector("#metadata").removeAttribute("href");
 
         const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : dropBlob;
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
@@ -330,8 +332,7 @@ class BeatmapFile {
             const removedChildren = Game.CONTAINER.removeChildren();
             removedChildren.forEach((ele) => ele.destroy());
 
-            const removedChildrenTimeline = Timeline.obj.removeChildren();
-            removedChildren.forEach((ele) => ele.destroy());
+            Timeline.destruct();
 
             currentMapId = this.mapId;
             // audioCtx = new AudioContext();
@@ -421,7 +422,7 @@ class BeatmapFile {
                             .padStart(2, "0");
 
                         navigator.clipboard.writeText(
-                            `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.comboIdx).join(",")}) - `
+                            `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
                     }
                 }

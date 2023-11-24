@@ -22,11 +22,11 @@ class Timeline {
         });
         // Timeline.APP.renderer = Game.APP.renderer;
 
+        Timeline.hitArea = new TimelineDragWindow();
+        Timeline.APP.stage.addChild(Timeline.hitArea.obj);
+
         Timeline.obj = new PIXI.Container();
         Timeline.APP.stage.addChild(Timeline.obj);
-
-        Timeline.hitArea = new TimelineDragWindow();
-        Timeline.obj.addChild(Timeline.hitArea.obj);
 
         Timeline.beatLines = new BeatLines();
         Timeline.APP.stage.addChild(Timeline.beatLines.obj);
@@ -103,11 +103,15 @@ class Timeline {
         }
 
         Timeline.obj.removeChildren();
-        Timeline.obj.addChild(Timeline.hitArea.obj);
         drawList.toReversed().forEach((o) => {
             if (!o.timelineObject) return;
             o.timelineObject.addSelfToContainer(Timeline.obj);
             o.timelineObject.draw(timestamp);
         });
+    }
+
+    static destruct() {
+        const removedChildren = Timeline.obj.removeChildren();
+        removedChildren.forEach(e => e.destroy());
     }
 }
