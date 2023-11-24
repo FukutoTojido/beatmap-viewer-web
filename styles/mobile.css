@@ -1,0 +1,314 @@
+@media screen and (max-aspect-ratio: 1 / 1) {
+    html {
+        font-size: 3vw;
+    }
+
+    button {
+    }
+
+    body {
+        width: 100dvw;
+        /* min-height: 100dvh; */
+        padding: 0;
+        margin: 0;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0;
+        background-size: cover;
+    }
+
+    #main {
+        /* background-color: transparent; */
+        /* backdrop-filter: none; */
+        /* overflow: hidden; */
+        height: 100%;
+    }
+
+    .timelineContainer {
+        height: 40px;
+        width: calc(100% - 20px);
+        margin-inline: 10px;
+    }
+
+    .zoom {
+        padding: 0;
+        justify-content: center;
+
+        display: none;
+    }
+
+    .zoom img {
+        width: 10px;
+        height: 10px;
+    }
+
+    #inputContainer {
+        width: 100%;
+        padding: 20px;
+        margin: 0;
+        gap: 10px;
+
+        flex-direction: column;
+    }
+
+    .legacyPart {
+        width: 100%;
+    }
+
+    .utilRow {
+        width: 100%;
+    }
+
+    #choose-diff {
+        flex: 1;
+    }
+
+    #inputContainer input[type="text"] {
+        /* background-color: rgb(0 0 0 /0.5); */
+        border-radius: 5px;
+    }
+
+    #inputContainer button:nth-child(3),
+    #inputContainer button:nth-child(4) {
+        background-color: var(--primary-3);
+        border-radius: 5px;
+    }
+
+    #settingsButton {
+        background-size: contain;
+        height: 30px;
+    }
+
+    #playerWrapper {
+        /* height: 100%; */
+    }
+
+    #playerWrapper {
+        flex: unset;
+    }
+
+    #playerContainer {
+        /* flex: 1; */
+        /* aspect-ratio: 16 / 9; */
+        /* width: 100%; */
+        /* height: 100%; */
+        border-radius: 0;
+        /* margin-bottom: 120px; */
+        aspect-ratio: 4 / 3;
+    }
+
+    #overlay,
+    #background {
+        border-radius: 0;
+    }
+
+    .stats {
+        position: relative;
+        inset: unset;
+
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        justify-content: center;
+    }
+
+    #metadata {
+        position: relative;
+        /* top: 100%; */
+
+        width: 100%;
+        /* height: 120px; */
+        padding: 20px;
+
+        background-color: var(--primary-2);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        font-size: 3vw;
+    }
+
+    .thePlayer {
+        position: relative;
+        margin: unset;
+        inset: unset;
+
+        width: 100%;
+        border-radius: unset;
+    }
+
+    .modsList {
+        margin-left: auto;
+    }
+
+    #playerController {
+        position: relative;
+        width: 100%;
+        height: auto;
+        /* height: 100%; */
+        /* bottom: 0; */
+        border-radius: 0 0 0 0;
+
+        flex-wrap: wrap;
+        align-content: flex-start;
+        justify-content: center;
+
+        background-color: rgba(0 0 0 / 0.5);
+
+        backdrop-filter: blur(10px);
+    }
+
+    #settingsPanel {
+        font-size: 0.8rem;
+    }
+
+    .section {
+        padding: 30px;
+    }
+
+    #timeContainer {
+        /* background-color: rgba(0 0 0 / 0.5); */
+        width: 100%;
+        padding: 20px;
+        margin-bottom: 20px;
+        justify-content: center;
+    }
+
+    #playButton,
+    #prevButton,
+    #nextButton {
+        /* width: 100%; */
+        height: 30px;
+        margin: 0;
+
+        padding: 0;
+    }
+
+    #playButton:focus {
+        outline: none;
+    }
+
+    #playButton:hover {
+        filter: none;
+    }
+
+    #progress {
+        width: 100%;
+        padding: 20px;
+    }
+
+    #volumeSlider {
+        display: none;
+    }
+
+    #playerController input[type="range"]::-webkit-slider-runnable-track {
+        background: var(--primary-5);
+        height: 4px;
+
+        margin: 10px;
+        border-radius: 20px;
+    }
+
+    #playerController input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+
+        width: 10px;
+        height: 10px;
+
+        background: white;
+        border-radius: 20px;
+
+        margin-top: -3px;
+
+        transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 100ms;
+        transform-origin: center;
+    }
+
+    #playerController input[type="range"]::-webkit-slider-thumb:hover {
+        box-shadow: 0 0 5px 0px white;
+        filter: brightness(1.2);
+    }
+}
+
+@media screen and (min-aspect-ratio: 16 / 9) and (max-width: 915px) {
+    body {
+        padding: 0;
+    }
+
+    #inputContainer {
+        padding: 10px;
+        margin: 0;
+        background-color: rgb(0 0 0 /0.5);
+    }
+
+    #settingsButton {
+        margin-right: auto;
+    }
+
+    #inputContainer input[type="text"] {
+        width: 100%;
+        border-radius: 5px;
+
+        /* background-color: rgb(0 0 0 /0.5); */
+    }
+
+    #inputContainer button:nth-child(3),
+    #inputContainer button:nth-child(4) {
+        border-radius: 5px;
+        background-color: rgb(0 0 0 /0.5);
+    }
+
+    #playerContainer {
+        /* padding-top: 50px; */
+        border-radius: 0;
+    }
+
+    #overlay {
+        top: 0;
+        /* padding-top: 50px; */
+        border-radius: 0;
+    }
+
+    #metadata {
+        top: 0;
+
+        padding: 0 10px;
+
+        height: 50px;
+        font-size: 1vw;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .stats {
+        font-size: 1vw;
+    }
+
+    #playerController {
+        border-radius: 0;
+        background-color: rgb(0 0 0 /0.5);
+    }
+
+    #timeContainer {
+        background-color: rgb(0 0 0 /0.5);
+    }
+
+    #playerController button {
+        margin: 12px 0;
+    }
+
+    #playerController button:hover {
+        filter: none;
+    }
+}
+
+/* @media screen and (max-width: 1024px) {
+} */
+
+@media screen and (min-width: 1024px) {
+    #inputWrapper {
+        width: 500px;
+    }
+}
