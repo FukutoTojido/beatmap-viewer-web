@@ -37,11 +37,17 @@ class TimelineHitCircle {
         this.obj.x = 0;
         this.obj.y = Timeline.HEIGHT / 2;
 
-        this.obj.on("click", (e) => {
+        const handleClickEvent = (e) => {
+            const { x, y } = this.obj.toLocal(e.global);
             if (selectedHitObject.includes(this.hitObject.time)) return;
+            if (Math.abs(x) > Timeline.HEIGHT / 2) return;
+
             if (!e.ctrlKey) selectedHitObject = [];
-            selectedHitObject.push(this.hitObject.time);
-        });
+            if (!selectedHitObject.includes(this.hitObject.time)) selectedHitObject.push(this.hitObject.time);
+            Timeline.hitArea.isObjectSelecting = true;
+        };
+
+        this.obj.on("mousedown", handleClickEvent);
     }
 
     addSelfToContainer(container) {

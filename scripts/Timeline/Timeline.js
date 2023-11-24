@@ -8,6 +8,7 @@ class Timeline {
     static HEIGHT;
     static ZOOM_DISTANCE = 200;
     static LOOK_AHEAD = 300;
+    static DRAW_LIST = [];
 
     static init() {
         Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width);
@@ -44,6 +45,7 @@ class Timeline {
         Timeline.APP.stage.addChild(Timeline.centerLine);
 
         document.querySelector(".timeline").appendChild(Timeline.APP.view);
+        globalThis.__PIXI_APP__ = Timeline.APP;
     }
 
     static resize() {
@@ -71,6 +73,7 @@ class Timeline {
     static draw(timestamp) {
         if (!beatmapFile?.beatmapRenderData?.objectsController.objectsList) return;
         Timeline.beatLines.draw(timestamp);
+        Timeline.hitArea.draw(timestamp);
 
         const objList = beatmapFile.beatmapRenderData.objectsController.objectsList;
 
@@ -101,11 +104,14 @@ class Timeline {
                 end++;
             }
         }
+        this.DRAW_LIST.forEach((o) => {
+            o.timelineObject.removeSelfFromContainer(Timeline.hitArea.obj);
+        })
+        this.DRAW_LIST = drawList;
 
-        Timeline.obj.removeChildren();
         drawList.toReversed().forEach((o) => {
             if (!o.timelineObject) return;
-            o.timelineObject.addSelfToContainer(Timeline.obj);
+            o.timelineObject.addSelfToContainer(Timeline.hitArea.obj);
             o.timelineObject.draw(timestamp);
         });
     }

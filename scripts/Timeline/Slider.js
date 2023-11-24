@@ -76,6 +76,9 @@ class TimelineSlider {
     meshTail;
     meshBody;
 
+    ratio = 1;
+    headPosition = 0;
+
     constructor(hitObject) {
         this.obj = new PIXI.Container();
         this.obj.interactive = true;
@@ -122,13 +125,17 @@ class TimelineSlider {
         this.obj.addChild(sliderTail.obj);
         this.obj.addChild(sliderHead.obj);
 
-        this.sliderHead.obj.interactive = false;
-        this.sliderTail.obj.interactive = false;
-
-        this.obj.on("click", (e) => {
+        this.obj.on("mousedown", (e) => {
+            const { x, y } = this.obj.toLocal(e.global);
             if (selectedHitObject.includes(this.hitObject.time)) return;
+
+            if (x < this.headPosition - Timeline.HEIGHT / 2 || x > this.headPosition + this.length * this.ratio + Timeline.HEIGHT / 2) return;
+
             if (!e.ctrlKey) selectedHitObject = [];
-            selectedHitObject.push(this.hitObject.time);
+            if (!selectedHitObject.includes(this.hitObject.time)) selectedHitObject.push(this.hitObject.time);
+
+            Timeline.hitArea.isObjectSelecting = true;
+            // console.log(this.obj.x, this.obj.y, x, y);
         });
     }
 
@@ -155,11 +162,13 @@ class TimelineSlider {
         const tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
 
         let headPosition = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, 0);
+        this.headPosition = headPosition;
         // let headPosition = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
         let endPosition = center - (delta / 500) * Timeline.ZOOM_DISTANCE + this.length;
 
         if (endPosition < 0) headPosition = endPosition;
         const ratio = Clamp((endPosition - headPosition) / this.length, 0, 1);
+        this.ratio = ratio;
         // const ratio = 1;
 
         this.meshHead.position.set(headPosition, Timeline.HEIGHT / 2);

@@ -318,7 +318,7 @@ class Game {
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
-        globalThis.__PIXI_APP__ = Game.APP;
+        // globalThis.__PIXI_APP__ = Game.APP;
 
         HitSample.masterGainNode = audioCtx.createGain();
         HitSample.masterGainNode.gain.value = hsVol * masterVol;
