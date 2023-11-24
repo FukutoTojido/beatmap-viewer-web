@@ -445,26 +445,29 @@ class BeatmapFile {
                 this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
             }
 
-            document.querySelector("#playerContainer").addEventListener(
-                "wheel",
-                (event) => {
-                    // event.preventDefault();
+            const scrollEventHandler = (event) => {
+                // event.preventDefault();
 
-                    if (isDragging && currentX !== -1 && currentY !== -1) {
-                        draggingEndTime = this.audioNode.getCurrentTime();
-                        handleCanvasDrag();
-                    }
-
-                    if (event.deltaY > 0) go(event.shiftKey, true);
-                    if (event.deltaY < 0) go(event.shiftKey, false);
-
-                    // console.log("Scrolled");
-                },
-                {
-                    capture: true,
-                    passive: true,
+                if (isDragging && currentX !== -1 && currentY !== -1) {
+                    draggingEndTime = this.audioNode.getCurrentTime();
+                    handleCanvasDrag();
                 }
-            );
+
+                if (event.deltaY > 0) go(event.shiftKey, true);
+                if (event.deltaY < 0) go(event.shiftKey, false);
+
+                // console.log("Scrolled");
+            };
+
+            document.querySelector("#playerContainer").addEventListener("wheel", scrollEventHandler, {
+                capture: true,
+                passive: true,
+            });
+
+            document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
+                capture: true,
+                passive: true,
+            });
 
             this.isLoaded = true;
         } catch (err) {

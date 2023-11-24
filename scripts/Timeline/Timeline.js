@@ -1,5 +1,6 @@
 class Timeline {
     static obj;
+    static hitArea;
     static centerLine;
     static beatLines;
     static APP;
@@ -24,15 +25,22 @@ class Timeline {
         Timeline.obj = new PIXI.Container();
         Timeline.APP.stage.addChild(Timeline.obj);
 
-        
+        Timeline.hitArea = new TimelineDragWindow();
+        Timeline.obj.addChild(Timeline.hitArea.obj);
+
         Timeline.beatLines = new BeatLines();
         Timeline.APP.stage.addChild(Timeline.beatLines.obj);
 
-        Timeline.centerLine = new PIXI.Graphics().lineStyle({
-            width: 1,
-            color: 0xffffff,
-            alignment: 1
-        }).moveTo(Timeline.WIDTH / 2 - 1, 0).lineTo(Timeline.WIDTH / 2 - 1, Timeline.HEIGHT).moveTo(Timeline.WIDTH / 2 + 1, 0).lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
+        Timeline.centerLine = new PIXI.Graphics()
+            .lineStyle({
+                width: 1,
+                color: 0xffffff,
+                alignment: 1,
+            })
+            .moveTo(Timeline.WIDTH / 2 - 1, 0)
+            .lineTo(Timeline.WIDTH / 2 - 1, Timeline.HEIGHT)
+            .moveTo(Timeline.WIDTH / 2 + 1, 0)
+            .lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
         Timeline.APP.stage.addChild(Timeline.centerLine);
 
         document.querySelector(".timeline").appendChild(Timeline.APP.view);
@@ -45,21 +53,28 @@ class Timeline {
 
         Timeline.APP.stage.removeChild(Timeline.centerLine);
         Timeline.centerLine.clear();
-        Timeline.centerLine = new PIXI.Graphics().lineStyle({
-            width: 1,
-            color: 0xffffff,
-            alignment: 1
-        }).moveTo(Timeline.WIDTH / 2 - 1, 0).lineTo(Timeline.WIDTH / 2 - 1, Timeline.HEIGHT).moveTo(Timeline.WIDTH / 2 + 1, 0).lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
+        Timeline.centerLine = new PIXI.Graphics()
+            .lineStyle({
+                width: 1,
+                color: 0xffffff,
+                alignment: 1,
+            })
+            .moveTo(Timeline.WIDTH / 2 - 1, 0)
+            .lineTo(Timeline.WIDTH / 2 - 1, Timeline.HEIGHT)
+            .moveTo(Timeline.WIDTH / 2 + 1, 0)
+            .lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
         Timeline.APP.stage.addChild(Timeline.centerLine);
+
+        Timeline.hitArea.clear().beginFill(0xffffff, 0.01).drawRect(0, 0, Timeline.WIDTH, Timeline.HEIGHT);
     }
 
     static draw(timestamp) {
         if (!beatmapFile?.beatmapRenderData?.objectsController.objectsList) return;
         Timeline.beatLines.draw(timestamp);
-        
+
         const objList = beatmapFile.beatmapRenderData.objectsController.objectsList;
 
-        const range = ((Timeline.WIDTH / 2) / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD;
+        const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD;
 
         const drawList = [];
         const compareFunc = (element, value) => {
@@ -67,7 +82,7 @@ class Timeline {
             if (element.obj.time > value + range) return 1;
             return 0;
         };
-        const foundIndex = binarySearch(objList, timestamp, compareFunc)
+        const foundIndex = binarySearch(objList, timestamp, compareFunc);
 
         if (foundIndex !== -1) {
             let start = foundIndex - 1;
@@ -88,10 +103,11 @@ class Timeline {
         }
 
         Timeline.obj.removeChildren();
-        drawList.toReversed().forEach(o => {
+        Timeline.obj.addChild(Timeline.hitArea.obj);
+        drawList.toReversed().forEach((o) => {
             if (!o.timelineObject) return;
             o.timelineObject.addSelfToContainer(Timeline.obj);
-            o.timelineObject.draw(timestamp)
+            o.timelineObject.draw(timestamp);
         });
     }
 }

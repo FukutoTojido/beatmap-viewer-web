@@ -23,6 +23,7 @@ const fragmentShader = `
 precision mediump float;
 
 uniform vec4 tint;
+uniform bool selected;
 varying float colorDist;
 
 vec4 lighten(vec4 color, float amount) {
@@ -45,21 +46,23 @@ vec4 darken(vec4 color, float amount) {
 void main() {
     float blurRate = 0.1;
     float alpha = 1.0;
-    // vec4 tint = vec4(0.3764, 0.5617, 0.7490, 1.0);
-    // vec4 tint = vec4(0.0, 0.0, 0.0, 1.0);
+    float totalAlpha = 0.7;
 
     vec4 outerColor = darken(tint, 0.1);
-    vec4 innerColor = lighten(tint, 0.5);
+    vec4 innerColor = tint;
 
     vec4 color = mix(outerColor, innerColor, colorDist);
-    color = darken(color, 0.5);
+    if (selected) {
+        color = tint;
+        totalAlpha = 1.0;
+    }
 
     color.a = 1.0;
 
     if (colorDist > 1.0 - blurRate)
         alpha = (1.0 - colorDist) / blurRate;
 
-    gl_FragColor = alpha * color;
+    gl_FragColor = totalAlpha * alpha * color;
 }
 `;
 
@@ -75,10 +78,15 @@ class TimelineSlider {
 
     constructor(hitObject) {
         this.obj = new PIXI.Container();
+        this.obj.interactive = true;
+
         this.x = 0;
         this.radius = 30.0 * (118 / 128);
         this.hitObject = hitObject;
         this.length = 1;
+
+        this.hitArea = new PIXI.Graphics().drawRect(0, 0, 0, 0);
+        this.obj.addChild(this.hitArea);
 
         const headGeometry = this.createArc(-1, 0);
         const tailGeometry = this.createArc(1, 0);
@@ -91,12 +99,16 @@ class TimelineSlider {
         const shader = PIXI.Shader.from(vertexShader, fragmentShader, uniforms);
 
         const meshHead = new PIXI.Mesh(headGeometry, shader);
-        const meshTail = new PIXI.Mesh(tailGeometry, shader);
         const meshBody = new PIXI.Mesh(bodyGeometry, shader);
+        const meshTail = new PIXI.Mesh(tailGeometry, shader);
 
         this.meshHead = meshHead;
-        this.meshTail = meshTail;
         this.meshBody = meshBody;
+        this.meshTail = meshTail;
+
+        this.meshHead.hitArea = new PIXI.Rectangle(0, 0, 0, 0);
+        this.meshBody.hitArea = new PIXI.Rectangle(0, 0, 0, 0);
+        this.meshTail.hitArea = new PIXI.Rectangle(0, 0, 0, 0);
 
         this.obj.addChild(meshHead);
         this.obj.addChild(meshTail);
@@ -109,6 +121,15 @@ class TimelineSlider {
 
         this.obj.addChild(sliderTail.obj);
         this.obj.addChild(sliderHead.obj);
+
+        this.sliderHead.obj.interactive = false;
+        this.sliderTail.obj.interactive = false;
+
+        this.obj.on("click", (e) => {
+            if (selectedHitObject.includes(this.hitObject.time)) return;
+            if (!e.ctrlKey) selectedHitObject = [];
+            selectedHitObject.push(this.hitObject.time);
+        });
     }
 
     addSelfToContainer(container) {
@@ -123,6 +144,8 @@ class TimelineSlider {
         const time = this.hitObject.time;
         const delta = timestamp - time;
 
+        const selected = selectedHitObject.includes(time);
+
         const center = Timeline.WIDTH / 2;
 
         this.length = ((this.hitObject.endTime - this.hitObject.time) / 500) * Timeline.ZOOM_DISTANCE;
@@ -131,23 +154,37 @@ class TimelineSlider {
         const idx = sliderAppearance.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
         const tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
 
-        this.meshHead.position.set(center - (delta / 500) * Timeline.ZOOM_DISTANCE, Timeline.HEIGHT / 2);
+        let headPosition = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, 0);
+        // let headPosition = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
+        let endPosition = center - (delta / 500) * Timeline.ZOOM_DISTANCE + this.length;
+
+        if (endPosition < 0) headPosition = endPosition;
+        const ratio = Clamp((endPosition - headPosition) / this.length, 0, 1);
+        // const ratio = 1;
+
+        this.meshHead.position.set(headPosition, Timeline.HEIGHT / 2);
         this.meshHead.scale.set(Timeline.HEIGHT / 60);
         this.meshHead.shader.uniforms.tint = tint;
+        this.meshHead.shader.uniforms.selected = selected;
 
-        this.meshBody.position.set(center - (delta / 500) * Timeline.ZOOM_DISTANCE, Timeline.HEIGHT / 2);
-        this.meshBody.scale.set(this.length, Timeline.HEIGHT / 60);
+        this.meshBody.position.set(headPosition, Timeline.HEIGHT / 2);
+        this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / 60);
         this.meshBody.shader.uniforms.tint = tint;
+        this.meshHead.shader.uniforms.selected = selected;
 
-        this.meshTail.position.set(center - (delta / 500) * Timeline.ZOOM_DISTANCE + this.length, Timeline.HEIGHT / 2);
+        this.meshTail.position.set(endPosition, Timeline.HEIGHT / 2);
         this.meshTail.scale.set(Timeline.HEIGHT / 60);
         this.meshTail.shader.uniforms.tint = tint;
+        this.meshHead.shader.uniforms.selected = selected;
 
         this.sliderHead.draw(timestamp);
         this.sliderTail.draw(timestamp, true);
 
+        this.sliderHead.obj.x = headPosition;
+        this.sliderTail.obj.x = endPosition;
 
-        this.sliderTail.obj.x = center - (delta / 500) * Timeline.ZOOM_DISTANCE + this.length;
+        this.hitArea.clear();
+        this.hitArea.beginFill(0xffff00, 0.0001).drawRect(headPosition, 0, this.length * ratio, Timeline.HEIGHT);
 
         // this.sliderHead.hitCircle.tint = colors[idx % colors.length];
         // this.sliderTail.hitCircle.tint = colors[idx % colors.length];
