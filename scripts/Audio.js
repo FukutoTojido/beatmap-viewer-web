@@ -23,6 +23,10 @@ class PAudio {
         this.phazeNode = new AudioWorkletNode(audioCtx, "phase-vocoder-processor");
 
         this.gainNode = audioCtx.createGain();
+
+        // Trying to remove desync on mobile
+        this.play();
+        this.pause();
     }
 
     constructor(buf) {
