@@ -10,6 +10,8 @@ class SliderTick {
 
     scale;
 
+    hitSound;
+
     constructor(info, slider, spanIdx) {
         this.info = info;
         this.slider = slider;
@@ -28,9 +30,44 @@ class SliderTick {
         this.scale = Beatmap.moddedStats.radius / 54.4;
 
         this.spanIdx = spanIdx;
+        this.getHitSound();
+    }
+
+    getHitSound() {
+        let foundNearestIndex = binarySearchNearest(Beatmap.timingPointsList, this.info.time, (element, value) => {
+            if (element.time < value) return -1;
+            if (element.time > value) return 1;
+            return 0;
+        });
+
+        while (Beatmap.timingPointsList[foundNearestIndex].time > this.info.time && foundNearestIndex > 0) {
+            foundNearestIndex--;
+        }
+
+        const { sampleIdx, sampleSet: timingSampleSet, sampleVol } = Beatmap.timingPointsList[foundNearestIndex];
+        const normalSet = this.slider.hitSounds.defaultSet.normal;
+
+        let sampleSet = HitSound.HIT_SAMPLES[Beatmap.SAMPLE_SET];
+        if (timingSampleSet !== 0) sampleSet = HitSound.HIT_SAMPLES[timingSampleSet];
+        if (normalSet !== 0) sampleSet = HitSound.HIT_SAMPLES[normalSet];
+
+        this.hitSound = new HitSample([`${sampleSet}-slidertick${sampleIdx}`], sampleVol / 100);
+    }
+
+    playHitsound(timestamp) {
+        if (!this.hitSound) return;
+        if (!beatmapFile.audioNode.isPlaying) return;
+        if (timestamp < this.info.time || ObjectsController.lastTimestamp >= this.info.time) return;
+
+        if (!ScoreParser.REPLAY_DATA) {
+            this.hitSound.play();
+            return;
+        }
     }
 
     draw(timestamp) {
+        this.playHitsound(timestamp);
+
         const skinType = Skinning.SKIN_ENUM[skinning.type];
 
         // This appears to be a very bullshit implementation from me so please do not follow T.T
@@ -54,7 +91,7 @@ class SliderTick {
         this.graphic.tint = 0xffffff;
         if (skinType !== "LEGACY" && skinType !== "CUSTOM") {
             const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-            const idx = sliderAppearance.ignoreSkin ? this.slider.colourIdx : this.slider.colourHaxedIdx ;
+            const idx = sliderAppearance.ignoreSkin ? this.slider.colourIdx : this.slider.colourHaxedIdx;
             const color = colors[idx % colors.length];
 
             this.graphic.tint = color;

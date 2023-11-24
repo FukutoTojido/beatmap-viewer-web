@@ -681,6 +681,8 @@ class Slider {
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time);
         this.hitCircle.hitTime = this.hitTime;
 
+        this.hitSounds = hitSounds;
+
         this.angleList = this.getAngleList(originalArr);
         this.realTrackPoints = [...Array(this.repeat).keys()]
             .reduce((prev, curr, idx) => {
@@ -808,7 +810,6 @@ class Slider {
         SliderContainer.addChild(this.nodesContainer);
 
         this.obj = SliderContainer;
-        this.hitSounds = hitSounds;
         // this.obj.alpha = 0.0;
     }
 

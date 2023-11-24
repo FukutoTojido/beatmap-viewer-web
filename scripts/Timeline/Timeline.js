@@ -105,7 +105,7 @@ class Timeline {
             }
         }
         this.DRAW_LIST.forEach((o) => {
-            o.timelineObject.removeSelfFromContainer(Timeline.hitArea.obj);
+            o.timelineObject?.removeSelfFromContainer(Timeline.hitArea.obj);
         })
         this.DRAW_LIST = drawList;
 

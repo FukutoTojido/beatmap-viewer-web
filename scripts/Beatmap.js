@@ -48,6 +48,7 @@ class Beatmap {
     };
 
     static beatStepsList = [];
+    static timingPointsList = [];
 
     static updateModdedStats() {
         const HRMul = !mods.HR ? 1 : 1.4;
@@ -121,9 +122,10 @@ class Beatmap {
 
         const edgeSounds = params[8];
         const edgeSets = params[9];
+        const defaultSet = /^\d:\d.*/g.test(params.at(-1)) ? params.at(-1) : "0:0";
 
-        const headSamples = HitSound.GetName(edgeSets?.split("|")[0] ?? "0:0:", edgeSounds?.split("|")[0] ?? hitSoundIdx, svStart);
-        const endSamples = HitSound.GetName(edgeSets?.split("|").at(-1) ?? "0:0:", edgeSounds?.split("|").at(-1) ?? hitSoundIdx, svEnd);
+        const headSamples = HitSound.GetName(edgeSets?.split("|")[0] ?? defaultSet, edgeSounds?.split("|")[0] ?? hitSoundIdx, svStart);
+        const endSamples = HitSound.GetName(edgeSets?.split("|").at(-1) ?? defaultSet, edgeSounds?.split("|").at(-1) ?? hitSoundIdx, svEnd);
 
         const reversesSamples = [...Array(slides - 1)].map((_, idx) => {
             const reverseTime = time + (((idx + 1) * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
@@ -132,7 +134,7 @@ class Beatmap {
                 timingPoints.findLast((timingPoint) => timingPoint.time <= reverseTime) ??
                 timingPoints[0];
 
-            const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? "0:0:", edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
+            const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? defaultSet, edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
             return new HitSample(samples, sv.sampleVol / 100);
         });
 
@@ -144,6 +146,10 @@ class Beatmap {
             sliderHead: new HitSample(headSamples, svStart.sampleVol / 100),
             sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
             sliderReverse: reversesSamples,
+            defaultSet: {
+                normal: parseInt(defaultSet.split(":")[0]),
+                additional: parseInt(defaultSet.split(":")[1]),
+            }
         };
 
         const obj = new Slider(`${x}:${y}|${anchors}`, sliderType, length, svStart.svMultiplier, initialSliderVelocity, beatStep, time, slides, hitsounds);
@@ -313,6 +319,8 @@ class Beatmap {
                     sampleVol: parseInt(params[5] ?? "100"),
                 };
             });
+
+        Beatmap.timingPointsList = timingPointsList;
 
         // console.log(beatStepsList, timingPointsList);
         let coloursList =

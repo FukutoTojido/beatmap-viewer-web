@@ -248,7 +248,7 @@ const loadColorPalette = (bg) => {
 async function loadDefaultSamples() {
     for (const skin of ["ARGON", "LEGACY"])
         for (const sampleset of ["normal", "soft", "drum"]) {
-            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap"]) {
+            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick"]) {
                 const res = (
                     await axios.get(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
                         responseType: "arraybuffer",
@@ -353,6 +353,29 @@ const binarySearch = (list, value, compareFunc) => {
     }
 
     return -1;
+}
+
+const binarySearchNearest = (list, value, compareFunc) => {
+    let start = 0;
+    let end = list.length - 1;
+    let mid = start + Math.floor((end - start) / 2);
+
+    while (end >= start) {
+        mid = start + Math.floor((end - start) / 2);
+
+        if (compareFunc(list[mid], value) === 0) return mid;
+
+        if (compareFunc(list[mid], value) < 0) {
+            start = mid + 1;
+            continue;
+        }
+
+        if (compareFunc(list[mid], value) > 0) {
+            end = mid - 1;
+        }
+    }
+
+    return mid;
 }
 
 const Fixed = (val, decimalPlace) => Math.round(val * 10 ** decimalPlace) / 10 ** decimalPlace;
