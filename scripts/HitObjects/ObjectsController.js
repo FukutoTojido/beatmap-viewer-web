@@ -10,7 +10,6 @@ class ObjectsController {
     coloursObject;
     lastTimestamp = 0;
     lastTime = 0;
-    fpsArr = [];
     tempW = Game.WIDTH;
     tempH = Game.HEIGHT;
 
@@ -46,14 +45,7 @@ class ObjectsController {
             beatmapFile.audioNode.pause();
         }
 
-        this.fpsArr.push(Math.max(0, performance.now() - this.lastTime));
-        if (this.fpsArr.length > 100) {
-            this.fpsArr = this.fpsArr.slice(this.fpsArr.length - 100);
-        }
-
-        Game.FPS.text = `${Math.round(
-            1000 / (this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length)
-        )}fps\n${(this.fpsArr.reduce((prev, curr) => parseFloat(prev) + parseFloat(curr), 0) / this.fpsArr.length).toFixed(2)}ms`;
+        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${parseFloat(Game.APP.ticker.deltaMS).toFixed(2)}ms`;
         this.lastTime = performance.now();
 
         if (didMove && currentX !== -1 && currentY !== -1) {
@@ -109,15 +101,16 @@ class ObjectsController {
             selected.push(o);
         });
 
-        const judgements = this.judgementList.filter(
-            (judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp
-        );
+        const judgements = this.judgementList.filter((judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp);
 
         Game.CONTAINER.removeChildren();
         Game.addToContainer([
             ...judgements,
             ...this.filtered.map((o) => o.obj).toReversed(),
-            ...this.filtered.map((o) => o.obj.approachCircleObj).filter(o => o).toReversed(),
+            ...this.filtered
+                .map((o) => o.obj.approachCircleObj)
+                .filter((o) => o)
+                .toReversed(),
             ...selected
                 .reduce((accm, o) => {
                     if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
