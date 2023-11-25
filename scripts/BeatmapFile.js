@@ -205,10 +205,25 @@ class BeatmapFile {
                 .filter((line) => /Version:.+/g.test(line))
                 .at(0)
                 ?.replace("Version:", "");
+            const beatmapID = splitted
+                .filter((line) => /BeatmapID:.+/g.test(line))
+                .at(0)
+                ?.replace("BeatmapID:", "");
+            const beatmapSetID = splitted
+                .filter((line) => /BeatmapSetID:.+/g.test(line))
+                .at(0)
+                ?.replace("BeatmapSetID:", "");
 
             document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
             document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
+
+            if (beatmapSetID !== -1 && beatmapID !== -1) {
+                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}`);
+                document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
+            } else {
+                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/`);
+            }
         }
 
         const modsTemplate = ["HARD_ROCK", "EASY", "DOUBLE_TIME", "HALF_TIME"];

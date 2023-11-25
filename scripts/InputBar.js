@@ -127,7 +127,7 @@ function submitMap(isDragAndDrop, beatmapID) {
     const origin = window.location.origin;
 
     if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${bID}`);
-    else window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}`);
+    // else window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}`);
 
     beatmapFile = undefined;
     beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
