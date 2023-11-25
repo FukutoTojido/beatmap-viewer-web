@@ -183,7 +183,7 @@ class Beatmap {
             return 0;
         });
 
-        while (foundIndex > 0 && Beatmap[type][foundIndex].time >= time + 2) foundIndex--;
+        while (foundIndex > 0 && Beatmap[type][foundIndex].time > time + 2) foundIndex--;
 
         if (Beatmap[type][foundIndex].time > time + 2) return Beatmap[type][0];
         return Beatmap[type][foundIndex];

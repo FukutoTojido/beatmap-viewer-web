@@ -216,7 +216,7 @@ class Slider {
 
     createEquiDistCurve(points, actualLength, calculatedLength) {
         let rPoints = points;
-        const sectionDistance = actualLength * Game.SLIDER_ACCURACY;
+        const sectionDistance = actualLength * Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY);
 
         for (let i = 0; i < rPoints.length - 1; i++) {
             let distanceToNextPoint = this.Dist(rPoints[i], rPoints[i + 1]);
@@ -257,7 +257,7 @@ class Slider {
 
     generatePointsList(controlPointsList) {
         let pointsList = [];
-        for (let i = 0; i < 1; i += Game.SLIDER_ACCURACY) {
+        for (let i = 0; i < 1; i += Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY)) {
             pointsList.push(this.bezier(i, controlPointsList));
         }
 
@@ -364,7 +364,7 @@ class Slider {
         let length = 0;
 
         // console.log(this.time, innerAngle, centerX, centerY, pointArr[0]);
-        for (let i = 0; i < 1; i += Game.SLIDER_ACCURACY) {
+        for (let i = 0; i < 1; i += Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY)) {
             const toPush = {
                 x: centerX + (pointArr[0].x - centerX) * Math.cos(innerAngle * i) - (pointArr[0].y - centerY) * Math.sin(innerAngle * i),
                 y: centerY + (pointArr[0].x - centerX) * Math.sin(innerAngle * i) + (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
@@ -683,7 +683,11 @@ class Slider {
 
         this.hitSounds = hitSounds;
 
+        // let start = performance.now();
         this.angleList = this.getAngleList(originalArr);
+        // let took = performance.now() - start;
+        // if (took > 20) console.log(`Took: ${took} to create ${this.time} AngleList`);
+
         this.realTrackPoints = [...Array(this.repeat).keys()]
             .reduce((prev, curr, idx) => {
                 let ret = [];
@@ -757,8 +761,11 @@ class Slider {
 
         // console.log(this.time, this.angleList);
 
+        // start = performance.now();
         this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, this);
         this.reInitialize();
+        // took = performance.now() - start;
+        // if (took > 5) console.log(`Took: ${took}ms to create ${this.time} SliderMesh`);
         this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
         this.selected = this.sliderGeometryContainer.selSliderContainer;
 

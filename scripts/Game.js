@@ -10,7 +10,7 @@ class Game {
 
     static WIDTH;
     static HEIGHT;
-    static SLIDER_ACCURACY = 1 / 1000;
+    static SLIDER_ACCURACY = 1 / 500;
     static OFFSET_X;
     static OFFSET_Y;
 
