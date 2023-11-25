@@ -103,22 +103,13 @@ class Beatmap {
     static constructSlider(params, timingPoints, beatSteps, initialSliderVelocity) {
         const hitSoundIdx = parseInt(params[4]);
         const time = parseInt(params[2]);
-        const svStart =
-            timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - time) <= 2) ??
-            timingPoints.findLast((timingPoint) => timingPoint.time < time) ??
-            timingPoints[0];
+        const svStart = Beatmap.findNearestTimingPoint(time, "timingPointsList");
 
-        const { beatstep: beatStep } =
-            beatSteps.findLast((timingPoint) => Math.abs(timingPoint.time - time) <= 2) ??
-            beatSteps.findLast((timingPoint) => timingPoint.time < time) ??
-            beatSteps[0];
+        const { beatstep: beatStep } = Beatmap.findNearestTimingPoint(time, "beatStepsList");
         const slides = parseInt(params[6]);
         const length = parseFloat(params[7]);
         const endTime = time + ((slides * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
-        const svEnd =
-            timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - endTime) <= 2) ??
-            timingPoints.findLast((timingPoint) => timingPoint.time < endTime) ??
-            timingPoints[0];
+        const svEnd = Beatmap.findNearestTimingPoint(endTime, "timingPointsList");
 
         const edgeSounds = params[8];
         const edgeSets = params[9];
@@ -129,10 +120,7 @@ class Beatmap {
 
         const reversesSamples = [...Array(slides - 1)].map((_, idx) => {
             const reverseTime = time + (((idx + 1) * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
-            const sv =
-                timingPoints.findLast((timingPoint) => Math.abs(timingPoint.time - reverseTime) < 3) ??
-                timingPoints.findLast((timingPoint) => timingPoint.time <= reverseTime) ??
-                timingPoints[0];
+            const sv = Beatmap.findNearestTimingPoint(reverseTime, "timingPointsList");
 
             const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? defaultSet, edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
             return new HitSample(samples, sv.sampleVol / 100);
@@ -142,21 +130,31 @@ class Beatmap {
         const anchors = params[5].slice(2);
         const sliderType = params[5][0];
 
-        const hitsounds =  {
+        const hitsounds = {
             sliderHead: new HitSample(headSamples, svStart.sampleVol / 100),
             sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
             sliderReverse: reversesSamples,
             defaultSet: {
                 normal: parseInt(defaultSet.split(":")[0]),
                 additional: parseInt(defaultSet.split(":")[1]),
-            }
+            },
         };
 
-        const obj = new Slider(`${x}:${y}|${anchors}`, sliderType, length, svStart.svMultiplier, initialSliderVelocity, beatStep, time, slides, hitsounds);
+        const obj = new Slider(
+            `${x}:${y}|${anchors}`,
+            sliderType,
+            length,
+            svStart.svMultiplier,
+            initialSliderVelocity,
+            beatStep,
+            time,
+            slides,
+            hitsounds
+        );
 
         return {
             obj,
-            hitsounds
+            hitsounds,
         };
     }
 
@@ -174,8 +172,21 @@ class Beatmap {
 
         return {
             obj: new HitCircle(x, y, parseInt(time), hitsounds),
-            hitsounds
+            hitsounds,
         };
+    }
+
+    static findNearestTimingPoint(time, type) {
+        let foundIndex = binarySearchNearest(Beatmap[type], time, (point, time) => {
+            if (point.time < time + 2) return -1;
+            if (point.time > time + 2) return 1;
+            return 0;
+        });
+
+        while (foundIndex > 0 && Beatmap[type][foundIndex].time >= time + 2) foundIndex--;
+
+        if (Beatmap[type][foundIndex].time > time + 2) return Beatmap[type][0];
+        return Beatmap[type][foundIndex];
     }
 
     constructor(rawBeatmap, delay) {
@@ -372,14 +383,12 @@ class Beatmap {
         let colorIdx = 1;
         let colorHaxedIdx = 1;
 
+        let start = performance.now();
         const parsedHitObjects = objectLists
             .map((object, idx) => {
                 const params = object.split(",");
                 const time = parseInt(params[2]);
-                let currentSVMultiplier =
-                    timingPointsList.findLast((timingPoint) => Math.abs(timingPoint.time - time) <= 2) ??
-                    timingPointsList.findLast((timingPoint) => timingPoint.time < time) ??
-                    timingPointsList[0];
+                let currentSVMultiplier = Beatmap.findNearestTimingPoint(time, "timingPointsList");
 
                 let returnObject;
                 let timelineObject = null;
@@ -399,7 +408,6 @@ class Beatmap {
                 if (typeBit[1]) {
                     returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
                     timelineObject = new TimelineSlider(returnObject.obj);
-
                 }
                 if (typeBit[3]) returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
 
@@ -427,12 +435,15 @@ class Beatmap {
 
                 return {
                     ...returnObject,
-                    timelineObject
+                    timelineObject,
                 };
             })
             .filter((o) => o);
+        console.log(`Took: ${performance.now() - start}ms to finish objects construction.`);
 
+        start = performance.now();
         this.objectsController = new ObjectsController(parsedHitObjects, coloursList, breakPeriods);
+        console.log(`Took: ${performance.now() - start}ms to finish objectsController construction.`);
 
         // Ported from Lazer
         let extendedEndIndex = this.objectsController.objectsList.length - 1;
