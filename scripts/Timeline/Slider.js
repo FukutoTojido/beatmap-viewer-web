@@ -71,6 +71,7 @@ class TimelineSlider {
     hitObject;
     sliderHead;
     sliderTail;
+    sliderReverses = [];
 
     meshHead;
     meshTail;
@@ -122,7 +123,10 @@ class TimelineSlider {
         this.sliderHead = sliderHead;
         this.sliderTail = sliderTail;
 
+        this.sliderReverses = this.hitObject.revArrows.map((arrow) => new TimelineReverseArrow(arrow, this.hitObject));
+
         this.obj.addChild(sliderTail.obj);
+        this.sliderReverses.toReversed().forEach((arrow) => this.obj.addChild(arrow.obj));
         this.obj.addChild(sliderHead.obj);
 
         this.obj.on("mousedown", (e) => {
@@ -194,6 +198,8 @@ class TimelineSlider {
 
         this.hitArea.clear();
         this.hitArea.beginFill(0xffff00, 0.0001).drawRect(headPosition, 0, this.length * ratio, Timeline.HEIGHT);
+
+        this.sliderReverses.forEach(arrow => arrow.draw(timestamp));
 
         // this.sliderHead.hitCircle.tint = colors[idx % colors.length];
         // this.sliderTail.hitCircle.tint = colors[idx % colors.length];
