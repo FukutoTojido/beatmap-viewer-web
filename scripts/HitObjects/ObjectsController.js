@@ -186,9 +186,8 @@ class ObjectsController {
         //     const timestamp = currentAudioTime;
         //     return this.draw(timestamp);
         // });
-        Game.APP.ticker.add(() => {
-            const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-            this.draw(currentAudioTime);
-        });
+        const currentAudioTime = beatmapFile?.audioNode?.getCurrentTime();
+        if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController)
+            beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);
     }
 }

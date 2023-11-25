@@ -461,7 +461,7 @@ class BeatmapFile {
                 // this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
             }
 
-            this.beatmapRenderData.objectsController.render();
+            Game.APP.ticker.add(this.beatmapRenderData.objectsController.render);
 
             const scrollEventHandler = (event) => {
                 // event.preventDefault();

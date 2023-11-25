@@ -129,6 +129,10 @@ function submitMap(isDragAndDrop, beatmapID) {
     if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${bID}`);
     // else window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}`);
 
+    if (beatmapFile) {
+        Game.APP.ticker.remove(beatmapFile.beatmapRenderData.objectsController.render);
+    }
+
     beatmapFile = undefined;
     beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
 
