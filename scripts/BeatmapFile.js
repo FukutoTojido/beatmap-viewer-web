@@ -456,10 +456,12 @@ class BeatmapFile {
 
             if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
                 updateTime(parseInt(urlParams.get("t")));
-                this.beatmapRenderData.objectsController.draw(parseInt(urlParams.get("t")), true);
+                // this.beatmapRenderData.objectsController.draw(parseInt(urlParams.get("t")), true);
             } else {
-                this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
+                // this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
             }
+
+            this.beatmapRenderData.objectsController.render();
 
             const scrollEventHandler = (event) => {
                 // event.preventDefault();

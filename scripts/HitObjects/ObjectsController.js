@@ -158,16 +158,18 @@ class ObjectsController {
             }
         }
 
-        ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
-            if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
-                const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-                const timestampNext = currentAudioTime;
-                this.lastTimestamp = timestamp;
-                ObjectsController.lastTimestamp = timestamp;
+        ObjectsController.lastTimestamp = timestamp;
 
-                return this.draw(timestampNext);
-            }
-        });
+        // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
+        //     if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
+        //         const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
+        //         const timestampNext = currentAudioTime;
+        //         this.lastTimestamp = timestamp;
+        //         ObjectsController.lastTimestamp = timestamp;
+
+        //         return this.draw(timestampNext);
+        //     }
+        // });
     }
 
     reinitializeAllSliders() {
@@ -179,10 +181,14 @@ class ObjectsController {
     }
 
     render() {
-        ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
+        // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
+        //     const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
+        //     const timestamp = currentAudioTime;
+        //     return this.draw(timestamp);
+        // });
+        Game.APP.ticker.add(() => {
             const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-            const timestamp = currentAudioTime;
-            return this.draw(timestamp);
+            this.draw(currentAudioTime);
         });
     }
 }
