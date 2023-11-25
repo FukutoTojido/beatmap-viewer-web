@@ -35,11 +35,22 @@ class Game {
     }
 
     static FPSInit() {
-        const fpsSprite = new PIXI.Text(`0fps\nInfinite ms`, {
-            fontFamily: "Torus",
-            fontSize: 15,
-            fontWeight: 500,
-            fill: 0xffffff,
+        PIXI.BitmapFont.from(
+            "Torus",
+            {
+                fontFamily: "Torus",
+                fontSize: 15,
+                fontWeight: 500,
+                fill: 0xffffff,
+                align: "right",
+            },
+            {
+                chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". "],
+            }
+        );
+
+        const fpsSprite = new PIXI.BitmapText(`0fps\nInfinite ms`, {
+            fontName: "Torus",
             align: "right",
         });
 
@@ -254,7 +265,7 @@ class Game {
 
         // Reposition drag window
         Game.DRAG_WINDOW.x = Game.OFFSET_X;
-        Game.DRAG_WINDOW.y = Game.OFFSET_Y ;
+        Game.DRAG_WINDOW.y = Game.OFFSET_Y;
 
         // Reposition FPS
         Game.FPS.x = Game.APP.view.width - 10;

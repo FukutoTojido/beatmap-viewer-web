@@ -8,6 +8,8 @@ class TimelineDragWindow {
 
     isObjectSelecting = false;
 
+    currentX = null;
+
     checkObjectsInWindow() {
         const selectedList = [];
 
@@ -84,6 +86,7 @@ class TimelineDragWindow {
         const currentTime = beatmapFile.audioNode.getCurrentTime();
 
         this.endTimestamp = currentTime - ((center - x) / Timeline.ZOOM_DISTANCE) * 500;
+        this.currentX = x;
 
         this.checkObjectsInWindow();
     }
@@ -97,6 +100,7 @@ class TimelineDragWindow {
         this.isObjectSelecting = false;
 
         this.isDragging = false;
+        this.currentX = -1;
     }
 
     handleLeaveEvent(e) {
@@ -109,6 +113,7 @@ class TimelineDragWindow {
         this.isObjectSelecting = false;
 
         this.isDragging = false;
+        this.currentX = -1;
     }
 
     resize() {
@@ -121,6 +126,13 @@ class TimelineDragWindow {
             return;
         }
 
+        const center = Timeline.WIDTH / 2;
+
+        if (this.isDragging && this.currentX) {
+            this.endTimestamp = timestamp - ((center - this.currentX) / Timeline.ZOOM_DISTANCE) * 500;
+            this.checkObjectsInWindow();
+        }
+
         let startTime = this.startTimestamp;
         let endTime = this.endTimestamp;
 
@@ -128,8 +140,6 @@ class TimelineDragWindow {
             endTime = startTime;
             startTime = this.endTimestamp;
         }
-
-        const center = Timeline.WIDTH / 2;
 
         const deltaStart = timestamp - startTime;
         const deltaEnd = timestamp - endTime;
