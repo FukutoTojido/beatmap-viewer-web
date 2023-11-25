@@ -22,7 +22,7 @@ class BeatTick {
         const center = Timeline.WIDTH / 2;
         const delta = timestamp - lineTime;
 
-        this.obj.tint = type === "beatStep" ? 0xe34653 : 0x70e346;
+        this.obj.tint = type === "beatStep" ? 0xe34653 : 0x1bcc20;
 
         this.obj.x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
         this.obj.y = Timeline.HEIGHT;
