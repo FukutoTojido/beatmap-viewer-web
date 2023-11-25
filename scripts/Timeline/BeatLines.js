@@ -17,6 +17,19 @@ class BeatTick {
 
         if (denominator !== 1) this.obj.scale.set(1, 0.5);
     }
+
+    drawLine(lineTime, type, timestamp) {
+        const center = Timeline.WIDTH / 2;
+        const delta = timestamp - lineTime;
+
+        this.obj.tint = type === "beatStep" ? 0xe34653 : 0x70e346;
+
+        this.obj.x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
+        this.obj.y = Timeline.HEIGHT;
+        this.obj.alpha = 0.9;
+
+        this.obj.scale.set(1, 3);
+    }
 }
 
 class BeatLines {
@@ -63,10 +76,39 @@ class BeatLines {
         this.tickTexture = renderTexture;
     }
 
+    getLineInRange(time, range, type) {
+        const foundIndex = binarySearchNearest(Beatmap[type], time, (point, time) => {
+            if (point.time < time) return -1;
+            if (point.time > time) return 1;
+            return 0;
+        });
+
+        const pointList = [];
+        const mid = Beatmap[type][foundIndex];
+
+        if (mid.time >= time - range && mid.time <= time + range) pointList.push(mid);
+
+        let start = foundIndex - 1;
+        let end = foundIndex + 1;
+
+        while (start >= 0 && Beatmap[type][start].time >= time - range && Beatmap[type][start].time <= time + range) {
+            pointList.push(Beatmap[type][start--]);
+        }
+
+        while (end < Beatmap[type].length && Beatmap[type][end].time >= time - range && Beatmap[type][end].time <= time + range) {
+            pointList.push(Beatmap[type][end++]);
+        }
+
+        return pointList;
+    }
+
     draw(timestamp) {
         const { beatstep: currentBeatStep, time: offset } =
             Beatmap.beatStepsList.findLast((timingPoint) => timingPoint.time < timestamp) ?? Beatmap.beatStepsList[0];
         const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500;
+
+        const beatStepList = this.getLineInRange(timestamp, range, "beatStepsList");
+        const timingPointList = this.getLineInRange(timestamp, range, "timingPointsList");
 
         const snap = parseInt(beatsnap);
         const dividedStep = currentBeatStep / snap;
@@ -80,11 +122,11 @@ class BeatLines {
         const delta = (timestamp - nearestTick) * (Timeline.ZOOM_DISTANCE / 500);
         const ticksNumber = Math.floor(range / dividedStep);
 
-        while (this.ticks.length < ticksNumber * 2 + 1) {
+        while (this.ticks.length < ticksNumber * 2 + 1 + beatStepList.length + timingPointList.length) {
             this.ticks.push(new BeatTick());
         }
 
-        while (this.ticks.length > ticksNumber * 2 + 1) {
+        while (this.ticks.length > ticksNumber * 2 + 1 + beatStepList.length + timingPointList.length) {
             const sprite = this.ticks.pop();
 
             if (!sprite) break;
@@ -92,6 +134,7 @@ class BeatLines {
             sprite.obj.destroy();
         }
 
+        let idxCount = 0;
         for (let i = -ticksNumber; i <= ticksNumber; i++) {
             const tickTime = nearestTick + i * dividedStep - offset;
             const whiteTickPassed = Math.round(tickTime / currentBeatStep);
@@ -102,6 +145,17 @@ class BeatLines {
             if (denominator > 48) denominator = 1;
 
             this.ticks[i + ticksNumber].draw(denominator, i, step, delta);
+
+            idxCount++;
+        }
+
+        for (let i = 0; i < timingPointList.length; i++) {
+            this.ticks[i + idxCount].drawLine(timingPointList[i].time, "timingPoint", timestamp);
+        }
+        idxCount += timingPointList.length;
+
+        for (let i = 0; i < beatStepList.length; i++) {
+            this.ticks[i + idxCount].drawLine(beatStepList[i].time, "beatStep", timestamp);
         }
     }
 }
