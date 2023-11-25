@@ -12,16 +12,14 @@ An osu! beatmap viewer on the web.
 - Change beatmap clockrate to match DT and HT (Audio might has some artifacts while playing)
 - Change beatmap visual to match HR and EZ
 - Switching between Argon slider style and Legacy slider style
-- Background dim, background blur, etc. You know it
+- Background dim, ~~background blur~~, etc. You know it
 - **Watch replay (experimental, unstable af)**
 - Import skins
-
-
 
 ## osu! mapping features
 - Snap scrolling to the current beatsnap divisor similar to the osu! beatmap editor
 - Change beatsnap divisor
-- Precise scrolling at 1/48 beatsnap divisor by hold `Shift` key while scrolling
+- 1ms scrolling by hold `Shift` key while scrolling
 - Select hitobject(s) and copy their timestamp to the clipboard by pressing `Ctrl + C` similar to the osu! beatmap editor
 
 ## Usage
@@ -40,8 +38,10 @@ An osu! beatmap viewer on the web.
 - Drag and drop the `.osr` file. Make sure the map of the replay is up to date and not a local map.
 
 ## Screenshots
-![1](https://i.imgur.com/1BJ1867.png)
-![2](https://i.imgur.com/OfeXc3k.png)
+![1](https://i.imgur.com/ZeXNNkz.png)
+![2](https://i.imgur.com/Xo8QFFI.png)
+![3](https://i.imgur.com/bQxPX7v.png)
+![4](https://i.imgur.com/GmYhmfS.png)
 
 ## Issue
 - Should there be any issue happening on the site, please create a new issue on this repository.
