@@ -444,8 +444,26 @@ class Slider {
     }
 
     getPointAtTime(time) {
-        // console.log(this.time, Math.round(((time - this.time) / (this.sliderEndEvalPosition.time - this.time + 35)) * (this.actualTrackPoints.length - 1)));
-        return this.realTrackPoints[Math.ceil(((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1))];
+        if (time <= this.time) return this.realTrackPoints.at(0);
+        if (time >= this.endTime) return this.realTrackPoints.at(-1);
+
+        const startIdx = Math.floor(((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1));
+        const endIdx = Math.ceil(((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1));
+        const rawIdx = ((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1);
+
+        const lerpValue = rawIdx % startIdx;
+
+        const x = this.realTrackPoints[startIdx].x + lerpValue * (this.realTrackPoints[endIdx].x - this.realTrackPoints[startIdx].x);
+        const y = this.realTrackPoints[startIdx].y + lerpValue * (this.realTrackPoints[endIdx].y - this.realTrackPoints[startIdx].y);
+        const angle = this.realTrackPoints[startIdx].angle + lerpValue * (this.realTrackPoints[endIdx].angle - this.realTrackPoints[startIdx].angle);
+        const t = (time - this.time) / (this.endTime - this.time);
+
+        return {
+            x,
+            y,
+            t,
+            angle,
+        };
     }
 
     getSliderPart() {
