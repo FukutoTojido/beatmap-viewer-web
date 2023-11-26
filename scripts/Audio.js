@@ -47,7 +47,7 @@ class PAudio {
     }
 
     play(time) {
-        if (!this.isPlaying) {
+        if (!this.isPlaying && this.gainNode) {
             this.isPlaying = true;
 
             this.src = audioCtx.createBufferSource();
