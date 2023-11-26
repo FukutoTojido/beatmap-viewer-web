@@ -75,6 +75,7 @@ class TimelineDragWindow {
         this.obj.on("wheel", (e) => this.handleDraggingEvent(e));
 
         this.obj.on("mouseup", (e) => this.handleEndEvent(e));
+        this.obj.on("touchstart", (e) => this.handleEndEvent(e));
         this.obj.on("mouseleave", (e) => this.handleLeaveEvent(e));
     }
 

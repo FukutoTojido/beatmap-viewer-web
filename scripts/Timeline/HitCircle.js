@@ -48,6 +48,7 @@ class TimelineHitCircle {
         };
 
         this.obj.on("mousedown", handleClickEvent);
+        this.obj.on("touchstart", handleClickEvent);
     }
 
     addSelfToContainer(container) {

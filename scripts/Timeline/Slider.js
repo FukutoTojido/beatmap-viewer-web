@@ -129,7 +129,7 @@ class TimelineSlider {
         this.sliderReverses.toReversed().forEach((arrow) => this.obj.addChild(arrow.obj));
         this.obj.addChild(sliderHead.obj);
 
-        this.obj.on("mousedown", (e) => {
+        const handleClickEvent = (e) => {
             const { x, y } = this.obj.toLocal(e.global);
             if (selectedHitObject.includes(this.hitObject.time)) return;
 
@@ -140,7 +140,11 @@ class TimelineSlider {
 
             Timeline.hitArea.isObjectSelecting = true;
             // console.log(this.obj.x, this.obj.y, x, y);
-        });
+        };
+
+        this.obj.on("mousedown", handleClickEvent);
+
+        this.obj.on("touchstart", handleClickEvent);
     }
 
     addSelfToContainer(container) {
@@ -199,7 +203,7 @@ class TimelineSlider {
         this.hitArea.clear();
         this.hitArea.beginFill(0xffff00, 0.0001).drawRect(headPosition, 0, this.length * ratio, Timeline.HEIGHT);
 
-        this.sliderReverses.forEach(arrow => arrow.draw(timestamp));
+        this.sliderReverses.forEach((arrow) => arrow.draw(timestamp));
 
         // this.sliderHead.hitCircle.tint = colors[idx % colors.length];
         // this.sliderTail.hitCircle.tint = colors[idx % colors.length];

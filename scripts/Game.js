@@ -16,6 +16,8 @@ class Game {
 
     static SCALE_RATE = 1;
 
+    static IS_CLICKED = false;
+
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
@@ -109,12 +111,11 @@ class Game {
         grid.alpha = 1;
 
         grid.interactive = true;
-        grid.on("click", (e) => {
+
+        const clickControl = (e) => {
             if (!beatmapFile || !beatmapFile.isLoaded) return;
 
             const currentTime = beatmapFile.audioNode.getCurrentTime();
-
-            // console.log(isDragging);
 
             let { x, y } = Game.CONTAINER.toLocal(e.global);
             x /= Game.SCALE_RATE;
@@ -131,10 +132,10 @@ class Game {
                   })
                 : undefined;
 
-            // console.log("x: " + x + " y: " + y, selectedObj);
-
             if (selectedObj) {
-                if (!e.ctrlKey) selectedHitObject = [selectedObj.obj.time];
+                if (!e.ctrlKey) {
+                    selectedHitObject = [selectedObj.obj.time];
+                }
                 else {
                     selectedHitObject = selectedHitObject.concat([selectedObj.obj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
                 }
@@ -142,11 +143,18 @@ class Game {
                 selectedHitObject = [];
             }
 
-            // console.log(selectedHitObject);
-            // if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
             didMove = false;
-            // console.log("Mouse CLICK", didMove);
+        };
+
+        grid.on("click", (e) => {
+            clickControl(e);
         });
+        grid.on("touchstart", (e) => {
+            clickControl(e);
+        });
+
+        grid.on("touchend", (e) => {
+        })
 
         grid.on("mousedown", (e) => {
             if (!beatmapFile || !beatmapFile.isLoaded) return;
