@@ -185,16 +185,17 @@ class Beatmap {
         };
     }
 
-    static findNearestTimingPoint(time, type) {
+    static findNearestTimingPoint(time, type, precise) {
+        const compensate = precise ? 0 : 2;
         let foundIndex = binarySearchNearest(Beatmap[type], time, (point, time) => {
-            if (point.time < time + 2) return -1;
-            if (point.time > time + 2) return 1;
+            if (point.time < time + compensate) return -1;
+            if (point.time > time + compensate) return 1;
             return 0;
         });
 
-        while (foundIndex > 0 && Beatmap[type][foundIndex].time > time + 2) foundIndex--;
+        while (foundIndex > 0 && Beatmap[type][foundIndex].time > time + compensate) foundIndex--;
 
-        if (Beatmap[type][foundIndex].time > time + 2) return Beatmap[type][0];
+        if (Beatmap[type][foundIndex].time > time + compensate) return Beatmap[type][0];
         return Beatmap[type][foundIndex];
     }
 

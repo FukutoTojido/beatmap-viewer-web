@@ -20,16 +20,18 @@ function setProgressMax() {
 
 function playToggle(ele) {
     ele?.blur();
-    document.querySelector("#playButton").style.backgroundImage =
-        document.querySelector("#playButton").style.backgroundImage === "" ? "url(./static/pause.png)" : "";
+    if (!beatmapFile.audioNode.gainNode || !beatmapFile.audioNode.buf) return;
 
     if (!beatmapFile.audioNode.isPlaying) {
+        document.querySelector("#playButton").style.backgroundImage = "";
         beatmapFile.audioNode.play();
+        return;
         // beatmapFile.beatmapRenderData.render();
-    } else {
-        beatmapFile.audioNode.pause();
-        // beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
     }
+
+    document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
+    beatmapFile.audioNode.pause();
+    // beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
 function updateTime(timestamp) {
@@ -87,4 +89,6 @@ function copyUrlToClipboard() {
     const currentTimestamp = beatmapFile !== undefined ? parseInt(beatmapFile.audioNode.getCurrentTime()) : 0;
     const mapId = currentMapId || "";
     navigator.clipboard.writeText(`${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}?b=${mapId}&t=${currentTimestamp}`);
+
+    showNotification("Current preview timestamp copied");
 }

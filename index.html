@@ -64,6 +64,7 @@
     <script src="./scripts/InputBar.js" defer></script>
     <script src="./scripts/ProgressBar.js" defer></script>
     <script src="./scripts/Record.js" defer></script>
+    <script src="./scripts/Notification.js" defer></script>
 </head>
 
 <body>
@@ -128,9 +129,18 @@
                 <span id="millisecond2digit" class="digit">0</span>
                 <span id="millisecond1digit" class="digit">0</span>
             </div>
-            <button id="prevButton" onclick="go(null, false)"></button>
-            <button id="playButton" onclick="playToggle(this)"></button>
-            <button id="nextButton" onclick="go(null, true)"></button>
+            <div class="timingContainer">
+                <div class="BPM">0BPM</div>
+                <div class="SV">
+                    <div class="multiplier">1.00x</div>
+                </div>
+            </div>
+            <div class="buttonsContainer">
+                <button id="prevButton" onclick="go(null, false)"></button>
+                <button id="playButton" onclick="playToggle(this)"></button>
+                <button id="nextButton" onclick="go(null, true)"></button>
+            </div>
+
             <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
                 onkeydown="event.preventDefault()">
             <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
@@ -332,6 +342,15 @@
             </div>
         </div>
     </div>
+    <dialog class="noti">
+        <img width="24" height="24" src="https://img.icons8.com/material-rounded/24/ffffff/info.png" alt="info" />
+        <div class="notiContent">
+            TestNoti
+        </div>
+        <button class="notiDismiss" onclick="hideNotification(this)">
+            <img width="24" height="24" src="static/close.png" alt="info" />
+        </button>
+    </dialog>
 </body>
 
 </html>

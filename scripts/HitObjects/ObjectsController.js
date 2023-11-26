@@ -56,6 +56,15 @@ class ObjectsController {
         updateTime(timestamp);
         setSliderTime();
 
+        const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
+        const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
+
+        if (document.querySelector(".BPM").innerText !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
+            document.querySelector(".BPM").innerText = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+
+        if (document.querySelector(".SV .multiplier").innerText !== `${currentSV.svMultiplier.toFixed(2)}x`)
+            document.querySelector(".SV .multiplier").innerText = `${currentSV.svMultiplier.toFixed(2)}x`;
+
         const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 

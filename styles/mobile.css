@@ -165,10 +165,23 @@
 
     #timeContainer {
         /* background-color: rgba(0 0 0 / 0.5); */
-        width: 100%;
-        padding: 20px;
+        /* width: 100%; */
+        /* padding: 20px; */
+        flex: 1;
+        
         margin-bottom: 20px;
         justify-content: center;
+    }
+
+    .timingContainer {
+        /* width: 100%; */
+        padding: 20px;
+        margin-bottom: 20px;
+        flex: 1;
+    }
+
+    .buttonsContainer {
+        width: 100%;
     }
 
     #playButton,

@@ -587,6 +587,11 @@ canvas {
     pointer-events: none;
 }
 
+.buttonsContainer {
+    display: flex;
+    justify-content: center;
+}
+
 #playButton {
     /* position: absolute; */
 
@@ -596,7 +601,7 @@ canvas {
     width: 60px;
 
     padding: 0;
-    margin: 15px 15px;
+    margin: 20px 20px;
 
     background-image: url(../static/play.png);
     background-size: contain;
@@ -608,7 +613,7 @@ canvas {
     width: 60px;
 
     padding: 0;
-    margin: 15px 15px;
+    margin: 20px 20px;
 
     background-image: url(../static/prev.png);
     background-size: contain;
@@ -620,7 +625,7 @@ canvas {
     width: 60px;
 
     padding: 0;
-    margin: 15px 15px;
+    margin: 20px 20px;
 
     background-image: url(../static/next.png);
     background-size: contain;
@@ -638,6 +643,36 @@ canvas {
     appearance: none;
     background: transparent;
     cursor: pointer;
+}
+
+.timingContainer {
+    min-width: 180px;
+
+    display: flex;
+    gap: 10px;
+
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+
+    background-color: var(--primary-4);
+}
+
+.SV {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.multiplier {
+    background-color: rgb(137, 240, 163);
+    padding: 2px 10px;
+    color: var(--primary-1);
+    border-radius: 20px;
+    font-weight: 500;
 }
 
 #progress {
@@ -1330,4 +1365,61 @@ a:visited {
     box-sizing: border-box;
 }
 
+@keyframes slideUp {
+    0% {
+        display: flex;
+        opacity: 0;
+        transform: translateY(10px);
+    }
 
+    100% {
+        opacity: 1;
+        transform: unset; 
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        display: flex;
+        opacity: 1;
+        transform: unset;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+.noti {
+    position: absolute;
+    bottom: 90px;
+
+    background-color: var(--primary-1);
+    border: none;
+
+    color: white;
+
+    box-shadow: 0 5px 10px 0 rgb(0 0 0 /0.5);
+
+    border-radius: 20px;
+
+    /* display: flex; */
+    align-items: center;
+    gap: 20px;
+
+}
+
+.animationIn {
+    display: flex;
+    animation: slideUp ease-in-out 200ms;
+}
+
+.animationOut {
+    animation: slideDown ease-in-out 200ms;
+    display: none;
+}
+
+.notiDismiss {
+    height: 24px;
+}
