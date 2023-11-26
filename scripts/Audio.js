@@ -115,6 +115,10 @@ class HitSample {
     sliderTail = false;
     vol = 1;
 
+    isPlaying = false;
+
+    srcs = [];
+
     static masterGainNode;
     static SAMPLES = {
         ARGON: {},
@@ -125,16 +129,18 @@ class HitSample {
 
     static DEFAULT_SAMPLES = {
         ARGON: {},
-        LEGACY: {}
-    }
+        LEGACY: {},
+    };
 
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
         // console.log(this.audioObj);
     }
+
     play() {
         // console.log(this.audioObj, "Played");
+        this.srcs = [];
         this.audioObj.forEach((hs) => {
             const gainNode = audioCtx.createGain();
             gainNode.gain.value = this.vol;
@@ -145,7 +151,7 @@ class HitSample {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
             } else {
                 const skinType = Skinning.SKIN_ENUM[skinning.type];
-                const samples = skinType !== "CUSTOM" ? HitSample.SAMPLES[skinType] : HitSample.SAMPLES.CUSTOM[Skinning.SKIN_IDX];
+                const samples = skinType !== "CUSTOM" || !HitSample.SAMPLES.CUSTOM[Skinning.SKIN_IDX] ? HitSample.SAMPLES[skinType] : HitSample.SAMPLES.CUSTOM[Skinning.SKIN_IDX];
 
                 src.buffer = samples[hs.replaceAll(/\d/g, "")];
             }
@@ -155,6 +161,21 @@ class HitSample {
             gainNode.connect(HitSample.masterGainNode);
 
             src.start();
+            this.isPlaying = true;
+
+            src.onended = () => {
+                this.isPlaying = false;
+            };
+
+            this.srcs.push(src);
         });
+    }
+
+    playLoop(higherThanStart, lowerThanEnd) {
+        if (higherThanStart && lowerThanEnd && !this.isPlaying && beatmapFile.audioNode.isPlaying) this.play();
+        if (!higherThanStart || !lowerThanEnd || !beatmapFile.audioNode.isPlaying) {
+            this.srcs.forEach((src) => src.stop());
+            this.isPlaying = false;
+        }
     }
 }

@@ -171,7 +171,7 @@ class Skinning {
 
     static async getHitsounds(allEntries) {
         const hitsoundFiles = allEntries.filter((file) => {
-            return /^(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish)([1-9][0-9]*)?/.test(file.filename);
+            return /^(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(file.filename);
         });
 
         const hitsoundArrayBuffer = [];
@@ -194,7 +194,7 @@ class Skinning {
         if (!HitSample.SAMPLES.CUSTOM[forIdx]) HitSample.SAMPLES.CUSTOM[forIdx] = {};
 
         for (const sample of ["normal", "soft", "drum"])
-            for (const hitsound of ["hitnormal", "hitwhistle", "hitclap", "hitfinish"]) {
+            for (const hitsound of ["hitnormal", "hitwhistle", "hitclap", "hitfinish", "slidertick", "sliderwhistle", "sliderslide"]) {
                 const name = `${sample}-${hitsound}`;
                 const hs = arrayBuffers.find((hitsound) => hitsound.filename.split(".")[0] === name);
 

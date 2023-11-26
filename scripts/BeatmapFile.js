@@ -300,7 +300,7 @@ class BeatmapFile {
 
         const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);
-            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick)([1-9][0-9]*)?/.test(file.filename);
+            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(file.filename);
         });
 
         // console.log(hitsoundFiles);
@@ -334,7 +334,7 @@ class BeatmapFile {
         for (const hs of this.hitsoundList) {
             const idx = hs.filename
                 .replace(hs.filename.match(/normal|soft|drum/)[0], "")
-                .replaceAll(hs.filename.match(/hitnormal|hitwhistle|hitfinish|hitclap|slidertick/), "")
+                .replaceAll(hs.filename.match(/hitnormal|hitwhistle|hitfinish|hitclap|slidertick|sliderwhistle|sliderslide/), "")
                 .replace("-", "")
                 .split(".")[0];
 

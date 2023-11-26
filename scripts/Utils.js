@@ -248,7 +248,8 @@ const loadColorPalette = (bg) => {
 async function loadDefaultSamples() {
     for (const skin of ["ARGON", "LEGACY"])
         for (const sampleset of ["normal", "soft", "drum"]) {
-            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick"]) {
+            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
+                // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
                 const res = (
                     await axios.get(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
                         responseType: "arraybuffer",

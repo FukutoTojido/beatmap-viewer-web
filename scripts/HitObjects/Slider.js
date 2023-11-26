@@ -96,6 +96,11 @@ class Slider {
     }
 
     playHitsound(timestamp) {
+        if (this.hitSounds.defaultSet.hitSoundIdx !== 0) this.hitSounds.sliderWhistle.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime);
+
+        if (this.hitSounds.defaultSet.normal !== 0 || this.hitSounds.defaultSet.hitSoundIdx !== 0)
+            this.hitSounds.sliderSlide.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime);
+        
         if (!beatmapFile.audioNode.isPlaying) return;
 
         if (timestamp >= this.hitTime && ObjectsController.lastTimestamp < this.hitTime) {

@@ -113,16 +113,16 @@ class Beatmap {
 
         const edgeSounds = params[8];
         const edgeSets = params[9];
-        const defaultSet = /^\d:\d.*/g.test(params.at(-1)) ? params.at(-1) : "0:0";
+        const defaultSetIdx = /^\d:\d.*/g.test(params.at(-1)) ? params.at(-1) : "0:0";
 
-        const headSamples = HitSound.GetName(edgeSets?.split("|")[0] ?? defaultSet, edgeSounds?.split("|")[0] ?? hitSoundIdx, svStart);
-        const endSamples = HitSound.GetName(edgeSets?.split("|").at(-1) ?? defaultSet, edgeSounds?.split("|").at(-1) ?? hitSoundIdx, svEnd);
+        const headSamples = HitSound.GetName(edgeSets?.split("|")[0] ?? defaultSetIdx, edgeSounds?.split("|")[0] ?? hitSoundIdx, svStart);
+        const endSamples = HitSound.GetName(edgeSets?.split("|").at(-1) ?? defaultSetIdx, edgeSounds?.split("|").at(-1) ?? hitSoundIdx, svEnd);
 
         const reversesSamples = [...Array(slides - 1)].map((_, idx) => {
             const reverseTime = time + (((idx + 1) * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
             const sv = Beatmap.findNearestTimingPoint(reverseTime, "timingPointsList");
 
-            const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? defaultSet, edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
+            const samples = HitSound.GetName(edgeSets?.split("|")[idx + 1] ?? defaultSetIdx, edgeSounds?.split("|")[idx + 1] ?? hitSoundIdx, sv);
             return new HitSample(samples, sv.sampleVol / 100);
         });
 
@@ -130,14 +130,23 @@ class Beatmap {
         const anchors = params[5].slice(2);
         const sliderType = params[5][0];
 
+        const defaultSet = {
+            normal: parseInt(defaultSetIdx.split(":")[0]),
+            additional: parseInt(defaultSetIdx.split(":")[1]),
+            hitSoundIdx
+        };
+
+        const { normalSet: defaultSample } = HitSound.GetHitSample(defaultSetIdx, svStart);
+        const sliderSlide = new HitSample([`${defaultSample}-sliderslide${svStart.sampleIdx}`], svStart.sampleVol / 100);
+        const sliderWhistle = new HitSample([`${defaultSample}-sliderwhistle${svStart.sampleIdx}`], svStart.sampleVol / 100);
+
         const hitsounds = {
             sliderHead: new HitSample(headSamples, svStart.sampleVol / 100),
             sliderTail: new HitSample(endSamples, svEnd.sampleVol / 100),
             sliderReverse: reversesSamples,
-            defaultSet: {
-                normal: parseInt(defaultSet.split(":")[0]),
-                additional: parseInt(defaultSet.split(":")[1]),
-            },
+            sliderSlide,
+            sliderWhistle,
+            defaultSet,
         };
 
         const obj = new Slider(
