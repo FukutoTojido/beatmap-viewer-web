@@ -140,12 +140,14 @@ class HitSample {
         // console.log(this.audioObj);
     }
 
-    play() {
+    play(isLoop) {
         // console.log(this.audioObj, "Played");
-        this.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
+        // this.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
         this.srcs = [];
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = this.vol;
 
             if (HitSample.SAMPLES.MAP[hs]) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
@@ -159,10 +161,11 @@ class HitSample {
                 src.buffer = samples[hs.replaceAll(/\d/g, "")];
             }
 
-            src.connect(this.gainNode);
+            src.connect(isLoop ? this.gainNode : gainNode);
 
             // this.gainNode.gain.value = this.vol;
             this.gainNode.connect(HitSample.masterGainNode);
+            gainNode.connect(HitSample.masterGainNode)
 
             src.start();
             this.isPlaying = true;
@@ -178,7 +181,7 @@ class HitSample {
 
     playLoop(higherThanStart, lowerThanEnd) {
         if (higherThanStart && lowerThanEnd && !this.isPlaying && beatmapFile.audioNode.isPlaying) {
-            this.play();
+            this.play(true);
         }
 
         if (!higherThanStart || !lowerThanEnd || !beatmapFile.audioNode.isPlaying) {
