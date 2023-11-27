@@ -463,6 +463,8 @@ class BeatmapFile {
 
                 if (e.key === "Escape") {
                     selectedHitObject = [];
+
+                    if (document.querySelector(".seekTo").open) closePopup();
                 }
             };
 
