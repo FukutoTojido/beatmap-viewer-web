@@ -495,10 +495,10 @@ class BeatmapFile {
                 event.preventDefault();
 
                 if (event.deltaY > 0) {
-                    document.querySelector("#beat").value = Math.min(parseInt(document.querySelector("#beat").value * 2), 16);
+                    document.querySelector("#beat").value = Math.min(parseInt(document.querySelector("#beat").value / 2), 16);
                 }
                 if (event.deltaY < 0) {
-                    document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value / 2), 1);
+                    document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value * 2), 1);
                 }
 
                 setBeatsnapDivisor(document.querySelector("#beat"));
