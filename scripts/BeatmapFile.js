@@ -485,20 +485,36 @@ class BeatmapFile {
                     handleCanvasDrag();
                 }
 
-                if (event.deltaY > 0) go(event.shiftKey, true);
-                if (event.deltaY < 0) go(event.shiftKey, false);
+                if (!event.ctrlKey) {
+                    if (event.deltaY > 0) go(event.shiftKey, true);
+                    if (event.deltaY < 0) go(event.shiftKey, false);
+
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (event.deltaY > 0) {
+                    document.querySelector("#beat").value = Math.min(parseInt(document.querySelector("#beat").value * 2), 16);
+                }
+                if (event.deltaY < 0) {
+                    document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value / 2), 1);
+                }
+
+                setBeatsnapDivisor(document.querySelector("#beat"));
+                showNotification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`);
 
                 // console.log("Scrolled");
             };
 
             document.querySelector("#playerContainer").addEventListener("wheel", scrollEventHandler, {
                 capture: true,
-                passive: true,
+                passive: false,
             });
 
             document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
                 capture: true,
-                passive: true,
+                passive: false,
             });
 
             this.isLoaded = true;
