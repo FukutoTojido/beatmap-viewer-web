@@ -2,7 +2,7 @@ class PAudio {
     buf;
     src;
     phazeNode;
-    currentTime = 0;
+    currentTime = 0.001;
     startTime = 0;
     absStartTime = 0;
     isPlaying = false;
