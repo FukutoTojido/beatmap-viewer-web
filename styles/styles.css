@@ -590,6 +590,8 @@ canvas {
 .buttonsContainer {
     display: flex;
     justify-content: center;
+
+    background-color: var(--primary-3);
 }
 
 #playButton {
@@ -681,6 +683,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: var(--primary-2);
 }
 
 .timingPointsContainer {
