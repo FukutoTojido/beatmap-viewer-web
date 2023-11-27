@@ -6,6 +6,10 @@ class Spinner {
 
     hitSounds;
 
+    comboIdx = 1;
+    colourIdx = -1;
+    colourHaxedIdx = -1;
+
     playHitsound(timestamp) {
         if (!beatmapFile.audioNode.isPlaying) return;
         if (timestamp < this.endTime || ObjectsController.lastTimestamp >= this.endTime) return;

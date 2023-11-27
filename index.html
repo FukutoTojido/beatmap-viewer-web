@@ -24,6 +24,7 @@
     <script src="./lib/lzma_worker.js"></script>
     <script src="./lib/leb128.js"></script>
     <script src="./lib/osr-parser.js"></script>
+    <script src="./deps/dom-to-image.min.js"></script>
     <script src="./deps/countUp.js"></script>
     <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/CubicBezier.js"></script>
@@ -140,9 +141,15 @@
                 <button id="playButton" onclick="playToggle(this)"></button>
                 <button id="nextButton" onclick="go(null, true)"></button>
             </div>
+            <div class="progressBarContainer">
+                <div class="timingPointsContainer">
+                    <img src="static/empty.png">
+                </div>
+                <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
+                    onkeydown="event.preventDefault()">
+            </div>
 
-            <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
-                onkeydown="event.preventDefault()">
+
             <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
         </div>
     </div>

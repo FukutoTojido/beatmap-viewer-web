@@ -637,9 +637,7 @@ canvas {
     /* position: absolute; */
     /* bottom: 20px; */
     /* right: 20px; */
-
     margin: 0;
-
     appearance: none;
     background: transparent;
     cursor: pointer;
@@ -675,9 +673,66 @@ canvas {
     font-weight: 500;
 }
 
+.progressBarContainer {
+    position: relative;
+    flex: 1;
+    padding: 0 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timingPointsContainer {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 50%;
+
+    padding: 0 20px;
+}
+
+.timingWrapper {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+}
+
+.redLine, .greenLine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    width: 1px;
+    height: 50%;
+
+    opacity: 80%;
+
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.redLine {
+    left: 10px;
+    background-color: #e34653;
+}
+
+.greenLine {
+    left: 30px;
+    background-color: #1bcc20;
+}
+
+.timingPointsContainer img {
+    width: 100%;
+    height: 100%;
+
+    padding: 0 20px;
+}
+
 #progress {
-    width: 80%;
-    padding-right: 20px;
+    position: relative;
+    width: 100%;
 }
 
 #volumeSlider {

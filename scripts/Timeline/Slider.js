@@ -123,7 +123,7 @@ class TimelineSlider {
         this.sliderHead = sliderHead;
         this.sliderTail = sliderTail;
 
-        this.sliderReverses = this.hitObject.revArrows.map((arrow) => new TimelineReverseArrow(arrow, this.hitObject));
+        this.sliderReverses = this.hitObject.revArrows?.map((arrow) => new TimelineReverseArrow(arrow, this.hitObject)) ?? [];
 
         this.obj.addChild(sliderTail.obj);
         this.sliderReverses.toReversed().forEach((arrow) => this.obj.addChild(arrow.obj));
@@ -167,7 +167,10 @@ class TimelineSlider {
 
         const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
         const idx = sliderAppearance.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
-        const tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
+        const tint =
+            idx === -1
+                ? [1.0, 1.0, 1.0]
+                : Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
 
         let headPosition = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, 0);
         this.headPosition = headPosition;
@@ -204,6 +207,11 @@ class TimelineSlider {
         this.hitArea.beginFill(0xffff00, 0.0001).drawRect(headPosition, 0, this.length * ratio, Timeline.HEIGHT);
 
         this.sliderReverses.forEach((arrow) => arrow.draw(timestamp));
+
+        if (idx === -1) {
+            this.sliderHead.hitCircle.tint = 0xdedede;
+            this.sliderTail.hitCircle.tint = 0xdedede;
+        }
 
         // this.sliderHead.hitCircle.tint = colors[idx % colors.length];
         // this.sliderTail.hitCircle.tint = colors[idx % colors.length];

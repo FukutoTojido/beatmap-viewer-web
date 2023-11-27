@@ -356,11 +356,14 @@ class BeatmapFile {
             const audioArrayBuffer = await this.getOsz();
             this.audioArrayBuffer = audioArrayBuffer;
             // console.log(this.audioArrayBuffer, audioArrayBuffer);
-            this.audioNode = new PAudio(audioArrayBuffer);
+            this.audioNode = new PAudio();
             await this.loadHitsounds();
             // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
 
             // this.audio = new Audio(this.audioBlobURL);
+
+            document.querySelector("#loadingText").innerText = `Setting up Audio`;
+            await this.audioNode.createBufferNode(audioArrayBuffer);
 
             document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
             this.md5Map = CryptoJS.MD5(this.osuFile).toString();

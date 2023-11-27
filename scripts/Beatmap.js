@@ -133,7 +133,7 @@ class Beatmap {
         const defaultSet = {
             normal: parseInt(defaultSetIdx.split(":")[0]),
             additional: parseInt(defaultSetIdx.split(":")[1]),
-            hitSoundIdx
+            hitSoundIdx,
         };
 
         const { normalSet: defaultSample } = HitSound.GetHitSample(defaultSetIdx, svStart);
@@ -343,6 +343,34 @@ class Beatmap {
 
         Beatmap.timingPointsList = timingPointsList;
 
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("timingWrapper");
+
+        Beatmap.timingPointsList.forEach((greenLine) => {
+            const div = document.createElement("div");
+            div.classList.add("greenLine");
+
+            div.style.left = `${(greenLine.time / beatmapFile.audioNode.duration) * 100}%`;
+
+            wrapper.appendChild(div);
+        });
+
+        Beatmap.beatStepsList.forEach((redLine) => {
+            const div = document.createElement("div");
+            div.classList.add("redLine");
+
+            div.style.left = `${(redLine.time / beatmapFile.audioNode.duration) * 100}%`;
+
+            wrapper.appendChild(div);
+        });
+
+        document.querySelector(".timingPointsContainer").appendChild(wrapper);
+
+        domtoimage.toSvg(wrapper).then((dataURL) => {
+            document.querySelector(".timingPointsContainer img").src = dataURL;
+            document.querySelector(".timingPointsContainer").removeChild(wrapper);
+        });
+
         // console.log(beatStepsList, timingPointsList);
         let coloursList =
             rawBeatmap.indexOf("[Colours]") !== -1
@@ -419,7 +447,10 @@ class Beatmap {
                     returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
                     timelineObject = new TimelineSlider(returnObject.obj);
                 }
-                if (typeBit[3]) returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
+                if (typeBit[3]) {
+                    returnObject = Beatmap.constructSpinner(params, currentSVMultiplier);
+                    timelineObject = new TimelineSlider(returnObject.obj);
+                }
 
                 if (typeBit[2] && idx !== 0) {
                     combo = 1;
@@ -439,6 +470,12 @@ class Beatmap {
                     returnObject.obj.hitCircle.comboIdx = combo;
                     returnObject.obj.hitCircle.colourIdx = colorIdx;
                     returnObject.obj.hitCircle.colourHaxedIdx = colorHaxedIdx;
+                }
+
+                if (returnObject.obj instanceof Spinner) {
+                    returnObject.obj.comboIdx = 1;
+                    returnObject.obj.colourIdx = -1;
+                    returnObject.obj.colourHaxedIdx = -1;
                 }
 
                 combo++;

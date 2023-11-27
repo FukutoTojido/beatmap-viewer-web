@@ -7,6 +7,8 @@ class PAudio {
     absStartTime = 0;
     isPlaying = false;
 
+    isLoaded = false;
+
     static SOFT_OFFSET = 0;
 
     async createBufferNode(buf) {
@@ -24,14 +26,11 @@ class PAudio {
 
         this.gainNode = audioCtx.createGain();
 
-        // Trying to remove desync on mobile
-        this.play();
-        this.pause();
+        this.isLoaded = true;
     }
 
-    constructor(buf) {
+    constructor() {
         PAudio.SOFT_OFFSET = JSON.parse(localStorage.getItem("settings")).mapping.offset;
-        this.createBufferNode(buf);
     }
 
     seekTo(time) {

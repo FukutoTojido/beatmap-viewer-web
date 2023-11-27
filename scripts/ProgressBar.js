@@ -64,7 +64,7 @@ function updateTime(timestamp) {
 }
 
 function go(precise, isForward) {
-    if (!beatmapFile) return;
+    if (!beatmapFile || !beatmapFile.audioNode.isLoaded) return;
     let step = 1;
     let side = isForward ? 1 : -1;
     let currentBeatstep;

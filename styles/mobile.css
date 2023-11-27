@@ -207,6 +207,10 @@
         padding: 20px;
     }
 
+    .timingPointsContainer img {
+        padding: 0 30px;
+    }
+
     #volumeSlider {
         display: none;
     }
