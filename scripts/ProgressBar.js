@@ -113,16 +113,17 @@ function openPopup() {
 function showPopup() {
     const popup = document.querySelector(".seekTo");
     const timeInput = document.querySelector("#jumpToTime");
+    timeInput.blur();
 
     if (!popup.open) {
         if (beatmapFile?.audioNode) {
             const currentTime = beatmapFile.audioNode.getCurrentTime();
-
+            
             const minute = Math.floor(currentTime / 60000);
             const second = Math.floor((currentTime - minute * 60000) / 1000);
             const mili = currentTime - minute * 60000 - second * 1000;
-
-            timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toString().padStart(3, "0")}`;
+            
+            timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toFixed(0).padStart(3, "0")}`;
 
             const origin = window.location.origin;
             const currentTimestamp = beatmapFile !== undefined ? beatmapFile.audioNode.getCurrentTime() : 0;
