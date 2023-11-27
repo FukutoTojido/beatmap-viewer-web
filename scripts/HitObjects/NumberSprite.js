@@ -25,7 +25,12 @@ class NumberSprite {
                 sprite.anchor.set(0.5);
 
                 if (prevSprite) {
-                    const overlapValue = skinType === "ARGON" ? Skinning.HIT_CIRCLE_OVERLAP_ARGON : Skinning.HIT_CIRCLE_OVERLAP;
+                    const overlapValue =
+                        skinType === "ARGON"
+                            ? Skinning.HIT_CIRCLE_OVERLAP_ARGON
+                            : skinType === "LEGACY"
+                            ? Skinning.HIT_CIRCLE_OVERLAP
+                            : Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_OVERLAP;
                     sprite.x = prevSprite.x + prevSprite.width / 2 + sprite.width / 2 - overlapValue * 0.8;
                 }
 

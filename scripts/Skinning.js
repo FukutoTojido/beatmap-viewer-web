@@ -55,8 +55,6 @@ class Skinning {
 
         Skinning.SLIDER_BORDER = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.SLIDER_BORDER;
         Skinning.SLIDER_TRACK_OVERRIDE = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.SLIDER_TRACK_OVERRIDE;
-        Skinning.HIT_CIRCLE_OVERLAP = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_OVERLAP;
-        Skinning.HIT_CIRCLE_OVERLAP_ARGON = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_OVERLAP_ARGON;
         Skinning.HIT_CIRCLE_PREFIX = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_PREFIX;
         Skinning.DEFAULT_COLORS = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.DEFAULT_COLORS;
 
