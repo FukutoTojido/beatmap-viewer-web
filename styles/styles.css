@@ -598,7 +598,7 @@ canvas {
     /* bottom: 20px; */
     /* left: 20px; */
 
-    width: 60px;
+    width: 20px;
 
     padding: 0;
     margin: 20px 20px;
@@ -610,7 +610,7 @@ canvas {
 }
 
 #prevButton {
-    width: 60px;
+    width: 20px;
 
     padding: 0;
     margin: 20px 20px;
@@ -622,7 +622,7 @@ canvas {
 }
 
 #nextButton {
-    width: 60px;
+    width: 20px;
 
     padding: 0;
     margin: 20px 20px;
