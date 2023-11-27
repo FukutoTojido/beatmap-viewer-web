@@ -199,6 +199,36 @@ class Beatmap {
         return Beatmap[type][foundIndex];
     }
 
+    static async loadProgressBar() {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("timingWrapper");
+
+        Beatmap.timingPointsList.forEach((greenLine) => {
+            const div = document.createElement("div");
+            div.classList.add("greenLine");
+
+            div.style.left = `${(greenLine.time / beatmapFile.audioNode.duration) * 100}%`;
+
+            wrapper.appendChild(div);
+        });
+
+        Beatmap.beatStepsList.forEach((redLine) => {
+            const div = document.createElement("div");
+            div.classList.add("redLine");
+
+            div.style.left = `${(redLine.time / beatmapFile.audioNode.duration) * 100}%`;
+
+            wrapper.appendChild(div);
+        });
+
+        document.querySelector(".timingPointsContainer").prepend(wrapper);
+
+        domtoimage.toSvg(wrapper).then((dataURL) => {
+            document.querySelector(".timingPointsContainer").removeChild(wrapper);
+            document.querySelector(".timingPointsContainer img").src = dataURL;
+        });
+    }
+
     constructor(rawBeatmap, delay) {
         // Get Approach Rate
         if (rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0) {
@@ -343,33 +373,7 @@ class Beatmap {
 
         Beatmap.timingPointsList = timingPointsList;
 
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("timingWrapper");
-
-        Beatmap.timingPointsList.forEach((greenLine) => {
-            const div = document.createElement("div");
-            div.classList.add("greenLine");
-
-            div.style.left = `${(greenLine.time / beatmapFile.audioNode.duration) * 100}%`;
-
-            wrapper.appendChild(div);
-        });
-
-        Beatmap.beatStepsList.forEach((redLine) => {
-            const div = document.createElement("div");
-            div.classList.add("redLine");
-
-            div.style.left = `${(redLine.time / beatmapFile.audioNode.duration) * 100}%`;
-
-            wrapper.appendChild(div);
-        });
-
-        document.querySelector(".timingPointsContainer").appendChild(wrapper);
-
-        domtoimage.toSvg(wrapper).then((dataURL) => {
-            document.querySelector(".timingPointsContainer img").src = dataURL;
-            document.querySelector(".timingPointsContainer").removeChild(wrapper);
-        });
+        Beatmap.loadProgressBar();
 
         // console.log(beatStepsList, timingPointsList);
         let coloursList =
