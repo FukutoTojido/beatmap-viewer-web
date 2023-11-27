@@ -93,3 +93,75 @@ function copyUrlToClipboard() {
 
     showNotification("Current preview timestamp copied");
 }
+
+function closePopup() {
+    const popup = document.querySelector(".seekTo");
+
+    popup.classList.remove("popupAnim");
+    popup.classList.add("popoutAnim");
+    popup.close();
+}
+
+function openPopup() {
+    const popup = document.querySelector(".seekTo");
+
+    popup.classList.remove("popoutAnim");
+    popup.classList.add("popupAnim");
+    popup.show();
+}
+
+function showPopup() {
+    const popup = document.querySelector(".seekTo");
+    const timeInput = document.querySelector("#jumpToTime");
+
+    if (!popup.open) {
+        if (beatmapFile?.audioNode) {
+            const currentTime = beatmapFile.audioNode.getCurrentTime();
+
+            const minute = Math.floor(currentTime / 60000);
+            const second = Math.floor((currentTime - minute * 60000) / 1000);
+            const mili = currentTime - minute * 60000 - second * 1000;
+
+            timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toString().padStart(3, "0")}`;
+
+            const origin = window.location.origin;
+            const currentTimestamp = beatmapFile !== undefined ? beatmapFile.audioNode.getCurrentTime() : 0;
+            const mapId = currentMapId || "";
+            document.querySelector("#previewURL").value = `${origin}${
+                !origin.includes("github.io") ? "" : "/beatmap-viewer-how"
+            }?b=${mapId}&t=${currentTimestamp}`;
+        }
+
+        openPopup();
+        return;
+    }
+
+    closePopup();
+}
+
+function updateTimestamp(value) {
+    if (!beatmapFile?.audioNode || (!/^[0-9]+:[0-9]+:[0-9]+.*/g.test(value) && !/^[0-9]+$/g.test(value))) {
+        document.querySelector("#jumpToTime").value = "";
+        return;
+    }
+
+    let time = value;
+    if (/^[0-9]+:[0-9]+:[0-9]+.*/g.test(value)) {
+        const extracted = value.match(/[0-9]+:[0-9]+:[0-9]+/g)[0];
+
+        const minute = parseInt(extracted.split(":")[0]);
+        const second = parseInt(extracted.split(":")[1]);
+        const mili = parseInt(extracted.split(":")[2]);
+
+        time = minute * 60000 + second * 1000 + mili;
+    }
+
+    beatmapFile.audioNode.seekTo(time);
+}
+
+document.querySelector("#jumpToTime").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        updateTimestamp(document.querySelector("#jumpToTime").value);
+        closePopup();
+    }
+});

@@ -76,7 +76,6 @@ function setBackgroundBlur(slider) {
     // console.log(slider.value);
     // document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
     // document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
-
     // const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     // currentLocalStorage.background.blur = slider.value;
     // localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
@@ -224,18 +223,30 @@ function openDialog() {
 }
 
 document.body.addEventListener("click", (e) => {
-    const dialogDimensions = document.querySelector("#skinDropdown").getBoundingClientRect();
+    const skinDialogDimensions = document.querySelector("#skinDropdown").getBoundingClientRect();
+    const popupDialogDimensions = document.querySelector(".seekTo").getBoundingClientRect();
 
     if (
-        (e.clientX < dialogDimensions.left ||
-            e.clientX > dialogDimensions.right ||
-            e.clientY < dialogDimensions.top ||
-            e.clientY > dialogDimensions.bottom) &&
+        (e.clientX < skinDialogDimensions.left ||
+            e.clientX > skinDialogDimensions.right ||
+            e.clientY < skinDialogDimensions.top ||
+            e.clientY > skinDialogDimensions.bottom) &&
         document.querySelector("#skinDropdown").open &&
         e.target !== document.querySelector(".skinSelector")
     ) {
         document.querySelector("#skinDropdown").close();
         document.querySelector("#skinDropdown").style.display = "";
+    }
+
+    if (
+        (e.clientX < popupDialogDimensions.left ||
+            e.clientX > popupDialogDimensions.right ||
+            e.clientY < popupDialogDimensions.top ||
+            e.clientY > popupDialogDimensions.bottom) &&
+        document.querySelector(".seekTo").open &&
+        e.target !== document.querySelector("#timeContainer")
+    ) {
+        closePopup();
     }
 });
 

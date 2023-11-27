@@ -163,6 +163,13 @@
         padding: 30px;
     }
 
+    .seekTo {
+        transform-origin: unset;
+        padding: 20px;
+
+        bottom: 0;
+    }
+
     #timeContainer {
         /* background-color: rgba(0 0 0 / 0.5); */
         /* width: 100%; */

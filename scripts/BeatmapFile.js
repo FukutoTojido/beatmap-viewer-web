@@ -422,7 +422,11 @@ class BeatmapFile {
                         go(e.shiftKey, true);
                         break;
                     case " ":
-                        if (document.querySelector(".difficultySelector").style.display !== "block") playToggle();
+                        if (
+                            document.querySelector(".difficultySelector").style.display !== "block" &&
+                            document.activeElement !== document.querySelector("#jumpToTime")
+                        )
+                            playToggle();
                         break;
                 }
 
@@ -450,6 +454,7 @@ class BeatmapFile {
                 }
 
                 if (e.key === "a" && e.ctrlKey) {
+                    if (document.activeElement === document.querySelector("#jumpToTime")) return;
                     e.preventDefault();
                     selectedHitObject = this.beatmapRenderData.objectsController.objectsList
                         .filter((o) => !(o.obj instanceof Spinner))
