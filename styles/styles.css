@@ -619,7 +619,7 @@ canvas {
 }
 
 .popupAnim {
-    animation: popup cubic-bezier(0.34, 1.56, 0.64, 1) 100ms;
+    animation: popup cubic-bezier(0.34, 1.56, 0.64, 1) 200ms;
     display: flex;
 }
 
@@ -677,6 +677,12 @@ canvas {
     align-items: center;
     font-size: 0.7em;
     background-color: var(--primary-5);
+
+    cursor: pointer;
+}
+
+#timeContainer:hover {
+    filter: brightness(1.2);
 }
 
 .digit {
@@ -686,6 +692,8 @@ canvas {
 
 #timeContainer span {
     pointer-events: none;
+    user-select: none;
+    cursor: pointer;
 }
 
 .buttonsContainer {
@@ -757,6 +765,13 @@ canvas {
     padding: 0 20px;
 
     background-color: var(--primary-4);
+
+    user-select: none;
+    cursor: pointer;
+}
+
+.timingContainer:hover {
+    filter: brightness(1.2);
 }
 
 .SV {
