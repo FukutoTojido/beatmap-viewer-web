@@ -301,13 +301,15 @@ function changeZoomRate(zoomStep, the) {
     the.blur();
 }
 
-function debounce(func) {
+function debounce(func, timeout = 100) {
     let timer;
     return function (event) {
         if (timer) clearTimeout(timer);
-        timer = setTimeout(func, 100, event);
+        timer = setTimeout(func, timeout, event);
     };
 }
+
+
 
 const binarySearchRange = (list, startValue, endValue, key) => {
     let start = 0;

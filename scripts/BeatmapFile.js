@@ -478,8 +478,6 @@ class BeatmapFile {
             Game.APP.ticker.add(this.beatmapRenderData.objectsController.render);
 
             const scrollEventHandler = (event) => {
-                // event.preventDefault();
-
                 if (isDragging && currentX !== -1 && currentY !== -1) {
                     draggingEndTime = this.audioNode.getCurrentTime();
                     handleCanvasDrag();
@@ -495,10 +493,10 @@ class BeatmapFile {
                 event.preventDefault();
 
                 if (event.deltaY > 0) {
-                    document.querySelector("#beat").value = Math.min(parseInt(document.querySelector("#beat").value / 2), 16);
+                    document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value) - 1, 1);
                 }
                 if (event.deltaY < 0) {
-                    document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value * 2), 1);
+                    document.querySelector("#beat").value = Math.min(parseInt(document.querySelector("#beat").value) + 1, 16);
                 }
 
                 setBeatsnapDivisor(document.querySelector("#beat"));
