@@ -300,7 +300,9 @@ class BeatmapFile {
 
         const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);
-            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(file.filename);
+            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(
+                file.filename
+            );
         });
 
         // console.log(hitsoundFiles);
@@ -442,6 +444,8 @@ class BeatmapFile {
                         navigator.clipboard.writeText(
                             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
+
+                        showNotification("Object(s) timestamp copied to cliped");
                     }
                 }
 
@@ -491,6 +495,7 @@ class BeatmapFile {
             });
 
             this.isLoaded = true;
+            showNotification(`Finished map setup`);
         } catch (err) {
             alert(err);
             console.error(err);

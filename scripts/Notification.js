@@ -1,4 +1,5 @@
 let notiTimeout = null;
+let notiWait = null;
 
 function hideNotification(button) {
     const ele = document.querySelector(".noti");
@@ -14,9 +15,7 @@ function hideNotification(button) {
     notiTimeout = null;
 }
 
-function showNotification(message) {
-    if (notiTimeout) clearTimeout(notiTimeout);
-
+function actualShowNotification(message) {
     const ele = document.querySelector(".noti");
     ele.querySelector(".notiContent").textContent = message;
     ele.classList.remove("animationOut");
@@ -24,5 +23,21 @@ function showNotification(message) {
 
     ele.show();
     document.querySelector(".notiDismiss").blur();
-    notiTimeout = setTimeout(() => hideNotification(), 3000)
+    notiTimeout = setTimeout(() => hideNotification(), 3000);
+}
+
+function showNotification(message) {
+    if (notiTimeout) {
+        clearTimeout(notiTimeout);
+        hideNotification();
+
+        if (notiWait) clearTimeout(notiWait);
+        notiWait = setTimeout(() => {
+            actualShowNotification(message);
+        }, 201);
+
+        return;
+    }
+
+    actualShowNotification(message);
 }

@@ -171,7 +171,9 @@ class Skinning {
 
     static async getHitsounds(allEntries) {
         const hitsoundFiles = allEntries.filter((file) => {
-            return /^(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(file.filename);
+            return /^(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(
+                file.filename
+            );
         });
 
         const hitsoundArrayBuffer = [];
@@ -294,5 +296,7 @@ class Skinning {
         Skinning.changeSkin();
 
         zipReader.close();
+
+        showNotification(`${storeValue.ini.NAME} imported`);
     }
 }
