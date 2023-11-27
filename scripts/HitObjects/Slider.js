@@ -96,6 +96,9 @@ class Slider {
     }
 
     playHitsound(timestamp) {
+        this.hitSounds.sliderWhistle.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
+        this.hitSounds.sliderSlide.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
+
         if (this.hitSounds.defaultSet.hitSoundIdx !== 0) this.hitSounds.sliderWhistle.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime);
         this.hitSounds.sliderSlide.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime);
 

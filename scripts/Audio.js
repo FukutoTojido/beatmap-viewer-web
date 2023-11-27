@@ -117,6 +117,7 @@ class HitSample {
     isPlaying = false;
 
     srcs = [];
+    gainNode;
 
     static masterGainNode;
     static SAMPLES = {
@@ -134,6 +135,8 @@ class HitSample {
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
+        this.gainNode = audioCtx.createGain();
+        this.gainNode.gain.value = this.vol;
         // console.log(this.audioObj);
     }
 
@@ -141,9 +144,6 @@ class HitSample {
         // console.log(this.audioObj, "Played");
         this.srcs = [];
         this.audioObj.forEach((hs) => {
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = this.vol;
-
             const src = audioCtx.createBufferSource();
 
             if (HitSample.SAMPLES.MAP[hs]) {
@@ -158,15 +158,17 @@ class HitSample {
                 src.buffer = samples[hs.replaceAll(/\d/g, "")];
             }
 
-            src.connect(gainNode);
+            src.connect(this.gainNode);
 
-            gainNode.connect(HitSample.masterGainNode);
+            // this.gainNode.gain.value = this.vol;
+            this.gainNode.connect(HitSample.masterGainNode);
 
             src.start();
             this.isPlaying = true;
 
             src.onended = () => {
                 this.isPlaying = false;
+                this.gainNode.disconnect();
             };
 
             this.srcs.push(src);

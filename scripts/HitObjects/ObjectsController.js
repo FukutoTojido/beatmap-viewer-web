@@ -17,6 +17,9 @@ class ObjectsController {
 
     _in = [];
 
+    static CURRENT_BPM;
+    static CURRENT_SV;
+
     static requestID = null;
     static lastTimestamp;
 
@@ -58,6 +61,9 @@ class ObjectsController {
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
+
+        ObjectsController.CURRENT_BPM = currentBPM;
+        ObjectsController.CURRENT_SV = currentSV;
 
         if (document.querySelector(".BPM").innerText !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
             document.querySelector(".BPM").innerText = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
