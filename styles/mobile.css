@@ -168,7 +168,7 @@
         /* width: 100%; */
         /* padding: 20px; */
         flex: 1;
-        
+
         margin-bottom: 20px;
         justify-content: center;
     }
@@ -182,6 +182,7 @@
 
     .buttonsContainer {
         width: 100%;
+        background-color: unset;
     }
 
     #playButton,
@@ -201,6 +202,10 @@
 
     #playButton:hover {
         filter: none;
+    }
+
+    .progressBarContainer {
+        background-color: unset;
     }
 
     #progress {
