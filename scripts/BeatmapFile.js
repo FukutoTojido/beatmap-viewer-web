@@ -445,7 +445,7 @@ class BeatmapFile {
                             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
 
-                        showNotification("Object(s) timestamp copied to cliped");
+                        showNotification("Object(s) timestamp copied");
                     }
                 }
 
