@@ -207,6 +207,11 @@
         padding: 20px;
     }
 
+    .timingPointsContainer {
+        top: unset;
+        bottom: 0;
+    }
+
     .timingPointsContainer img {
         padding: 0 30px;
     }
