@@ -142,6 +142,7 @@ class HitSample {
 
     play() {
         // console.log(this.audioObj, "Played");
+        this.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
         this.srcs = [];
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
