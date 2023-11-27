@@ -91,7 +91,7 @@ function copyUrlToClipboard() {
     const mapId = currentMapId || "";
     navigator.clipboard.writeText(`${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}?b=${mapId}&t=${currentTimestamp}`);
 
-    showNotification("Current preview timestamp copied");
+    (new Notification("Current preview timestamp copied")).notify();
 }
 
 function closePopup() {

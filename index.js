@@ -16,10 +16,6 @@ document.querySelector("#loadingText").innerText = `Initializing`;
         document.querySelector("#mapInput").value = urlParams.get("b");
     }
 
-    document.querySelector(".notiDismiss").addEventListener("click", () => {
-        hideNotification(document.querySelector(".notiDismiss"));
-    });
-
     window.onresize = debounce(() => {
         setTimeout(() => {
             Game.appResize();

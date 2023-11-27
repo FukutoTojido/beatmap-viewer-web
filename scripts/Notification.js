@@ -1,43 +1,60 @@
-let notiTimeout = null;
-let notiWait = null;
+class Notification {
+    timeout;   
+    dialog;
+    button;
 
-function hideNotification(button) {
-    const ele = document.querySelector(".noti");
+    constructor(message) {
+        const dialog = document.createElement("dialog");
+        dialog.classList.add("noti");
 
-    if (!ele.open) return;
+        const img = document.createElement("img");
+        img.src = "https://img.icons8.com/material-rounded/24/ffffff/info.png";
+        img.width = 24;
+        img.height = 24;
 
-    ele.close();
+        const div = document.createElement("div");
+        div.classList.add("notiContent");
+        div.textContent = message;
 
-    ele.classList.remove("animationIn");
-    ele.classList.add("animationOut");
+        const button = document.createElement("button");
+        button.classList.add("notiDismiss");
 
-    button?.blur();
-    notiTimeout = null;
-}
+        const img2 = document.createElement("img");
+        img2.src = "static/close.png";
+        img2.width = 24;
+        img2.height = 24;
 
-function actualShowNotification(message) {
-    const ele = document.querySelector(".noti");
-    ele.querySelector(".notiContent").textContent = message;
-    ele.classList.remove("animationOut");
-    ele.classList.add("animationIn");
+        button.append(img2);
 
-    ele.show();
-    document.querySelector(".notiDismiss").blur();
-    notiTimeout = setTimeout(() => hideNotification(), 3000);
-}
-
-function showNotification(message) {
-    if (notiTimeout) {
-        clearTimeout(notiTimeout);
-        hideNotification();
-
-        if (notiWait) clearTimeout(notiWait);
-        notiWait = setTimeout(() => {
-            actualShowNotification(message);
-        }, 201);
-
-        return;
+        dialog.append(img, div, button);
+        
+        this.dialog = dialog;
+        this.button = button;
     }
 
-    actualShowNotification(message);
+    notify() {
+        document.querySelector(".notiContainer").append(this.dialog);
+
+        this.dialog.classList.remove("animationOut");
+        this.dialog.classList.add("animationIn");
+        this.dialog.show();
+
+        const close = () => {
+            this.dialog.close();
+
+            this.dialog.classList.remove("animationIn");
+            this.dialog.classList.add("animationOut");
+
+            this.dialog.onanimationend = () => {
+                document.querySelector(".notiContainer").removeChild(this.dialog);
+            };
+        };
+
+        this.timeout = setTimeout(close, 2000);
+
+        this.button.addEventListener("click", () => {
+            clearTimeout(timeout);
+            close();
+        });
+    }
 }

@@ -1566,9 +1566,17 @@ a:visited {
     }
 }
 
+.notiContainer {
+    position: absolute;
+    width: 100%;
+
+    bottom: 120px;
+}
+
 .noti {
     position: absolute;
-    bottom: 90px;
+    inset: 0;
+    margin: auto;
 
     background-color: var(--primary-1);
     border: none;

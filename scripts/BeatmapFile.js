@@ -449,7 +449,7 @@ class BeatmapFile {
                             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
 
-                        showNotification("Object(s) timestamp copied");
+                        (new Notification("Object(s) timestamp copied")).notify();
                     }
                 }
 
@@ -500,7 +500,7 @@ class BeatmapFile {
                 }
 
                 setBeatsnapDivisor(document.querySelector("#beat"));
-                showNotification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`);
+                (new Notification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`)).notify();
 
                 // console.log("Scrolled");
             };
@@ -516,7 +516,7 @@ class BeatmapFile {
             });
 
             this.isLoaded = true;
-            showNotification(`Finished map setup`);
+            (new Notification(`Finished map setup`)).notify();
         } catch (err) {
             alert(err);
             console.error(err);

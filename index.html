@@ -155,7 +155,8 @@
                 <div class="rowLabel">Jump to</div><input id="jumpToTime" type="text">
             </div>
             <div class="row">
-                <div class="rowLabel">Preview URL</div><input id="previewURL" type="text" readonly onclick="copyUrlToClipboard()">
+                <div class="rowLabel">Preview URL</div><input id="previewURL" type="text" readonly
+                    onclick="copyUrlToClipboard()">
             </div>
         </dialog>
     </div>
@@ -355,15 +356,9 @@
             </div>
         </div>
     </div>
-    <dialog class="noti">
-        <img width="24" height="24" src="https://img.icons8.com/material-rounded/24/ffffff/info.png" alt="info" />
-        <div class="notiContent">
-            TestNoti
-        </div>
-        <button class="notiDismiss" onclick="hideNotification(this)">
-            <img width="24" height="24" src="static/close.png" alt="info" />
-        </button>
-    </dialog>
+    <div class="notiContainer">
+    </div>
+
 </body>
 
 </html>

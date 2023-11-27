@@ -295,6 +295,6 @@ class Skinning {
 
         zipReader.close();
 
-        showNotification(`${storeValue.ini.NAME} imported`);
+        (new Notification(`${storeValue.ini.NAME} imported`)).notify();
     }
 }
