@@ -69,10 +69,11 @@ function go(precise, isForward) {
     let side = isForward ? 1 : -1;
     let currentBeatstep;
     const current = beatmapFile.audioNode.getCurrentTime();
+    const isPlaying = beatmapFile.audioNode.isPlaying;
 
     if (Beatmap.beatStepsList.length) {
         currentBeatstep = Beatmap.beatStepsList.findLast((timingPoint) => timingPoint.time <= current) ?? Beatmap.beatStepsList[0];
-        step = precise ? 1 : currentBeatstep.beatstep / parseInt(beatsnap);
+        step = precise ? 1 : (currentBeatstep.beatstep / parseInt(beatsnap)) * (!isForward && isPlaying ? 2 : 1);
     }
 
     const relativePosition = current - currentBeatstep.time;
