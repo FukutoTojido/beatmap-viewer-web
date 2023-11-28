@@ -69,7 +69,6 @@ class GreenLineInfo {
         const svText = new PIXI.Text(`${this.greenLine.svMultiplier.toFixed(2)}x`, {
             fontFamily: "Torus",
             fontSize: 11,
-            fontWeight: 500,
             align: "center",
             tint: 0x161616,
         });
@@ -83,7 +82,7 @@ class GreenLineInfo {
         this.sv.cullable = true;
 
         svText.x = 0;
-        svText.y = 0;
+        svText.y = 2;
         svText.anchor.set(0.5, 0);
 
         this.sv.y = 0;
@@ -92,7 +91,6 @@ class GreenLineInfo {
         const sampleText = new PIXI.Text(`${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom} ${this.greenLine.sampleVol}`, {
             fontFamily: "Torus",
             fontSize: 11,
-            fontWeight: 500,
             tint: 0x161616,
         });
 
