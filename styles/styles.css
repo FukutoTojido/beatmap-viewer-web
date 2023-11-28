@@ -409,7 +409,7 @@ canvas {
     background-color: rgba(0 0 0 /0.8);
 
     border-radius: 20px 20px 0 0;
-    /* transition: ease-in-out 500ms; */
+    transition: ease-in-out 300ms;
 }
 
 #background {
