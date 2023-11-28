@@ -1,6 +1,17 @@
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").innerText = `Initializing`;
 
+const observer = new IntersectionObserver(
+    (entries, observer) => {
+        entries.forEach((entry) => {
+        });
+    },
+    {
+        root: document.querySelector(".timingPanel"),
+        threshold: [],
+    }
+);
+
 (async () => {
     await loadLocalStorage();
     document.querySelector(".loading").style.opacity = 0;
@@ -30,22 +41,4 @@ document.querySelector("#loadingText").innerText = `Initializing`;
             Timeline.resize();
         }, 200);
     });
-
-    // document.querySelector(".sidePanel").addEventListener("transitionend", () => {
-    //     console.log("a");
-    //     Game.appResize();
-    // });
-
-    // document.querySelector(".sidePanel").addEventListener("transitioncancel", () => {
-    //     console.log("b");
-    //     Game.appResize();
-    // });
-
-    // new ResizeObserver(
-    //     debounce(() => {
-    //         setTimeout(() => {
-    //             Game.appResize();
-    //         }, 200);
-    //     })
-    // ).observe(document.querySelector("#playerWrapper"));
 })();

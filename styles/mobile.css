@@ -80,8 +80,8 @@
         display: unset;
     }
 
-    #playerWrapper {
-        flex: unset;
+    .contentWrapper:has(.slideOutAnim) #playerWrapper {
+        width: 100%;
     }
 
     #playerContainer {
