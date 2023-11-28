@@ -76,8 +76,8 @@
         height: 30px;
     }
 
-    #playerWrapper {
-        /* height: 100%; */
+    .contentWrapper {
+        display: unset;
     }
 
     #playerWrapper {
