@@ -346,13 +346,24 @@ svg {
     opacity: 0.5;
 }
 
-#playerWrapper {
+.contentWrapper {
     position: relative;
     width: 100%;
-    /* height: 100%; */
+    flex: 1;
+    
+    display: flex;
+    /* gap: 20px; */
+
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+}
+
+#playerWrapper {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
+
+    /* transition: ease-in-out 200ms; */
 }
 
 #playerContainer {
@@ -369,7 +380,7 @@ svg {
     background-size: cover;
     background-position: center;
     /* overflow: hidden; */
-    transition: ease-in-out 300ms;
+    /* transition: ease-in-out 300ms; */
     /* z-index: 1; */
 }
 
@@ -381,7 +392,7 @@ canvas {
     /* transform: scaleY(-1); */
     /* z-index: 0; */
     /* background-color: rgba(255, 255, 255, 0.1); */
-    /* transition: ease-in-out 200ms; */
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
     transform-origin: top left;
 }
 
@@ -1604,4 +1615,9 @@ a:visited {
 
 .notiDismiss {
     height: 24px;
+}
+
+.notiDismiss:focus {
+    border: none;
+    outline: none;
 }

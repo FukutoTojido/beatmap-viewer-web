@@ -229,7 +229,102 @@ class Beatmap {
         });
     }
 
+    static loadTimingPoints() {
+        const merged = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
+            if (a.time < b.time) return -1;
+            if (a.time > b.time) return 1;
+            if (a.beatstep) return -1;
+            if (b.beatstep) return 1;
+            return 0;
+        });
+
+        merged.forEach((point) => {
+            const container = document.createElement("div");
+            container.classList.add("timingPoint");
+
+            const timeStamp = document.createElement("div");
+            timeStamp.classList.add("timestamp");
+
+            const content = document.createElement("div");
+            content.classList.add("timingContent");
+
+            const flair = document.createElement("div");
+            flair.classList.add("timingFlair");
+
+            const baseValue = document.createElement("div");
+            baseValue.classList.add("timingValue");
+
+            content.append(flair, baseValue);
+            container.append(timeStamp, content);
+
+            let currentTime = point.time;
+            const isNeg = currentTime < 0;
+            if (currentTime < 0) currentTime *= -1;
+
+            const minute = Math.floor(currentTime / 60000);
+            const second = Math.floor((currentTime - minute * 60000) / 1000);
+            const mili = currentTime - minute * 60000 - second * 1000;
+
+            timeStamp.innerText = `${isNeg ? "-" : ""}${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili
+                .toFixed(0)
+                .padStart(3, "0")}`;
+
+            if (point.beatstep) {
+                baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
+                container.classList.add("beatStepPoint");
+                document.querySelector(".timingPanel").append(container);
+                return;
+            }
+
+            const sampleType = document.createElement("div");
+            sampleType.classList.add("timingValue");
+
+            if (point.sampleIdx !== 0) {
+                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}:C${point.sampleIdx}`;
+            } else {
+                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}`;
+            }
+
+            const sampleVol = document.createElement("div");
+            sampleVol.classList.add("timingValue");
+            sampleVol.innerText = `${point.sampleVol}%`;
+
+            content.append(sampleType, sampleVol);
+
+            baseValue.innerText = `${point.svMultiplier.toFixed(2)}x`;
+            container.classList.add("svPoint");
+
+            document.querySelector(".timingPanel").append(container);
+        });
+    }
+
+    static loadMetadata(lines) {
+        const getValue = (name) => {
+            return lines
+                .filter((line) => line.includes(`${name}:`))
+                .at(0)
+                .replaceAll(`${name}:`, "");
+        };
+
+        const artist = getValue("Artist");
+        const artistUnicode = getValue("ArtistUnicode");
+        const title = getValue("Title");
+        const titleUnicode = getValue("TitleUnicode");
+        const diff = getValue("Version");
+        const source = getValue("Source");
+        const tags = getValue("Tags");
+
+        document.querySelector(".meta-artist").innerText = artistUnicode;
+        document.querySelector(".meta-r-artist").innerText = artist;
+        document.querySelector(".meta-title").innerText = titleUnicode;
+        document.querySelector(".meta-r-title").innerText = title;
+        document.querySelector(".meta-diff").innerText = diff;
+        document.querySelector(".meta-source").innerText = source;
+        document.querySelector(".meta-tags").innerText = tags;
+    }
+
     constructor(rawBeatmap, delay) {
+        Beatmap.loadMetadata(rawBeatmap.split("\r\n"));
         // Get Approach Rate
         if (rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0) {
             Beatmap.stats.approachRate = parseFloat(
@@ -374,6 +469,7 @@ class Beatmap {
         Beatmap.timingPointsList = timingPointsList;
 
         Beatmap.loadProgressBar();
+        Beatmap.loadTimingPoints();
 
         // console.log(beatStepsList, timingPointsList);
         let coloursList =

@@ -34,6 +34,7 @@ class Notification {
 
     notify() {
         document.querySelector(".notiContainer").append(this.dialog);
+        this.button.blur();
 
         this.dialog.classList.remove("animationOut");
         this.dialog.classList.add("animationIn");

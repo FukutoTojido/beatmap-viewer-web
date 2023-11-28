@@ -18,6 +18,8 @@ class Game {
 
     static IS_CLICKED = false;
 
+    static IS_RESIZING = false;
+
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
@@ -135,8 +137,7 @@ class Game {
             if (selectedObj) {
                 if (!e.ctrlKey) {
                     selectedHitObject = [selectedObj.obj.time];
-                }
-                else {
+                } else {
                     selectedHitObject = selectedHitObject.concat([selectedObj.obj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
                 }
             } else if (!didMove) {
@@ -153,8 +154,7 @@ class Game {
             clickControl(e);
         });
 
-        grid.on("touchend", (e) => {
-        })
+        grid.on("touchend", (e) => {});
 
         grid.on("mousedown", (e) => {
             if (!beatmapFile || !beatmapFile.isLoaded) return;
@@ -278,6 +278,14 @@ class Game {
         // Reposition FPS
         Game.FPS.x = Game.APP.view.width - 10;
         Game.FPS.y = Game.APP.view.height - 10;
+    }
+
+    static gameResizeLoop() {
+        Game.appResize();
+        if (Game.IS_RESIZING)
+            requestAnimationFrame(() => {
+                Game.gameResizeLoop();
+            });
     }
 
     static appSizeSetup() {

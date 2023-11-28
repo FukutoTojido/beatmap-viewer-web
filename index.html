@@ -12,6 +12,7 @@
     <meta property="og:image" content="https://fukutotojido.s-ul.eu/YuVf9ZAd">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/sidePanel.css">
     <link rel="stylesheet" href="./styles/mobile.css">
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -66,6 +67,7 @@
     <script src="./scripts/ProgressBar.js" defer></script>
     <script src="./scripts/Record.js" defer></script>
     <script src="./scripts/Notification.js" defer></script>
+    <script src="./scripts/SidePanel.js" defer></script>
 </head>
 
 <body>
@@ -92,74 +94,139 @@
         </div>
         <div class="timeline"></div>
     </div>
-    <div id="playerWrapper">
-        <div id="playerContainer">
-            <div id="background"></div>
-            <div id="overlay"></div>
-            <!-- <canvas id="canvas" width="512" height="384"></canvas> -->
-        </div>
-        <a id="metadata" target="_blank" rel="noreferrer noopener">
-            <div id="artistTitle"></div>
-            <div id="versionCreator"></div>
-        </a>
-        <div class="stats">
-            <div class="stat">CS: <span id="CS">5</span></div>
-            <div class="stat">AR: <span id="AR">5</span></div>
-            <div class="stat">OD: <span id="OD">5</span></div>
-            <div class="stat">HP: <span id="HP">5</span></div>
-            <div class="SRContainer"><span id="SR">0.00★</span></div>
-        </div>
-        <div class="thePlayer">
-            <div class="blackCover"></div>
-            <img src="" class="playerAva">
-            <div class="playerInfo">
-                <div class="label">played by</div>
-                <div class="playerName"></div>
+    <div class="contentWrapper">
+        <div id="playerWrapper">
+            <div id="playerContainer">
+                <div id="background"></div>
+                <div id="overlay"></div>
+                <!-- <canvas id="canvas" width="512" height="384"></canvas> -->
             </div>
-            <div class="modsList"></div>
-        </div>
-        <div id="playerController">
-            <div id="timeContainer" onclick="showPopup()">
-                <span id="minute2digit" class="digit">0</span>
-                <span id="minute1digit" class="digit">0</span>
-                <span>:</span>
-                <span id="second2digit" class="digit">0</span>
-                <span id="second1digit" class="digit">0</span>
-                <span>:</span>
-                <span id="millisecond3digit" class="digit">0</span>
-                <span id="millisecond2digit" class="digit">0</span>
-                <span id="millisecond1digit" class="digit">0</span>
+            <a id="metadata" target="_blank" rel="noreferrer noopener">
+                <div id="artistTitle"></div>
+                <div id="versionCreator"></div>
+            </a>
+            <div class="stats">
+                <div class="stat">CS: <span id="CS">5</span></div>
+                <div class="stat">AR: <span id="AR">5</span></div>
+                <div class="stat">OD: <span id="OD">5</span></div>
+                <div class="stat">HP: <span id="HP">5</span></div>
+                <div class="SRContainer"><span id="SR">0.00★</span></div>
             </div>
-            <div class="timingContainer">
-                <div class="BPM">0BPM</div>
-                <div class="SV">
-                    <div class="multiplier">1.00x</div>
+            <div class="thePlayer">
+                <div class="blackCover"></div>
+                <img src="" class="playerAva">
+                <div class="playerInfo">
+                    <div class="label">played by</div>
+                    <div class="playerName"></div>
+                </div>
+                <div class="modsList"></div>
+            </div>
+            <div id="playerController">
+                <div id="timeContainer" onclick="showPopup()">
+                    <span id="minute2digit" class="digit">0</span>
+                    <span id="minute1digit" class="digit">0</span>
+                    <span>:</span>
+                    <span id="second2digit" class="digit">0</span>
+                    <span id="second1digit" class="digit">0</span>
+                    <span>:</span>
+                    <span id="millisecond3digit" class="digit">0</span>
+                    <span id="millisecond2digit" class="digit">0</span>
+                    <span id="millisecond1digit" class="digit">0</span>
+                </div>
+                <div class="timingContainer" onclick="toggleSidePanel()">
+                    <div class="BPM">0BPM</div>
+                    <div class="SV">
+                        <div class="multiplier">1.00x</div>
+                    </div>
+                </div>
+                <div class="buttonsContainer">
+                    <button id="prevButton" onclick="go(null, false)"></button>
+                    <button id="playButton" onclick="playToggle(this)"></button>
+                    <button id="nextButton" onclick="go(null, true)"></button>
+                </div>
+                <div class="progressBarContainer">
+                    <div class="timingPointsContainer">
+                        <img src="static/empty.png">
+                    </div>
+                    <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
+                        onkeydown="event.preventDefault()">
+                </div>
+                <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
+            </div>
+            <dialog class="seekTo">
+                <div class="row">
+                    <div class="rowLabel">Jump to</div><input id="jumpToTime" type="text">
+                </div>
+                <div class="row">
+                    <div class="rowLabel">Preview URL</div><input id="previewURL" type="text" readonly
+                        onclick="copyUrlToClipboard()">
+                </div>
+            </dialog>
+        </div>
+        <div class="sidePanel">
+            <div class="closeRow">
+                map info
+                <button class="closeSidepanel" onclick="closeSidePanel()">
+                    <img src="./static/close.png">
+                </button>
+            </div>
+            <div class="panelRow">
+                <button class="slideToggleButton" onclick="toggleTimingPanel()">timings</button>
+                <div class="timingPanel panel">
+                    <!-- <div class="beatStepPoint timingPoint">
+                        <div class="timestamp">00:00:010</div>
+                        <div class="timingContent">
+                            <div class="timingFlair"></div>
+                            <div class="timingValue">180 BPM</div>
+                        </div>
+                    </div>
+                    <div class="svPoint timingPoint current">
+                        <div class="timestamp">00:00:012</div>
+                        <div class="timingContent">
+                            <div class="timingFlair"></div>
+                            <div class="timingValue">2.00x</div>
+                            <div class="timingValue">S:C1</div>
+                            <div class="timingValue">100%</div>
+                        </div>
+                    </div> -->
                 </div>
             </div>
-            <div class="buttonsContainer">
-                <button id="prevButton" onclick="go(null, false)"></button>
-                <button id="playButton" onclick="playToggle(this)"></button>
-                <button id="nextButton" onclick="go(null, true)"></button>
-            </div>
-            <div class="progressBarContainer">
-                <div class="timingPointsContainer">
-                    <img src="static/empty.png">
+            <div class="panelRow">
+                <button class="slideToggleButton" onclick="toggleMetadataPanel()">metadata</button>
+                <div class="metadataPanel panel show">
+                    <div class="metadataRow">
+                        <div class="label">artist</div>
+                        <div class="value meta-artist"></div>
+                    </div>
+                    <div class="metadataRow">
+                        <div class="label">romanized artist</div>
+                        <div class="value meta-r-artist"></div>
+                    </div>
+                    <div class="metadataRow">
+                        <div class="label">title</div>
+                        <div class="value meta-title"></div>
+                    </div>
+                    <div class="metadataRow">
+                        <div class="label">romanized title</div>
+                        <div class="value meta-r-title"></div>
+                    </div>
+                    <div class="metadataRow">
+                        <div class="label">difficulty name</div>
+                        <div class="value meta-diff"></div>
+                    </div>
+                    <div class="metadataRow">
+                        <div class="label">source</div>
+                        <div class="value meta-source"></div>
+                    </div>
+                    <div class="metadataRow">
+                        <div class="label">tags</div>
+                        <div class="value meta-tags"></div>
+                    </div>
                 </div>
-                <input id="progress" type="range" min="0" step="1" value="0" oninput="setAudioTime(this)"
-                    onkeydown="event.preventDefault()">
             </div>
-            <!-- <input id="volumeSlider" type="range" min="0" max="0.4" step="0.01" value="0.1" oninput="setAudioVolume(this)"> -->
         </div>
-        <dialog class="seekTo">
-            <div class="row">
-                <div class="rowLabel">Jump to</div><input id="jumpToTime" type="text">
-            </div>
-            <div class="row">
-                <div class="rowLabel">Preview URL</div><input id="previewURL" type="text" readonly
-                    onclick="copyUrlToClipboard()">
-            </div>
-        </dialog>
     </div>
+
     <div class="loading">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="90px" height="90px">
             <circle cx="45" cy="45" r="30" strokeLinecap="round" />

@@ -30,4 +30,22 @@ document.querySelector("#loadingText").innerText = `Initializing`;
             Timeline.resize();
         }, 200);
     });
+
+    // document.querySelector(".sidePanel").addEventListener("transitionend", () => {
+    //     console.log("a");
+    //     Game.appResize();
+    // });
+
+    // document.querySelector(".sidePanel").addEventListener("transitioncancel", () => {
+    //     console.log("b");
+    //     Game.appResize();
+    // });
+
+    // new ResizeObserver(
+    //     debounce(() => {
+    //         setTimeout(() => {
+    //             Game.appResize();
+    //         }, 200);
+    //     })
+    // ).observe(document.querySelector("#playerWrapper"));
 })();
