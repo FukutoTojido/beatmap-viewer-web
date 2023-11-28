@@ -269,6 +269,8 @@ class Beatmap {
                 .toFixed(0)
                 .padStart(3, "0")}`;
 
+            observer.observe(container);
+
             if (point.beatstep) {
                 baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
                 container.classList.add("beatStepPoint");
