@@ -29,17 +29,17 @@ const toggleMetadataPanel = (forceOpen) => {
 const openSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideInAnim");
     document.querySelector(".sidePanel").classList.add("slideOutAnim");
-    document.querySelector("#playerWrapper canvas").style.transform = "translateX(-200px)";
+    // document.querySelector("#playerWrapper canvas").style.transform = "translateX(-200px)";
 
-    Game.FPS.x = Game.APP.view.width - 10 - 220;
+    // Game.FPS.x = Game.APP.view.width - 10 - 220;
 };
 
 const closeSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideOutAnim");
     document.querySelector(".sidePanel").classList.add("slideInAnim");
-    document.querySelector("#playerWrapper canvas").style.transform = "";
+    // document.querySelector("#playerWrapper canvas").style.transform = "";
 
-    Game.FPS.x = Game.APP.view.width - 10;
+    // Game.FPS.x = Game.APP.view.width - 10;
 };
 
 const toggleSidePanel = () => {

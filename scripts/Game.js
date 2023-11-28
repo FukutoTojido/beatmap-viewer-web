@@ -91,11 +91,11 @@ class Game {
                 alpha: 0.1,
                 alignment: 0.5,
             })
-            .drawRect(0, 0, Game.WIDTH, Game.HEIGHT);
+            .drawRect(0, 0, 512, 384);
 
         // Draw grid
-        const gridWidth = Game.WIDTH / 16;
-        const gridHeight = Game.HEIGHT / 12;
+        const gridWidth = 512 / 16;
+        const gridHeight = 384 / 12;
         for (let i = 0; i < 16; i++) {
             for (let j = 0; j < 12; j++) {
                 graphics.drawRect(i * gridWidth, j * gridHeight, gridWidth, gridHeight);
@@ -106,11 +106,12 @@ class Game {
         const texture = Game.APP.renderer.generateTexture(graphics);
 
         const grid = new PIXI.Sprite(texture);
-        grid.width = Game.WIDTH;
-        grid.height = Game.HEIGHT;
+        grid.width = 512;
+        grid.height = 384;
         grid.x = Game.OFFSET_X;
         grid.y = Game.OFFSET_Y;
         grid.alpha = 1;
+        grid.scale.set(Game.SCALE_RATE);
 
         grid.interactive = true;
 
@@ -262,10 +263,10 @@ class Game {
         // Resize Game Field
         Game.appSizeSetup();
 
-        // Reinitialize grid
-        Game.APP.stage.removeChild(Game.GRID);
-        Game.GRID = Game.gridInit();
-        Game.APP.stage.addChildAt(Game.GRID, 0);
+        // Reposition grid
+        Game.GRID.x = Game.OFFSET_X;
+        Game.GRID.y = Game.OFFSET_Y;
+        Game.GRID.scale.set(Game.SCALE_RATE);
 
         // Reposition container
         Game.CONTAINER.x = Game.OFFSET_X;
@@ -278,14 +279,6 @@ class Game {
         // Reposition FPS
         Game.FPS.x = Game.APP.view.width - 10;
         Game.FPS.y = Game.APP.view.height - 10;
-    }
-
-    static gameResizeLoop() {
-        Game.appResize();
-        if (Game.IS_RESIZING)
-            requestAnimationFrame(() => {
-                Game.gameResizeLoop();
-            });
     }
 
     static appSizeSetup() {
