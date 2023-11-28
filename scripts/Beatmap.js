@@ -234,10 +234,12 @@ class Beatmap {
         });
     }
 
-    static loadTimingPoints() {
+    static async loadTimingPoints() {
         const merged = Beatmap.mergedPoints;
 
         [...document.querySelectorAll(".timingPoint")].forEach((ele) => document.querySelector(".timingPanel").removeChild(ele));
+        // const div = document.createElement("div");
+        // div.classList.add("timingPanelWrapper");
 
         merged.forEach((point) => {
             const container = document.createElement("div");
@@ -302,7 +304,13 @@ class Beatmap {
             document.querySelector(".timingPanel").append(container);
         });
 
-        document.querySelector(".timings").innerText = `timings (${merged.length})`
+        document.querySelector(".timings").innerText = `timings (${merged.length})`;
+        // document.querySelector(".timingPanel").append(div);
+
+        // const dataURL = await domtoimage.toPng(div);
+
+        // document.querySelector(".timingPanel").removeChild(div);
+        // document.querySelector(".timingPanel img").src = dataURL;
     }
 
     static loadMetadata(lines) {
@@ -485,7 +493,7 @@ class Beatmap {
         });
 
         Beatmap.loadProgressBar();
-        Beatmap.loadTimingPoints();
+        // Beatmap.loadTimingPoints();
 
         // console.log(beatStepsList, timingPointsList);
         let coloursList =

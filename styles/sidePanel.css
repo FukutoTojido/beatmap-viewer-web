@@ -99,7 +99,7 @@
     background-color: var(--primary-2);
 }
 
-.panelRow:has(.slideToggleButton:hover) {
+.panelRow:has(.slideToggleButton:not([disabled]):hover) {
     background-color: var(--primary-2);
 }
 
@@ -116,6 +116,10 @@
 
 .slideToggleButton:hover {
     filter: none;
+}
+
+.slideToggleButton:disabled {
+    color: rgba(255, 255, 255, 0.2);
 }
 
 .panel {
@@ -137,6 +141,15 @@
     flex: 1 1 0;
 }
 
+.timingPanelWrapper {
+    position: relative;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+}
+
 .highlightPoint {
     position: absolute;
 
@@ -147,6 +160,10 @@
     border-radius: 5px;
 
     color: transparent;
+}
+
+.timingPanel img {
+    position: absolute;
 }
 
 .timingPoint {
