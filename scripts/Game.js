@@ -18,6 +18,8 @@ class Game {
 
     static IS_CLICKED = false;
 
+    static IS_RESIZING = false;
+
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
@@ -89,11 +91,11 @@ class Game {
                 alpha: 0.1,
                 alignment: 0.5,
             })
-            .drawRect(0, 0, Game.WIDTH, Game.HEIGHT);
+            .drawRect(0, 0, 512, 384);
 
         // Draw grid
-        const gridWidth = Game.WIDTH / 16;
-        const gridHeight = Game.HEIGHT / 12;
+        const gridWidth = 512 / 16;
+        const gridHeight = 384 / 12;
         for (let i = 0; i < 16; i++) {
             for (let j = 0; j < 12; j++) {
                 graphics.drawRect(i * gridWidth, j * gridHeight, gridWidth, gridHeight);
@@ -104,11 +106,12 @@ class Game {
         const texture = Game.APP.renderer.generateTexture(graphics);
 
         const grid = new PIXI.Sprite(texture);
-        grid.width = Game.WIDTH;
-        grid.height = Game.HEIGHT;
+        grid.width = 512;
+        grid.height = 384;
         grid.x = Game.OFFSET_X;
         grid.y = Game.OFFSET_Y;
         grid.alpha = 1;
+        grid.scale.set(Game.SCALE_RATE);
 
         grid.interactive = true;
 
@@ -135,8 +138,7 @@ class Game {
             if (selectedObj) {
                 if (!e.ctrlKey) {
                     selectedHitObject = [selectedObj.obj.time];
-                }
-                else {
+                } else {
                     selectedHitObject = selectedHitObject.concat([selectedObj.obj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
                 }
             } else if (!didMove) {
@@ -153,8 +155,7 @@ class Game {
             clickControl(e);
         });
 
-        grid.on("touchend", (e) => {
-        })
+        grid.on("touchend", (e) => {});
 
         grid.on("mousedown", (e) => {
             if (!beatmapFile || !beatmapFile.isLoaded) return;
@@ -262,10 +263,10 @@ class Game {
         // Resize Game Field
         Game.appSizeSetup();
 
-        // Reinitialize grid
-        Game.APP.stage.removeChild(Game.GRID);
-        Game.GRID = Game.gridInit();
-        Game.APP.stage.addChildAt(Game.GRID, 0);
+        // Reposition grid
+        Game.GRID.x = Game.OFFSET_X;
+        Game.GRID.y = Game.OFFSET_Y;
+        Game.GRID.scale.set(Game.SCALE_RATE);
 
         // Reposition container
         Game.CONTAINER.x = Game.OFFSET_X;

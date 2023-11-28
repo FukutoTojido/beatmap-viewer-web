@@ -18,7 +18,7 @@ document.querySelector("#loadingText").innerText = `Initializing`;
 
     window.onresize = debounce(() => {
         setTimeout(() => {
-            Game.appResize();
+            // Game.appResize();
             Timeline.resize();
         }, 200);
     });
@@ -26,8 +26,26 @@ document.querySelector("#loadingText").innerText = `Initializing`;
     screen.orientation.onchange = debounce(() => {
         // console.log("Orientation Changed");
         setTimeout(() => {
-            Game.appResize();
+            // Game.appResize();
             Timeline.resize();
         }, 200);
     });
+
+    // document.querySelector(".sidePanel").addEventListener("transitionend", () => {
+    //     console.log("a");
+    //     Game.appResize();
+    // });
+
+    // document.querySelector(".sidePanel").addEventListener("transitioncancel", () => {
+    //     console.log("b");
+    //     Game.appResize();
+    // });
+
+    // new ResizeObserver(
+    //     debounce(() => {
+    //         setTimeout(() => {
+    //             Game.appResize();
+    //         }, 200);
+    //     })
+    // ).observe(document.querySelector("#playerWrapper"));
 })();

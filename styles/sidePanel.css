@@ -1,0 +1,267 @@
+@keyframes slideOut {
+    0% {
+        opacity: 0;
+        width: 0;
+    }
+
+    100% {
+        opacity: 1;
+        width: 400px;
+        padding: 20px;
+    }
+}
+
+@keyframes slideIn {
+    0% {
+        width: 400px;
+        padding: 20px;
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        width: 0;
+        padding: 0;
+    }
+}
+
+.slideOutAnim {
+    animation: slideOut cubic-bezier(0, 0.4, 0, 1) 200ms;
+}
+
+.slideInAnim {
+    animation: slideIn cubic-bezier(0, 0.4, 0, 1) 200ms;
+}
+
+.contentWrapper:has(.slideOutAnim) {
+    gap: 20px;
+}
+
+.sidePanel {
+    position: relative;
+    width: 0px;
+    background-color: var(--primary-3);
+    border-radius: 20px;
+
+    transition: ease-in-out 200ms;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    padding: 0px;
+
+    overflow: hidden;
+    opacity: 0;
+}
+
+.sidePanel.slideOutAnim {
+    width: 400px;
+    opacity: 1;
+    padding: 20px;
+}
+
+.closeRow {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: white;
+    font-family: Torus;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: left;
+}
+
+.panelRow {
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+    padding: 15px;
+
+    transition: ease-in-out 200ms;
+    background-color: var(--primary-4);
+}
+
+.panelRow:has(.show) {
+    flex: 1;
+    background-color: var(--primary-2);
+}
+
+.panelRow:has(.slideToggleButton:hover) {
+    background-color: var(--primary-2);
+}
+
+.slideToggleButton {
+    color: white;
+    font-family: Torus;
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: left;
+    padding: 0;
+}
+
+.slideToggleButton:hover {
+    filter: none;
+}
+
+.panel {
+    width: 100%;
+    height: 0;
+
+    min-height: 0;
+
+    overflow: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    transition: ease-in-out 200ms;
+
+    font-size: 0.8rem;
+}
+
+.panel.show {
+    flex: 1 1 0;
+}
+
+.timingPoint {
+    width: 100%;
+    padding: 5px 10px;
+
+    font-weight: 400;
+
+    display: flex;
+    align-items: center;
+
+    border-radius: 5px;
+}
+
+.timingPoint.current {
+    background-color: var(--primary-4);
+}
+
+.timestamp {
+    width: 80px;
+}
+
+.timingContent {
+    flex: 1;
+    height: 100%;
+
+    padding: 5px;
+    background-color: var(--primary-3);
+
+    border-radius: 5px;
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.timingPoint.current .timingContent {
+    background-color: var(--primary-2);
+}
+
+.timingFlair {
+    width: 6px;
+    height: 100%;
+
+    background: white;
+    border-radius: 10px;
+}
+
+.beatStepPoint .timingFlair {
+    background: #f82c69;
+}
+
+.svPoint .timingFlair {
+    background: #baffc8;
+}
+
+.timingValue {
+    font-weight: 500;
+}
+
+.timingContent :nth-of-type(2) {
+    width: 70px;
+}
+
+.timingContent :nth-of-type(3) {
+    width: 40px;
+}
+
+.metadataRow {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.metadataRow .label {
+    font-weight: 400;
+    opacity: 0.5;
+}
+
+.metadataRow .value {
+    font-size: 1rem;
+}
+
+@media screen and (max-aspect-ratio: 1 / 1) {
+    @keyframes slideOut {
+        0% {
+            opacity: 0;
+            height: 0;
+        }
+    
+        100% {
+            opacity: 1;
+            height: 90%;
+            padding: 20px;
+        }
+    }
+    
+    @keyframes slideIn {
+        0% {
+            height: 90%;
+            padding: 20px;
+            opacity: 1;
+        }
+    
+        100% {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+        }
+    }
+
+    .contentWrapper:has(.slideOutAnim) {
+        gap: unset;
+    }
+
+    .sidePanel {
+        position: absolute;
+        bottom: 0;
+
+        width: 100%;
+
+        border-radius: 20px 20px 0 0;
+    }
+
+    .sidePanel.slideOutAnim {
+        width: 100%;
+        height: 90%;
+    }
+
+    .panel {
+        font-size: 1rem;
+    }
+
+    .timingContent :nth-of-type(2) {
+        width: 60px;
+    }
+}

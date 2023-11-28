@@ -201,6 +201,7 @@ class ObjectsController {
         //     const timestamp = currentAudioTime;
         //     return this.draw(timestamp);
         // });
+        Game.appResize();
         const currentAudioTime = beatmapFile?.audioNode?.getCurrentTime();
         if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController)
             beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);

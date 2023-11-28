@@ -76,8 +76,8 @@
         height: 30px;
     }
 
-    #playerWrapper {
-        /* height: 100%; */
+    .contentWrapper {
+        display: unset;
     }
 
     #playerWrapper {
@@ -92,6 +92,7 @@
         border-radius: 0;
         /* margin-bottom: 120px; */
         aspect-ratio: 4 / 3;
+        flex: unset;
     }
 
     #overlay,
