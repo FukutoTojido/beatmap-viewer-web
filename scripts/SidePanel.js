@@ -1,5 +1,5 @@
 const toggleTimingPanel = (forceOpen) => {
-    if (forceOpen) {
+    if (forceOpen === true) {
         document.querySelector(".metadataPanel").classList.remove("show");
         document.querySelector(".timingPanel").classList.add("show");
         return;
@@ -29,17 +29,13 @@ const toggleMetadataPanel = (forceOpen) => {
 const openSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideInAnim");
     document.querySelector(".sidePanel").classList.add("slideOutAnim");
-    // document.querySelector("#playerWrapper canvas").style.transform = "translateX(-200px)";
-
-    // Game.FPS.x = Game.APP.view.width - 10 - 220;
 };
 
 const closeSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideOutAnim");
     document.querySelector(".sidePanel").classList.add("slideInAnim");
-    // document.querySelector("#playerWrapper canvas").style.transform = "";
-
-    // Game.FPS.x = Game.APP.view.width - 10;
+    document.querySelector(".timingPanel").classList.remove("show");
+    document.querySelector(".metadataPanel").classList.remove("show");
 };
 
 const toggleSidePanel = () => {
