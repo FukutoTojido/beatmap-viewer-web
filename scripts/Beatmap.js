@@ -49,6 +49,7 @@ class Beatmap {
 
     static beatStepsList = [];
     static timingPointsList = [];
+    static mergedPoints = [];
 
     static updateModdedStats() {
         const HRMul = !mods.HR ? 1 : 1.4;
@@ -186,6 +187,10 @@ class Beatmap {
     }
 
     static findNearestTimingPoint(time, type, precise) {
+        return Beatmap[type][Beatmap.findNearestTimingPointIndex(time, type, precise)];
+    }
+
+    static findNearestTimingPointIndex(time, type, precise) {
         const compensate = precise ? 0 : 2;
         let foundIndex = binarySearchNearest(Beatmap[type], time, (point, time) => {
             if (point.time < time + compensate) return -1;
@@ -195,8 +200,8 @@ class Beatmap {
 
         while (foundIndex > 0 && Beatmap[type][foundIndex].time > time + compensate) foundIndex--;
 
-        if (Beatmap[type][foundIndex].time > time + compensate) return Beatmap[type][0];
-        return Beatmap[type][foundIndex];
+        if (Beatmap[type][foundIndex].time > time + compensate) return 0;
+        return foundIndex;
     }
 
     static async loadProgressBar() {
@@ -230,13 +235,9 @@ class Beatmap {
     }
 
     static loadTimingPoints() {
-        const merged = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
-            if (a.time < b.time) return -1;
-            if (a.time > b.time) return 1;
-            if (a.beatstep) return -1;
-            if (b.beatstep) return 1;
-            return 0;
-        });
+        const merged = Beatmap.mergedPoints;
+
+        [...document.querySelectorAll(".timingPoint")].forEach((ele) => document.querySelector(".timingPanel").removeChild(ele));
 
         merged.forEach((point) => {
             const container = document.createElement("div");
@@ -280,6 +281,8 @@ class Beatmap {
 
             const sampleType = document.createElement("div");
             sampleType.classList.add("timingValue");
+
+            if (point.isKiai) content.classList.add("kiai");
 
             if (point.sampleIdx !== 0) {
                 sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}:C${point.sampleIdx}`;
@@ -465,10 +468,19 @@ class Beatmap {
                     sampleSet: parseInt(params[3] ?? "0"),
                     sampleIdx: parseInt(params[4] ?? "0"),
                     sampleVol: parseInt(params[5] ?? "100"),
+                    isKiai: parseInt(params[7] ?? 0) === 0 ? false : true,
                 };
             });
 
         Beatmap.timingPointsList = timingPointsList;
+
+        Beatmap.mergedPoints = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
+            if (a.time < b.time) return -1;
+            if (a.time > b.time) return 1;
+            if (a.beatstep) return -1;
+            if (b.beatstep) return 1;
+            return 0;
+        });
 
         Beatmap.loadProgressBar();
         Beatmap.loadTimingPoints();

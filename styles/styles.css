@@ -350,7 +350,7 @@ svg {
     position: relative;
     width: 100%;
     flex: 1;
-    
+
     /* gap: 20px; */
 
     display: flex;
@@ -786,6 +786,20 @@ canvas {
 
     user-select: none;
     cursor: pointer;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: var(--primary-5);
+    }
+
+    100% {
+        background-color: var(--primary-4);
+    }
+}
+
+.timingContainer.kiai {
+    animation: pulse ease-in-out 500ms infinite;
 }
 
 .timingContainer:hover {
