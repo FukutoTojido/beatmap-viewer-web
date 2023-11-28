@@ -301,6 +301,8 @@ class Beatmap {
 
             document.querySelector(".timingPanel").append(container);
         });
+
+        document.querySelector(".timings").innerText = `timings (${merged.length})`
     }
 
     static loadMetadata(lines) {

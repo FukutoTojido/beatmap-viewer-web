@@ -45,5 +45,6 @@ const toggleSidePanel = () => {
     }
 
     openSidePanel();
-    toggleTimingPanel(true);
+    // toggleTimingPanel(true);
+    toggleMetadataPanel(true);
 };

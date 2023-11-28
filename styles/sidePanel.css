@@ -161,6 +161,8 @@
     align-items: center;
 
     border-radius: 5px;
+    /* pointer-events: none; */
+    /* user-select: none; */
 }
 
 .panel.show .timingPoint {
