@@ -61,7 +61,7 @@ class ObjectsController {
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
-        const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "mergedPoints", true);
+        // const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "beatStepsList", true);
 
         ObjectsController.CURRENT_BPM = currentBPM;
         ObjectsController.CURRENT_SV = currentSV;

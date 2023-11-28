@@ -303,7 +303,6 @@ class Game {
         Game.OFFSET_Y = (Game.APP.view.height - Game.HEIGHT) / 2;
 
         // Re-scale Game Canvas on Retina / Mobile devices
-        Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
         // ...
         Game.SCALE_RATE = Game.WIDTH / 512;
@@ -320,6 +319,7 @@ class Game {
         });
 
         Game.appSizeSetup();
+        Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
     constructor() {

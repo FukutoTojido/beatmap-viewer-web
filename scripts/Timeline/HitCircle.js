@@ -33,14 +33,14 @@ class TimelineHitCircle {
         this.obj.addChild(numberSprite.obj);
         this.obj.addChild(selected);
 
-        this.obj.scale.set(Timeline.HEIGHT / this.hitCircle.height);
+        this.obj.scale.set(Timeline.HEIGHT / 1.5 / this.hitCircle.height);
         this.obj.x = 0;
         this.obj.y = Timeline.HEIGHT / 2;
 
         const handleClickEvent = (e) => {
             const { x, y } = this.obj.toLocal(e.global);
             if (selectedHitObject.includes(this.hitObject.time)) return;
-            if (Math.abs(x) > Timeline.HEIGHT / 2) return;
+            if (Math.abs(x) > Timeline.HEIGHT / 2 / 2) return;
 
             if (!e.ctrlKey) selectedHitObject = [];
             if (!selectedHitObject.includes(this.hitObject.time)) selectedHitObject.push(this.hitObject.time);
@@ -81,7 +81,7 @@ class TimelineHitCircle {
         this.hitCircleOverlay.texture = textures.HIT_CIRCLE_OVERLAY.texture;
         this.hitCircleOverlay.scale.set(textures.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
-        this.obj.scale.set(Timeline.HEIGHT / this.hitCircle.height);
+        this.obj.scale.set(Timeline.HEIGHT / 1.5 / this.hitCircle.height);
         this.obj.y = Timeline.HEIGHT / 2;
 
         this.selected.visible = false;

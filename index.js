@@ -3,8 +3,7 @@ document.querySelector("#loadingText").innerText = `Initializing`;
 
 const observer = new IntersectionObserver(
     (entries, observer) => {
-        entries.forEach((entry) => {
-        });
+        entries.forEach((entry) => {});
     },
     {
         root: document.querySelector(".timingPanel"),
@@ -30,7 +29,9 @@ const observer = new IntersectionObserver(
     window.onresize = debounce(() => {
         setTimeout(() => {
             // Game.appResize();
-            Timeline.resize();
+            // Timeline.resize();
+            Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+            Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         }, 200);
     });
 
@@ -38,7 +39,9 @@ const observer = new IntersectionObserver(
         // console.log("Orientation Changed");
         setTimeout(() => {
             // Game.appResize();
-            Timeline.resize();
+            // Timeline.resize();
+            Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+            Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         }, 200);
     });
 })();

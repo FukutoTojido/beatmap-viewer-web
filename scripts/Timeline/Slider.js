@@ -133,7 +133,8 @@ class TimelineSlider {
             const { x, y } = this.obj.toLocal(e.global);
             if (selectedHitObject.includes(this.hitObject.time)) return;
 
-            if (x < this.headPosition - Timeline.HEIGHT / 2 || x > this.headPosition + this.length * this.ratio + Timeline.HEIGHT / 2) return;
+            if (x < this.headPosition - (Timeline.HEIGHT - 20) / 2 || x > this.headPosition + this.length * this.ratio + Timeline.HEIGHT / 1.5 / 2)
+                return;
 
             if (!e.ctrlKey) selectedHitObject = [];
             if (!selectedHitObject.includes(this.hitObject.time)) selectedHitObject.push(this.hitObject.time);
@@ -183,17 +184,17 @@ class TimelineSlider {
         // const ratio = 1;
 
         this.meshHead.position.set(headPosition, Timeline.HEIGHT / 2);
-        this.meshHead.scale.set(Timeline.HEIGHT / 60);
+        this.meshHead.scale.set(Timeline.HEIGHT / 1.5 / 60);
         this.meshHead.shader.uniforms.tint = tint;
         this.meshHead.shader.uniforms.selected = selected;
 
         this.meshBody.position.set(headPosition, Timeline.HEIGHT / 2);
-        this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / 60);
+        this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / 1.5 / 60);
         this.meshBody.shader.uniforms.tint = tint;
         this.meshHead.shader.uniforms.selected = selected;
 
         this.meshTail.position.set(endPosition, Timeline.HEIGHT / 2);
-        this.meshTail.scale.set(Timeline.HEIGHT / 60);
+        this.meshTail.scale.set(Timeline.HEIGHT / 1.5 / 60);
         this.meshTail.shader.uniforms.tint = tint;
         this.meshHead.shader.uniforms.selected = selected;
 

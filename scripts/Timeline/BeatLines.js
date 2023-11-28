@@ -32,10 +32,103 @@ class BeatTick {
     }
 }
 
+class GreenLineInfo {
+    greenLine;
+    sv;
+    sample;
+
+    static findGreenLineInRange(timestamp) {
+        const upperBound = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + timestamp + 200;
+        const lowerBound = ObjectsController.CURRENT_SV?.time ?? 0;
+
+        if (upperBound < lowerBound) return [];
+
+        let foundIndex = binarySearchNearest(Timeline.beatLines.greenLines, lowerBound, (line, value) => {
+            if (line.greenLine.time < value) return -1;
+            if (line.greenLine.time > value) return 1;
+            return 0;
+        });
+
+        while (
+            foundIndex > 0 &&
+            Timeline.beatLines.greenLines[foundIndex].greenLine.time >= timestamp - (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500
+        )
+            foundIndex--;
+
+        const ret = [];
+        while (foundIndex < Timeline.beatLines.greenLines.length && Timeline.beatLines.greenLines[foundIndex].greenLine.time <= upperBound) {
+            ret.push(Timeline.beatLines.greenLines[foundIndex++]);
+        }
+
+        return ret;
+    }
+
+    constructor(greenLine) {
+        this.greenLine = greenLine;
+
+        const svText = new PIXI.Text(`${this.greenLine.svMultiplier.toFixed(2)}x`, {
+            fontFamily: "Torus",
+            fontSize: 11,
+            fontWeight: 500,
+            align: "center",
+            tint: 0x161616,
+        });
+
+        let { width: svWidth, height: svHeight } = svText;
+        svWidth += 10;
+        svHeight += 3;
+
+        this.sv = new PIXI.Graphics().beginFill(0x89f0a3).drawRoundedRect(-svWidth / 2, 0, svWidth, svHeight, 10);
+        this.sv.addChild(svText);
+        this.sv.cullable = true;
+
+        svText.x = 0;
+        svText.y = 0;
+        svText.anchor.set(0.5, 0);
+
+        this.sv.y = 0;
+
+        let custom = this.greenLine.sampleIdx != 0 ? `:C${this.greenLine.sampleIdx}` : "";
+        const sampleText = new PIXI.Text(`${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom} ${this.greenLine.sampleVol}`, {
+            fontFamily: "Torus",
+            fontSize: 11,
+            fontWeight: 500,
+            tint: 0x161616,
+        });
+
+        sampleText.x = 0;
+        sampleText.anchor.set(0.5);
+
+        let { width: sampleWidth, height: sampleHeight } = sampleText;
+        sampleWidth += 10;
+        sampleHeight += 3;
+
+        sampleText.y = -sampleHeight / 2;
+
+        this.sample = new PIXI.Graphics().beginFill(0xf23a8a).drawRoundedRect(-sampleWidth / 2, -sampleHeight, sampleWidth, sampleHeight, 10);
+        this.sample.addChild(sampleText);
+        this.sample.cullable = true;
+
+        this.sample.y = Timeline.HEIGHT;
+    }
+
+    draw(timestamp) {
+        const center = Timeline.WIDTH / 2;
+        const delta = timestamp - this.greenLine.time;
+
+        this.sv.x = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, this.sv.width / 2 + 5);
+
+        this.sample.x = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, this.sample.width / 2 + 5);
+        this.sample.y = Timeline.HEIGHT;
+    }
+}
+
 class BeatLines {
     obj;
     ticks = [];
     tickTexture;
+    greenLines = [];
+    drawList = [];
 
     static BEAT_LINE_COLOR = {
         1: 0xffffff,
@@ -157,5 +250,17 @@ class BeatLines {
         for (let i = 0; i < beatStepList.length; i++) {
             this.ticks[i + idxCount].drawLine(beatStepList[i].time, "beatStep", timestamp);
         }
+
+        this.drawList.forEach((line) => {
+            this.obj.removeChild(line.sv);
+            this.obj.removeChild(line.sample);
+        });
+
+        this.drawList = GreenLineInfo.findGreenLineInRange(timestamp);
+        this.drawList.forEach((line) => {
+            this.obj.addChild(line.sv);
+            this.obj.addChild(line.sample);
+            line.draw(timestamp);
+        });
     }
 }

@@ -235,13 +235,9 @@ class Beatmap {
     }
 
     static async loadTimingPoints() {
-        const merged = Beatmap.mergedPoints;
-
         [...document.querySelectorAll(".timingPoint")].forEach((ele) => document.querySelector(".timingPanel").removeChild(ele));
-        // const div = document.createElement("div");
-        // div.classList.add("timingPanelWrapper");
 
-        merged.forEach((point) => {
+        Beatmap.beatStepsList.forEach((point) => {
             const container = document.createElement("div");
             container.classList.add("timingPoint");
 
@@ -274,51 +270,23 @@ class Beatmap {
 
             observer.observe(container);
 
-            if (point.beatstep) {
-                baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
-                container.classList.add("beatStepPoint");
-                document.querySelector(".timingPanel").append(container);
-                return;
-            }
-
-            const sampleType = document.createElement("div");
-            sampleType.classList.add("timingValue");
-
-            if (point.isKiai) content.classList.add("kiai");
-
-            if (point.sampleIdx !== 0) {
-                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}:C${point.sampleIdx}`;
-            } else {
-                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}`;
-            }
-
-            const sampleVol = document.createElement("div");
-            sampleVol.classList.add("timingValue");
-            sampleVol.innerText = `${point.sampleVol}%`;
-
-            content.append(sampleType, sampleVol);
-
-            baseValue.innerText = `${point.svMultiplier.toFixed(2)}x`;
-            container.classList.add("svPoint");
-
+            baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
+            container.classList.add("beatStepPoint");
             document.querySelector(".timingPanel").append(container);
+            return;
         });
 
-        document.querySelector(".timings").innerText = `timings (${merged.length})`;
-        // document.querySelector(".timingPanel").append(div);
-
-        // const dataURL = await domtoimage.toPng(div);
-
-        // document.querySelector(".timingPanel").removeChild(div);
-        // document.querySelector(".timingPanel img").src = dataURL;
+        document.querySelector(".timings").innerText = `timings (${Beatmap.beatStepsList.length})`;
     }
 
     static loadMetadata(lines) {
         const getValue = (name) => {
-            return lines
-                .filter((line) => line.includes(`${name}:`))
-                .at(0)
-                ?.replaceAll(`${name}:`, "") ?? "";
+            return (
+                lines
+                    .filter((line) => line.includes(`${name}:`))
+                    .at(0)
+                    ?.replaceAll(`${name}:`, "") ?? ""
+            );
         };
 
         const artist = getValue("Artist");
@@ -483,6 +451,10 @@ class Beatmap {
             });
 
         Beatmap.timingPointsList = timingPointsList;
+        timingPointsList.forEach((greenLine, idx) => {
+            const graphic = new GreenLineInfo(greenLine);
+            Timeline.beatLines.greenLines.push(graphic);
+        })
 
         Beatmap.mergedPoints = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
             if (a.time < b.time) return -1;
@@ -493,7 +465,7 @@ class Beatmap {
         });
 
         Beatmap.loadProgressBar();
-        // Beatmap.loadTimingPoints();
+        Beatmap.loadTimingPoints();
 
         // console.log(beatStepsList, timingPointsList);
         let coloursList =

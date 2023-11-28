@@ -11,8 +11,8 @@ class Timeline {
     static DRAW_LIST = [];
 
     static init() {
-        Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width);
-        Timeline.HEIGHT = parseInt(getComputedStyle(document.querySelector(".timeline")).height);
+        Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width) * window.devicePixelRatio;
+        Timeline.HEIGHT = parseInt(getComputedStyle(document.querySelector(".timeline")).height) * window.devicePixelRatio;
 
         Timeline.APP = new PIXI.Application({
             width: Timeline.WIDTH,
@@ -29,51 +29,41 @@ class Timeline {
         Timeline.obj = new PIXI.Container();
         Timeline.APP.stage.addChild(Timeline.obj);
 
-        Timeline.beatLines = new BeatLines();
-        Timeline.APP.stage.addChild(Timeline.beatLines.obj);
-
         Timeline.centerLine = new PIXI.Graphics()
             .lineStyle({
                 width: 1,
                 color: 0xffffff,
                 alignment: 1,
             })
-            .moveTo(Timeline.WIDTH / 2 - 1, 0)
-            .lineTo(Timeline.WIDTH / 2 - 1, Timeline.HEIGHT)
-            .moveTo(Timeline.WIDTH / 2 + 1, 0)
-            .lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
+            .moveTo(-1, 0)
+            .lineTo(-1, Timeline.HEIGHT)
+            .moveTo(+1, 0)
+            .lineTo(+1, Timeline.HEIGHT);
         Timeline.APP.stage.addChild(Timeline.centerLine);
+
+        Timeline.beatLines = new BeatLines();
+        Timeline.APP.stage.addChild(Timeline.beatLines.obj);
+
+        Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
         document.querySelector(".timeline").appendChild(Timeline.APP.view);
         globalThis.__PIXI_APP__ = Timeline.APP;
     }
 
     static resize() {
-        Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width);
-        Timeline.HEIGHT = parseInt(getComputedStyle(document.querySelector(".timeline")).height);
+        Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width) * window.devicePixelRatio;
+        Timeline.HEIGHT = parseInt(getComputedStyle(document.querySelector(".timeline")).height) * window.devicePixelRatio;
         Timeline.APP.renderer.resize(Timeline.WIDTH, Timeline.HEIGHT);
-
-        Timeline.APP.stage.removeChild(Timeline.centerLine);
-        Timeline.centerLine.clear();
-        Timeline.centerLine = new PIXI.Graphics()
-            .lineStyle({
-                width: 1,
-                color: 0xffffff,
-                alignment: 1,
-            })
-            .moveTo(Timeline.WIDTH / 2 - 1, 0)
-            .lineTo(Timeline.WIDTH / 2 - 1, Timeline.HEIGHT)
-            .moveTo(Timeline.WIDTH / 2 + 1, 0)
-            .lineTo(Timeline.WIDTH / 2 + 1, Timeline.HEIGHT);
-        Timeline.APP.stage.addChild(Timeline.centerLine);
 
         Timeline.hitArea.resize();
     }
 
     static draw(timestamp) {
         if (!beatmapFile?.beatmapRenderData?.objectsController.objectsList) return;
+        Timeline.resize();
         Timeline.beatLines.draw(timestamp);
         Timeline.hitArea.draw(timestamp);
+        Timeline.centerLine.x = Timeline.WIDTH / 2;
 
         const objList = beatmapFile.beatmapRenderData.objectsController.objectsList;
 
@@ -106,7 +96,7 @@ class Timeline {
         }
         this.DRAW_LIST.forEach((o) => {
             o.timelineObject?.removeSelfFromContainer(Timeline.hitArea.obj);
-        })
+        });
         this.DRAW_LIST = drawList;
 
         drawList.toReversed().forEach((o) => {
@@ -118,6 +108,6 @@ class Timeline {
 
     static destruct() {
         const removedChildren = Timeline.obj.removeChildren();
-        removedChildren.forEach(e => e.destroy());
+        removedChildren.forEach((e) => e.destroy());
     }
 }
