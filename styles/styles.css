@@ -364,7 +364,7 @@ svg {
     display: flex;
     flex-direction: column;
 
-    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+    transition: cubic-bezier(0, 0.4, 0, 1) 500ms;
 }
 
 .contentWrapper:has(.slideOutAnim) #playerWrapper {
@@ -397,7 +397,7 @@ canvas {
     /* transform: scaleY(-1); */
     /* z-index: 0; */
     /* background-color: rgba(255, 255, 255, 0.1); */
-    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+    /* transition: cubic-bezier(0, 0.4, 0, 1) 200ms; */
     transform-origin: top left;
 }
 
@@ -409,7 +409,7 @@ canvas {
     background-color: rgba(0 0 0 /0.8);
 
     border-radius: 20px 20px 0 0;
-    transition: ease-in-out 500ms;
+    /* transition: ease-in-out 500ms; */
 }
 
 #background {
@@ -421,7 +421,7 @@ canvas {
     background-size: cover;
     background-position: center;
 
-    transition: ease-in-out 200ms;
+    /* transition: ease-in-out 200ms; */
 }
 
 #metadata {
