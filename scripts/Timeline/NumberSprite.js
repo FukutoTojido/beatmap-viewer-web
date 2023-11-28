@@ -21,7 +21,7 @@ class TintedNumberSprite extends NumberSprite {
 
                 if (prevSprite) {
                     const overlapValue =
-                        skinType === "LEGACY" ? Skinning.HIT_CIRCLE_OVERLAP : Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_OVERLAP;
+                        skinType === "LEGACY" || skinType === "ARGON" ? Skinning.HIT_CIRCLE_OVERLAP : Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_OVERLAP;
                     sprite.x = prevSprite.x + prevSprite.width / 2 + sprite.width / 2 - overlapValue * 0.8;
                 }
 
