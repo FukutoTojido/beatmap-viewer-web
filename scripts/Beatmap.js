@@ -318,7 +318,7 @@ class Beatmap {
             return lines
                 .filter((line) => line.includes(`${name}:`))
                 .at(0)
-                .replaceAll(`${name}:`, "");
+                ?.replaceAll(`${name}:`, "") ?? "";
         };
 
         const artist = getValue("Artist");
