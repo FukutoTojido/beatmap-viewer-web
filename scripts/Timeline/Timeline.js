@@ -36,9 +36,9 @@ class Timeline {
                 alignment: 1,
             })
             .moveTo(-1, 0)
-            .lineTo(-1, Timeline.HEIGHT)
+            .lineTo(-1, 1)
             .moveTo(+1, 0)
-            .lineTo(+1, Timeline.HEIGHT);
+            .lineTo(+1, 1);
         Timeline.APP.stage.addChild(Timeline.centerLine);
 
         Timeline.beatLines = new BeatLines();
@@ -60,10 +60,10 @@ class Timeline {
 
     static draw(timestamp) {
         if (!beatmapFile?.beatmapRenderData?.objectsController.objectsList) return;
-        Timeline.resize();
         Timeline.beatLines.draw(timestamp);
         Timeline.hitArea.draw(timestamp);
         Timeline.centerLine.x = Timeline.WIDTH / 2;
+        Timeline.centerLine.scale.set(1, Timeline.HEIGHT);
 
         const objList = beatmapFile.beatmapRenderData.objectsController.objectsList;
 

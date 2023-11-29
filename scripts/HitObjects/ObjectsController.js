@@ -162,8 +162,6 @@ class ObjectsController {
             document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
         }
 
-        Timeline.draw(timestamp);
-
         judgements.forEach((object) => {
             object.draw(timestamp);
         });
@@ -223,8 +221,12 @@ class ObjectsController {
         //     return this.draw(timestamp);
         // });
         Game.appResize();
+        Timeline.resize();
+
         const currentAudioTime = beatmapFile?.audioNode?.getCurrentTime();
-        if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController)
+        if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController) {
             beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);
+            Timeline.draw(currentAudioTime);
+        }
     }
 }

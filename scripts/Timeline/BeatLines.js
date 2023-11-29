@@ -38,7 +38,7 @@ class GreenLineInfo {
     sample;
 
     static findGreenLineInRange(timestamp) {
-        const upperBound = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + timestamp + 200;
+        const upperBound = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + timestamp;
         const lowerBound = ObjectsController.CURRENT_SV?.time ?? 0;
 
         if (upperBound < lowerBound) return [];
@@ -68,7 +68,8 @@ class GreenLineInfo {
 
         const svText = new PIXI.Text(`${this.greenLine.svMultiplier.toFixed(2)}x`, {
             fontFamily: "Torus",
-            fontSize: 11,
+            fontSize: 12,
+            fontWeight: 500,
             align: "center",
             tint: 0x161616,
         });
@@ -82,7 +83,7 @@ class GreenLineInfo {
         this.sv.cullable = true;
 
         svText.x = 0;
-        svText.y = 2;
+        svText.y = 1;
         svText.anchor.set(0.5, 0);
 
         this.sv.y = 0;
@@ -90,7 +91,8 @@ class GreenLineInfo {
         let custom = this.greenLine.sampleIdx != 0 ? `:C${this.greenLine.sampleIdx}` : "";
         const sampleText = new PIXI.Text(`${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom} ${this.greenLine.sampleVol}`, {
             fontFamily: "Torus",
-            fontSize: 11,
+            fontSize: 12,
+            fontWeight: 500,
             tint: 0x161616,
         });
 
@@ -103,7 +105,7 @@ class GreenLineInfo {
 
         sampleText.y = -sampleHeight / 2;
 
-        this.sample = new PIXI.Graphics().beginFill(0xf23a8a).drawRoundedRect(-sampleWidth / 2, -sampleHeight, sampleWidth, sampleHeight, 10);
+        this.sample = new PIXI.Graphics().beginFill(0xfaff75).drawRoundedRect(-sampleWidth / 2, -sampleHeight, sampleWidth, sampleHeight, 10);
         this.sample.addChild(sampleText);
         this.sample.cullable = true;
 
@@ -118,6 +120,9 @@ class GreenLineInfo {
 
         this.sample.x = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, this.sample.width / 2 + 5);
         this.sample.y = Timeline.HEIGHT;
+
+        this.sv.scale.set(window.devicePixelRatio);
+        this.sample.scale.set(window.devicePixelRatio);
     }
 }
 
