@@ -228,7 +228,7 @@ class Beatmap {
 
         document.querySelector(".timingPointsContainer").prepend(wrapper);
 
-        domtoimage.toSvg(wrapper).then((dataURL) => {
+        domtoimage.toPng(wrapper).then((dataURL) => {
             document.querySelector(".timingPointsContainer").removeChild(wrapper);
             document.querySelector(".timingPointsContainer img").src = dataURL;
         });
@@ -237,7 +237,7 @@ class Beatmap {
     static async loadTimingPoints() {
         [...document.querySelectorAll(".timingPoint")].forEach((ele) => document.querySelector(".timingPanel").removeChild(ele));
 
-        Beatmap.beatStepsList.forEach((point) => {
+        Beatmap.mergedPoints.forEach((point) => {
             const container = document.createElement("div");
             container.classList.add("timingPoint");
 
@@ -268,15 +268,38 @@ class Beatmap {
                 .toFixed(0)
                 .padStart(3, "0")}`;
 
-            observer.observe(container);
+            if (point.beatstep) {
+                baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
+                container.classList.add("beatStepPoint");
+                document.querySelector(".timingPanel").append(container);
+                return;
+            }
 
-            baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
-            container.classList.add("beatStepPoint");
+            const sampleType = document.createElement("div");
+            sampleType.classList.add("timingValue");
+
+            if (point.isKiai) content.classList.add("kiai");
+
+            if (point.sampleIdx !== 0) {
+                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}:C${point.sampleIdx}`;
+            } else {
+                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}`;
+            }
+
+            const sampleVol = document.createElement("div");
+            sampleVol.classList.add("timingValue");
+            sampleVol.innerText = `${point.sampleVol}%`;
+
+            content.append(sampleType, sampleVol);
+
+            baseValue.innerText = `${point.svMultiplier.toFixed(2)}x`;
+            container.classList.add("svPoint");
+
             document.querySelector(".timingPanel").append(container);
-            return;
         });
 
-        document.querySelector(".timings").innerText = `timings (${Beatmap.beatStepsList.length})`;
+        document.querySelector(".timings").innerText = `timings (${Beatmap.mergedPoints.length})`;
+        // document.querySelector(".timings").innerText = `timings (${Beatmap.beatStepsList.length})`;
     }
 
     static loadMetadata(lines) {
@@ -454,7 +477,7 @@ class Beatmap {
         timingPointsList.forEach((greenLine, idx) => {
             const graphic = new GreenLineInfo(greenLine);
             Timeline.beatLines.greenLines.push(graphic);
-        })
+        });
 
         Beatmap.mergedPoints = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
             if (a.time < b.time) return -1;

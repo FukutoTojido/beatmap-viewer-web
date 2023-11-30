@@ -285,7 +285,7 @@ class BeatmapFile {
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);
             console.log("Background Loaded");
-            document.querySelector("#background").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.querySelector("#background").src= `${this.backgroundBlobURL}`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();

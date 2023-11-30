@@ -1,16 +1,6 @@
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").innerText = `Initializing`;
 
-const observer = new IntersectionObserver(
-    (entries, observer) => {
-        entries.forEach((entry) => {});
-    },
-    {
-        root: document.querySelector(".timingPanel"),
-        threshold: [],
-    }
-);
-
 (async () => {
     await loadLocalStorage();
     document.querySelector(".loading").style.opacity = 0;
