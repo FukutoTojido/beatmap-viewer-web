@@ -292,7 +292,7 @@ function toDataUrl(url, callback) {
 }
 
 function changeZoomRate(zoomStep, the) {
-    Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + zoomStep * 20, 20, 400);
+    Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + zoomStep * 20, 20, 800);
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.timeline.zoomRate = Timeline.ZOOM_DISTANCE;
