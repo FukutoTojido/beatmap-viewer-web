@@ -121,8 +121,8 @@ class GreenLineInfo {
         this.sample.x = Math.max(center - (delta / 500) * Timeline.ZOOM_DISTANCE, this.sample.width / 2 + 5);
         this.sample.y = Timeline.HEIGHT;
 
-        this.sv.scale.set(window.devicePixelRatio);
-        this.sample.scale.set(window.devicePixelRatio);
+        // this.sv.scale.set(window.devicePixelRatio);
+        // this.sample.scale.set(window.devicePixelRatio);
     }
 }
 
