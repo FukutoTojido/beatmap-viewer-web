@@ -61,19 +61,19 @@ class ObjectsController {
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
-        // const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "beatStepsList", true);
+        const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "mergedPoints", true);
 
         ObjectsController.CURRENT_BPM = currentBPM;
         ObjectsController.CURRENT_SV = currentSV;
 
-        // const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
-        // if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {
-        //     document.querySelector(".highlightPoint").style.transform = `translateY(${currentPoint * highlightH}px)`;
-        //     document.querySelector(".highlightPoint").scrollIntoView({
-        //         behavior: "smooth",
-        //         block: "nearest",
-        //     });
-        // }
+        const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
+        if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {
+            document.querySelector(".highlightPoint").style.transform = `translateY(${currentPoint * highlightH}px)`;
+            document.querySelector(".highlightPoint").scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            });
+        }
 
         if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
             document.querySelector(".timingContainer").classList.remove("kiai");
