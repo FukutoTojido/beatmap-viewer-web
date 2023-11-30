@@ -55,16 +55,13 @@ body {
     justify-content: center;
     align-content: center;
     /* flex-wrap: wrap; */
-
     background-color: var(--primary-2);
     font-family: Torus;
     font-weight: 500;
     color: white;
     font-size: 16px;
-
     overflow-y: overlay;
     overflow-x: hidden;
-
     box-sizing: border-box;
 }
 
@@ -694,7 +691,7 @@ canvas {
     display: flex;
     padding: 10px 20px;
     align-items: center;
-    font-size: 0.7em;
+    font-size: 1rem;
     background-color: var(--primary-5);
 
     cursor: pointer;
@@ -705,7 +702,7 @@ canvas {
 }
 
 .digit {
-    width: 0.7em;
+    width: 0.55rem;
     text-align: center;
 }
 
