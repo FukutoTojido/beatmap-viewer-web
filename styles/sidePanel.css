@@ -315,6 +315,6 @@
     }
 
     .timingContent :nth-of-type(2) {
-        width: 70px;
+        width: unset;
     }
 }
