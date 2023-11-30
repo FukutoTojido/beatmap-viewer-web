@@ -47,7 +47,7 @@ class Timeline {
         Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
         document.querySelector(".timeline").appendChild(Timeline.APP.view);
-        globalThis.__PIXI_APP__ = Timeline.APP;
+        // globalThis.__PIXI_APP__ = Timeline.APP;
     }
 
     static resize() {

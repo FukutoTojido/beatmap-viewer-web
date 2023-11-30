@@ -171,13 +171,13 @@ class Game {
 
             Game.DRAG_WINDOW.clear();
             Game.DRAG_WINDOW.lineStyle({
-                width: 2,
+                width: 1,
                 color: 0xffffff,
                 alpha: 1,
                 alignment: 0,
             });
 
-            Game.DRAG_WINDOW.drawRect(x, y, 0, 0);
+            Game.DRAG_WINDOW.beginFill(0xffffff, 0.2).drawRect(x, y, 0, 0).endFill();
 
             Game.DRAG_WINDOW.alpha = 1;
 
@@ -215,18 +215,18 @@ class Game {
 
                 Game.DRAG_WINDOW.clear();
                 Game.DRAG_WINDOW.lineStyle({
-                    width: 2,
+                    width: 1,
                     color: 0xffffff,
                     alpha: 1,
                     alignment: 0,
                 });
 
-                Game.DRAG_WINDOW.drawRect(
+                Game.DRAG_WINDOW.beginFill(0xffffff, 0.2).drawRect(
                     (Math.min(startX, x) * Game.WIDTH) / 512,
                     (Math.min(startY, y) * Game.WIDTH) / 512,
                     (Math.abs(x - startX) * Game.WIDTH) / 512,
                     (Math.abs(y - startY) * Game.WIDTH) / 512
-                );
+                ).endFill();
                 // console.log(startX, startY, currentX, currentY);
             }
 
@@ -338,7 +338,7 @@ class Game {
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
-        // globalThis.__PIXI_APP__ = Game.APP;
+        globalThis.__PIXI_APP__ = Game.APP;
 
         HitSample.masterGainNode = audioCtx.createGain();
         HitSample.masterGainNode.gain.value = hsVol * masterVol;
