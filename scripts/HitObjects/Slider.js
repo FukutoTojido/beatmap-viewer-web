@@ -195,16 +195,27 @@ class Slider {
         this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
         // console.log(this.SliderMesh.tint);
 
-        this.nodesContainer.x = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
-        this.nodesContainer.y = this.stackHeight * currentStackOffset * (Game.WIDTH / 512);
+        this.nodesLine.clear().lineStyle(1, 0xffffff);
+        this.nodesGraphics.forEach((node, idx) => {
+            let { x, y } = this.nodes[idx].position;
+            if (mods.HR) y = 384 - y;
 
-        if (mods.HR) {
-            this.nodesContainer.scale.set(1, -1);
-            this.nodesContainer.y = (384 + this.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
-        }
+            x = (parseInt(x) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
+            y = (parseInt(y) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
-        if (this.isHover) this.nodesContainer.alpha = 1;
-        else this.nodesContainer.alpha = 0;
+            node.x = x;
+            node.y = y;
+
+            if (idx === 0) {
+                this.nodesLine.moveTo(x, y);
+                return;
+            }
+
+            this.nodesLine.lineTo(x, y);
+        });
+
+        if (this.isHover) this.nodesContainer.visible = true;
+        else this.nodesContainer.visible = false;
     }
 
     draw(timestamp) {
@@ -805,14 +816,12 @@ class Slider {
         this.ticks.forEach((tick) => SliderContainer.addChild(tick.obj));
 
         this.nodesContainer = new PIXI.Container();
-        this.nodesLine = new PIXI.Graphics()
-            .lineStyle(1, 0xffffff)
-            .moveTo(this.nodes[0].position.x * (Game.WIDTH / 512), this.nodes[0].position.y * (Game.WIDTH / 512));
+        this.nodesLine = new PIXI.Graphics().lineStyle(1, 0xffffff).moveTo(this.nodes[0].position.x, this.nodes[0].position.y);
 
         this.nodesGraphics = this.nodes.map((node) => {
             const fillColor = node.type === "White Anchor" ? 0xffffff : 0xff0000;
-            const x = node.position.x * (Game.WIDTH / 512);
-            const y = node.position.y * (Game.WIDTH / 512);
+            const x = node.position.x;
+            const y = node.position.y;
 
             this.nodesLine.lineTo(x, y);
 
@@ -824,7 +833,7 @@ class Slider {
                     alignment: 0,
                 })
                 .beginFill(fillColor)
-                .drawRect(x - 4, y - 4, 8, 8)
+                .drawRect(-4, -4, 8, 8)
                 .endFill();
             this.nodesContainer.addChild(graphic);
 
