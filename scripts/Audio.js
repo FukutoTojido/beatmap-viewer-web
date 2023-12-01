@@ -170,10 +170,7 @@ class HitSample {
             src.start();
             this.isPlaying = true;
 
-            src.onended = () => {
-                this.isPlaying = false;
-                this.gainNode.disconnect();
-            };
+            if (isLoop) src.loop = true;
 
             this.srcs.push(src);
         });
