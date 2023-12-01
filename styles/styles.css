@@ -361,7 +361,7 @@ svg {
     display: flex;
     flex-direction: column;
 
-    transition: cubic-bezier(0, 0.4, 0, 1) 500ms;
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
 .contentWrapper:has(.slideOutAnim) #playerWrapper {
@@ -382,7 +382,7 @@ svg {
     background-size: cover;
     background-position: center;
     /* overflow: hidden; */
-    transition: ease-in-out 300ms;
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
     /* z-index: 1; */
 }
 
