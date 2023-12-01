@@ -40,6 +40,16 @@ const closeSidePanel = () => {
 
 const toggleSidePanel = (type) => {
     if (document.querySelector(".sidePanel").classList.contains("slideOutAnim")) {
+        if (type === "timing" && document.querySelector(".metadataPanel").classList.contains("show")) {
+            toggleTimingPanel(true);
+            return;
+        }
+
+        if (type === "metadata" && document.querySelector(".timingPanel").classList.contains("show")) {
+            toggleMetadataPanel(true);
+            return;
+        }
+
         closeSidePanel();
         return;
     }
