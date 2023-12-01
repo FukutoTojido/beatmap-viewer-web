@@ -831,7 +831,7 @@ canvas {
 
 .infoButton {
     height: 100%;
-    width: 100px;
+    width: 60px;
     padding: 10px;
 
     background-color: var(--primary-3);
