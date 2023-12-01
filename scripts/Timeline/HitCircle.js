@@ -81,7 +81,7 @@ class TimelineHitCircle {
         this.hitCircleOverlay.texture = textures.HIT_CIRCLE_OVERLAY.texture;
         this.hitCircleOverlay.scale.set(textures.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
-        this.obj.scale.set(Timeline.HEIGHT / 1.5 / this.hitCircle.height);
+        this.obj.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / this.hitCircle.height);
         this.obj.y = Timeline.HEIGHT / 2;
 
         this.selected.visible = false;

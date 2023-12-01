@@ -1,7 +1,6 @@
 async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
 
-
     if (Skinning.SKIN_IDX == this.parentElement.dataset.customIndex) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.skinning.type = "2";
@@ -32,7 +31,7 @@ function selectSkin() {
     if (this.parentElement.dataset.skinId === "custom") {
         Skinning.SKIN_IDX = this.parentElement.dataset.customIndex;
     }
-    
+
     Skinning.changeSkin();
 
     document.querySelector("#skinDropdown").close();
@@ -65,7 +64,6 @@ async function refreshSkinDB() {
         delButton.classList.add("deleteButton");
         delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
         delButton.onclick = removeSkin;
-
 
         div.appendChild(button);
         div.appendChild(delButton);
@@ -113,7 +111,6 @@ async function loadLocalStorage() {
             ele.checked = ele.value === currentLocalStorage.mirror.val;
         });
 
-        
         Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
         Skinning.changeSkin();
 
@@ -151,7 +148,11 @@ async function loadLocalStorage() {
         document.querySelector("#beat").value = currentLocalStorage.mapping.beatsnap;
         document.querySelector("#beatVal").innerHTML = `1/${currentLocalStorage.mapping.beatsnap}`;
 
+        Timeline.SHOW_GREENLINE = currentLocalStorage.mapping.showGreenLine;
         Timeline.ZOOM_DISTANCE = currentLocalStorage.timeline.zoomRate;
+
+        if (Timeline.SHOW_GREENLINE) document.querySelector(".timeline").style.height = "";
+        else document.querySelector(".timelineContainer").style.height = "60px";
     }
 }
 
@@ -309,8 +310,6 @@ function debounce(func, timeout = 100) {
     };
 }
 
-
-
 const binarySearchRange = (list, startValue, endValue, key) => {
     let start = 0;
     let end = list.length - 1;
@@ -334,7 +333,7 @@ const binarySearchRange = (list, startValue, endValue, key) => {
     }
 
     return -1;
-}
+};
 
 const binarySearch = (list, value, compareFunc) => {
     let start = 0;
@@ -356,7 +355,7 @@ const binarySearch = (list, value, compareFunc) => {
     }
 
     return -1;
-}
+};
 
 const binarySearchNearest = (list, value, compareFunc) => {
     let start = 0;
@@ -379,7 +378,7 @@ const binarySearchNearest = (list, value, compareFunc) => {
     }
 
     return mid;
-}
+};
 
 const Fixed = (val, decimalPlace) => Math.round(val * 10 ** decimalPlace) / 10 ** decimalPlace;
 const Dist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);

@@ -186,6 +186,7 @@ function calculateCurrentSR(modsFlag) {
 function handleCheckBox(checkbox) {
     mods[checkbox.name] = !mods[checkbox.name];
     sliderAppearance[checkbox.name] = !sliderAppearance[checkbox.name];
+    mapping[checkbox.name] = !mapping[checkbox.name];
 
     const DTMultiplier = !mods.DT ? 1 : 1.5;
     const HTMultiplier = !mods.HT ? 1 : 0.75;
@@ -194,6 +195,17 @@ function handleCheckBox(checkbox) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = sliderAppearance[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    }
+
+    if (["showGreenLine"].includes(checkbox.name)) {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.mapping[checkbox.name] = mapping[checkbox.name];
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        Timeline.SHOW_GREENLINE = mapping[checkbox.name];
+
+        if (mapping[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
+        else document.querySelector(".timelineContainer").style.height = "60px";
     }
 
     if (!beatmapFile) return;

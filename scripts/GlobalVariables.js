@@ -6,6 +6,7 @@ const settingsTemplate = {
     mapping: {
         beatsnap: 4,
         offset: 0,
+        showGreenLine: false
     },
     background: {
         dim: 0.8,
@@ -79,6 +80,7 @@ let mods = {
 
 let sliderAppearance = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
 let skinning = JSON.parse(localStorage.getItem("settings")).skinning;
+let mapping = JSON.parse(localStorage.getItem("settings")).mapping;
 
 let animation = {
     ms1digit: new CountUp("millisecond1digit", 0, 0, 0, 0.2, {

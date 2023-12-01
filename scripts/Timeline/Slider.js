@@ -184,17 +184,17 @@ class TimelineSlider {
         // const ratio = 1;
 
         this.meshHead.position.set(headPosition, Timeline.HEIGHT / 2);
-        this.meshHead.scale.set(Timeline.HEIGHT / 1.5 / 60);
+        this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshHead.shader.uniforms.tint = tint;
         this.meshHead.shader.uniforms.selected = selected;
 
         this.meshBody.position.set(headPosition, Timeline.HEIGHT / 2);
-        this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / 1.5 / 60);
+        this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshBody.shader.uniforms.tint = tint;
         this.meshHead.shader.uniforms.selected = selected;
 
         this.meshTail.position.set(endPosition, Timeline.HEIGHT / 2);
-        this.meshTail.scale.set(Timeline.HEIGHT / 1.5 / 60);
+        this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshTail.shader.uniforms.tint = tint;
         this.meshHead.shader.uniforms.selected = selected;
 

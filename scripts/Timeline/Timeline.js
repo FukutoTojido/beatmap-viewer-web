@@ -9,6 +9,7 @@ class Timeline {
     static ZOOM_DISTANCE = 200;
     static LOOK_AHEAD = 300;
     static DRAW_LIST = [];
+    static SHOW_GREENLINE = false;
 
     static init() {
         Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width) * window.devicePixelRatio;

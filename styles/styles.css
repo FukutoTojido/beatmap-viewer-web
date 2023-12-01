@@ -114,6 +114,8 @@ body {
     overflow: hidden;
 
     display: flex;
+
+    transition: ease-out 100ms;
 }
 
 .zoom {

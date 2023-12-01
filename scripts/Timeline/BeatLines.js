@@ -89,12 +89,15 @@ class GreenLineInfo {
         this.sv.y = 0;
 
         let custom = this.greenLine.sampleIdx != 0 ? `:C${this.greenLine.sampleIdx}` : "";
-        const sampleText = new PIXI.Text(`${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom} ${this.greenLine.sampleVol}`, {
-            fontFamily: "Torus",
-            fontSize: 12,
-            fontWeight: 500,
-            tint: 0x161616,
-        });
+        const sampleText = new PIXI.Text(
+            `${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom}`,
+            {
+                fontFamily: "Torus",
+                fontSize: 12,
+                fontWeight: 500,
+                tint: 0x161616,
+            }
+        );
 
         sampleText.x = 0;
         sampleText.anchor.set(0.5);
@@ -258,6 +261,9 @@ class BeatLines {
             this.obj.removeChild(line.sv);
             this.obj.removeChild(line.sample);
         });
+
+        this.drawList = [];
+        if (!Timeline.SHOW_GREENLINE) return;
 
         this.drawList = GreenLineInfo.findGreenLineInRange(timestamp);
         this.drawList.forEach((line) => {
