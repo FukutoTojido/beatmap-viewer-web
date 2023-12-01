@@ -101,6 +101,11 @@
         border-radius: 0;
     }
 
+    #metadata {
+        margin: 0;
+        padding: 30px;
+    }
+
     .stats {
         position: relative;
         inset: unset;

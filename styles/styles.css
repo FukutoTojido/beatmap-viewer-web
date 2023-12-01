@@ -425,10 +425,15 @@ canvas {
     position: absolute;
     /* width: 100%; */
     font-size: 1rem;
-    padding: 30px;
+    margin: 30px;
 
     display: flex;
     flex-direction: column;
+}
+
+#metadata:hover {
+    color:rgb(255, 187, 0);
+    transition: ease-out 100ms;
 }
 
 #artistTitle {
