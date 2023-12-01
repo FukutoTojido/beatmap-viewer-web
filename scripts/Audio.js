@@ -119,6 +119,8 @@ class HitSample {
     srcs = [];
     gainNode;
 
+    currentTimeout;
+
     static masterGainNode;
     static SAMPLES = {
         ARGON: {},
@@ -165,7 +167,7 @@ class HitSample {
 
             // this.gainNode.gain.value = this.vol;
             this.gainNode.connect(HitSample.masterGainNode);
-            gainNode.connect(HitSample.masterGainNode)
+            gainNode.connect(HitSample.masterGainNode);
 
             src.start();
             this.isPlaying = true;
@@ -176,9 +178,15 @@ class HitSample {
         });
     }
 
-    playLoop(higherThanStart, lowerThanEnd) {
+    playLoop(higherThanStart, lowerThanEnd, timeLeft) {
         if (higherThanStart && lowerThanEnd && !this.isPlaying && beatmapFile.audioNode.isPlaying) {
+            clearTimeout(this.currentTimeout);
             this.play(true);
+
+            this.currentTimeout = setTimeout(() => {
+                this.srcs.forEach((src) => src.stop());
+                this.isPlaying = false;
+            }, timeLeft ?? 0);
         }
 
         if (!higherThanStart || !lowerThanEnd || !beatmapFile.audioNode.isPlaying) {
