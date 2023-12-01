@@ -518,7 +518,8 @@ class BeatmapFile {
             this.isLoaded = true;
             // (new Notification(`Finished map setup`)).notify();
         } catch (err) {
-            alert(err);
+            // alert(err);
+            (new Notification(err)).notify();
             console.error(err);
 
             document.querySelector(".loading").style.opacity = 0;

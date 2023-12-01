@@ -20,7 +20,7 @@ function setProgressMax() {
 
 function playToggle(ele) {
     ele?.blur();
-    if (!beatmapFile.audioNode.gainNode || !beatmapFile.audioNode.buf) return;
+    if (!beatmapFile?.audioNode?.gainNode || !beatmapFile?.audioNode?.buf) return;
 
     if (!beatmapFile.audioNode.isPlaying) {
         document.querySelector("#playButton").style.backgroundImage = "";

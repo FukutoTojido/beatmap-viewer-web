@@ -1628,6 +1628,8 @@ a:visited {
     /* display: flex; */
     align-items: center;
     gap: 20px;
+
+    font-weight: 400;
 }
 
 .animationIn {
