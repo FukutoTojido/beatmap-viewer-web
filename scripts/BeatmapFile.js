@@ -516,7 +516,7 @@ class BeatmapFile {
             });
 
             this.isLoaded = true;
-            (new Notification(`Finished map setup`)).notify();
+            // (new Notification(`Finished map setup`)).notify();
         } catch (err) {
             alert(err);
             console.error(err);
