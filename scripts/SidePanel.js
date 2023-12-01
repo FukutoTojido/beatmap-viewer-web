@@ -34,17 +34,22 @@ const openSidePanel = () => {
 const closeSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideOutAnim");
     document.querySelector(".sidePanel").classList.add("slideInAnim");
-    // document.querySelector(".timingPanel").classList.remove("show");
-    // document.querySelector(".metadataPanel").classList.remove("show");
+    document.querySelector(".timingPanel").classList.remove("show");
+    document.querySelector(".metadataPanel").classList.remove("show");
 };
 
-const toggleSidePanel = () => {
+const toggleSidePanel = (type) => {
     if (document.querySelector(".sidePanel").classList.contains("slideOutAnim")) {
         closeSidePanel();
         return;
     }
 
     openSidePanel();
-    // toggleTimingPanel(true);
-    // toggleMetadataPanel(true);
+
+    if (type === "timing") {
+        toggleTimingPanel(true);
+        return;
+    }
+
+    toggleMetadataPanel(true);
 };

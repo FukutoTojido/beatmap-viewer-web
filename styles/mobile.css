@@ -241,6 +241,13 @@
         padding: 0 30px;
     }
 
+    .infoButton {
+        margin-bottom: 20px;
+        flex: 1;
+
+        padding: 20px;
+    }
+
     #volumeSlider {
         display: none;
     }

@@ -133,12 +133,13 @@
                     <span id="millisecond2digit" class="digit">0</span>
                     <span id="millisecond1digit" class="digit">0</span>
                 </div>
-                <div class="timingContainer" onclick="toggleSidePanel()">
+                <div class="timingContainer" onclick="toggleSidePanel('timing')">
                     <div class="BPM">0BPM</div>
                     <div class="SV">
                         <div class="multiplier">1.00x</div>
                     </div>
                 </div>
+                <button class="infoButton" onclick="toggleSidePanel('metadata')"><img src="/static/info.png"></button>
                 <div class="buttonsContainer">
                     <button id="prevButton" onclick="go(null, false)"></button>
                     <button id="playButton" onclick="playToggle(this)"></button>

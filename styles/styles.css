@@ -724,7 +724,7 @@ canvas {
     display: flex;
     justify-content: center;
 
-    background-color: var(--primary-3);
+    background-color: var(--primary-2);
 }
 
 #playButton {
@@ -779,7 +779,7 @@ canvas {
 }
 
 .timingContainer {
-    min-width: 180px;
+    min-width: 150px;
 
     display: flex;
     gap: 10px;
@@ -809,7 +809,7 @@ canvas {
 }
 
 .timingContainer:hover {
-    filter: brightness(1.2);
+    background-color: var(--primary-5);
 }
 
 .SV {
@@ -829,6 +829,22 @@ canvas {
     font-weight: 500;
 }
 
+.infoButton {
+    height: 100%;
+    width: 100px;
+    padding: 10px;
+
+    background-color: var(--primary-3);
+    border-radius: 0;
+
+    font-size: 1rem;
+}
+
+.infoButton:hover {
+    filter: none;
+    background-color: var(--primary-4);
+}
+
 .progressBarContainer {
     position: relative;
     flex: 1;
@@ -837,7 +853,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--primary-2);
+    background-color: var(--primary-1);
 }
 
 .timingPointsContainer {
