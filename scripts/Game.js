@@ -295,8 +295,8 @@ class Game {
         }
 
         // Re-scale game size by 80% to make space for padding
-        Game.WIDTH *= 0.8;
-        Game.HEIGHT *= 0.8;
+        Game.WIDTH *= 0.9;
+        Game.HEIGHT *= 0.9;
 
         // Calculate offset
         Game.OFFSET_X = (Game.APP.view.width - Game.WIDTH) / 2;
