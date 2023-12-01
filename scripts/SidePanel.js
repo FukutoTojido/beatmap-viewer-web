@@ -34,8 +34,8 @@ const openSidePanel = () => {
 const closeSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideOutAnim");
     document.querySelector(".sidePanel").classList.add("slideInAnim");
-    document.querySelector(".timingPanel").classList.remove("show");
-    document.querySelector(".metadataPanel").classList.remove("show");
+    // document.querySelector(".timingPanel").classList.remove("show");
+    // document.querySelector(".metadataPanel").classList.remove("show");
 };
 
 const toggleSidePanel = () => {
@@ -45,6 +45,6 @@ const toggleSidePanel = () => {
     }
 
     openSidePanel();
-    toggleTimingPanel(true);
+    // toggleTimingPanel(true);
     // toggleMetadataPanel(true);
 };

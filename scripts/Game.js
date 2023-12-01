@@ -221,12 +221,14 @@ class Game {
                     alignment: 0,
                 });
 
-                Game.DRAG_WINDOW.beginFill(0xffffff, 0.2).drawRect(
-                    (Math.min(startX, x) * Game.WIDTH) / 512,
-                    (Math.min(startY, y) * Game.WIDTH) / 512,
-                    (Math.abs(x - startX) * Game.WIDTH) / 512,
-                    (Math.abs(y - startY) * Game.WIDTH) / 512
-                ).endFill();
+                Game.DRAG_WINDOW.beginFill(0xffffff, 0.2)
+                    .drawRect(
+                        (Math.min(startX, x) * Game.WIDTH) / 512,
+                        (Math.min(startY, y) * Game.WIDTH) / 512,
+                        (Math.abs(x - startX) * Game.WIDTH) / 512,
+                        (Math.abs(y - startY) * Game.WIDTH) / 512
+                    )
+                    .endFill();
                 // console.log(startX, startY, currentX, currentY);
             }
 
@@ -343,5 +345,12 @@ class Game {
         HitSample.masterGainNode = audioCtx.createGain();
         HitSample.masterGainNode.gain.value = hsVol * masterVol;
         HitSample.masterGainNode.connect(audioCtx.destination);
+
+        // window.requestAnimationFrame(() => {
+        //     ObjectsController.render();
+        // })
+        Game.APP.ticker.add(() => {
+            ObjectsController.render();
+        });
     }
 }

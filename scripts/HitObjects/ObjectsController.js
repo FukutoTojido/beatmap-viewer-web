@@ -22,6 +22,7 @@ class ObjectsController {
 
     static requestID = null;
     static lastTimestamp;
+    static lastRenderTime = 0;
 
     // static preempt = 0;
 
@@ -48,7 +49,6 @@ class ObjectsController {
             beatmapFile.audioNode.pause();
         }
 
-        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${parseFloat(Game.APP.ticker.deltaMS).toFixed(2)}ms`;
         this.lastTime = performance.now();
 
         if (didMove && currentX !== -1 && currentY !== -1) {
@@ -214,7 +214,7 @@ class ObjectsController {
         console.log(`ReInitialize all sliders took: ${performance.now() - start}ms`);
     }
 
-    render() {
+    static render() {
         // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
         //     const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
         //     const timestamp = currentAudioTime;
@@ -223,10 +223,17 @@ class ObjectsController {
         Game.appResize();
         Timeline.resize();
 
+        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
+
         const currentAudioTime = beatmapFile?.audioNode?.getCurrentTime();
         if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController) {
             beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);
         }
+
+        // window.requestAnimationFrame(() => {
+        //     ObjectsController.lastRenderTime = startTime;
+        //     ObjectsController.render();
+        // });
     }
 }
