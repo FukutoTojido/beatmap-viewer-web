@@ -502,7 +502,7 @@ export class Beatmap {
 
         // Beatmap.loadProgressBar();
         ProgressBar.initTimingPoints();
-        Beatmap.loadTimingPoints();
+        // Beatmap.loadTimingPoints();
 
         // console.log(beatStepsList, timingPointsList);
         let coloursList =

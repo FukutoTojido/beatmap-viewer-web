@@ -1,4 +1,5 @@
 import { Timeline } from "./Timeline.js";
+import { binarySearch } from "../Utils.js";
 
 export class TimelineDragWindow {
     isDragging = false;
