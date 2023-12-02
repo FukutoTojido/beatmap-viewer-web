@@ -4,6 +4,7 @@ import { TimelineHitCircle } from "./HitCircle.js";
 import { TimelineReverseArrow } from "./ReverseArrow.js";
 import { Clamp } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 const vertexShader = `
 precision mediump float;

@@ -6,6 +6,7 @@ import { ProgressBar } from "./Progress.js";
 import { Skinning } from "./Skinning.js";
 import { HitSample } from "./Audio.js";
 import { Database } from "./Database.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
