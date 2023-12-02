@@ -1,4 +1,9 @@
-class Spinner {
+import { Game } from "../Game.js";
+import { Beatmap } from "../Beatmap.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { Clamp } from "../Utils.js";
+
+export class Spinner {
     time;
     endTime;
     obj;

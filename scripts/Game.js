@@ -1,6 +1,13 @@
-PIXI.settings.PREFER_ENV = PIXI.ENV.WEBGL2;
+import { Cursor } from "./Cursor.js";
+import { ObjectsController } from "./HitObjects/ObjectsController.js";
+import { Timestamp } from "./Timestamp.js";
+import { ProgressBar } from "./Progress.js";
+import { Timeline } from "./Timeline/Timeline.js";
+import { Slider } from "./HitObjects/Slider.js";
+import { handleCanvasDrag, checkCollide } from "./DragWindow.js";
+import { HitSample } from "./Audio.js";
 
-class Game {
+export class Game {
     static APP;
     static CONTAINER;
     static GRID;
@@ -244,8 +251,6 @@ class Game {
             beatmapFile.beatmapRenderData.objectsController.slidersList.forEach((o) => (o.obj.isHover = false));
 
             if (selectedSlider) selectedSlider.obj.isHover = true;
-
-            // if (!beatmapFile.audioNode.isPlaying) beatmapFile.beatmapRenderData.objectsController.draw(currentTime, true);
         });
 
         return grid;
@@ -331,7 +336,7 @@ class Game {
         Game.appSizeSetup();
     }
 
-    constructor() {
+    static init() {
         Game.appInit();
         Game.CONTAINER = Game.containerInit();
         Game.GRID = Game.gridInit();
@@ -347,6 +352,7 @@ class Game {
 
         Timestamp.init();
         ProgressBar.init();
+        Timeline.init();
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
@@ -356,9 +362,6 @@ class Game {
         HitSample.masterGainNode.gain.value = hsVol * masterVol;
         HitSample.masterGainNode.connect(audioCtx.destination);
 
-        // window.requestAnimationFrame(() => {
-        //     ObjectsController.render();
-        // })
         Game.APP.ticker.add(() => {
             ObjectsController.render();
         });

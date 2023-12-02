@@ -1,4 +1,7 @@
-class NumberSprite {
+import { Texture } from "../Texture.js";
+import { Skinning } from "../Skinning.js";
+
+export class NumberSprite {
     obj;
 
     hitObject;

@@ -1,4 +1,11 @@
-class SliderTick {
+import { Beatmap } from "../Beatmap.js";
+import { Clamp, binarySearchNearest, easeOutElastic } from "../Utils.js";
+import { Game } from "../Game.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { Skinning } from "../Skinning.js";
+import { HitSample } from "../Audio.js";
+
+export class SliderTick {
     hitTime = -1;
     info;
     spanIdx;

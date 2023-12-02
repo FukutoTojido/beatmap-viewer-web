@@ -1,4 +1,9 @@
-const handleCanvasDrag = (e, calledFromDraw) => {
+import { Beatmap } from "./Beatmap.js";
+import { HitCircle } from "./HitObjects/HitCircle.js";
+import { Slider } from "./HitObjects/Slider.js";
+import { Clamp } from "./Utils.js";
+
+export const handleCanvasDrag = (e, calledFromDraw) => {
     // console.log(e);
 
     const x = currentX;
@@ -93,7 +98,7 @@ const handleCanvasDrag = (e, calledFromDraw) => {
     // console.log(selectedHitObject);
 };
 
-const checkCollide = (x, y, o) => {
+export const checkCollide = (x, y, o) => {
     let currentHitCircleSize = Beatmap.moddedStats.radius * (236 / 256);
     const drawOffset = currentHitCircleSize;
 

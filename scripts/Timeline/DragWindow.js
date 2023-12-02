@@ -1,4 +1,6 @@
-class TimelineDragWindow {
+import { Timeline } from "./Timeline.js";
+
+export class TimelineDragWindow {
     isDragging = false;
     obj;
     dragWindow;

@@ -1,13 +1,6 @@
-function lighten(color, amount) {
-    amount *= 0.25;
-    return Math.min(1, color * (1 + 0.5 * amount) + 1 * amount);
-}
-
-function darken(color, amount) {
-    // amount = 1 - amount;
-    return (color * (47 + (100 - 47) * amount)) / 255;
-}
-
+import { Game } from "../Game.js";
+import { Beatmap } from "../Beatmap.js";
+import { Skinning } from "../Skinning.js";
 // Ported from https://github.com/111116/webosu/blob/master/scripts/SliderMesh.js
 // Also have a visit at http://osugame.online/ , very cool tbh
 
@@ -127,7 +120,7 @@ void main() {
     gl_FragColor = min(alpha * a, 1.0) * color;
 }`;
 
-function newTexture(colors, SliderTrackOverride, SliderBorder) {
+export function newTexture() {
     const width = 400;
 
     let buff = new Uint8Array(width * 4);
@@ -243,7 +236,7 @@ function circleGeometry(radius) {
     return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
 }
 
-class SliderGeometryContainers {
+export class SliderGeometryContainers {
     curve;
     geometry;
 

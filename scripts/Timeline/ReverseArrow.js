@@ -1,4 +1,9 @@
-class TimelineReverseArrow extends TimelineHitCircle {
+import { Beatmap } from "../Beatmap.js";
+import { Texture } from "../Texture.js";
+import { TimelineHitCircle } from "./HitCircle.js";
+import { Skinning } from "../Skinning.js";
+
+export class TimelineReverseArrow extends TimelineHitCircle {
     hitObject;
     slider;
 

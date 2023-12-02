@@ -1,4 +1,9 @@
-class ApproachCircle {
+import { Game } from "../Game.js";
+import { Texture } from "../Texture.js";
+import { Beatmap } from "../Beatmap.js";
+import { Skinning } from "../Skinning.js";
+
+export class ApproachCircle {
     obj;
     hitCircle;
 

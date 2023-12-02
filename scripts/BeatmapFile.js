@@ -1,6 +1,12 @@
-async function showSelector() {}
+import { Game } from "./Game.js";
+import { Timeline } from "./Timeline/Timeline.js";
+import { Beatmap } from "./Beatmap.js";
+import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound } from "./Utils.js";
+import { go, playToggle } from "./ProgressBar.js";
+import { setBeatsnapDivisor } from "./Settings.js";
+import { HitSample, PAudio } from "./Audio.js";
 
-class BeatmapFile {
+export class BeatmapFile {
     isFromFile = false;
     osuFile;
     mapId;
@@ -356,13 +362,8 @@ class BeatmapFile {
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
             const audioArrayBuffer = await this.getOsz();
-            this.audioArrayBuffer = audioArrayBuffer;
-            // console.log(this.audioArrayBuffer, audioArrayBuffer);
             this.audioNode = new PAudio();
             await this.loadHitsounds();
-            // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
-
-            // this.audio = new Audio(this.audioBlobURL);
 
             document.querySelector("#loadingText").textContent = `Setting up Audio`;
             await this.audioNode.createBufferNode(audioArrayBuffer);

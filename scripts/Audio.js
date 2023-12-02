@@ -1,4 +1,6 @@
-class PAudio {
+import { Skinning } from "./Skinning.js";
+
+export class PAudio {
     buf;
     src;
     phazeNode;
@@ -14,11 +16,9 @@ class PAudio {
     async createBufferNode(buf) {
         // console.log(buf);
         this.buf = await audioCtx.decodeAudioData(buf);
-        setProgressMax();
 
         if (urlParams.get("b") && urlParams.get("t") && urlParams.get("b") === currentMapId) {
             this.seekTo(parseInt(urlParams.get("t")));
-            setSliderTime();
         }
 
         await audioCtx.audioWorklet.addModule("../lib/phase-vocoder.min.js");
@@ -108,7 +108,7 @@ class PAudio {
     }
 }
 
-class HitSample {
+export class HitSample {
     audioObj;
     sliderHead = false;
     sliderTail = false;

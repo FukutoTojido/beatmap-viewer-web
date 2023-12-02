@@ -1,4 +1,10 @@
-class SliderBall {
+import { Game } from "../Game.js";
+import { Texture } from "../Texture.js";
+import { Beatmap } from "../Beatmap.js";
+import { Clamp, easeOutQuint } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+
+export class SliderBall {
     baseSlider;
 
     obj;

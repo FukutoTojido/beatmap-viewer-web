@@ -1,4 +1,6 @@
-class Texture {
+import { Game } from "./Game.js"
+
+export class Texture {
     static SELECTED;
     static ARGON = {
         DEFAULTS: null,

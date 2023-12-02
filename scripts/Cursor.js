@@ -1,4 +1,6 @@
-class Cursor {
+import { Game } from "./Game.js";
+
+export class Cursor {
     obj;
     cursor;
     trailList;

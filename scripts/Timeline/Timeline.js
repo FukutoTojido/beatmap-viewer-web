@@ -1,4 +1,8 @@
-class Timeline {
+import { TimelineDragWindow } from "./DragWindow.js";
+import { BeatLines } from "./BeatLines.js";
+import { binarySearch } from "../Utils.js";
+
+export class Timeline {
     static obj;
     static hitArea;
     static centerLine;

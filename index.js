@@ -1,3 +1,8 @@
+import { Game } from "./scripts/Game.js";
+import { loadLocalStorage } from "./scripts/Utils.js";
+import { Texture } from "./scripts/Texture.js";
+import { BeatmapFile } from "./scripts/BeatmapFile.js";
+
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
 
@@ -7,27 +12,11 @@ document.querySelector("#loadingText").textContent = `Initializing`;
     document.querySelector(".loading").style.display = "none";
 
     // Init
-    const mainGame = new Game();
+    Game.init();
     Texture.generateDefaultTextures();
-    Timeline.init();
 
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
         beatmapFile = new BeatmapFile(urlParams.get("b"));
         document.querySelector("#mapInput").value = urlParams.get("b");
     }
-
-    window.onresize = debounce(() => {
-        setTimeout(() => {
-            // Game.appResize();
-            // Timeline.resize();
-        }, 200);
-    });
-
-    screen.orientation.onchange = debounce(() => {
-        // console.log("Orientation Changed");
-        setTimeout(() => {
-            // Game.appResize();
-            // Timeline.resize();
-        }, 200);
-    });
 })();
