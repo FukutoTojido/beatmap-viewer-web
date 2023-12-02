@@ -5,6 +5,8 @@ import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSam
 import { go, playToggle } from "./ProgressBar.js";
 import { setBeatsnapDivisor } from "./Settings.js";
 import { HitSample, PAudio } from "./Audio.js";
+import { ScoreParser } from "./ScoreParser.js";
+import { Notification } from "./Notification.js";
 
 export class BeatmapFile {
     isFromFile = false;

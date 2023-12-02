@@ -1,6 +1,8 @@
 import { Texture } from "./Texture.js";
 import { HitSample } from "./Audio.js";
 import { refreshSkinDB } from "./Utils.js";
+import { Notification } from "./Notification.js";
+import { Database } from "./Database.js";
 
 export class Skinning {
     static HIT_CIRCLE = null;

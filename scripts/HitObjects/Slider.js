@@ -10,6 +10,7 @@ import { ReverseArrow } from "./ReverseArrow.js";
 import { SliderTick } from "./SliderTick.js";
 import { Fixed, Clamp } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
+import { ScoreParser } from "../ScoreParser.js";
 
 export class Slider {
     originalArr = [];

@@ -4,6 +4,8 @@ import { Game } from "../Game.js";
 import { ObjectsController } from "./ObjectsController.js";
 import { Skinning } from "../Skinning.js";
 import { HitSample } from "../Audio.js";
+import { HitSound } from "../HitSound.js";
+import { ScoreParser } from "../ScoreParser.js";
 
 export class SliderTick {
     hitTime = -1;

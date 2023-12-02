@@ -2,6 +2,7 @@ import { Timeline } from "./Timeline.js";
 import { Beatmap } from "../Beatmap.js";
 import { binarySearchNearest } from "../Utils.js";
 import { ObjectsController } from "../HitObjects/ObjectsController.js";
+import { HitSound } from "../HitSound.js";
 
 class BeatTick {
     obj;

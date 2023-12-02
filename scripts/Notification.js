@@ -1,4 +1,4 @@
-class Notification {
+export class Notification {
     timeout;   
     dialog;
     button;

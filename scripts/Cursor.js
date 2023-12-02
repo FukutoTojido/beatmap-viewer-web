@@ -1,4 +1,5 @@
 import { Game } from "./Game.js";
+import { ScoreParser } from "./ScoreParser.js";
 
 export class Cursor {
     obj;

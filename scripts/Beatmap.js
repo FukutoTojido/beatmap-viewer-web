@@ -12,6 +12,7 @@ import { TimelineHitCircle } from "./Timeline/HitCircle.js";
 import { TimelineSlider } from "./Timeline/Slider.js";
 import { Skinning } from "./Skinning.js";
 import { HitSample } from "./Audio.js";
+import { HitSound } from "./HitSound.js";
 
 export class Beatmap {
     objectsController;

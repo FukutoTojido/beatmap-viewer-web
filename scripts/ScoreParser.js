@@ -1,4 +1,6 @@
-class ScoreParser {
+import { Judgement } from "./Judgement";
+
+export class ScoreParser {
     static BLOB;
     static REPLAY_DATA;
     static CURSOR_DATA;

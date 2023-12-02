@@ -2,6 +2,7 @@
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { BeatmapFile } from "./BeatmapFile.js";
 import { Skinning } from "./Skinning.js";
+import { ScoreParser } from "./ScoreParser.js";
 
 document.querySelector("#mapInput").onkeydown = mapInputEnter;
 function mapInputEnter(e) {
@@ -139,6 +140,6 @@ export function submitMap(isDragAndDrop, beatmapID) {
 }
 
 document.querySelector("#submit").addEventListener("click", () => {
-    // ScoreParser.reset();
+    ScoreParser.reset();
     submitMap(false);
 });

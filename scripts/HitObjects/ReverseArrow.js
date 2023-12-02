@@ -4,6 +4,7 @@ import { Beatmap } from "../Beatmap.js";
 import { ObjectsController } from "./ObjectsController.js";
 import { Clamp, easeOutSine } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
+import { ScoreParser } from "../ScoreParser.js";
 
 export class ReverseArrow {
     baseSlider;

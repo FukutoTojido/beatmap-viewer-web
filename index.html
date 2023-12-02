@@ -27,7 +27,7 @@
     <script src="./lib/osr-parser.js"></script>
     <script src="./deps/pixi.min.js"></script>
     <script src="./scripts/GlobalVariables.js"></script>
-    <script src="./scripts/Database.js"></script>
+    <script src="./scripts/Database.js" type="module"></script>
     <script src="./scripts/Skinning.js" type="module"></script>
     <script src="./scripts/Texture.js" type="module"></script>
     <script src="./scripts/Cursor.js" type="module"></script>
@@ -35,8 +35,8 @@
     <script src="./scripts/Timestamp.js" type="module"></script>
     <script src="./scripts/Game.js" type="module"></script>
     <script src="./scripts/Audio.js" type="module"></script>
-    <script src="./scripts/HitSound.js"></script>
-    <script src="./scripts/Judgement.js"></script>
+    <script src="./scripts/HitSound.js" type="module"></script>
+    <script src="./scripts/Judgement.js" type="module"></script>
     <script src="./scripts/HitObjects/ApproachCircle.js" type="module"></script>
     <script src="./scripts/HitObjects/NumberSprite.js" type="module"></script>
     <script src="./scripts/HitObjects/HitCircle.js" type="module"></script>
@@ -49,7 +49,7 @@
     <script src="./scripts/HitObjects/ObjectsController.js" type="module"></script>
     <script src="./scripts/Beatmap.js" type="module"></script>
     <script src="./scripts/BeatmapFile.js" type="module"></script>
-    <script src="./scripts/ScoreParser.js"></script>
+    <script src="./scripts/ScoreParser.js" type="module"></script>
     <script src="./scripts/Utils.js" type="module"></script>
     <script src="./scripts/Timeline/Timeline.js" type="module"></script>
     <script src="./scripts/Timeline/DragWindow.js" type="module"></script>
@@ -65,9 +65,8 @@
     <script src="./scripts/InputBar.js" type="module" defer></script>
     <script src="./scripts/ProgressBar.js" type="module" defer></script>
     <script src="./scripts/TimingPanel.js" type="module" defer></script>
-    <script src="./scripts/Record.js" defer></script>
-    <script src="./scripts/Notification.js" defer></script>
-    <script src="./scripts/SidePanel.js" defer></script>
+    <script src="./scripts/Notification.js" type="module" defer></script>
+    <script src="./scripts/SidePanel.js" type="module" defer></script>
 </head>
 
 <body>
@@ -123,7 +122,7 @@
             </div>
             <div id="playerController">
                 <div id="timeContainer"></div>
-                <div class="timingContainer" onclick="toggleSidePanel('timing')">
+                <div class="timingContainer">
                     <div class="BPM">0BPM</div>
                     <div class="SV">
                         <div class="multiplier">1.00x</div>
@@ -150,18 +149,18 @@
         <div class="sidePanel">
             <div class="closeRow">
                 map info
-                <button class="closeSidepanel" onclick="closeSidePanel()">
+                <button class="closeSidepanel">
                     <img src="./static/close.png">
                 </button>
             </div>
             <div class="panelRow">
-                <button class="slideToggleButton timings" onclick="toggleTimingPanel()">timings</button>
+                <button class="slideToggleButton timings">timings</button>
                 <div class="timingPanel panel">
                     <div class="highlightPoint">_</div>
                 </div>
             </div>
             <div class="panelRow">
-                <button class="slideToggleButton metadatas" onclick="toggleMetadataPanel()">metadata</button>
+                <button class="slideToggleButton metadatas">metadata</button>
                 <div class="metadataPanel panel">
                     <div class="metadataRow">
                         <div class="label">artist</div>

@@ -7,6 +7,7 @@ import { ApproachCircle } from "./ApproachCircle.js";
 import { NumberSprite } from "./NumberSprite.js";
 import { Clamp, Fixed } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
+import { ScoreParser } from "../ScoreParser.js";
 
 export class HitCircle {
     startTime;

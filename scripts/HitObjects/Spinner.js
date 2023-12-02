@@ -2,6 +2,7 @@ import { Game } from "../Game.js";
 import { Beatmap } from "../Beatmap.js";
 import { ObjectsController } from "./ObjectsController.js";
 import { Clamp } from "../Utils.js";
+import { ScoreParser } from "../ScoreParser.js";
 
 export class Spinner {
     time;

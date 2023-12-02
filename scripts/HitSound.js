@@ -1,4 +1,4 @@
-class HitSound {
+export class HitSound {
     static HIT_SAMPLES = ["", "normal", "soft", "drum"];
     static HIT_SOUNDS = ["hitwhistle", "hitfinish", "hitclap"];
     static PARSE_ENUM = {

@@ -8,6 +8,7 @@ import { Slider } from "./Slider.js";
 import { Spinner } from "./Spinner.js";
 import { handleCanvasDrag } from "../DragWindow.js";
 import { Fixed, Clamp, binarySearch } from "../Utils.js";
+import { ScoreParser } from "../ScoreParser.js";
 
 export class ObjectsController {
     hitCirclesList;

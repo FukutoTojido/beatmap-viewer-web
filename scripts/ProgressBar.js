@@ -1,5 +1,6 @@
 import { Beatmap } from "./Beatmap.js";
 import { Clamp } from "./Utils.js";
+import { Notification } from "./Notification.js";
 
 export function setAudioTime(value) {
     if (!beatmapFile?.audioNode) return;

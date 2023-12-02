@@ -5,6 +5,7 @@ import { Timestamp } from "./Timestamp.js";
 import { ProgressBar } from "./Progress.js";
 import { Skinning } from "./Skinning.js";
 import { HitSample } from "./Audio.js";
+import { Database } from "./Database.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);

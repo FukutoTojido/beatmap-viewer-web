@@ -1,4 +1,6 @@
-class Judgement {
+import { easeOutSine, easeOutQuint, Clamp } from "./Utils.js";
+
+export class Judgement {
     val;
     pos;
     stackHeight;
