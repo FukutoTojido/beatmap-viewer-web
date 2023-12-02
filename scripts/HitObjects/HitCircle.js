@@ -5,7 +5,7 @@ import { Texture } from "../Texture.js";
 import { ProgressBar } from "../Progress.js";
 import { ApproachCircle } from "./ApproachCircle.js";
 import { NumberSprite } from "./NumberSprite.js";
-import { Clamp, Fixed } from "../Utils.js";
+import { Clamp, Fixed, Dist, Add, FlipHR } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
@@ -71,8 +71,8 @@ export class HitCircle {
         }
 
         // Will reimplement later for optimization
-        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-        // if (evaluation) this.hitSounds.play();
+        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+        if (evaluation) this.hitSounds.play();
     }
 
     draw(timestamp) {

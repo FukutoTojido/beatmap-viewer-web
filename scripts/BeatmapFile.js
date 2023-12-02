@@ -4,11 +4,16 @@ import { Beatmap } from "./Beatmap.js";
 import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound } from "./Utils.js";
 import { go, playToggle } from "./ProgressBar.js";
 import { setBeatsnapDivisor } from "./Settings.js";
+import { calculateCurrentSR } from "./Settings.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { ScoreParser } from "./ScoreParser.js";
 import { Notification } from "./Notification.js";
 import { urlParams } from "./GlobalVariables.js";
 import { handleCanvasDrag } from "./DragWindow.js";
+import osuPerformance from "../lib/osujs.js";
+import axios from "axios";
+import ky from "ky";
+import md5 from "crypto-js/md5";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -374,7 +379,7 @@ export class BeatmapFile {
             await this.audioNode.createBufferNode(audioArrayBuffer);
 
             document.querySelector("#loadingText").textContent = `Setting up HitObjects`;
-            this.md5Map = CryptoJS.MD5(this.osuFile).toString();
+            this.md5Map = md5(this.osuFile).toString();
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
 
             document.querySelector(".loading").style.opacity = 0;

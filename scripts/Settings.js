@@ -4,6 +4,7 @@ import { Beatmap } from "./Beatmap.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { Game } from "./Game.js";
+import osuPerformance from "../lib/osujs.js";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {

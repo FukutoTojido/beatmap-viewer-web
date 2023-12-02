@@ -5,6 +5,7 @@ import { Skinning } from "./Skinning.js";
 import { ScoreParser } from "./ScoreParser.js";
 import { Game } from "./Game.js";
 import { createDifficultyElement } from "./Utils.js";
+import osuPerformance from "../lib/osujs.js";
 
 document.querySelector("#mapInput").onkeydown = mapInputEnter;
 function mapInputEnter(e) {

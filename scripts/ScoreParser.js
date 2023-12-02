@@ -1,6 +1,14 @@
 import { Judgement } from "./Judgement.js";
 import { Game } from "./Game.js";
 import { Replay } from "../lib/osr-parser.js";
+import { submitMap } from "./InputBar.js";
+import { ApplyModsToTime } from "./Utils.js";
+import { Spinner } from "./HitObjects/Spinner.js";
+import { HitCircle } from "./HitObjects/HitCircle.js";
+import { Slider } from "./HitObjects/Slider.js";
+import { Beatmap } from "./Beatmap.js";
+import { calculateCurrentSR } from "./Settings.js";
+import axios from "axios";
 
 export class ScoreParser {
     static BLOB;

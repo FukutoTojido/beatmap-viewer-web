@@ -1,5 +1,6 @@
 import { easeOutSine, easeOutQuint, Clamp } from "./Utils.js";
 import { Game } from "./Game.js";
+import { Beatmap } from "./Beatmap.js";
 import * as PIXI from "pixi.js";
 
 export class Judgement {

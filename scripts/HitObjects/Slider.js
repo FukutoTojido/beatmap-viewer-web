@@ -8,7 +8,7 @@ import { SliderGeometryContainers } from "./SliderMesh.js";
 import { SliderBall } from "./SliderBall.js";
 import { ReverseArrow } from "./ReverseArrow.js";
 import { SliderTick } from "./SliderTick.js";
-import { Fixed, Clamp } from "../Utils.js";
+import { Fixed, Clamp, Dist, Add, FlipHR, LinearEstimation } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
@@ -128,9 +128,9 @@ export class Slider {
             }
 
             // Will reimplement later
-            // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-            // if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
-            //     object.hitsounds.sliderHead.play();
+            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+            if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
+                this.hitSounds.sliderHead.play();
             return;
         }
 
@@ -141,9 +141,9 @@ export class Slider {
             }
 
             // Will reimplement later
-            // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-            // if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
-            //     object.hitsounds.sliderTail.play();
+            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+            if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
+                this.hitSounds.sliderTail.play();
             return;
         }
     }

@@ -1,7 +1,7 @@
 import { Game } from "../Game.js";
 import { Beatmap } from "../Beatmap.js";
 import { ObjectsController } from "./ObjectsController.js";
-import { Clamp } from "../Utils.js";
+import { Clamp, ApplyModsToTime, TranslateToZero } from "../Utils.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as PIXI from "pixi.js";
 
@@ -27,8 +27,8 @@ export class Spinner {
         }
 
         // Will reimplement later for optimization
-        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-        // if (evaluation) this.hitSounds.play();
+        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+        if (evaluation) this.hitSounds.play();
     }
 
     draw(timestamp) {
