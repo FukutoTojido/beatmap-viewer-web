@@ -83,7 +83,7 @@ export class PAudio {
                 this.currentTime / 1000 + 60 / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
-            document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
+            document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
         }
     }
 

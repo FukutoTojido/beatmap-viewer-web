@@ -18,7 +18,7 @@ export function playToggle(ele) {
         return;
     }
 
-    document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
+    document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
     Game.BEATMAP_FILE.audioNode.pause();
 }
 

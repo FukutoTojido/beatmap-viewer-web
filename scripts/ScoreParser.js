@@ -533,7 +533,7 @@ export class ScoreParser {
 
                 const img = document.createElement("img");
                 img.classList.add("mod");
-                img.src = `./static/mods/${mod}.png`;
+                img.src = `/static/mods/${mod}.png`;
 
                 div.appendChild(img);
                 document.querySelector(".modsList").appendChild(div);

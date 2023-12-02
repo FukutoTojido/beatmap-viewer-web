@@ -268,7 +268,7 @@ export async function loadDefaultSamples() {
             for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
                 // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
                 const res = (
-                    await axios.get(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
+                    await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
                         responseType: "arraybuffer",
                     })
                 ).data;

@@ -191,7 +191,7 @@ export class Texture {
 
     static generateDefaultTextures() {
         Texture.SELECTED = {
-            texture: PIXI.Texture.from("static/legacy/hitcircleselect@2x.png"),
+            texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
             isHD: false,
         };
         Texture.ARGON.HIT_CIRCLE = {
@@ -208,7 +208,7 @@ export class Texture {
                 isHD: false,
             },
             arrow: {
-                texture: PIXI.Texture.from("static/arrow.png"),
+                texture: PIXI.Texture.from("/static/arrow.png"),
                 isHD: false,
             },
             gradient: {
@@ -218,11 +218,11 @@ export class Texture {
         };
         Texture.ARGON.REVERSE_ARROW = {
             arrow: {
-                texture: PIXI.Texture.from("static/argon/reversearrow@2x.png"),
+                texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
                 isHD: false,
             },
             ring: {
-                texture: PIXI.Texture.from("static/argon/repeat-edge-piece.png"),
+                texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
                 isHD: false,
             },
         };
@@ -231,7 +231,7 @@ export class Texture {
             isHD: false,
         };
         Texture.ARGON.APPROACH_CIRCLE = {
-            texture: PIXI.Texture.from("static/argon/approachcircle@2x.png"),
+            texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
             isHD: false,
         };
         Texture.ARGON.DEFAULTS = [...Array(10)].fill(null, 0, 10).map((_, idx) => {

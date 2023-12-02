@@ -10,13 +10,13 @@ export class Cursor {
     constructor() {
         const container = new PIXI.Container();
 
-        const cursorTexture = PIXI.Texture.from("../static/cursor.png");
+        const cursorTexture = PIXI.Texture.from("/static/cursor.png");
         this.cursor = PIXI.Sprite.from(cursorTexture);
         this.cursor.anchor.set(0.5);
         this.cursor.width = (128 * (1024 / 640)) / (Game.WIDTH / 512);
         this.cursor.height = (128 * (1024 / 640)) / (Game.WIDTH / 512);
 
-        const trailTexture = PIXI.Texture.from("../static/cursortrail.png");
+        const trailTexture = PIXI.Texture.from("/static/cursortrail.png");
         const trailList = [...Array(10).keys()].map(() => PIXI.Sprite.from(trailTexture));
         this.trailList = trailList;
 
