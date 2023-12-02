@@ -137,8 +137,11 @@ class HitSample {
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
-        this.gainNode = audioCtx.createGain();
-        this.gainNode.gain.value = this.vol;
+
+        if (hitsounds.some((hs) => hs.includes("sliderslide") || hs.includes("sliderwhistle"))) {
+            this.gainNode = audioCtx.createGain();
+            this.gainNode.gain.value = this.vol;
+        }
         // console.log(this.audioObj);
     }
 
@@ -148,8 +151,9 @@ class HitSample {
         this.srcs = [];
         this.audioObj.forEach((hs) => {
             const src = audioCtx.createBufferSource();
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = this.vol;
+            const gainNode = this.gainNode ?? audioCtx.createGain();
+
+            if (!this.gainNode) gainNode.gain.value = this.vol;
 
             if (HitSample.SAMPLES.MAP[hs]) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
@@ -166,10 +170,10 @@ class HitSample {
             src.connect(isLoop ? this.gainNode : gainNode);
             src.ended = () => {
                 src.disconnect();
-            }
+                gainNode.disconnect();
+            };
 
             // this.gainNode.gain.value = this.vol;
-            this.gainNode.connect(HitSample.masterGainNode);
             gainNode.connect(HitSample.masterGainNode);
 
             src.start();
@@ -194,7 +198,7 @@ class HitSample {
 
         if (!higherThanStart || !lowerThanEnd || !beatmapFile.audioNode.isPlaying) {
             this.srcs.forEach((src) => {
-                src.stop()
+                src.stop();
                 src.disconnect();
             });
             this.isPlaying = false;
