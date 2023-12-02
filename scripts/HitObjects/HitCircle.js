@@ -1,4 +1,14 @@
-class HitCircle {
+import { Game } from "../Game.js";
+import { Beatmap } from "../Beatmap.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { Texture } from "../Texture.js";
+import { ProgressBar } from "../Progress.js";
+import { ApproachCircle } from "./ApproachCircle.js";
+import { NumberSprite } from "./NumberSprite.js";
+import { Clamp, Fixed } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+
+export class HitCircle {
     startTime;
     hitTime;
 

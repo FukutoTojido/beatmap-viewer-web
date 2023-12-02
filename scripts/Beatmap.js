@@ -1,10 +1,22 @@
-const HIT_SAMPLES = ["", "normal", "soft", "drum"];
-const HIT_SOUNDS = ["hitwhistle", "hitfinish", "hitclap"];
+import { Clamp } from "./Utils.js";
+import { GreenLineInfo } from "./Timeline/BeatLines.js";
+import { Timeline } from "./Timeline/Timeline.js";
+import { ProgressBar } from "./Progress.js";
+import { binarySearchNearest } from "./Utils.js";
+import { ObjectsController } from "./HitObjects/ObjectsController.js";
+import { HitCircle } from "./HitObjects/HitCircle.js";
+import { Slider } from "./HitObjects/Slider.js";
+import { Spinner } from "./HitObjects/Spinner.js";
+import { newTexture } from "./HitObjects/SliderMesh.js";
+import { TimelineHitCircle } from "./Timeline/HitCircle.js";
+import { TimelineSlider } from "./Timeline/Slider.js";
+import { Skinning } from "./Skinning.js";
+import { HitSample } from "./Audio.js";
 
-class Beatmap {
+export class Beatmap {
     objectsController;
     static SAMPLE_SET = "Normal";
-    static COLORS = Skinning.DEFAULT_COLORS;
+    static COLORS;
 
     static difficultyMultiplier = 1;
     static stats = {
@@ -330,6 +342,7 @@ class Beatmap {
     }
 
     constructor(rawBeatmap, delay) {
+        Beatmap.COLORS = Skinning.DEFAULT_COLORS;
         Beatmap.loadMetadata(rawBeatmap.split("\r\n"));
         // Get Approach Rate
         if (rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:")).length === 0) {
@@ -518,7 +531,7 @@ class Beatmap {
         Beatmap.COLORS = coloursList;
         // console.log(coloursList);
 
-        SliderTexture = newTexture(coloursList);
+        SliderTexture = newTexture();
         SelectedTexture = newTexture();
 
         const breakPeriods = rawBeatmap

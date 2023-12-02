@@ -1,4 +1,15 @@
-class ObjectsController {
+import { Game } from "../Game.js";
+import { Timestamp } from "../Timestamp.js";
+import { Timeline } from "../Timeline/Timeline.js";
+import { ProgressBar } from "../Progress.js";
+import { Beatmap } from "../Beatmap.js";
+import { HitCircle } from "./HitCircle.js";
+import { Slider } from "./Slider.js";
+import { Spinner } from "./Spinner.js";
+import { handleCanvasDrag } from "../DragWindow.js";
+import { Fixed, Clamp, binarySearch } from "../Utils.js";
+
+export class ObjectsController {
     hitCirclesList;
     slidersList;
     objectsList;
@@ -55,9 +66,6 @@ class ObjectsController {
             draggingEndTime = beatmapFile.audioNode.getCurrentTime();
             handleCanvasDrag(false, true);
         }
-
-        // updateTime(timestamp);
-        // setSliderTime();
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
@@ -193,17 +201,6 @@ class ObjectsController {
         }
 
         ObjectsController.lastTimestamp = timestamp;
-
-        // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
-        //     if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
-        //         const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-        //         const timestampNext = currentAudioTime;
-        //         this.lastTimestamp = timestamp;
-        //         ObjectsController.lastTimestamp = timestamp;
-
-        //         return this.draw(timestampNext);
-        //     }
-        // });
     }
 
     reinitializeAllSliders() {
@@ -215,11 +212,6 @@ class ObjectsController {
     }
 
     static render() {
-        // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
-        //     const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-        //     const timestamp = currentAudioTime;
-        //     return this.draw(timestamp);
-        // });
         Game.appResize();
         Timeline.resize();
 
@@ -233,10 +225,5 @@ class ObjectsController {
             beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);
         }
-
-        // window.requestAnimationFrame(() => {
-        //     ObjectsController.lastRenderTime = startTime;
-        //     ObjectsController.render();
-        // });
     }
 }

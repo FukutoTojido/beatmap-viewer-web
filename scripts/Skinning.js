@@ -1,4 +1,8 @@
-class Skinning {
+import { Texture } from "./Texture.js";
+import { HitSample } from "./Audio.js";
+import { refreshSkinDB } from "./Utils.js";
+
+export class Skinning {
     static HIT_CIRCLE = null;
     static HIT_CIRCLE_OVERLAY = null;
     static SLIDER_B = null;

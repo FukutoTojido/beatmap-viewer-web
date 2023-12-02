@@ -1,4 +1,17 @@
-class Slider {
+import { Game } from "../Game.js";
+import { Texture } from "../Texture.js";
+import { Beatmap } from "../Beatmap.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { ProgressBar } from "../Progress.js";
+import { HitCircle } from "./HitCircle.js";
+import { SliderGeometryContainers } from "./SliderMesh.js";
+import { SliderBall } from "./SliderBall.js";
+import { ReverseArrow } from "./ReverseArrow.js";
+import { SliderTick } from "./SliderTick.js";
+import { Fixed, Clamp } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+
+export class Slider {
     originalArr = [];
     angleList = [];
     realTrackPoints;

@@ -68,8 +68,6 @@ let db = null;
 
 let sliderOnChange = false;
 
-const curve = new UnitBezier(0, 0.57, 0, 1.46);
-
 let mods = {
     HD: false,
     HR: false,
@@ -81,30 +79,6 @@ let mods = {
 let sliderAppearance = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
 let skinning = JSON.parse(localStorage.getItem("settings")).skinning;
 let mapping = JSON.parse(localStorage.getItem("settings")).mapping;
-
-let animation = {
-    ms1digit: new CountUp("millisecond1digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-    ms2digit: new CountUp("millisecond2digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-    ms3digit: new CountUp("millisecond3digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-    s1digit: new CountUp("second1digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-    s2digit: new CountUp("second2digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-    m1digit: new CountUp("minute1digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-    m2digit: new CountUp("minute2digit", 0, 0, 0, 0.2, {
-        separator: "",
-    }),
-};
 
 let isDragging = false;
 let didMove = false;

@@ -1,4 +1,8 @@
-class ProgressBar {
+import { Beatmap } from "./Beatmap.js";
+import { Clamp } from "./Utils.js";
+import { setAudioTime } from "./ProgressBar.js";
+
+export class ProgressBar {
     static renderer;
     static stage;
     static container;

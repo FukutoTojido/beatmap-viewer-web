@@ -1,3 +1,10 @@
+import { Beatmap } from "../Beatmap.js";
+import { Timeline } from "./Timeline.js";
+import { TimelineHitCircle } from "./HitCircle.js";
+import { TimelineReverseArrow } from "./ReverseArrow.js";
+import { Clamp } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+
 const vertexShader = `
 precision mediump float;
 attribute vec2 position;
@@ -66,7 +73,7 @@ void main() {
 }
 `;
 
-class TimelineSlider {
+export class TimelineSlider {
     obj;
     hitObject;
     sliderHead;

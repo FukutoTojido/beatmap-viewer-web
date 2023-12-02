@@ -1,3 +1,8 @@
+import { Timeline } from "./Timeline.js";
+import { Beatmap } from "../Beatmap.js";
+import { binarySearchNearest } from "../Utils.js";
+import { ObjectsController } from "../HitObjects/ObjectsController.js";
+
 class BeatTick {
     obj;
 
@@ -32,7 +37,7 @@ class BeatTick {
     }
 }
 
-class GreenLineInfo {
+export class GreenLineInfo {
     greenLine;
     sv;
     sample;
@@ -129,7 +134,7 @@ class GreenLineInfo {
     }
 }
 
-class BeatLines {
+export class BeatLines {
     obj;
     ticks = [];
     tickTexture;

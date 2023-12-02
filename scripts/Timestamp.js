@@ -1,4 +1,7 @@
-class Timestamp {
+import { ObjectsController } from "./HitObjects/ObjectsController.js";
+import { parseTime } from "./ProgressBar.js";
+
+export class Timestamp {
     static renderer;
     static stage;
 

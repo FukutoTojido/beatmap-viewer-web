@@ -1,4 +1,11 @@
-class ReverseArrow {
+import { Game } from "../Game.js";
+import { Texture } from "../Texture.js";
+import { Beatmap } from "../Beatmap.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { Clamp, easeOutSine } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+
+export class ReverseArrow {
     baseSlider;
     time;
     willHit = false;

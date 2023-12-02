@@ -1,4 +1,10 @@
-class TimelineHitCircle {
+import { Beatmap } from "../Beatmap.js";
+import { Texture } from "../Texture.js";
+import { Timeline } from "./Timeline.js";
+import { TintedNumberSprite } from "./NumberSprite.js";
+import { Skinning } from "../Skinning.js";
+
+export class TimelineHitCircle {
     obj;
     hitCircle;
     hitCircleOverlay;

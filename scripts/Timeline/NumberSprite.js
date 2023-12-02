@@ -1,4 +1,8 @@
-class TintedNumberSprite extends NumberSprite {
+import { NumberSprite } from "../HitObjects/NumberSprite.js";
+import { Texture } from "../Texture.js";
+import { Skinning } from "../Skinning.js";
+
+export class TintedNumberSprite extends NumberSprite {
     constructor(hitObject) {
         super(hitObject);
     }

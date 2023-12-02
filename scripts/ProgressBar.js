@@ -1,18 +1,12 @@
-function setSliderTime() {
-    if (beatmapFile === undefined) return;
-    if (!sliderOnChange) document.querySelector("#progress").value = beatmapFile.audioNode.getCurrentTime();
-}
+import { Beatmap } from "./Beatmap.js";
+import { Clamp } from "./Utils.js";
 
-function setAudioTime(value) {
+export function setAudioTime(value) {
     if (!beatmapFile?.audioNode) return;
     beatmapFile.audioNode.seekTo(value * beatmapFile.audioNode.buf.duration * 1000);
 }
 
-function setProgressMax() {
-    // document.querySelector("#progress").max = beatmapFile.audioNode.buf.duration * 1000;
-}
-
-function playToggle(ele) {
+export function playToggle(ele) {
     ele?.blur();
     if (!beatmapFile?.audioNode?.gainNode || !beatmapFile?.audioNode?.buf) return;
 
@@ -20,15 +14,13 @@ function playToggle(ele) {
         document.querySelector("#playButton").style.backgroundImage = "";
         beatmapFile.audioNode.play();
         return;
-        // beatmapFile.beatmapRenderData.render();
     }
 
     document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
     beatmapFile.audioNode.pause();
-    // beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
-function parseTime(timestamp) {
+export function parseTime(timestamp) {
     const miliseconds = Math.floor(timestamp % 1000);
     const seconds = Math.floor((timestamp / 1000) % 60);
     const minutes = Math.floor(timestamp / 1000 / 60);
@@ -44,27 +36,7 @@ function parseTime(timestamp) {
     };
 }
 
-function updateTime(timestamp) {
-    const currentDigits = parseTime(timestamp);
-    const lastDigits = parseTime(ObjectsController.lastTimestamp);
-
-    // currentDigits.miliseconds.forEach((val, idx) => {
-    //     if (val === lastDigits.miliseconds[idx]) return;
-    //     document.querySelector(`#millisecond${idx + 1}digit`).textContent = val;
-    // });
-
-    // currentDigits.seconds.forEach((val, idx) => {
-    //     if (val === lastDigits.seconds[idx]) return;
-    //     document.querySelector(`#second${idx + 1}digit`).textContent = val;
-    // });
-
-    // currentDigits.minutes.forEach((val, idx) => {
-    //     if (val === lastDigits.minutes[idx]) return;
-    //     document.querySelector(`#minute${idx + 1}digit`).textContent = val;
-    // });
-}
-
-function go(precise, isForward) {
+export function go(precise, isForward) {
     if (!beatmapFile || !beatmapFile.audioNode.isLoaded) return;
     let step = 1;
     let side = isForward ? 1 : -1;
@@ -83,10 +55,12 @@ function go(precise, isForward) {
     const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, beatmapFile.audioNode.buf.duration * 1000);
 
     beatmapFile.audioNode.seekTo(goTo);
-    // document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
 }
+document.querySelector("#prevButton").onclick = () => go(null, false);
+document.querySelector("#playButton").onclick = () => playToggle(document.querySelector("#playButton"));
+document.querySelector("#nextButton").onclick = () => go(null, true);
 
-function copyUrlToClipboard() {
+export function copyUrlToClipboard() {
     const origin = window.location.origin;
     const currentTimestamp = beatmapFile !== undefined ? parseInt(beatmapFile.audioNode.getCurrentTime()) : 0;
     const mapId = currentMapId || "";
@@ -94,8 +68,9 @@ function copyUrlToClipboard() {
 
     new Notification("Current preview timestamp copied").notify();
 }
+document.querySelector("#previewURL").onclick = copyUrlToClipboard;
 
-function closePopup() {
+export function closePopup() {
     const popup = document.querySelector(".seekTo");
 
     popup.classList.remove("popupAnim");
@@ -103,7 +78,7 @@ function closePopup() {
     popup.close();
 }
 
-function openPopup() {
+export function openPopup() {
     const popup = document.querySelector(".seekTo");
 
     popup.classList.remove("popoutAnim");
@@ -111,7 +86,7 @@ function openPopup() {
     popup.show();
 }
 
-function showPopup() {
+export function showPopup() {
     const popup = document.querySelector(".seekTo");
     const timeInput = document.querySelector("#jumpToTime");
     timeInput.blur();
@@ -140,8 +115,9 @@ function showPopup() {
 
     closePopup();
 }
+document.querySelector("#timeContainer").onclick = showPopup;
 
-function updateTimestamp(value) {
+export function updateTimestamp(value) {
     if (!beatmapFile?.audioNode || (!/^[0-9]+:[0-9]+:[0-9]+.*/g.test(value) && !/^[0-9]+$/g.test(value))) {
         document.querySelector("#jumpToTime").value = "";
         return;

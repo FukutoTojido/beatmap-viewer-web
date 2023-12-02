@@ -1,5 +1,11 @@
+import { selectSkin, round, getDiffColor } from "./Utils.js";
+import { closePopup } from "./ProgressBar.js";
+import { Beatmap } from "./Beatmap.js";
+import { Timeline } from "./Timeline/Timeline.js";
+import { HitSample, PAudio } from "./Audio.js";
+
 // OPEN/CLOSE SETTINGS
-function openMenu() {
+export function openMenu() {
     // console.log(ele);
     const settingsPanel = document.querySelector("#settingsPanel");
     const block = document.querySelector("#block");
@@ -13,6 +19,7 @@ function openMenu() {
         block.style.opacity = settingsPanel.style.opacity === "1" ? 0.5 : "";
     }, 0);
 }
+document.querySelector("#settingsButton").onclick = openMenu;
 
 document.body.addEventListener("click", (e) => {
     const settingsPanelIsClick = document.querySelector("#settingsPanel").contains(e.target);
@@ -39,30 +46,18 @@ document.body.addEventListener("change", (e) => {
         currentLocalStorage.mirror.val = target.value;
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
-
-    // if (["0", "1", "2", "3"].includes(target.value)) {
-    //     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-    //     currentLocalStorage.skinning.type = target.value;
-    //     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
-
-    //     skinning.type = target.value;
-
-    //     const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    //     // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    //     // if (originalIsPlaying) beatmapFile.audioNode.play();
-    //     // if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
-    // }
 });
 
-function setCustomMirror(input) {
+export function setCustomMirror(input) {
     // console.log(input.value);
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.mirror.custom = input.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
+document.querySelector("#custom-mirror").onblur = () => setCustomMirror(document.querySelector("#custom-mirror"));
 
 // BACKGROUND
-function setBackgroundDim(slider) {
+export function setBackgroundDim(slider) {
     // console.log(slider.value);
     document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
     document.querySelector("#bgDimVal").innerHTML = `${parseInt(slider.value * 100)}%`;
@@ -71,18 +66,19 @@ function setBackgroundDim(slider) {
     currentLocalStorage.background.dim = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
+document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySelector("#dim"));
 
-function setBackgroundBlur(slider) {
-    // console.log(slider.value);
-    // document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
-    // document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
-    // const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-    // currentLocalStorage.background.blur = slider.value;
-    // localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
-}
+// export function setBackgroundBlur(slider) {
+//     // console.log(slider.value);
+//     // document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
+//     // document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
+//     // const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+//     // currentLocalStorage.background.blur = slider.value;
+//     // localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+// }
 
 // AUDIO
-function setMasterVolume(slider) {
+export function setMasterVolume(slider) {
     masterVol = slider.value;
     document.querySelector("#masterVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
@@ -92,15 +88,12 @@ function setMasterVolume(slider) {
 
     if (beatmapFile === undefined) return;
 
-    // const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    // if (originalIsPlaying) beatmapFile.audioNode.play();
-
     beatmapFile.audioNode.gainNode.gain.value = masterVol * musicVol;
     HitSample.masterGainNode.gain.value = masterVol * hsVol;
 }
+document.querySelector("#master").oninput = () => setMasterVolume(document.querySelector("#master"));
 
-function setAudioVolume(slider) {
+export function setAudioVolume(slider) {
     musicVol = slider.value;
     document.querySelector("#musicVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
@@ -110,14 +103,11 @@ function setAudioVolume(slider) {
 
     if (beatmapFile === undefined) return;
 
-    // const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    // if (originalIsPlaying) beatmapFile.audioNode.play();
-
     beatmapFile.audioNode.gainNode.gain.value = masterVol * musicVol;
 }
+document.querySelector("#music").oninput = () => setAudioVolume(document.querySelector("#music"));
 
-function setEffectVolume(slider) {
+export function setEffectVolume(slider) {
     hsVol = slider.value;
     document.querySelector("#effectVal").innerHTML = `${parseInt((slider.value / 0.4) * 100)}%`;
 
@@ -127,15 +117,12 @@ function setEffectVolume(slider) {
 
     if (beatmapFile === undefined) return;
 
-    // const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    // if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    // if (originalIsPlaying) beatmapFile.audioNode.play();
-
     HitSample.masterGainNode.gain.value = masterVol * hsVol;
 }
+document.querySelector("#effect").oninput = () => setEffectVolume(document.querySelector("#effect"));
 
 // MAPPING
-function setOffset(slider) {
+export function setOffset(slider) {
     PAudio.SOFT_OFFSET = slider.value;
     document.querySelector("#softoffsetVal").innerHTML = `${parseInt(slider.value)}ms`;
 
@@ -144,13 +131,10 @@ function setOffset(slider) {
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
     if (beatmapFile === undefined) return;
-
-    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    if (originalIsPlaying) beatmapFile.audioNode.play();
 }
+document.querySelector("#softoffset").oninput = () => setOffset(document.querySelector("#softoffset"));
 
-function setBeatsnapDivisor(slider) {
+export function setBeatsnapDivisor(slider) {
     beatsnap = slider.value;
     document.querySelector("#beatVal").innerHTML = `1/${slider.value}`;
 
@@ -158,9 +142,10 @@ function setBeatsnapDivisor(slider) {
     currentLocalStorage.mapping.beatsnap = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
+document.querySelector("#beat").oninput = () => setBeatsnapDivisor(document.querySelector("#beat"));
 
 // ANY KIND OF CHECK BOX
-function calculateCurrentSR(modsFlag) {
+export function calculateCurrentSR(modsFlag) {
     const modsTemplate = ["HARD_ROCK", "EASY", "DOUBLE_TIME", "HALF_TIME"];
 
     const builderOptions = {
@@ -183,7 +168,7 @@ function calculateCurrentSR(modsFlag) {
     else document.querySelector("#SR").style.color = "black";
 }
 
-function handleCheckBox(checkbox) {
+export function handleCheckBox(checkbox) {
     mods[checkbox.name] = !mods[checkbox.name];
     sliderAppearance[checkbox.name] = !sliderAppearance[checkbox.name];
     mapping[checkbox.name] = !mapping[checkbox.name];
@@ -216,12 +201,14 @@ function handleCheckBox(checkbox) {
     Beatmap.updateModdedStats();
 
     if (originalIsPlaying) beatmapFile.audioNode.play();
-    // if (!originalIsPlaying) beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 
     calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
 }
+[...document.querySelectorAll("input[type=checkbox]")].forEach((ele) => {
+    ele.onclick = () => handleCheckBox(ele);
+});
 
-function openDialog() {
+export function openDialog() {
     const dialog = document.querySelector("#skinDropdown");
 
     if (!dialog.open) {
@@ -233,6 +220,7 @@ function openDialog() {
     dialog.close();
     dialog.style.display = "";
 }
+document.querySelector(".skinSelector").onclick = openDialog;
 
 document.body.addEventListener("click", (e) => {
     const skinDialogDimensions = document.querySelector("#skinDropdown").getBoundingClientRect();
@@ -256,8 +244,8 @@ document.body.addEventListener("click", (e) => {
             e.clientY < popupDialogDimensions.top ||
             e.clientY > popupDialogDimensions.bottom) &&
         document.querySelector(".seekTo").open &&
-        e.target !== document.querySelector("#timeContainer") && 
-        e.target !== document.querySelector("#timeContainer canvas") 
+        e.target !== document.querySelector("#timeContainer") &&
+        e.target !== document.querySelector("#timeContainer canvas")
     ) {
         closePopup();
     }
