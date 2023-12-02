@@ -43,19 +43,20 @@ class Game {
             "Torus",
             {
                 fontFamily: "Torus",
-                fontSize: 15,
+                fontSize: 20,
                 fontWeight: 500,
                 fill: 0xffffff,
                 align: "right",
             },
             {
-                chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". "],
+                chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :"],
             }
         );
 
         const fpsSprite = new PIXI.BitmapText(`0fps\nInfinite ms`, {
             fontName: "Torus",
             align: "right",
+            fontSize: 15,
         });
 
         fpsSprite.anchor.set(1, 1);
@@ -285,8 +286,14 @@ class Game {
 
     static appSizeSetup() {
         // Set renderer size to container size
-        Game.WIDTH = parseInt(getComputedStyle(document.querySelector("#playerContainer")).width) * window.devicePixelRatio;
-        Game.HEIGHT = parseInt(getComputedStyle(document.querySelector("#playerContainer")).height) * window.devicePixelRatio;
+        let { width, height } = getComputedStyle(document.querySelector("#playerContainer"));
+        width = parseInt(width) * window.devicePixelRatio;
+        height = parseInt(height) * window.devicePixelRatio;
+
+        if (Game.WIDTH === width && Game.HEIGHT === height) return;
+
+        Game.WIDTH = width;
+        Game.HEIGHT = height;
         Game.APP.renderer.resize(Game.WIDTH, Game.HEIGHT);
 
         // Change game width and height to match 4:3 aspect ratio
@@ -308,6 +315,7 @@ class Game {
 
         // ...
         Game.SCALE_RATE = Game.WIDTH / 512;
+        Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
     static appInit() {
@@ -321,7 +329,6 @@ class Game {
         });
 
         Game.appSizeSetup();
-        Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
     constructor() {
@@ -337,6 +344,9 @@ class Game {
         Game.APP.stage.addChild(Game.CONTAINER);
         Game.APP.stage.addChild(Game.FPS);
         Game.APP.stage.addChild(Game.CURSOR.obj);
+
+        Timestamp.init();
+        ProgressBar.init();
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);

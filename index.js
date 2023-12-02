@@ -1,5 +1,5 @@
 document.querySelector(".loading").style.opacity = 1;
-document.querySelector("#loadingText").innerText = `Initializing`;
+document.querySelector("#loadingText").textContent = `Initializing`;
 
 (async () => {
     await loadLocalStorage();
@@ -20,8 +20,6 @@ document.querySelector("#loadingText").innerText = `Initializing`;
         setTimeout(() => {
             // Game.appResize();
             // Timeline.resize();
-            Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-            Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         }, 200);
     });
 
@@ -30,8 +28,6 @@ document.querySelector("#loadingText").innerText = `Initializing`;
         setTimeout(() => {
             // Game.appResize();
             // Timeline.resize();
-            Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-            Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         }, 200);
     });
 })();

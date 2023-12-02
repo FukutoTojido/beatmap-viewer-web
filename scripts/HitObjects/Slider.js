@@ -99,7 +99,8 @@ class Slider {
         this.hitSounds.sliderWhistle.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
         this.hitSounds.sliderSlide.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
 
-        if (this.hitSounds.defaultSet.hitSoundIdx !== 0) this.hitSounds.sliderWhistle.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
+        if (this.hitSounds.defaultSet.hitSoundIdx !== 0)
+            this.hitSounds.sliderWhistle.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
         this.hitSounds.sliderSlide.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
 
         if (!beatmapFile.audioNode.isPlaying) return;
@@ -224,7 +225,8 @@ class Slider {
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
-        this.playHitsound(timestamp);
+
+        if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
     reInitialize() {

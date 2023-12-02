@@ -56,8 +56,8 @@ class ObjectsController {
             handleCanvasDrag(false, true);
         }
 
-        updateTime(timestamp);
-        setSliderTime();
+        // updateTime(timestamp);
+        // setSliderTime();
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
@@ -86,11 +86,11 @@ class ObjectsController {
                 currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
         }
 
-        if (document.querySelector(".BPM").innerText !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
-            document.querySelector(".BPM").innerText = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+        if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
+            document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
 
-        if (document.querySelector(".SV .multiplier").innerText !== `${currentSV.svMultiplier.toFixed(2)}x`)
-            document.querySelector(".SV .multiplier").innerText = `${currentSV.svMultiplier.toFixed(2)}x`;
+        if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
+            document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
@@ -226,6 +226,9 @@ class ObjectsController {
         Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
 
         const currentAudioTime = beatmapFile?.audioNode?.getCurrentTime();
+        Timestamp.update(currentAudioTime ?? 0);
+        ProgressBar.update(currentAudioTime ?? 0);
+
         if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController) {
             beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);

@@ -396,7 +396,8 @@ canvas {
     /* transform: scaleY(-1); */
     /* z-index: 0; */
     /* background-color: rgba(255, 255, 255, 0.1); */
-    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+    /* transition: cubic-bezier(0, 0.4, 0, 1) 200ms; */
+    /* transition: ease-in-out 200ms; */
     transform-origin: top left;
 }
 
@@ -434,7 +435,7 @@ canvas {
 }
 
 #metadata:hover {
-    color:rgb(255, 187, 0);
+    color: rgb(255, 187, 0);
     transition: ease-out 100ms;
 }
 
@@ -697,7 +698,7 @@ canvas {
 #timeContainer {
     position: relative;
     display: flex;
-    padding: 10px 20px;
+    padding: 20px;
     align-items: center;
     font-size: 1rem;
     background-color: var(--primary-5);
@@ -707,6 +708,10 @@ canvas {
 
 #timeContainer:hover {
     filter: brightness(1.2);
+}
+
+#timeContainer canvas {
+    position: relative;
 }
 
 .digit {
@@ -848,7 +853,7 @@ canvas {
 .progressBarContainer {
     position: relative;
     flex: 1;
-    padding: 0 20px;
+    height: 60px;
 
     display: flex;
     align-items: center;
@@ -856,57 +861,10 @@ canvas {
     background-color: var(--primary-1);
 }
 
-.timingPointsContainer {
+.progressBarContainer canvas {
     position: absolute;
     top: 0;
-    width: 100%;
-    height: 50%;
-
-    padding: 0 20px;
-}
-
-.timingWrapper {
-    position: relative;
-
-    width: 100%;
-    height: 100%;
-}
-
-.redLine,
-.greenLine {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-
-    width: 1px;
-    height: 50%;
-
-    opacity: 80%;
-
-    margin-top: auto;
-    margin-bottom: auto;
-}
-
-.redLine {
-    left: 10px;
-    background-color: #e34653;
-}
-
-.greenLine {
-    left: 30px;
-    background-color: #1bcc20;
-}
-
-.timingPointsContainer img {
-    width: 100%;
-    height: 100%;
-
-    padding: 0 20px;
-}
-
-#progress {
-    position: relative;
-    width: 100%;
+    left: 0;
 }
 
 #volumeSlider {

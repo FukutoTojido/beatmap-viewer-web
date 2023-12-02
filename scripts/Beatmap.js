@@ -264,12 +264,12 @@ class Beatmap {
             const second = Math.floor((currentTime - minute * 60000) / 1000);
             const mili = currentTime - minute * 60000 - second * 1000;
 
-            timeStamp.innerText = `${isNeg ? "-" : ""}${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili
+            timeStamp.textContent = `${isNeg ? "-" : ""}${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili
                 .toFixed(0)
                 .padStart(3, "0")}`;
 
             if (point.beatstep) {
-                baseValue.innerText = `${(60000 / point.beatstep).toFixed(2)} BPM`;
+                baseValue.textContent = `${(60000 / point.beatstep).toFixed(2)} BPM`;
                 container.classList.add("beatStepPoint");
                 document.querySelector(".timingPanel").append(container);
                 return;
@@ -281,25 +281,25 @@ class Beatmap {
             if (point.isKiai) content.classList.add("kiai");
 
             if (point.sampleIdx !== 0) {
-                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}:C${point.sampleIdx}`;
+                sampleType.textContent = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}:C${point.sampleIdx}`;
             } else {
-                sampleType.innerText = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}`;
+                sampleType.textContent = `${HitSound.HIT_SAMPLES[point.sampleSet][0].toUpperCase()}`;
             }
 
             const sampleVol = document.createElement("div");
             sampleVol.classList.add("timingValue");
-            sampleVol.innerText = `${point.sampleVol}%`;
+            sampleVol.textContent = `${point.sampleVol}%`;
 
             content.append(sampleType, sampleVol);
 
-            baseValue.innerText = `${point.svMultiplier.toFixed(2)}x`;
+            baseValue.textContent = `${point.svMultiplier.toFixed(2)}x`;
             container.classList.add("svPoint");
 
             document.querySelector(".timingPanel").append(container);
         });
 
-        document.querySelector(".timings").innerText = `timings (${Beatmap.mergedPoints.length})`;
-        // document.querySelector(".timings").innerText = `timings (${Beatmap.beatStepsList.length})`;
+        document.querySelector(".timings").textContent = `timings (${Beatmap.mergedPoints.length})`;
+        // document.querySelector(".timings").textContent = `timings (${Beatmap.beatStepsList.length})`;
     }
 
     static loadMetadata(lines) {
@@ -320,13 +320,13 @@ class Beatmap {
         const source = getValue("Source");
         const tags = getValue("Tags");
 
-        document.querySelector(".meta-artist").innerText = artistUnicode;
-        document.querySelector(".meta-r-artist").innerText = artist;
-        document.querySelector(".meta-title").innerText = titleUnicode;
-        document.querySelector(".meta-r-title").innerText = title;
-        document.querySelector(".meta-diff").innerText = diff;
-        document.querySelector(".meta-source").innerText = source;
-        document.querySelector(".meta-tags").innerText = tags;
+        document.querySelector(".meta-artist").textContent = artistUnicode;
+        document.querySelector(".meta-r-artist").textContent = artist;
+        document.querySelector(".meta-title").textContent = titleUnicode;
+        document.querySelector(".meta-r-title").textContent = title;
+        document.querySelector(".meta-diff").textContent = diff;
+        document.querySelector(".meta-source").textContent = source;
+        document.querySelector(".meta-tags").textContent = tags;
     }
 
     constructor(rawBeatmap, delay) {
@@ -482,12 +482,13 @@ class Beatmap {
         Beatmap.mergedPoints = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
             if (a.time < b.time) return -1;
             if (a.time > b.time) return 1;
-            if (a.beatstep) return -1;
-            if (b.beatstep) return 1;
+            if (a.beatstep) return 1;
+            if (b.beatstep) return -1;
             return 0;
         });
 
-        Beatmap.loadProgressBar();
+        // Beatmap.loadProgressBar();
+        ProgressBar.initTimingPoints();
         Beatmap.loadTimingPoints();
 
         // console.log(beatStepsList, timingPointsList);

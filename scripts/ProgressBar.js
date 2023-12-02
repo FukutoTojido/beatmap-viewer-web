@@ -3,19 +3,13 @@ function setSliderTime() {
     if (!sliderOnChange) document.querySelector("#progress").value = beatmapFile.audioNode.getCurrentTime();
 }
 
-function setAudioTime() {
-    const slider = document.querySelector("#progress");
-
-    if (beatmapFile === undefined) {
-        slider.value = 0;
-        return;
-    }
-
-    beatmapFile.audioNode.seekTo(parseFloat(slider.value));
+function setAudioTime(value) {
+    if (!beatmapFile?.audioNode) return;
+    beatmapFile.audioNode.seekTo(value * beatmapFile.audioNode.buf.duration * 1000);
 }
 
 function setProgressMax() {
-    document.querySelector("#progress").max = beatmapFile.audioNode.buf.duration * 1000;
+    // document.querySelector("#progress").max = beatmapFile.audioNode.buf.duration * 1000;
 }
 
 function playToggle(ele) {
@@ -34,33 +28,40 @@ function playToggle(ele) {
     // beatmapFile.beatmapRenderData.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
 }
 
+function parseTime(timestamp) {
+    const miliseconds = Math.floor(timestamp % 1000);
+    const seconds = Math.floor((timestamp / 1000) % 60);
+    const minutes = Math.floor(timestamp / 1000 / 60);
+
+    const milisecondDigits = miliseconds.toString().padStart(3, "0").split("");
+    const secondDigits = seconds.toString().padStart(2, "0").split("");
+    const minuteDigits = minutes.toString().padStart(2, "0").split("");
+
+    return {
+        minutes: minuteDigits,
+        seconds: secondDigits,
+        miliseconds: milisecondDigits,
+    };
+}
+
 function updateTime(timestamp) {
-    // console.log(timestamp);
-    const currentMiliseconds = Math.floor(timestamp);
-    const msDigits = [currentMiliseconds % 10, Math.floor((currentMiliseconds % 100) / 10), Math.floor((currentMiliseconds % 1000) / 100)];
+    const currentDigits = parseTime(timestamp);
+    const lastDigits = parseTime(ObjectsController.lastTimestamp);
 
-    msDigits.forEach((val, idx) => {
-        document.querySelector(`#millisecond${idx + 1}digit`).innerText = Math.max(0, val);
-        // animation[`ms${idx + 1}digit`].update(document.querySelector(`#millisecond${idx + 1}digit`).innerText);
-    });
+    // currentDigits.miliseconds.forEach((val, idx) => {
+    //     if (val === lastDigits.miliseconds[idx]) return;
+    //     document.querySelector(`#millisecond${idx + 1}digit`).textContent = val;
+    // });
 
-    const currentSeconds = Math.floor((timestamp / 1000) % 60);
-    const sDigits = [currentSeconds % 10, Math.floor((currentSeconds % 100) / 10)];
+    // currentDigits.seconds.forEach((val, idx) => {
+    //     if (val === lastDigits.seconds[idx]) return;
+    //     document.querySelector(`#second${idx + 1}digit`).textContent = val;
+    // });
 
-    sDigits.forEach((val, idx) => {
-        document.querySelector(`#second${idx + 1}digit`).innerText = Math.max(0, val);
-        // animation[`s${idx + 1}digit`].update(document.querySelector(`#second${idx + 1}digit`).innerText);
-    });
-
-    const currentMinute = Math.floor(timestamp / 1000 / 60);
-    const mDigits = [currentMinute % 10, Math.floor((currentMinute % 100) / 10)];
-
-    mDigits.forEach((val, idx) => {
-        document.querySelector(`#minute${idx + 1}digit`).innerText = Math.max(0, val);
-        // animation[`m${idx + 1}digit`].update(document.querySelector(`#minute${idx + 1}digit`).innerText);
-    });
-
-    // console.log(mDigits.reverse(), sDigits.reverse(), msDigits.reverse());
+    // currentDigits.minutes.forEach((val, idx) => {
+    //     if (val === lastDigits.minutes[idx]) return;
+    //     document.querySelector(`#minute${idx + 1}digit`).textContent = val;
+    // });
 }
 
 function go(precise, isForward) {
@@ -82,7 +83,7 @@ function go(precise, isForward) {
     const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, beatmapFile.audioNode.buf.duration * 1000);
 
     beatmapFile.audioNode.seekTo(goTo);
-    document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
+    // document.querySelector("#progress").value = beatmapFile.audioNode.currentTime;
 }
 
 function copyUrlToClipboard() {
@@ -91,7 +92,7 @@ function copyUrlToClipboard() {
     const mapId = currentMapId || "";
     navigator.clipboard.writeText(`${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}?b=${mapId}&t=${currentTimestamp}`);
 
-    (new Notification("Current preview timestamp copied")).notify();
+    new Notification("Current preview timestamp copied").notify();
 }
 
 function closePopup() {
@@ -118,11 +119,11 @@ function showPopup() {
     if (!popup.open) {
         if (beatmapFile?.audioNode) {
             const currentTime = beatmapFile.audioNode.getCurrentTime();
-            
+
             const minute = Math.floor(currentTime / 60000);
             const second = Math.floor((currentTime - minute * 60000) / 1000);
             const mili = currentTime - minute * 60000 - second * 1000;
-            
+
             timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toFixed(0).padStart(3, "0")}`;
 
             const origin = window.location.origin;

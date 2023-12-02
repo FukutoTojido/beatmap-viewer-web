@@ -119,7 +119,7 @@ class HitCircle {
             const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
             const idx = sliderAppearance.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
             const color = colors[idx % colors.length];
-            
+
             this.hitCircleSprite.tint = color;
 
             if (skinning.type === "1") {
@@ -154,7 +154,8 @@ class HitCircle {
 
         this.number.draw(timestamp);
         this.approachCircleObj.draw(timestamp);
-        this.playHitsound(timestamp);
+
+        if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
     eval(inputIdx) {

@@ -63,7 +63,7 @@ class BeatmapFile {
                     await requestClient.get(`${setId}`, {
                         responseType: "blob",
                         onDownloadProgress: (progressEvent) => {
-                            document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                            document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
                             // console.log(progressEvent);
                         },
                     })
@@ -72,7 +72,7 @@ class BeatmapFile {
                 const rawData = await ky.get(`${setId}/`, {
                     prefixUrl: urls[selectedMirror] ?? customURL,
                     onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").innerText = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
                         // console.log(progressEvent);
                     },
                     headers: {
@@ -238,11 +238,11 @@ class BeatmapFile {
         const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
         const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-        document.querySelector("#CS").innerText = round(beatmapData.difficulty.circleSize);
-        document.querySelector("#AR").innerText = round(beatmapData.difficulty.approachRate);
-        document.querySelector("#OD").innerText = round(beatmapData.difficulty.overallDifficulty);
-        document.querySelector("#HP").innerText = round(beatmapData.difficulty.drainRate);
-        document.querySelector("#SR").innerText = `${round(difficultyAttributes.starRating)}★`;
+        document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
+        document.querySelector("#AR").textContent = round(beatmapData.difficulty.approachRate);
+        document.querySelector("#OD").textContent = round(beatmapData.difficulty.overallDifficulty);
+        document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
+        document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
         document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
         if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
@@ -364,17 +364,17 @@ class BeatmapFile {
 
             // this.audio = new Audio(this.audioBlobURL);
 
-            document.querySelector("#loadingText").innerText = `Setting up Audio`;
+            document.querySelector("#loadingText").textContent = `Setting up Audio`;
             await this.audioNode.createBufferNode(audioArrayBuffer);
 
-            document.querySelector("#loadingText").innerText = `Setting up HitObjects`;
+            document.querySelector("#loadingText").textContent = `Setting up HitObjects`;
             this.md5Map = CryptoJS.MD5(this.osuFile).toString();
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
 
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
-            document.querySelector("#loadingText").innerText = `Getting map data`;
+            document.querySelector("#loadingText").textContent = `Getting map data`;
 
             document.querySelector("#choose-diff").disabled = false;
             document.querySelector("#close").disabled = false;

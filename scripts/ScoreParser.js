@@ -424,7 +424,7 @@ class ScoreParser {
         if (JSON.stringify(data) === "{}") return;
 
         document.querySelector(".thePlayer").style.backgroundImage = `url(${data.cover_url})`;
-        document.querySelector(".playerName").innerText = data.username;
+        document.querySelector(".playerName").textContent = data.username;
         document.querySelector(".playerAva").src = data.avatar_url;
 
         document.querySelector(".thePlayer").style.display = "flex";
@@ -435,7 +435,7 @@ class ScoreParser {
             // Convert Blob to ArrayBuffer to Buffer
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
-            document.querySelector("#loadingText").innerText = `Parsing Score`;
+            document.querySelector("#loadingText").textContent = `Parsing Score`;
 
             const arr_buf = await new Response(ScoreParser.BLOB).arrayBuffer();
             const buf = buffer.Buffer.from(arr_buf);
@@ -592,7 +592,7 @@ class ScoreParser {
 
         document.querySelector(".thePlayer").style.display = "";
         document.querySelector(".thePlayer").style.backgroundImage = "";
-        document.querySelector(".playerName").innerText = "";
+        document.querySelector(".playerName").textContent = "";
         document.querySelector(".playerAva").src = "";
         document.querySelector(".modsList").innerHTML = "";
     }
@@ -611,7 +611,7 @@ class ScoreParser {
 
         document.querySelector(".thePlayer").style.display = "";
         document.querySelector(".thePlayer").style.backgroundImage = "";
-        document.querySelector(".playerName").innerText = "";
+        document.querySelector(".playerName").textContent = "";
         document.querySelector(".playerAva").src = "";
         document.querySelector(".modsList").innerHTML = "";
     }

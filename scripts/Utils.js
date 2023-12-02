@@ -57,7 +57,7 @@ async function refreshSkinDB() {
 
         const button = document.createElement("button");
         button.classList.add("skinName");
-        button.innerText = ini.NAME;
+        button.textContent = ini.NAME;
         button.onclick = selectSkin;
 
         const delButton = document.createElement("button");
@@ -93,9 +93,9 @@ async function refreshSkinDB() {
 }
 
 async function loadLocalStorage() {
-    document.querySelector("#loadingText").innerText = `Initializing: Default Samples`;
+    document.querySelector("#loadingText").textContent = `Initializing: Default Samples`;
     await loadDefaultSamples();
-    document.querySelector("#loadingText").innerText = `Initializing: Default Skins`;
+    document.querySelector("#loadingText").textContent = `Initializing: Default Skins`;
     await Database.initDatabase();
     await refreshSkinDB();
     // const res = await Database.readObjStore("skins");
@@ -197,8 +197,8 @@ const createDifficultyElement = (obj) => {
     const starRating = document.createElement("div");
     starRating.classList.add("starRating");
 
-    diffName.innerText = obj.name;
-    starRating.innerText = `Star Rating: ${obj.starRating.toFixed(2)}★`;
+    diffName.textContent = obj.name;
+    starRating.textContent = `Star Rating: ${obj.starRating.toFixed(2)}★`;
 
     infoContainer.append(diffName, starRating);
     ele.append(icon, infoContainer);
@@ -237,6 +237,9 @@ const loadColorPalette = (bg) => {
         primaryPalette.forEach((val, idx) => {
             rootCSS.style.setProperty(`--primary-${idx + 1}`, val);
         });
+
+        Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+        ProgressBar.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
     }
 
     const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb();
@@ -244,6 +247,8 @@ const loadColorPalette = (bg) => {
         const accentHex = d3.color(`rgb(${parseInt(accent[0])}, ${parseInt(accent[1])}, ${parseInt(accent[2])})`);
         rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
     }
+
+    ProgressBar.restyle();
 };
 
 async function loadDefaultSamples() {

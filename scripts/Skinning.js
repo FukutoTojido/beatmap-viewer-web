@@ -41,7 +41,7 @@ class Skinning {
 
     static async changeSkin() {
         if (skinning.type !== "4") {
-            document.querySelector(".skinSelector").innerText = Skinning.SKIN_NAME[skinning.type];
+            document.querySelector(".skinSelector").textContent = Skinning.SKIN_NAME[skinning.type];
             console.log(skinning.type);
             return;
         }
@@ -49,7 +49,7 @@ class Skinning {
         if (!Skinning.SKIN_LIST[Skinning.SKIN_IDX]) {
             skinning.type = "2";
             Skinning.SKIN_IDX = -1;
-            document.querySelector(".skinSelector").innerText = "Legacy";
+            document.querySelector(".skinSelector").textContent = "Legacy";
             return;
         }
 
@@ -58,7 +58,7 @@ class Skinning {
         Skinning.HIT_CIRCLE_PREFIX = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_PREFIX;
         Skinning.DEFAULT_COLORS = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.DEFAULT_COLORS;
 
-        document.querySelector(".skinSelector").innerText = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.NAME;
+        document.querySelector(".skinSelector").textContent = Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.NAME;
     }
 
     static async getBase64(allEntries, filename) {

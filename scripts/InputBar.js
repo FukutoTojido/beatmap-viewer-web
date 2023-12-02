@@ -137,7 +137,7 @@ function submitMap(isDragAndDrop, beatmapID) {
     beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
 
     document.querySelector("#mapInput").value = !isDragAndDrop ? bID : "";
-    document.querySelector("#progress").value = 0;
+    // document.querySelector("#progress").value = 0;
     // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
 

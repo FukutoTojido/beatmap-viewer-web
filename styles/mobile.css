@@ -182,6 +182,7 @@
         /* width: 100%; */
         /* padding: 20px; */
         flex: 1;
+        height: 60px;
 
         margin-bottom: 20px;
         justify-content: center;
@@ -194,6 +195,7 @@
 
     .timingContainer {
         /* width: 100%; */
+        height: 60px;
         padding: 20px;
         margin-bottom: 20px;
         flex: 1;
@@ -224,7 +226,14 @@
     }
 
     .progressBarContainer {
+        width: 100%;
+        height: 60px;
         background-color: unset;
+    }
+
+    .progressBarContainer canvas {
+        position: relative;
+        transform-origin: center center;
     }
 
     #progress {
@@ -246,6 +255,7 @@
         flex: 1;
 
         padding: 20px;
+        height: 60px;
     }
 
     #volumeSlider {

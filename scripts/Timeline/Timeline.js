@@ -52,9 +52,17 @@ class Timeline {
     }
 
     static resize() {
-        Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width) * window.devicePixelRatio;
-        Timeline.HEIGHT = parseInt(getComputedStyle(document.querySelector(".timeline")).height) * window.devicePixelRatio;
+        let { width, height } = getComputedStyle(document.querySelector(".timeline"));
+        width = parseInt(width) * window.devicePixelRatio;
+        height = parseInt(height) * window.devicePixelRatio;
+
+        if (Timeline.WIDTH === width && Timeline.HEIGHT === height) return;
+
+        Timeline.WIDTH = width;
+        Timeline.HEIGHT = height;
+
         Timeline.APP.renderer.resize(Timeline.WIDTH, Timeline.HEIGHT);
+        Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
         Timeline.hitArea.resize();
     }

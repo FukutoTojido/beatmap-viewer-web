@@ -172,11 +172,11 @@ function calculateCurrentSR(modsFlag) {
     const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-    document.querySelector("#CS").innerText = round(beatmapData.difficulty.circleSize);
-    document.querySelector("#AR").innerText = round(difficultyAttributes.approachRate);
-    document.querySelector("#OD").innerText = round(difficultyAttributes.overallDifficulty);
-    document.querySelector("#HP").innerText = round(beatmapData.difficulty.drainRate);
-    document.querySelector("#SR").innerText = `${round(difficultyAttributes.starRating)}★`;
+    document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
+    document.querySelector("#AR").textContent = round(difficultyAttributes.approachRate);
+    document.querySelector("#OD").textContent = round(difficultyAttributes.overallDifficulty);
+    document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
+    document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
     document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
     if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
@@ -256,7 +256,8 @@ document.body.addEventListener("click", (e) => {
             e.clientY < popupDialogDimensions.top ||
             e.clientY > popupDialogDimensions.bottom) &&
         document.querySelector(".seekTo").open &&
-        e.target !== document.querySelector("#timeContainer")
+        e.target !== document.querySelector("#timeContainer") && 
+        e.target !== document.querySelector("#timeContainer canvas") 
     ) {
         closePopup();
     }
