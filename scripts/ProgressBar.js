@@ -1,24 +1,25 @@
 import { Beatmap } from "./Beatmap.js";
 import { Clamp } from "./Utils.js";
 import { Notification } from "./Notification.js";
+import { Game } from "./Game.js";
 
 export function setAudioTime(value) {
-    if (!beatmapFile?.audioNode) return;
-    beatmapFile.audioNode.seekTo(value * beatmapFile.audioNode.buf.duration * 1000);
+    if (!Game.BEATMAP_FILE?.audioNode) return;
+    Game.BEATMAP_FILE.audioNode.seekTo(value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
 }
 
 export function playToggle(ele) {
     ele?.blur();
-    if (!beatmapFile?.audioNode?.gainNode || !beatmapFile?.audioNode?.buf) return;
+    if (!Game.BEATMAP_FILE?.audioNode?.gainNode || !Game.BEATMAP_FILE?.audioNode?.buf) return;
 
-    if (!beatmapFile.audioNode.isPlaying) {
+    if (!Game.BEATMAP_FILE.audioNode.isPlaying) {
         document.querySelector("#playButton").style.backgroundImage = "";
-        beatmapFile.audioNode.play();
+        Game.BEATMAP_FILE.audioNode.play();
         return;
     }
 
     document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
-    beatmapFile.audioNode.pause();
+    Game.BEATMAP_FILE.audioNode.pause();
 }
 
 export function parseTime(timestamp) {
@@ -38,24 +39,24 @@ export function parseTime(timestamp) {
 }
 
 export function go(precise, isForward) {
-    if (!beatmapFile || !beatmapFile.audioNode.isLoaded) return;
+    if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.audioNode.isLoaded) return;
     let step = 1;
     let side = isForward ? 1 : -1;
     let currentBeatstep;
-    const current = beatmapFile.audioNode.getCurrentTime();
-    const isPlaying = beatmapFile.audioNode.isPlaying;
+    const current = Game.BEATMAP_FILE.audioNode.getCurrentTime();
+    const isPlaying = Game.BEATMAP_FILE.audioNode.isPlaying;
 
     if (Beatmap.beatStepsList.length) {
         currentBeatstep = Beatmap.beatStepsList.findLast((timingPoint) => timingPoint.time <= current) ?? Beatmap.beatStepsList[0];
-        step = precise ? 1 : (currentBeatstep.beatstep / parseInt(beatsnap)) * (!isForward && isPlaying ? 2 : 1);
+        step = precise ? 1 : (currentBeatstep.beatstep / parseInt(Game.MAPPING.beatsnap)) * (!isForward && isPlaying ? 2 : 1);
     }
 
     const relativePosition = current - currentBeatstep.time;
     const relativeTickPassed = Math.round(relativePosition / step);
 
-    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, beatmapFile.audioNode.buf.duration * 1000);
+    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
 
-    beatmapFile.audioNode.seekTo(goTo);
+    Game.BEATMAP_FILE.audioNode.seekTo(goTo);
 }
 document.querySelector("#prevButton").onclick = () => go(null, false);
 document.querySelector("#playButton").onclick = () => playToggle(document.querySelector("#playButton"));
@@ -63,8 +64,8 @@ document.querySelector("#nextButton").onclick = () => go(null, true);
 
 export function copyUrlToClipboard() {
     const origin = window.location.origin;
-    const currentTimestamp = beatmapFile !== undefined ? parseInt(beatmapFile.audioNode.getCurrentTime()) : 0;
-    const mapId = currentMapId || "";
+    const currentTimestamp = Game.BEATMAP_FILE !== undefined ? parseInt(Game.BEATMAP_FILE.audioNode.getCurrentTime()) : 0;
+    const mapId = Beatmap.CURRENT_MAPID || "";
     navigator.clipboard.writeText(`${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}?b=${mapId}&t=${currentTimestamp}`);
 
     new Notification("Current preview timestamp copied").notify();
@@ -93,8 +94,8 @@ export function showPopup() {
     timeInput.blur();
 
     if (!popup.open) {
-        if (beatmapFile?.audioNode) {
-            const currentTime = beatmapFile.audioNode.getCurrentTime();
+        if (Game.BEATMAP_FILE?.audioNode) {
+            const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
 
             const minute = Math.floor(currentTime / 60000);
             const second = Math.floor((currentTime - minute * 60000) / 1000);
@@ -103,8 +104,8 @@ export function showPopup() {
             timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toFixed(0).padStart(3, "0")}`;
 
             const origin = window.location.origin;
-            const currentTimestamp = beatmapFile !== undefined ? beatmapFile.audioNode.getCurrentTime() : 0;
-            const mapId = currentMapId || "";
+            const currentTimestamp = Game.BEATMAP_FILE !== undefined ? Game.BEATMAP_FILE.audioNode.getCurrentTime() : 0;
+            const mapId = Beatmap.CURRENT_MAPID || "";
             document.querySelector("#previewURL").value = `${origin}${
                 !origin.includes("github.io") ? "" : "/beatmap-viewer-how"
             }?b=${mapId}&t=${currentTimestamp}`;
@@ -119,7 +120,7 @@ export function showPopup() {
 document.querySelector("#timeContainer").onclick = showPopup;
 
 export function updateTimestamp(value) {
-    if (!beatmapFile?.audioNode || (!/^[0-9]+:[0-9]+:[0-9]+.*/g.test(value) && !/^[0-9]+$/g.test(value))) {
+    if (!Game.BEATMAP_FILE?.audioNode || (!/^[0-9]+:[0-9]+:[0-9]+.*/g.test(value) && !/^[0-9]+$/g.test(value))) {
         document.querySelector("#jumpToTime").value = "";
         return;
     }
@@ -135,7 +136,7 @@ export function updateTimestamp(value) {
         time = minute * 60000 + second * 1000 + mili;
     }
 
-    beatmapFile.audioNode.seekTo(time);
+    Game.BEATMAP_FILE.audioNode.seekTo(time);
 }
 
 document.querySelector("#jumpToTime").addEventListener("keydown", (e) => {

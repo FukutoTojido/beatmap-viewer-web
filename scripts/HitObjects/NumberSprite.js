@@ -1,5 +1,7 @@
 import { Texture } from "../Texture.js";
 import { Skinning } from "../Skinning.js";
+import { Game } from "../Game.js";
+import * as PIXI from "pixi.js";
 
 export class NumberSprite {
     obj;
@@ -20,7 +22,7 @@ export class NumberSprite {
             .toString()
             .split("")
             .forEach((value, idx) => {
-                const skinType = Skinning.SKIN_ENUM[skinning.type];
+                const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
                 const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
                 const sprite = new PIXI.Sprite(textures.DEFAULTS[value].texture);
@@ -44,7 +46,7 @@ export class NumberSprite {
         this.obj.alpha = 1;
         this.obj.x = -prevSprite.x / 2;
 
-        if (timestamp > this.hitObject.hitTime + 1 && sliderAppearance.hitAnim) {
+        if (timestamp > this.hitObject.hitTime + 1 && Game.SLIDER_APPEARANCE.hitAnim) {
             this.obj.alpha = 0;
         }
     }

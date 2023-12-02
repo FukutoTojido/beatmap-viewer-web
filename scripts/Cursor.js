@@ -1,5 +1,6 @@
 import { Game } from "./Game.js";
 import { ScoreParser } from "./ScoreParser.js";
+import * as PIXI from "pixi.js";
 
 export class Cursor {
     obj;

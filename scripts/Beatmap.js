@@ -1,3 +1,4 @@
+import { Game } from "./Game.js";
 import { Clamp } from "./Utils.js";
 import { GreenLineInfo } from "./Timeline/BeatLines.js";
 import { Timeline } from "./Timeline/Timeline.js";
@@ -13,6 +14,7 @@ import { TimelineSlider } from "./Timeline/Slider.js";
 import { Skinning } from "./Skinning.js";
 import { HitSample } from "./Audio.js";
 import { HitSound } from "./HitSound.js";
+import { Texture } from "./Texture.js";
 
 export class Beatmap {
     objectsController;
@@ -64,10 +66,12 @@ export class Beatmap {
     static timingPointsList = [];
     static mergedPoints = [];
 
+    static stackThreshold;
+
     static updateModdedStats() {
-        const HRMul = !mods.HR ? 1 : 1.4;
-        const EZMul = !mods.EZ ? 1 : 0.5;
-        const HRMulCS = !mods.HR ? 1 : 1.3;
+        const HRMul = !Game.MODS.HR ? 1 : 1.4;
+        const EZMul = !Game.MODS.EZ ? 1 : 0.5;
+        const HRMulCS = !Game.MODS.HR ? 1 : 1.3;
 
         const circleSize = Math.min(Beatmap.stats.circleSize * HRMulCS * EZMul, 10);
         const approachRate = Math.min(Beatmap.stats.approachRate * HRMul * EZMul, 10);
@@ -225,7 +229,7 @@ export class Beatmap {
             const div = document.createElement("div");
             div.classList.add("greenLine");
 
-            div.style.left = `${(greenLine.time / beatmapFile.audioNode.duration) * 100}%`;
+            div.style.left = `${(greenLine.time / Game.BEATMAP_FILE.audioNode.duration) * 100}%`;
 
             wrapper.appendChild(div);
         });
@@ -234,7 +238,7 @@ export class Beatmap {
             const div = document.createElement("div");
             div.classList.add("redLine");
 
-            div.style.left = `${(redLine.time / beatmapFile.audioNode.duration) * 100}%`;
+            div.style.left = `${(redLine.time / Game.BEATMAP_FILE.audioNode.duration) * 100}%`;
 
             wrapper.appendChild(div);
         });
@@ -420,8 +424,8 @@ export class Beatmap {
                 .replaceAll("OverallDifficulty:", "")
         );
 
-        const HRMultiplier = !mods.HR ? 1 : 1.3;
-        const EZMultiplier = !mods.EZ ? 1 : 0.5;
+        const HRMultiplier = !Game.MODS.HR ? 1 : 1.3;
+        const EZMultiplier = !Game.MODS.EZ ? 1 : 0.5;
 
         Beatmap.hitWindows = {
             GREAT: Math.floor(80 - 6 * Clamp(Beatmap.stats.overallDifficulty * HRMultiplier * EZMultiplier, 0, 10)),
@@ -431,9 +435,8 @@ export class Beatmap {
 
         Beatmap.stats.circleDiameter = (2 * (54.4 - 4.48 * Beatmap.stats.circleSize) * 236) / 256;
 
-        stackThreshold = Beatmap.stats.preempt * Beatmap.stats.stackLeniency;
+        Beatmap.stackThreshold = Beatmap.stats.preempt * Beatmap.stats.stackLeniency;
 
-        // console.log(approachRate, circleSize, stackLeniency, stackThreshold);
 
         const difficultyPosition = rawBeatmap.indexOf("[Difficulty]") + "[Difficulty]\r\n".length;
         const timingPosition = rawBeatmap.indexOf("[TimingPoints]") + "[TimingPoints]\r\n".length;
@@ -532,8 +535,7 @@ export class Beatmap {
         Beatmap.COLORS = coloursList;
         // console.log(coloursList);
 
-        SliderTexture = newTexture();
-        SelectedTexture = newTexture();
+        Texture.SLIDER_TEXTURE = newTexture();
 
         const breakPeriods = rawBeatmap
             .split("\r\n")
@@ -644,7 +646,7 @@ export class Beatmap {
                     const nObj = this.objectsController.objectsList[n];
                     const endTime = nObj.obj.endTime;
 
-                    if (currentObj.obj.time - endTime > stackThreshold) break;
+                    if (currentObj.obj.time - endTime > Beatmap.stackThreshold) break;
                     if (n < extendedStartIndex) {
                         nObj.obj.stackHeight = 0;
                         extendedStartIndex = n;
@@ -696,7 +698,7 @@ export class Beatmap {
                     // console.log(currentObj);
                     const nObj = this.objectsController.objectsList[n];
                     // console.log(nObj);
-                    if (currentObj.obj.time - nObj.obj.time > stackThreshold) break;
+                    if (currentObj.obj.time - nObj.obj.time > Beatmap.stackThreshold) break;
 
                     if (
                         this.calculateDistance(

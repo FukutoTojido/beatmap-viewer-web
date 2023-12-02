@@ -1,5 +1,6 @@
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { parseTime } from "./ProgressBar.js";
+import * as PIXI from "pixi.js";
 
 export class Timestamp {
     static renderer;

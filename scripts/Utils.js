@@ -1,3 +1,4 @@
+import { Game } from "./Game.js";
 import { Texture } from "./Texture.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { loadDiff } from "./InputBar.js";
@@ -36,7 +37,7 @@ export function selectSkin() {
     currentLocalStorage.skinning.val = this.parentElement.dataset.customIndex;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    skinning.type = skinType;
+    Game.SKINNING.type = skinType;
 
     if (this.parentElement.dataset.skinId === "custom") {
         Skinning.SKIN_IDX = this.parentElement.dataset.customIndex;
@@ -249,7 +250,6 @@ export const loadColorPalette = (bg) => {
         });
 
         Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
-        ProgressBar.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
     }
 
     const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb();
@@ -272,7 +272,7 @@ export async function loadDefaultSamples() {
                     })
                 ).data;
 
-                const buffer = await audioCtx.decodeAudioData(res);
+                const buffer = await Game.AUDIO_CTX.decodeAudioData(res);
                 HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
                 HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
             }
@@ -286,7 +286,7 @@ export async function loadSampleSound(sample, idx, buf) {
             return;
         }
 
-        const buffer = await audioCtx.decodeAudioData(buf);
+        const buffer = await Game.AUDIO_CTX.decodeAudioData(buf);
         HitSample.SAMPLES.MAP[`${sample}${idx}`] = buffer;
     } catch {
         console.log("Unable to decode " + `${sample}${idx}`);

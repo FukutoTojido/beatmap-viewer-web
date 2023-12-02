@@ -1,6 +1,8 @@
 import { Beatmap } from "./Beatmap.js";
 import { Clamp } from "./Utils.js";
 import { setAudioTime } from "./ProgressBar.js";
+import { Game } from "./Game.js";
+import * as PIXI from "pixi.js";
 
 export class ProgressBar {
     static renderer;
@@ -102,7 +104,7 @@ export class ProgressBar {
 
         this.timelineObjs = [];
 
-        const fullTime = beatmapFile.audioNode.duration;
+        const fullTime = Game.BEATMAP_FILE.audioNode.duration;
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
@@ -126,9 +128,9 @@ export class ProgressBar {
     }
 
     static repositionTimingPoints() {
-        if (!beatmapFile?.audioNode) return;
+        if (!Game.BEATMAP_FILE?.audioNode) return;
 
-        const fullTime = beatmapFile.audioNode.duration;
+        const fullTime = Game.BEATMAP_FILE.audioNode.duration;
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
@@ -269,8 +271,8 @@ export class ProgressBar {
     static update(time) {
         this.resize();
 
-        if (beatmapFile?.audioNode?.buf) {
-            this.thumb.x = (time / (beatmapFile?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
+        if (Game.BEATMAP_FILE?.audioNode?.buf) {
+            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
         }
 
         this.renderer.render(this.stage);

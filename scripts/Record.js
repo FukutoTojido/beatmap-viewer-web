@@ -1,5 +1,5 @@
 document.querySelector("#record")?.addEventListener("click", () => {
-    if (!beatmapFile) return;
+    if (!Game.BEATMAP_FILE) return;
 
     const canvas = Game.APP.view;
     const videoStream = canvas.captureStream(0);
@@ -30,12 +30,12 @@ document.querySelector("#record")?.addEventListener("click", () => {
     console.log("Record started! Please wait");
 
     const callDraw = (time) => {
-        if (time > beatmapFile.audioNode.buf.duration * 1000) {
+        if (time > Game.BEATMAP_FILE.audioNode.buf.duration * 1000) {
             mediaRecorder.stop();
             return;
         }
 
-        beatmapFile.beatmapRenderData.objectsController.draw(Math.round(time), true);
+        Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(Math.round(time), true);
         videoStream.getVideoTracks()[0].requestFrame();
 
         window.requestAnimationFrame(() => {

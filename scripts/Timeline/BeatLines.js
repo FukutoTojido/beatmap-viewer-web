@@ -3,6 +3,8 @@ import { Beatmap } from "../Beatmap.js";
 import { binarySearchNearest } from "../Utils.js";
 import { ObjectsController } from "../HitObjects/ObjectsController.js";
 import { HitSound } from "../HitSound.js";
+import { Game } from "../Game.js";
+import * as PIXI from "pixi.js";
 
 class BeatTick {
     obj;
@@ -215,7 +217,7 @@ export class BeatLines {
         const beatStepList = this.getLineInRange(timestamp, range, "beatStepsList");
         const timingPointList = this.getLineInRange(timestamp, range, "timingPointsList");
 
-        const snap = parseInt(beatsnap);
+        const snap = parseInt(Game.MAPPING.beatsnap);
         const dividedStep = currentBeatStep / snap;
 
         const relativePosition = timestamp - offset;

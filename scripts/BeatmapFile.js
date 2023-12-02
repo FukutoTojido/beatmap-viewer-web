@@ -7,6 +7,8 @@ import { setBeatsnapDivisor } from "./Settings.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { ScoreParser } from "./ScoreParser.js";
 import { Notification } from "./Notification.js";
+import { urlParams } from "./GlobalVariables.js";
+import { handleCanvasDrag } from "./DragWindow.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -24,6 +26,8 @@ export class BeatmapFile {
     diff;
     md5Map;
     isLoaded = false;
+
+    static CURRENT_MAPID;
 
     constructor(mapId, isFromFile) {
         this.mapId = mapId;
@@ -94,7 +98,7 @@ export class BeatmapFile {
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
-            dropBlob = blob;
+            Game.DROP_BLOB = blob;
             return blob;
         } catch (e) {
             // return;
@@ -129,7 +133,7 @@ export class BeatmapFile {
         if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
         else document.querySelector("#metadata").removeAttribute("href");
 
-        const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : dropBlob;
+        const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
         const zipReader = new zip.ZipReader(mapFileBlobReader);
         const allEntries = await zipReader.getEntries();
@@ -183,7 +187,7 @@ export class BeatmapFile {
 
             for (const obj of diffs) diffList.appendChild(obj.ele);
         } else {
-            const map = allEntries.filter((e) => e.filename === diffFileName).at(0);
+            const map = allEntries.filter((e) => e.filename === Game.DIFF_FILE_NAME).at(0);
             const blob = await map.getData(new zip.BlobWriter("text/plain"));
             this.osuFile = await blob.text();
 
@@ -236,7 +240,7 @@ export class BeatmapFile {
 
         const modsTemplate = ["HARD_ROCK", "EASY", "DOUBLE_TIME", "HALF_TIME"];
 
-        const modsFlag = [mods.HR, mods.EZ, mods.DT, mods.HT];
+        const modsFlag = [Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT];
 
         const builderOptions = {
             addStacking: true,
@@ -359,8 +363,7 @@ export class BeatmapFile {
 
             Timeline.destruct();
 
-            currentMapId = this.mapId;
-            // audioCtx = new AudioContext();
+            Beatmap.CURRENT_MAPID = this.mapId;
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
             const audioArrayBuffer = await this.getOsz();
@@ -396,7 +399,7 @@ export class BeatmapFile {
                 document.querySelector("#EZ").disabled = true;
                 document.querySelector("#HT").disabled = true;
 
-                calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
+                calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             } else {
                 document.querySelector("#HD").disabled = false;
                 document.querySelector("#HR").disabled = false;
@@ -435,8 +438,8 @@ export class BeatmapFile {
 
                 if (e.key === "c" && e.ctrlKey) {
                     // console.log("Copied");
-                    if (selectedHitObject.length) {
-                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => selectedHitObject.includes(o.obj.time));
+                    if (Game.SELECTED.length) {
+                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => Game.SELECTED.includes(o.obj.time));
                         const obj = objs.reduce((prev, curr) => (prev.obj.time > curr.obj.time ? curr : prev));
                         const currentMiliseconds = Math.floor(obj.obj.time % 1000)
                             .toString()
@@ -459,20 +462,20 @@ export class BeatmapFile {
                 if (e.key === "a" && e.ctrlKey) {
                     if (document.activeElement === document.querySelector("#jumpToTime")) return;
                     e.preventDefault();
-                    selectedHitObject = this.beatmapRenderData.objectsController.objectsList
+                    Game.SELECTED = this.beatmapRenderData.objectsController.objectsList
                         .filter((o) => !(o.obj instanceof Spinner))
                         .map((o) => o.obj.time);
                 }
 
                 if (e.key === "Escape") {
-                    selectedHitObject = [];
+                    Game.SELECTED = [];
 
                     if (document.querySelector(".seekTo").open) closePopup();
                 }
             };
 
-            if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
-                updateTime(parseInt(urlParams.get("t")));
+            if (urlParams.get("b") === Beatmap.CURRENT_MAPID && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
+                // updateTime(parseInt(urlParams.get("t")));
                 // this.beatmapRenderData.objectsController.draw(parseInt(urlParams.get("t")), true);
             } else {
                 // this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
@@ -481,8 +484,8 @@ export class BeatmapFile {
             // Game.APP.ticker.add(this.beatmapRenderData.objectsController.render);
 
             const scrollEventHandler = (event) => {
-                if (isDragging && currentX !== -1 && currentY !== -1) {
-                    draggingEndTime = this.audioNode.getCurrentTime();
+                if (Game.IS_DRAGGING && Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
+                    Game.DRAGGING_END = this.audioNode.getCurrentTime();
                     handleCanvasDrag();
                 }
 
@@ -528,7 +531,7 @@ export class BeatmapFile {
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
-            beatmapFile = undefined;
+            Game.BEATMAP_FILE = undefined;
         }
     }
 }

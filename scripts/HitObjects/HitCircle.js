@@ -9,6 +9,7 @@ import { Clamp, Fixed } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as PIXI from "pixi.js";
 
 export class HitCircle {
     startTime;
@@ -51,7 +52,7 @@ export class HitCircle {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = this.originalX + stackHeight * currentStackOffset;
-        const y = !mods.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
+        const y = !Game.MODS.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
 
         this.selected.x = x * Game.SCALE_RATE;
         this.selected.y = y * Game.SCALE_RATE;
@@ -61,7 +62,7 @@ export class HitCircle {
 
     playHitsound(timestamp) {
         if (!this.hitSounds) return;
-        if (!beatmapFile.audioNode.isPlaying) return;
+        if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
         if (timestamp < this.hitTime || ObjectsController.lastTimestamp >= this.hitTime) return;
 
         if (!ScoreParser.REPLAY_DATA) {
@@ -75,7 +76,7 @@ export class HitCircle {
     }
 
     draw(timestamp) {
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
         this.hitCircleSprite.texture = textures.HIT_CIRCLE.texture;
@@ -90,11 +91,11 @@ export class HitCircle {
         // Calculate current timing stats
         const currentPreempt = Beatmap.moddedStats.preempt;
         const currentFadeIn = Beatmap.moddedStats.fadeIn;
-        const fadeOutTime = sliderAppearance.hitAnim ? 240 : 800;
+        const fadeOutTime = Game.SLIDER_APPEARANCE.hitAnim ? 240 : 800;
 
         // Calculate object opacity
         let currentOpacity = 0;
-        if (!mods.HD) {
+        if (!Game.MODS.HD) {
             if (timestamp < this.hitTime) {
                 currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
             } else {
@@ -114,7 +115,7 @@ export class HitCircle {
 
         // Calculate object expandation
         let currentExpand = 1;
-        if (sliderAppearance.hitAnim && timestamp > this.hitTime) {
+        if (Game.SLIDER_APPEARANCE.hitAnim && timestamp > this.hitTime) {
             currentExpand = 0.5 * Clamp((timestamp - this.hitTime) / 240, 0, 1) + 1;
         }
         currentExpand = Math.max(currentExpand, 1);
@@ -127,14 +128,14 @@ export class HitCircle {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         // Untint HitCircle on hit when hit animation is disabled
-        if (sliderAppearance.hitAnim || timestamp < this.hitTime) {
-            const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-            const idx = sliderAppearance.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
+        if (Game.SLIDER_APPEARANCE.hitAnim || timestamp < this.hitTime) {
+            const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+            const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
             const color = colors[idx % colors.length];
 
             this.hitCircleSprite.tint = color;
 
-            if (skinning.type === "1") {
+            if (Game.SKINNING.type === "1") {
                 this.hitCircleSprite.tint = parseInt(
                     d3
                         .color(`#${color.toString(16).padStart(6, "0")}`)
@@ -154,11 +155,11 @@ export class HitCircle {
 
         // Set HitCircle position
         const x = this.originalX + stackHeight * currentStackOffset;
-        const y = !mods.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
+        const y = !Game.MODS.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
         this.obj.x = x * Game.SCALE_RATE;
         this.obj.y = y * Game.SCALE_RATE;
 
-        if (skinning.type !== "0") {
+        if (Game.SKINNING.type !== "0") {
             this.hitCircleSprite.alpha = 0.9;
         } else {
             this.hitCircleSprite.alpha = 1;
@@ -210,7 +211,7 @@ export class HitCircle {
             Fixed(
                 Dist(
                     currentInput,
-                    mods.HR
+                    Game.MODS.HR
                         ? Add(FlipHR({ x: this.originalX, y: this.originalY }), additionalMemory)
                         : Add({ x: this.originalX, y: this.originalY }, additionalMemory)
                 ) / radius,

@@ -1,6 +1,8 @@
 import { TimelineDragWindow } from "./DragWindow.js";
 import { BeatLines } from "./BeatLines.js";
 import { binarySearch } from "../Utils.js";
+import { Game } from "../Game.js";
+import * as PIXI from "pixi.js";
 
 export class Timeline {
     static obj;
@@ -72,13 +74,13 @@ export class Timeline {
     }
 
     static draw(timestamp) {
-        if (!beatmapFile?.beatmapRenderData?.objectsController.objectsList) return;
+        if (!Game.BEATMAP_FILE?.beatmapRenderData?.objectsController.objectsList) return;
         Timeline.beatLines.draw(timestamp);
         Timeline.hitArea.draw(timestamp);
         Timeline.centerLine.x = Timeline.WIDTH / 2;
         Timeline.centerLine.scale.set(1, Timeline.HEIGHT);
 
-        const objList = beatmapFile.beatmapRenderData.objectsController.objectsList;
+        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
 
         const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD;
 

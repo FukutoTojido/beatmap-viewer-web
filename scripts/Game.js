@@ -6,6 +6,8 @@ import { Timeline } from "./Timeline/Timeline.js";
 import { Slider } from "./HitObjects/Slider.js";
 import { handleCanvasDrag, checkCollide } from "./DragWindow.js";
 import { HitSample } from "./Audio.js";
+import { TimingPanel } from "./TimingPanel.js";
+import * as PIXI from "pixi.js";
 
 export class Game {
     static APP;
@@ -24,8 +26,40 @@ export class Game {
     static SCALE_RATE = 1;
 
     static IS_CLICKED = false;
-
+    static IS_DRAGGING = false;
     static IS_RESIZING = false;
+    static DID_MOVE = false;
+    static START_X = 0;
+    static START_Y = 0;
+    static CURRENT_X = -1;
+    static CURRENT_Y = -1;
+    static DRAGGING_START = 0;
+    static DRAGGING_END = 0;
+
+    static AUDIO_CTX = new AudioContext();
+    static PLAYBACK_RATE = 1;
+
+    static SELECTED = [];
+
+    static MODS = {
+        HD: false,
+        HR: false,
+        EZ: false,
+        DT: false,
+        HT: false,
+    };
+
+    static SLIDER_APPEARANCE;
+    static SKINNING;
+    static MAPPING;
+
+    static MASTER_VOL;
+    static MUSIC_VOL;
+    static HS_VOL;
+
+    static DIFF_FILE_NAME = "";
+    static DROP_BLOB = null;
+    static BEATMAP_FILE = undefined;
 
     // Add certain objects from container
     static addToContainer(objectsList) {
@@ -124,15 +158,15 @@ export class Game {
         grid.interactive = true;
 
         const clickControl = (e) => {
-            if (!beatmapFile || !beatmapFile.isLoaded) return;
+            if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
-            const currentTime = beatmapFile.audioNode.getCurrentTime();
+            const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
 
             let { x, y } = Game.CONTAINER.toLocal(e.global);
             x /= Game.SCALE_RATE;
             y /= Game.SCALE_RATE;
 
-            const selectedObjList = beatmapFile.beatmapRenderData.objectsController.filtered.filter((o) => checkCollide(x, y, o));
+            const selectedObjList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered.filter((o) => checkCollide(x, y, o));
 
             const selectedObj = selectedObjList.length
                 ? selectedObjList.reduce((prev, curr) => {
@@ -145,15 +179,15 @@ export class Game {
 
             if (selectedObj) {
                 if (!e.ctrlKey) {
-                    selectedHitObject = [selectedObj.obj.time];
+                    Game.SELECTED = [selectedObj.obj.time];
                 } else {
-                    selectedHitObject = selectedHitObject.concat([selectedObj.obj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
+                    Game.SELECTED = Game.SELECTED.concat([selectedObj.obj.time]).filter((t, idx, a) => a.indexOf(t) === idx);
                 }
-            } else if (!didMove) {
-                selectedHitObject = [];
+            } else if (!Game.DID_MOVE) {
+                Game.SELECTED = [];
             }
 
-            didMove = false;
+            Game.DID_MOVE = false;
         };
 
         grid.on("click", (e) => {
@@ -166,16 +200,16 @@ export class Game {
         grid.on("touchend", (e) => {});
 
         grid.on("mousedown", (e) => {
-            if (!beatmapFile || !beatmapFile.isLoaded) return;
+            if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
             let { x, y } = Game.CONTAINER.toLocal(e.global);
             x /= Game.WIDTH / 512;
             y /= Game.WIDTH / 512;
 
-            isDragging = true;
-            draggingStartTime = beatmapFile.audioNode.getCurrentTime();
-            startX = x;
-            startY = y;
+            Game.IS_DRAGGING = true;
+            Game.DRAGGING_START = Game.BEATMAP_FILE.audioNode.getCurrentTime();
+            Game.START_X = x;
+            Game.START_Y = y;
 
             Game.DRAG_WINDOW.clear();
             Game.DRAG_WINDOW.lineStyle({
@@ -193,31 +227,28 @@ export class Game {
         });
 
         grid.on("mouseup", (e) => {
-            if (!beatmapFile || !beatmapFile.isLoaded) return;
+            if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
-            if (currentX !== -1 && currentY !== -1) {
-                // console.log(selectedHitObject);
-                // console.log(startX, startY, currentX, currentY);
+            if (Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
             }
-            // currentX = -1;
-            // currentY = -1;
-            isDragging = false;
+
+            Game.IS_DRAGGING = false;
             Game.DRAG_WINDOW.alpha = 0;
             // console.log("Mouse UP");
         });
 
         grid.on("mousemove", (e) => {
-            if (!beatmapFile || !beatmapFile.isLoaded) return;
+            if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
             let { x, y } = Game.CONTAINER.toLocal(e.global);
             x /= Game.WIDTH / 512;
             y /= Game.WIDTH / 512;
 
-            if (isDragging) {
-                didMove = true;
-                draggingEndTime = beatmapFile.audioNode.getCurrentTime();
-                currentX = x;
-                currentY = y;
+            if (Game.IS_DRAGGING) {
+                Game.DID_MOVE = true;
+                Game.DRAGGING_END = Game.BEATMAP_FILE.audioNode.getCurrentTime();
+                Game.CURRENT_X = x;
+                Game.CURRENT_Y = y;
                 // console.log("Moving");
                 handleCanvasDrag(e);
 
@@ -231,24 +262,23 @@ export class Game {
 
                 Game.DRAG_WINDOW.beginFill(0xffffff, 0.2)
                     .drawRect(
-                        (Math.min(startX, x) * Game.WIDTH) / 512,
-                        (Math.min(startY, y) * Game.WIDTH) / 512,
-                        (Math.abs(x - startX) * Game.WIDTH) / 512,
-                        (Math.abs(y - startY) * Game.WIDTH) / 512
+                        (Math.min(Game.START_X, x) * Game.WIDTH) / 512,
+                        (Math.min(Game.START_Y, y) * Game.WIDTH) / 512,
+                        (Math.abs(x - Game.START_X) * Game.WIDTH) / 512,
+                        (Math.abs(y - Game.START_Y) * Game.WIDTH) / 512
                     )
                     .endFill();
-                // console.log(startX, startY, currentX, currentY);
             }
 
-            const currentTime = beatmapFile.audioNode.getCurrentTime();
-            const inRender = beatmapFile.beatmapRenderData.objectsController.filtered.filter((o) => o.obj instanceof Slider && checkCollide(x, y, o));
+            const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
+            const inRender = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered.filter((o) => o.obj instanceof Slider && checkCollide(x, y, o));
             const selectedSlider = inRender.reduce((selected, current) => {
                 if (Math.abs(current.obj.time - currentTime) < Math.abs(selected.obj.time - currentTime)) return current;
 
                 return selected;
             }, inRender[0] ?? null);
 
-            beatmapFile.beatmapRenderData.objectsController.slidersList.forEach((o) => (o.obj.isHover = false));
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.slidersList.forEach((o) => (o.obj.isHover = false));
 
             if (selectedSlider) selectedSlider.obj.isHover = true;
         });
@@ -353,14 +383,15 @@ export class Game {
         Timestamp.init();
         ProgressBar.init();
         Timeline.init();
+        TimingPanel.init();
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
         globalThis.__PIXI_APP__ = Game.APP;
 
-        HitSample.masterGainNode = audioCtx.createGain();
-        HitSample.masterGainNode.gain.value = hsVol * masterVol;
-        HitSample.masterGainNode.connect(audioCtx.destination);
+        HitSample.masterGainNode = Game.AUDIO_CTX.createGain();
+        HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;
+        HitSample.masterGainNode.connect(Game.AUDIO_CTX.destination);
 
         Game.APP.ticker.add(() => {
             ObjectsController.render();

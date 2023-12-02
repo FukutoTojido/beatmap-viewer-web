@@ -2,6 +2,7 @@ import { Game } from "../Game.js";
 import { Texture } from "../Texture.js";
 import { Beatmap } from "../Beatmap.js";
 import { Skinning } from "../Skinning.js";
+import * as PIXI from "pixi.js";
 
 export class ApproachCircle {
     obj;
@@ -16,14 +17,14 @@ export class ApproachCircle {
     }
 
     draw(timestamp) {
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
         const hdScale = textures.APPROACH_CIRCLE.isHD ? 0.5 : 1;
         this.obj.texture = textures.APPROACH_CIRCLE.texture;
 
-        const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = sliderAppearance.ignoreSkin ? this.hitCircle.colourIdx : this.hitCircle.colourHaxedIdx;
+        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.hitCircle.colourIdx : this.hitCircle.colourHaxedIdx;
         this.obj.tint = colors[idx % colors.length];
 
         let approachRateExpandRate = 1;
@@ -34,7 +35,7 @@ export class ApproachCircle {
         }
 
         const x = this.hitCircle.originalX;
-        const y = !mods.HR ? this.hitCircle.originalY : 384 - this.hitCircle.originalY;
+        const y = !Game.MODS.HR ? this.hitCircle.originalY : 384 - this.hitCircle.originalY;
         const stackDistance = this.hitCircle.stackHeight * Beatmap.moddedStats.stackOffset;
 
         this.obj.x = (x + stackDistance) * Game.SCALE_RATE;
@@ -47,6 +48,6 @@ export class ApproachCircle {
         );
         this.obj.alpha = this.hitCircle.opacity;
 
-        if (mods.HD || timestamp > this.hitCircle.time) this.obj.alpha = 0;
+        if (Game.MODS.HD || timestamp > this.hitCircle.time) this.obj.alpha = 0;
     }
 }

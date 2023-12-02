@@ -2,11 +2,71 @@ import { Game } from "./scripts/Game.js";
 import { loadLocalStorage } from "./scripts/Utils.js";
 import { Texture } from "./scripts/Texture.js";
 import { BeatmapFile } from "./scripts/BeatmapFile.js";
+import { urlParams } from "./scripts/GlobalVariables.js";
 
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
 
+function setupDefaultStorage() {
+    const settingsTemplate = {
+        mirror: {
+            val: "nerinyan",
+            custom: "",
+        },
+        mapping: {
+            beatsnap: 4,
+            offset: 0,
+            showGreenLine: false,
+        },
+        background: {
+            dim: 0.8,
+            blur: 0,
+        },
+        volume: {
+            master: 1,
+            music: 0.5,
+            hs: 0.2,
+        },
+        skinning: {
+            type: "0",
+            val: "-1",
+        },
+        sliderAppearance: {
+            snaking: true,
+            hitAnim: true,
+            ignoreSkin: false,
+        },
+        timeline: {
+            zoomRate: 200,
+        },
+    };
+
+    if (!localStorage.getItem("settings")) {
+        localStorage.setItem("settings", JSON.stringify(settingsTemplate));
+    } else {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        Object.keys(settingsTemplate).forEach((k) => {
+            if (currentLocalStorage[k] === undefined) currentLocalStorage[k] = settingsTemplate[k];
+
+            Object.keys(settingsTemplate[k]).forEach((k2) => {
+                if (currentLocalStorage[k][k2] === undefined) currentLocalStorage[k][k2] = settingsTemplate[k][k2];
+            });
+        });
+
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    }
+}
+
 (async () => {
+    setupDefaultStorage();
+
+    Game.MASTER_VOL = JSON.parse(localStorage.getItem("settings")).volume.master;
+    Game.MUSIC_VOL = JSON.parse(localStorage.getItem("settings")).volume.music;
+    Game.HS_VOL = JSON.parse(localStorage.getItem("settings")).volume.hs;
+    Game.SLIDER_APPEARANCE = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
+    Game.SKINNING = JSON.parse(localStorage.getItem("settings")).skinning;
+    Game.MAPPING = JSON.parse(localStorage.getItem("settings")).mapping;
+
     await loadLocalStorage();
     document.querySelector(".loading").style.opacity = 0;
     document.querySelector(".loading").style.display = "none";
@@ -16,7 +76,7 @@ document.querySelector("#loadingText").textContent = `Initializing`;
     Texture.generateDefaultTextures();
 
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
-        beatmapFile = new BeatmapFile(urlParams.get("b"));
+        Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));
         document.querySelector("#mapInput").value = urlParams.get("b");
     }
 })();

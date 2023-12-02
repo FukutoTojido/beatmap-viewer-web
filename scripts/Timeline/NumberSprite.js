@@ -1,6 +1,8 @@
 import { NumberSprite } from "../HitObjects/NumberSprite.js";
 import { Texture } from "../Texture.js";
 import { Skinning } from "../Skinning.js";
+import { Game } from "../Game.js";
+import * as PIXI from "pixi.js";
 
 export class TintedNumberSprite extends NumberSprite {
     constructor(hitObject) {
@@ -16,7 +18,7 @@ export class TintedNumberSprite extends NumberSprite {
             .toString()
             .split("")
             .forEach((value, idx) => {
-                const skinType = Skinning.SKIN_ENUM[skinning.type];
+                const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
                 const textures = skinType !== "CUSTOM" ? Texture.LEGACY : Texture.CUSTOM[Skinning.SKIN_IDX];
 
                 const sprite = new PIXI.Sprite(textures.DEFAULTS[value].texture);

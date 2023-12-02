@@ -3,6 +3,7 @@ import { closePopup } from "./ProgressBar.js";
 import { Beatmap } from "./Beatmap.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { HitSample, PAudio } from "./Audio.js";
+import { Game } from "./Game.js";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {
@@ -79,45 +80,45 @@ document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySe
 
 // AUDIO
 export function setMasterVolume(slider) {
-    masterVol = slider.value;
+    Game.MASTER_VOL = slider.value;
     document.querySelector("#masterVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.volume.master = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    if (beatmapFile === undefined) return;
+    if (Game.BEATMAP_FILE === undefined) return;
 
-    beatmapFile.audioNode.gainNode.gain.value = masterVol * musicVol;
-    HitSample.masterGainNode.gain.value = masterVol * hsVol;
+    Game.BEATMAP_FILE.audioNode.gainNode.gain.value = Game.MASTER_VOL * Game.MUSIC_VOL;
+    HitSample.masterGainNode.gain.value = Game.MASTER_VOL * Game.HS_VOL;
 }
 document.querySelector("#master").oninput = () => setMasterVolume(document.querySelector("#master"));
 
 export function setAudioVolume(slider) {
-    musicVol = slider.value;
+    Game.MUSIC_VOL = slider.value;
     document.querySelector("#musicVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.volume.music = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    if (beatmapFile === undefined) return;
+    if (Game.BEATMAP_FILE === undefined) return;
 
-    beatmapFile.audioNode.gainNode.gain.value = masterVol * musicVol;
+    Game.BEATMAP_FILE.audioNode.gainNode.gain.value = Game.MASTER_VOL * Game.MUSIC_VOL;
 }
 document.querySelector("#music").oninput = () => setAudioVolume(document.querySelector("#music"));
 
 export function setEffectVolume(slider) {
-    hsVol = slider.value;
+    Game.HS_VOL = slider.value;
     document.querySelector("#effectVal").innerHTML = `${parseInt((slider.value / 0.4) * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.volume.hs = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    if (beatmapFile === undefined) return;
+    if (Game.BEATMAP_FILE === undefined) return;
 
-    HitSample.masterGainNode.gain.value = masterVol * hsVol;
+    HitSample.masterGainNode.gain.value = Game.MASTER_VOL * Game.HS_VOL;
 }
 document.querySelector("#effect").oninput = () => setEffectVolume(document.querySelector("#effect"));
 
@@ -130,12 +131,12 @@ export function setOffset(slider) {
     currentLocalStorage.mapping.offset = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    if (beatmapFile === undefined) return;
+    if (Game.BEATMAP_FILE === undefined) return;
 }
 document.querySelector("#softoffset").oninput = () => setOffset(document.querySelector("#softoffset"));
 
 export function setBeatsnapDivisor(slider) {
-    beatsnap = slider.value;
+    Game.MAPPING.beatsnap = slider.value;
     document.querySelector("#beatVal").innerHTML = `1/${slider.value}`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -153,7 +154,7 @@ export function calculateCurrentSR(modsFlag) {
         mods: modsTemplate.filter((mod, idx) => modsFlag[idx]),
     };
 
-    const blueprintData = osuPerformance.parseBlueprint(beatmapFile.osuFile);
+    const blueprintData = osuPerformance.parseBlueprint(Game.BEATMAP_FILE.osuFile);
     const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
@@ -169,40 +170,40 @@ export function calculateCurrentSR(modsFlag) {
 }
 
 export function handleCheckBox(checkbox) {
-    mods[checkbox.name] = !mods[checkbox.name];
-    sliderAppearance[checkbox.name] = !sliderAppearance[checkbox.name];
-    mapping[checkbox.name] = !mapping[checkbox.name];
+    Game.MODS[checkbox.name] = !Game.MODS[checkbox.name];
+    Game.SLIDER_APPEARANCE[checkbox.name] = !Game.SLIDER_APPEARANCE[checkbox.name];
+    Game.MAPPING[checkbox.name] = !Game.MAPPING[checkbox.name];
 
-    const DTMultiplier = !mods.DT ? 1 : 1.5;
-    const HTMultiplier = !mods.HT ? 1 : 0.75;
+    const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
+    const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
 
     if (["snaking", "hitAnim", "ignoreSkin"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-        currentLocalStorage.sliderAppearance[checkbox.name] = sliderAppearance[checkbox.name];
+        currentLocalStorage.sliderAppearance[checkbox.name] = Game.SLIDER_APPEARANCE[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
     if (["showGreenLine"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-        currentLocalStorage.mapping[checkbox.name] = mapping[checkbox.name];
+        currentLocalStorage.mapping[checkbox.name] = Game.MAPPING[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-        Timeline.SHOW_GREENLINE = mapping[checkbox.name];
+        Timeline.SHOW_GREENLINE = Game.MAPPING[checkbox.name];
 
-        if (mapping[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
+        if (Game.MAPPING[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
         else document.querySelector(".timelineContainer").style.height = "60px";
     }
 
-    if (!beatmapFile) return;
+    if (!Game.BEATMAP_FILE) return;
 
-    const originalIsPlaying = beatmapFile.audioNode.isPlaying;
-    if (beatmapFile.audioNode.isPlaying) beatmapFile.audioNode.pause();
-    playbackRate = 1 * DTMultiplier * HTMultiplier;
+    const originalIsPlaying = Game.BEATMAP_FILE.audioNode.isPlaying;
+    if (Game.BEATMAP_FILE.audioNode.isPlaying) Game.BEATMAP_FILE.audioNode.pause();
+    Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
     Beatmap.updateModdedStats();
 
-    if (originalIsPlaying) beatmapFile.audioNode.play();
+    if (originalIsPlaying) Game.BEATMAP_FILE.audioNode.play();
 
-    calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
+    calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
 }
 [...document.querySelectorAll("input[type=checkbox]")].forEach((ele) => {
     ele.onclick = () => handleCheckBox(ele);

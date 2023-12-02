@@ -6,6 +6,7 @@ import { Skinning } from "../Skinning.js";
 import { HitSample } from "../Audio.js";
 import { HitSound } from "../HitSound.js";
 import { ScoreParser } from "../ScoreParser.js";
+import * as PIXI from "pixi.js";
 
 export class SliderTick {
     hitTime = -1;
@@ -65,7 +66,7 @@ export class SliderTick {
 
     playHitsound(timestamp) {
         if (!this.hitSound) return;
-        if (!beatmapFile.audioNode.isPlaying) return;
+        if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
         if (timestamp < this.info.time || ObjectsController.lastTimestamp >= this.info.time) return;
 
         if (!ScoreParser.REPLAY_DATA) {
@@ -77,7 +78,7 @@ export class SliderTick {
     draw(timestamp) {
         this.playHitsound(timestamp);
 
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
 
         // This appears to be a very bullshit implementation from me so please do not follow T.T
         const appearTime =
@@ -92,15 +93,15 @@ export class SliderTick {
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
         let { x, y } = this.info;
-        if (mods.HR) y = 384 - y;
+        if (Game.MODS.HR) y = 384 - y;
 
         this.obj.x = (x + this.slider.stackHeight * currentStackOffset) * Game.SCALE_RATE;
         this.obj.y = (y + this.slider.stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
         this.graphic.tint = 0xffffff;
         if (skinType !== "LEGACY" && skinType !== "CUSTOM") {
-            const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-            const idx = sliderAppearance.ignoreSkin ? this.slider.colourIdx : this.slider.colourHaxedIdx;
+            const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+            const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.slider.colourIdx : this.slider.colourHaxedIdx;
             const color = colors[idx % colors.length];
 
             this.graphic.tint = color;

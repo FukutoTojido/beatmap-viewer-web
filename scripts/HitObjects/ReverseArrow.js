@@ -5,6 +5,7 @@ import { ObjectsController } from "./ObjectsController.js";
 import { Clamp, easeOutSine } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
+import * as PIXI from "pixi.js";
 
 export class ReverseArrow {
     baseSlider;
@@ -56,7 +57,7 @@ export class ReverseArrow {
     }
 
     playHitsound(timestamp) {
-        if (!beatmapFile.audioNode.isPlaying) return;
+        if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
         if (timestamp < this.time || ObjectsController.lastTimestamp >= this.time) return;
 
         if (!ScoreParser.REPLAY_DATA) {
@@ -76,7 +77,7 @@ export class ReverseArrow {
 
     draw(timestamp) {
         this.playHitsound(timestamp);
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
         this.ringSprite.texture = textures.REVERSE_ARROW.ring.texture;
@@ -85,11 +86,11 @@ export class ReverseArrow {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
-        const y = !mods.HR ? this.position.y : 384 - this.position.y;
+        const y = !Game.MODS.HR ? this.position.y : 384 - this.position.y;
 
         this.obj.x = (this.position.x + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
-        this.obj.rotation = !mods.HR ? this.angle : Math.PI * 2 - this.angle;
+        this.obj.rotation = !Game.MODS.HR ? this.angle : Math.PI * 2 - this.angle;
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
@@ -120,7 +121,7 @@ export class ReverseArrow {
             return;
         }
 
-        if (mods.HD) {
+        if (Game.MODS.HD) {
             this.obj.alpha = 1;
 
             if (timestamp > this.time) this.obj.alpha = 0;

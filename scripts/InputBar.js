@@ -3,6 +3,8 @@ import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { BeatmapFile } from "./BeatmapFile.js";
 import { Skinning } from "./Skinning.js";
 import { ScoreParser } from "./ScoreParser.js";
+import { Game } from "./Game.js";
+import { createDifficultyElement } from "./Utils.js";
 
 document.querySelector("#mapInput").onkeydown = mapInputEnter;
 function mapInputEnter(e) {
@@ -42,15 +44,15 @@ document.querySelector("#close").onclick = () => {
 };
 
 export function loadDiff() {
-    diffFileName = this.dataset.filename;
+    Game.DIFF_FILE_NAME = this.dataset.filename;
     document.querySelector(".difficultySelector").style.display = "none";
 
     submitMap(true);
 }
 
 export async function readZip(file) {
-    dropBlob = null;
-    diffFileName = "";
+    Game.DROP_BLOB = null;
+    Game.DIFF_FILE_NAME = "";
 
     const mapFileBlob = file;
     const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
@@ -104,7 +106,7 @@ export async function readZip(file) {
 
     for (const obj of diffs) diffList.appendChild(obj.ele);
 
-    dropBlob = file;
+    Game.DROP_BLOB = file;
     zipReader.close();
 }
 
@@ -125,16 +127,16 @@ export function submitMap(isDragAndDrop, beatmapID) {
 
     const bID = inputValue.split("/").at(-1);
 
-    if (beatmapFile !== undefined) {
-        beatmapFile.audioNode?.pause();
+    if (Game.BEATMAP_FILE !== undefined) {
+        Game.BEATMAP_FILE.audioNode?.pause();
     }
 
     const origin = window.location.origin;
 
     if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${bID}`);
     
-    beatmapFile = undefined;
-    beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
+    Game.BEATMAP_FILE = undefined;
+    Game.BEATMAP_FILE = new BeatmapFile(bID ?? -1, isDragAndDrop);
 
     document.querySelector("#mapInput").value = !isDragAndDrop ? bID : "";
 }

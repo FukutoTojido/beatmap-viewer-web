@@ -4,7 +4,9 @@ import { TimelineHitCircle } from "./HitCircle.js";
 import { TimelineReverseArrow } from "./ReverseArrow.js";
 import { Clamp } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
+import { Game } from "../Game.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as PIXI from "pixi.js";
 
 const vertexShader = `
 precision mediump float;
@@ -139,13 +141,13 @@ export class TimelineSlider {
 
         const handleClickEvent = (e) => {
             const { x, y } = this.obj.toLocal(e.global);
-            if (selectedHitObject.includes(this.hitObject.time)) return;
+            if (Game.SELECTED.includes(this.hitObject.time)) return;
 
             if (x < this.headPosition - (Timeline.HEIGHT - 20) / 2 || x > this.headPosition + this.length * this.ratio + Timeline.HEIGHT / 1.5 / 2)
                 return;
 
-            if (!e.ctrlKey) selectedHitObject = [];
-            if (!selectedHitObject.includes(this.hitObject.time)) selectedHitObject.push(this.hitObject.time);
+            if (!e.ctrlKey) Game.SELECTED = [];
+            if (!Game.SELECTED.includes(this.hitObject.time)) Game.SELECTED.push(this.hitObject.time);
 
             Timeline.hitArea.isObjectSelecting = true;
             // console.log(this.obj.x, this.obj.y, x, y);
@@ -168,14 +170,14 @@ export class TimelineSlider {
         const time = this.hitObject.time;
         const delta = timestamp - time;
 
-        const selected = selectedHitObject.includes(time);
+        const selected = Game.SELECTED.includes(time);
 
         const center = Timeline.WIDTH / 2;
 
         this.length = ((this.hitObject.endTime - this.hitObject.time) / 500) * Timeline.ZOOM_DISTANCE;
 
-        const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = sliderAppearance.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
+        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
         const tint =
             idx === -1
                 ? [1.0, 1.0, 1.0]

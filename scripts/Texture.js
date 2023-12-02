@@ -1,4 +1,5 @@
 import { Game } from "./Game.js"
+import * as PIXI from "pixi.js";
 
 export class Texture {
     static SELECTED;
@@ -21,6 +22,7 @@ export class Texture {
         APPROACH_CIRCLE: null,
     };
     static CUSTOM = {};
+    static SLIDER_TEXTURE;
 
     static createSelectedHitCircle() {
         return new PIXI.Graphics()
