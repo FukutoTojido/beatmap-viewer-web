@@ -164,6 +164,9 @@ class HitSample {
             }
 
             src.connect(isLoop ? this.gainNode : gainNode);
+            src.ended = () => {
+                src.disconnect();
+            }
 
             // this.gainNode.gain.value = this.vol;
             this.gainNode.connect(HitSample.masterGainNode);
@@ -190,7 +193,10 @@ class HitSample {
         }
 
         if (!higherThanStart || !lowerThanEnd || !beatmapFile.audioNode.isPlaying) {
-            this.srcs.forEach((src) => src.stop());
+            this.srcs.forEach((src) => {
+                src.stop()
+                src.disconnect();
+            });
             this.isPlaying = false;
         }
     }
