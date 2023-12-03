@@ -319,6 +319,14 @@
     "@pixi/settings" "7.3.2"
     "@pixi/utils" "7.3.2"
 
+"@pixi/ui@^0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@pixi/ui/-/ui-0.10.1.tgz#73f57de1ad87a45a4fbbdc96ac0e0e05ce389a1b"
+  integrity sha512-PzE9Y/GX0inw5n+9lYcvYI++QMIDVf9hLEd5CNc/lIlimnyOuNHdNJuRCJHfDmBVtWZa9kMWzqIetv0a7k+0tQ==
+  dependencies:
+    tweedle.js "^2.1.0"
+    typed-signals "^2.5.0"
+
 "@pixi/utils@7.3.2":
   version "7.3.2"
   resolved "https://registry.yarnpkg.com/@pixi/utils/-/utils-7.3.2.tgz#556499eae6439259551ab9b86efb039522b61611"
@@ -391,6 +399,11 @@
   version "4.6.1"
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.6.1.tgz#45785b5caf83200a34a9867ba50d69560880c120"
   integrity sha512-0zfTlFAIhgz8V2G8STq8toAjsYYA6eci1hnXuyOTUFnymrtJwnS6uGKiv3v5UrPZkBlamLvrLV2iiaeqCKzb0A==
+
+"@tweenjs/tween.js@^21.0.0":
+  version "21.0.0"
+  resolved "https://registry.yarnpkg.com/@tweenjs/tween.js/-/tween.js-21.0.0.tgz#73f993c2d1de37b78b4c1246163e20bc6ae3b75e"
+  integrity sha512-qVfOiFh0U8ZSkLgA6tf7kj2MciqRbSCWaJZRwftVO7UbtVDNsZAXpWXqvCDtIefvjC83UJB+vHTDOGm5ibXjEA==
 
 "@types/css-font-loading-module@^0.0.7":
   version "0.0.7"
@@ -700,6 +713,16 @@ source-map-js@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
+
+tweedle.js@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tweedle.js/-/tweedle.js-2.1.0.tgz#523f5d50e5223c3c809b1aa627c6e9648e576d93"
+  integrity sha512-0ReQgVjepoZkE6t0upWNgCRbplHkQJQYk1LStXugwSR728GLFmGDRuaQJlxeC/iBlxud6+P1RdODjaO25vHAqw==
+
+typed-signals@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/typed-signals/-/typed-signals-2.5.0.tgz#7be73505c2ee0dc4e43f1c4ee002c855796bd89a"
+  integrity sha512-m9lHc3eBCJerXYdx+G0uWZihyUXdqTzzgOdqiDDsoUo75WjhFJH6vP5/6w/xhyu04zoxHUqgYhf9FEt85dk/Ng==
 
 url@^0.11.0:
   version "0.11.3"

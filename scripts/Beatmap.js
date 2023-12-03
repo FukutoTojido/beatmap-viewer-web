@@ -15,6 +15,7 @@ import { Skinning } from "./Skinning.js";
 import { HitSample } from "./Audio.js";
 import { HitSound } from "./HitSound.js";
 import { Texture } from "./Texture.js";
+import { TimingPanel } from "./TimingPanel.js";
 
 export class Beatmap {
     objectsController;
@@ -437,7 +438,6 @@ export class Beatmap {
 
         Beatmap.stackThreshold = Beatmap.stats.preempt * Beatmap.stats.stackLeniency;
 
-
         const difficultyPosition = rawBeatmap.indexOf("[Difficulty]") + "[Difficulty]\r\n".length;
         const timingPosition = rawBeatmap.indexOf("[TimingPoints]") + "[TimingPoints]\r\n".length;
         const colourPosition = rawBeatmap.indexOf("[Colours]") + "[Colours]\r\n".length;
@@ -482,7 +482,8 @@ export class Beatmap {
                 const params = timingPoint.split(",");
                 return {
                     time: parseInt(params[0]),
-                    svMultiplier: params[1] > 0 ? 1 : parseFloat(((-1 / params[1]) * 100).toFixed(2)),
+                    beatstep: parseFloat(params[1]) > 0 ? parseFloat(params[1]) : undefined,
+                    svMultiplier: parseFloat(params[1]) > 0 ? 1 : parseFloat(((-1 / params[1]) * 100).toFixed(2)),
                     sampleSet: parseInt(params[3] ?? "0"),
                     sampleIdx: parseInt(params[4] ?? "0"),
                     sampleVol: parseInt(params[5] ?? "100"),
@@ -506,6 +507,7 @@ export class Beatmap {
 
         // Beatmap.loadProgressBar();
         ProgressBar.initTimingPoints();
+        TimingPanel.initTimingPoints();
         // Beatmap.loadTimingPoints();
 
         // console.log(beatStepsList, timingPointsList);

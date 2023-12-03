@@ -16,6 +16,9 @@ export class ProgressBar {
     static WIDTH;
     static HEIGHT;
 
+    static TIMELINE_WIDTH;
+    static TIMELINE_HEIGHT;
+
     static PERCENTAGE = 0;
     static IS_DRAGGING = false;
     static IS_HOVERING = false;
@@ -101,48 +104,22 @@ export class ProgressBar {
     }
 
     static initTimingPoints() {
-        const children = this.timeline.removeChildren();
-        children.forEach((child) => child.destroy());
+        this.timeline.clear();
+        this.timeline.x = 40 * devicePixelRatio;
+        this.timeline.y = 10 * devicePixelRatio;
 
-        this.timelineObjs = [];
-
-        const fullTime = Game.BEATMAP_FILE.audioNode.duration;
-        const width = this.WIDTH - 80 * window.devicePixelRatio;
-        const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
-
-        Beatmap.mergedPoints.forEach((point) => {
-            const x = (point.time / fullTime) * width;
-
-            const line = new PIXI.Graphics()
-                .lineStyle({
-                    width: 1,
-                    color: point.beatstep ? 0xf5425a : 0x42f560,
-                })
-                .moveTo(x, 0)
-                .lineTo(x, height);
-
-            line.alpha = 0.5;
-
-            this.timelineObjs.push(line);
-        });
-
-        this.timeline.addChild(...this.timelineObjs);
-    }
-
-    static repositionTimingPoints() {
         if (!Game.BEATMAP_FILE?.audioNode) return;
 
         const fullTime = Game.BEATMAP_FILE.audioNode.duration;
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
-        Beatmap.mergedPoints.forEach((point, idx) => {
+        Beatmap.timingPointsList.forEach((point) => {
             const x = (point.time / fullTime) * width;
 
-            this.timelineObjs[idx]
-                .clear()
+            this.timeline
                 .lineStyle({
-                    width: 1,
+                    width: 1 * devicePixelRatio,
                     color: point.beatstep ? 0xf5425a : 0x42f560,
                 })
                 .moveTo(x, 0)
@@ -168,14 +145,17 @@ export class ProgressBar {
         this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.stage = new PIXI.Container();
 
-        this.timeline = new PIXI.Container();
+        this.timeline = new PIXI.Graphics();
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
-        this.stage.addChild(this.timeline);
+        this.stage.addChildAt(this.timeline, 0);
 
         this.initLine();
         this.initThumb();
         this.initContainer();
+
+        // globalThis.__PIXI_RENDERER__ = this.renderer;
+        // globalThis.__PIXI_STAGE__ = this.stage;
     }
 
     static handleMouseDown(e) {
@@ -221,10 +201,7 @@ export class ProgressBar {
 
         this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.restyle();
-
-        this.timeline.x = 40 * devicePixelRatio;
-        this.timeline.y = 10 * devicePixelRatio;
-        this.repositionTimingPoints();
+        this.initTimingPoints();
 
         this.thumb.y = this.HEIGHT / 2;
 

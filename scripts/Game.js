@@ -7,6 +7,7 @@ import { Slider } from "./HitObjects/Slider.js";
 import { handleCanvasDrag, checkCollide } from "./DragWindow.js";
 import { HitSample } from "./Audio.js";
 import { TimingPanel } from "./TimingPanel.js";
+import * as TWEEN from "@tweenjs/tween.js";
 import * as PIXI from "pixi.js";
 
 export class Game {
@@ -272,7 +273,9 @@ export class Game {
             }
 
             const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
-            const inRender = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered.filter((o) => o.obj instanceof Slider && checkCollide(x, y, o));
+            const inRender = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered.filter(
+                (o) => o.obj instanceof Slider && checkCollide(x, y, o)
+            );
             const selectedSlider = inRender.reduce((selected, current) => {
                 if (Math.abs(current.obj.time - currentTime) < Math.abs(selected.obj.time - currentTime)) return current;
 
@@ -388,13 +391,14 @@ export class Game {
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
-        globalThis.__PIXI_APP__ = Game.APP;
+        // globalThis.__PIXI_APP__ = Game.APP;
 
         HitSample.masterGainNode = Game.AUDIO_CTX.createGain();
         HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;
         HitSample.masterGainNode.connect(Game.AUDIO_CTX.destination);
 
         Game.APP.ticker.add(() => {
+            TWEEN.update();
             ObjectsController.render();
         });
     }

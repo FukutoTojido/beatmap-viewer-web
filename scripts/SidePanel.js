@@ -36,7 +36,7 @@ const openSidePanel = () => {
 const closeSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideOutAnim");
     document.querySelector(".sidePanel").classList.add("slideInAnim");
-    document.querySelector(".timingPanel").classList.remove("show");
+    // document.querySelector(".timingPanel").classList.remove("show");
     document.querySelector(".metadataPanel").classList.remove("show");
 };
 document.querySelector(".closeSidepanel").onclick = closeSidePanel;
