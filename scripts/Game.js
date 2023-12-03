@@ -155,7 +155,8 @@ export class Game {
         grid.alpha = 1;
         grid.scale.set(Game.SCALE_RATE);
 
-        grid.interactive = true;
+        // grid.interactive = true;
+        grid.eventMode = "static";
 
         const clickControl = (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;

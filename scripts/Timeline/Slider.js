@@ -92,7 +92,8 @@ export class TimelineSlider {
 
     constructor(hitObject) {
         this.obj = new PIXI.Container();
-        this.obj.interactive = true;
+        // this.obj.interactive = true;
+        this.obj.eventMode = "static";
 
         this.x = 0;
         this.radius = 30.0 * (118 / 128);

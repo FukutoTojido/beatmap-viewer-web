@@ -51,7 +51,8 @@ export class ProgressBar {
             .endFill();
         this.thumb.y = this.HEIGHT / 2;
 
-        this.thumb.interactive = true;
+        // this.thumb.interactive = true;
+        this.thumb.eventMode = "static";
 
         this.thumb.on("mouseenter", (e) => {
             this.restyle(true);
@@ -69,7 +70,8 @@ export class ProgressBar {
         this.container.addChild(this.thumb);
         this.container.x = 40 * window.devicePixelRatio;
         this.container.hitArea = new PIXI.Rectangle(-40 * window.devicePixelRatio, 0, this.WIDTH, this.HEIGHT);
-        this.container.interactive = true;
+        // this.container.interactive = true;
+        this.container.eventMode = "static";
 
         this.container.on("mousedown", (e) => {
             this.handleMouseDown(e);

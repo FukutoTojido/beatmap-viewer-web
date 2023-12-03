@@ -16,7 +16,8 @@ export class TimelineHitCircle {
 
     constructor(hitObject) {
         this.obj = new PIXI.Container();
-        this.obj.interactive = true;
+        // this.obj.interactive = true;
+        this.obj.eventMode = "static"
         this.hitObject = hitObject;
 
         const hitCircle = new PIXI.Sprite(Texture.LEGACY.HIT_CIRCLE.texture);
