@@ -58,7 +58,7 @@ export class PAudio {
 
             this.src.buffer = this.buf;
             this.src.playbackRate.value = Game.PLAYBACK_RATE;
-            this.src.ended = () => {
+            this.src.onended = () => {
                 const tempCurrentTime = this.getCurrentTime();
 
                 if (tempCurrentTime >= this.buf.duration * 1000) {
@@ -160,8 +160,10 @@ export class HitSample {
             src.connect(HitSample.masterGainNode);
 
             src.start();
-            src.ended = () => src.disconnect();
-            
+            src.onended = () => {
+                src.disconnect();
+            };
+
             this.isPlaying = true;
 
             if (isLoop) src.loop = true;
