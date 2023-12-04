@@ -252,8 +252,7 @@ export class TimingPanel {
     static handleTouchMove(e) {
         if (!this.IS_TOUCHING) return;
 
-        const deltaY =
-            ((e.global.y - this.START_Y_TOUCH) / (this.HEIGHT - this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))) * (this.MAX_HEIGHT - this.HEIGHT);
+        const deltaY = e.global.y - this.START_Y_TOUCH;
 
         this.START_Y_TOUCH = e.global.y;
         this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, this.MAX_HEIGHT - this.HEIGHT);
