@@ -72,15 +72,16 @@ export class PAudio {
             let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
             pitchFactorParam.value = 1 / Game.PLAYBACK_RATE;
 
-            this.src.connect(this.phazeNode);
-            this.phazeNode.connect(this.gainNode);
+            // this.src.connect(this.phazeNode);
+            // this.phazeNode.connect(this.gainNode);
+            this.src.connect(this.gainNode)
             this.gainNode.connect(Game.AUDIO_CTX.destination);
 
             this.startTime = Game.AUDIO_CTX.currentTime * 1000;
             this.absStartTime = performance.now();
             this.src.start(
                 Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
-                this.currentTime / 1000 + 60 / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
+                this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
             document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
@@ -91,7 +92,7 @@ export class PAudio {
         if (this.isPlaying) {
             this.src.stop();
             this.src.disconnect();
-            this.phazeNode.disconnect();
+            // this.phazeNode.disconnect();
             this.gainNode.disconnect();
             this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
             this.isPlaying = false;
