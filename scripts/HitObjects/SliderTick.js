@@ -1,5 +1,5 @@
 import { Beatmap } from "../Beatmap.js";
-import { Clamp, binarySearchNearest, easeOutElastic } from "../Utils.js";
+import { Clamp, binarySearchNearest, binarySearch, easeOutElastic } from "../Utils.js";
 import { Game } from "../Game.js";
 import { ObjectsController } from "./ObjectsController.js";
 import { Skinning } from "../Skinning.js";
@@ -74,8 +74,13 @@ export class SliderTick {
             return;
         }
 
-        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.slider.time);
-        if (evaluation && evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Tick")[this.spanIdx].eval === 1)
+        const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.slider.time, (evaluation, time) => {
+            if (evaluation.time < time) return -1;
+            if (evaluation.time > time) return 1;
+            return 0;
+        });
+
+        if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Tick")[this.spanIdx].eval === 1)
             this.hitSound.play();
     }
 

@@ -2,7 +2,7 @@ import { Game } from "../Game.js";
 import { Texture } from "../Texture.js";
 import { Beatmap } from "../Beatmap.js";
 import { ObjectsController } from "./ObjectsController.js";
-import { Clamp, easeOutSine } from "../Utils.js";
+import { Clamp, easeOutSine, binarySearch } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as PIXI from "pixi.js";
@@ -66,12 +66,13 @@ export class ReverseArrow {
         }
 
         // Will reimplement later;
-        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.baseSlider.time);
-        if (
-            evaluation &&
-            evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[this.idx].eval ===
-                1
-        )
+        const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.baseSlider.time, (evaluation, time) => {
+            if (evaluation.time < time) return -1;
+            if (evaluation.time > time) return 1;
+            return 0;
+        });
+
+        if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[this.idx].eval === 1)
             this.baseSlider.hitSounds.sliderReverse[this.idx].play();
     }
 
@@ -82,7 +83,7 @@ export class ReverseArrow {
 
         this.ringSprite.texture = textures.REVERSE_ARROW.ring.texture;
         this.arrowSprite.texture = textures.REVERSE_ARROW.arrow.texture;
-        
+
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -94,7 +95,8 @@ export class ReverseArrow {
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
-        const baseScale = circleBaseScale * Game.SCALE_RATE * (textures.REVERSE_ARROW.arrow.isHD ? 0.5 : 1) * (236 / 256) ** 2 * (skinType === "ARGON" ? 0.95 : 1);
+        const baseScale =
+            circleBaseScale * Game.SCALE_RATE * (textures.REVERSE_ARROW.arrow.isHD ? 0.5 : 1) * (236 / 256) ** 2 * (skinType === "ARGON" ? 0.95 : 1);
 
         this.arrowSprite.scale.set(baseScale * (1 + easeOutSine(pulseRate) * 0.2));
         this.ringSprite.scale.set(0.5 * (229 / 200) * baseScale);

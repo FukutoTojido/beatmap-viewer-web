@@ -8,7 +8,7 @@ import { SliderGeometryContainers } from "./SliderMesh.js";
 import { SliderBall } from "./SliderBall.js";
 import { ReverseArrow } from "./ReverseArrow.js";
 import { SliderTick } from "./SliderTick.js";
-import { Fixed, Clamp, Dist, Add, FlipHR, LinearEstimation } from "../Utils.js";
+import { Fixed, Clamp, Dist, Add, FlipHR, LinearEstimation, binarySearch } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
@@ -128,8 +128,13 @@ export class Slider {
             }
 
             // Will reimplement later
-            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
-            if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
+            const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.time, (evaluation, time) => {
+                if (evaluation.time < time) return -1;
+                if (evaluation.time > time) return 1;
+                return 0;
+            });
+
+            if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
                 this.hitSounds.sliderHead.play();
             return;
         }
@@ -141,10 +146,16 @@ export class Slider {
             }
 
             // Will reimplement later
-            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
-            if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
+            const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.time, (evaluation, time) => {
+                if (evaluation.time < time) return -1;
+                if (evaluation.time > time) return 1;
+                return 0;
+            });
+
+            if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1) {
                 this.hitSounds.sliderTail.play();
-            return;
+                return;
+            }
         }
     }
 
@@ -625,7 +636,8 @@ export class Slider {
                         if (
                             currentInput.inputArray.length === 0 ||
                             Fixed(
-                                Dist(estimatedInput, !Game.MODS.HR ? sliderParts[sliderPartIdx] : FlipHR(sliderParts[sliderPartIdx])) / (2.4 * radius),
+                                Dist(estimatedInput, !Game.MODS.HR ? sliderParts[sliderPartIdx] : FlipHR(sliderParts[sliderPartIdx])) /
+                                    (2.4 * radius),
                                 5
                             ) > 1
                         ) {
