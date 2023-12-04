@@ -51,6 +51,10 @@ export class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
+            .endFill()
+            .lineStyle()
+            .beginFill(0x88c0d0)
+            .drawCircle(0, 0, 2)
             .endFill();
         this.thumb.y = this.HEIGHT / 2;
 
@@ -114,18 +118,35 @@ export class ProgressBar {
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
-        Beatmap.timingPointsList.forEach((point) => {
-            const x = (point.time / fullTime) * width;
+        Beatmap.timingPointsList
+            .toSorted((a, b) => {
+                if (a.time > b.time) return 1;
+                if (a.time < b.time) return -1;
+                if (a.beatstep) return 1;
+                if (b.beatstep) return -1;
+                return 0;
+            })
+            .forEach((point, idx, arr) => {
+                const x = (point.time / fullTime) * width;
+                const xNext = ((arr[idx + 1]?.time ?? Game.BEATMAP_FILE.audioNode.duration) / fullTime) * width;
 
-            this.timeline
-                .lineStyle({
-                    width: 1 * devicePixelRatio,
-                    color: point.beatstep ? 0xf5425a : 0x42f560,
-                    alpha: 0.6,
-                })
-                .moveTo(x, 0)
-                .lineTo(x, height);
-        });
+                this.timeline
+                    .lineStyle({
+                        width: 1 * devicePixelRatio,
+                        color: point.beatstep ? 0xf5425a : 0x42f560,
+                        alpha: 0.6,
+                    })
+                    .moveTo(x, 0)
+                    .lineTo(x, height);
+
+                if (!point.isKiai) return;
+
+                this.timeline
+                    .lineStyle()
+                    .beginFill(0xf58d42, 0.4)
+                    .drawRect(x, height / 2, xNext - x, height)
+                    .endFill();
+            });
     }
 
     static init() {
@@ -245,6 +266,9 @@ export class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
+            .lineStyle()
+            .beginFill(isHover ? bgColor : accentColor)
+            .drawCircle(0, 0, 2)
             .endFill();
     }
 
