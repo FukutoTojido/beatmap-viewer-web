@@ -117,8 +117,8 @@ export function setEffectVolume(slider) {
     currentLocalStorage.volume.hs = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
+    HitSample.masterGainNode.gain.value = Game.MASTER_VOL * Game.HS_VOL;
     if (Game.BEATMAP_FILE === undefined) return;
-
 }
 document.querySelector("#effect").oninput = () => setEffectVolume(document.querySelector("#effect"));
 

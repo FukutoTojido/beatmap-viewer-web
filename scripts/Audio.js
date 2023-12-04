@@ -118,6 +118,7 @@ export class HitSample {
     isPlaying = false;
 
     srcs = [];
+    gainNode;
     currentTimeout;
 
     static masterGainNode;
@@ -144,6 +145,9 @@ export class HitSample {
 
         this.audioObj.forEach((hs) => {
             const src = Game.AUDIO_CTX.createBufferSource();
+            const gainNode = Game.AUDIO_CTX.createGain();
+
+            gainNode.gain.value = this.vol;
 
             if (HitSample.SAMPLES.MAP[hs]) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
@@ -157,14 +161,17 @@ export class HitSample {
                 src.buffer = samples[hs.replaceAll(/\d/g, "")];
             }
 
-            src.connect(HitSample.masterGainNode);
+            src.connect(gainNode);
+            gainNode.connect(HitSample.masterGainNode);
+
             src.start();
             src.onended = () => {
+                this.isPlaying = false;
                 src.disconnect();
+                gainNode.disconnect();
             };
 
             this.isPlaying = true;
-            if (isLoop) src.loop = true;
 
             this.srcs.push(src);
         });
@@ -172,19 +179,11 @@ export class HitSample {
 
     playLoop(higherThanStart, lowerThanEnd, timeLeft) {
         if (higherThanStart && lowerThanEnd && !this.isPlaying && Game.BEATMAP_FILE.audioNode.isPlaying) {
-            clearTimeout(this.currentTimeout);
             this.play(true);
-
-            this.currentTimeout = setTimeout(() => {
-                this.srcs.forEach((src) => src.stop());
-                this.isPlaying = false;
-            }, timeLeft ?? 0);
         }
 
         if (this.isPlaying && (!higherThanStart || !lowerThanEnd || !Game.BEATMAP_FILE.audioNode.isPlaying)) {
-            this.srcs.forEach((src) => {
-                src.stop();
-            });
+            this.srcs.forEach((src) => src.stop());
             this.isPlaying = false;
         }
     }

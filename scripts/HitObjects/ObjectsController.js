@@ -77,8 +77,6 @@ export class ObjectsController {
         ObjectsController.CURRENT_BPM = currentBPM;
         ObjectsController.CURRENT_SV = currentSV;
 
-        HitSample.masterGainNode.gain.value = Game.MASTER_VOL * Game.HS_VOL * (ObjectsController.CURRENT_SV.sampleVol / 100);
-
         // const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
         // if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {
         //     document.querySelector(".highlightPoint").style.transform = `translateY(${currentPoint * highlightH}px)`;
