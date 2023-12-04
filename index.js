@@ -78,7 +78,23 @@ function setupDefaultStorage() {
     Texture.generateDefaultTextures();
 
     document.body.addEventListener("keydown", (e) => {
-        e.preventDefault();
+        switch (e.key) {
+            case "F6": {
+                e.preventDefault();
+                break;
+            }
+            case "F4": {
+                e.preventDefault();
+                break;
+            }
+            case "o": {
+                e.preventDefault();
+                break;
+            }
+        }
+    });
+
+    document.body.addEventListener("keyup", (e) => {
         switch (e.key) {
             case "F6": {
                 e.preventDefault();
@@ -91,7 +107,12 @@ function setupDefaultStorage() {
                 break;
             }
             case "o": {
-                if (e.ctrlKey) openMenu();
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    openMenu();
+                }
+
+                break;
             }
         }
     });
