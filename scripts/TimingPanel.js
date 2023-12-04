@@ -324,6 +324,7 @@ export class TimingPanel {
             .beginFill(0xaaaaaa, this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1)
             .drawRoundedRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT));
         this.POINTS = [];
+        this.SCROLLED = 0;
         Beatmap.timingPointsList.forEach((point, idx) => {
             this.POINTS.push(new TimingPoint(point, idx));
         });
