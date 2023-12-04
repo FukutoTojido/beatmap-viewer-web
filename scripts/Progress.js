@@ -121,6 +121,7 @@ export class ProgressBar {
                 .lineStyle({
                     width: 1 * devicePixelRatio,
                     color: point.beatstep ? 0xf5425a : 0x42f560,
+                    alpha: 0.6,
                 })
                 .moveTo(x, 0)
                 .lineTo(x, height);

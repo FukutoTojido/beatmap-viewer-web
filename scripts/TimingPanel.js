@@ -32,7 +32,7 @@ class TimingPoint {
             .drawRoundedRect(
                 90 * devicePixelRatio,
                 5 * devicePixelRatio,
-                TimingPanel.WIDTH - 95 * devicePixelRatio,
+                TimingPanel.WIDTH - 105 * devicePixelRatio,
                 30 * devicePixelRatio,
                 5 * devicePixelRatio
             );
@@ -103,7 +103,7 @@ class TimingPoint {
             fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
             fill: 0xffffff,
         });
-        this.volume.x = 280 * devicePixelRatio;
+        this.volume.x = 270 * devicePixelRatio;
         this.volume.y = 20 * devicePixelRatio;
         this.volume.anchor.set(0, 0.5);
 
@@ -114,17 +114,23 @@ class TimingPoint {
     changeColor() {
         const rootCSS = document.querySelector(":root");
         const bg = parseInt(rootCSS.style.getPropertyValue("--primary-4").slice(1), 16);
+        const bgDark = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
+        const accent = parseInt(rootCSS.style.getPropertyValue("--accent-1").slice(1), 16);
 
         this.marker
             .clear()
-            .beginFill(bg)
+            .beginFill(this.timingPoint.isKiai ? accent : bg)
             .drawRoundedRect(
                 90 * devicePixelRatio,
                 5 * devicePixelRatio,
-                TimingPanel.WIDTH - 95 * devicePixelRatio,
+                TimingPanel.WIDTH - 105 * devicePixelRatio,
                 30 * devicePixelRatio,
                 5 * devicePixelRatio
             );
+
+        this.value.style.fill = this.timingPoint.isKiai ? bgDark : 0xffffff;
+        this.sample.style.fill = this.timingPoint.isKiai ? bgDark : 0xffffff;
+        this.volume.style.fill = this.timingPoint.isKiai ? bgDark : 0xffffff;
     }
 
     resize() {
@@ -150,7 +156,7 @@ class TimingPoint {
         this.sample.y = 20 * devicePixelRatio;
 
         this.volume.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.volume.x = 280 * devicePixelRatio;
+        this.volume.x = 270 * devicePixelRatio;
         this.volume.y = 20 * devicePixelRatio;
     }
 
@@ -315,8 +321,9 @@ export class TimingPanel {
         this.MAX_HEIGHT = 40 * devicePixelRatio * Beatmap.timingPointsList.length;
         this.scrollbar
             .clear()
-            .beginFill(0xaaaaaa)
+            .beginFill(0xaaaaaa, this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1)
             .drawRoundedRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT));
+        this.POINTS = [];
         Beatmap.timingPointsList.forEach((point, idx) => {
             this.POINTS.push(new TimingPoint(point, idx));
         });
@@ -341,7 +348,7 @@ export class TimingPanel {
 
         this.scrollbar
             .clear()
-            .beginFill(0xeeeeee)
+            .beginFill(0xaaaaaa, this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1)
             .drawRoundedRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT));
 
         this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
