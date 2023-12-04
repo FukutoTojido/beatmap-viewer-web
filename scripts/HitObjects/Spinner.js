@@ -1,4 +1,11 @@
-class Spinner {
+import { Game } from "../Game.js";
+import { Beatmap } from "../Beatmap.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { Clamp, ApplyModsToTime, TranslateToZero } from "../Utils.js";
+import { ScoreParser } from "../ScoreParser.js";
+import * as PIXI from "pixi.js";
+
+export class Spinner {
     time;
     endTime;
     obj;
@@ -11,7 +18,7 @@ class Spinner {
     colourHaxedIdx = -1;
 
     playHitsound(timestamp) {
-        if (!beatmapFile.audioNode.isPlaying) return;
+        if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
         if (timestamp < this.endTime || ObjectsController.lastTimestamp >= this.endTime) return;
 
         if (!ScoreParser.REPLAY_DATA) {
@@ -20,8 +27,8 @@ class Spinner {
         }
 
         // Will reimplement later for optimization
-        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-        // if (evaluation) this.hitSounds.play();
+        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+        if (evaluation) this.hitSounds.play();
     }
 
     draw(timestamp) {
@@ -30,7 +37,7 @@ class Spinner {
         this.playHitsound(timestamp);
 
         if (timestamp < this.time) {
-            let currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
+            let currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
             const currentFadeIn = currentAR < 5 ? 800 + (400 * (5 - currentAR)) / 5 : currentAR > 5 ? 800 - (500 * (currentAR - 5)) / 5 : 800;
 
             this.obj.alpha = 1 - Math.min(1, Math.max(0, (this.time - timestamp) / currentFadeIn));

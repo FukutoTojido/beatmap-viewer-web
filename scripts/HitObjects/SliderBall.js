@@ -1,4 +1,11 @@
-class SliderBall {
+import { Game } from "../Game.js";
+import { Texture } from "../Texture.js";
+import { Beatmap } from "../Beatmap.js";
+import { Clamp, easeOutQuint } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+import * as PIXI from "pixi.js";
+
+export class SliderBall {
     baseSlider;
 
     obj;
@@ -43,7 +50,7 @@ class SliderBall {
     }
 
     draw(timestamp) {
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
         const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);
@@ -78,20 +85,20 @@ class SliderBall {
 
         if (timestamp < this.baseSlider.time) point = this.baseSlider.realTrackPoints.at(0);
 
-        this.arrow.angle = !mods.HR ? point.angle : -point.angle;
+        this.arrow.angle = !Game.MODS.HR ? point.angle : -point.angle;
 
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         let { x, y } = point;
-        if (mods.HR) y = 384 - y;
+        if (Game.MODS.HR) y = 384 - y;
 
         this.obj.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
 
         this.obj.x = (x + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
 
-        const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = sliderAppearance.ignoreSkin ? this.baseSlider.colourIdx : this.baseSlider.colourHaxedIdx;
+        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.baseSlider.colourIdx : this.baseSlider.colourHaxedIdx;
 
         this.bg.tint = colors[idx % colors.length];
         this.bg.angle = -this.obj.angle;

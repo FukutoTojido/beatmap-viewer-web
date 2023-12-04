@@ -1,4 +1,9 @@
-class PAudio {
+import { Skinning } from "./Skinning.js";
+import { Game } from "./Game.js";
+import { BeatmapFile } from "./BeatmapFile.js";
+import { urlParams } from "./GlobalVariables.js";
+
+export class PAudio {
     buf;
     src;
     phazeNode;
@@ -13,18 +18,16 @@ class PAudio {
 
     async createBufferNode(buf) {
         // console.log(buf);
-        this.buf = await audioCtx.decodeAudioData(buf);
-        setProgressMax();
+        this.buf = await Game.AUDIO_CTX.decodeAudioData(buf);
 
-        if (urlParams.get("b") && urlParams.get("t") && urlParams.get("b") === currentMapId) {
+        if (urlParams.get("b") && urlParams.get("t") && urlParams.get("b") === BeatmapFile.CURRENT_MAPID) {
             this.seekTo(parseInt(urlParams.get("t")));
-            setSliderTime();
         }
 
-        await audioCtx.audioWorklet.addModule("../lib/phase-vocoder.min.js");
-        this.phazeNode = new AudioWorkletNode(audioCtx, "phase-vocoder-processor");
+        await Game.AUDIO_CTX.audioWorklet.addModule("../lib/phase-vocoder.min.js");
+        this.phazeNode = new AudioWorkletNode(Game.AUDIO_CTX, "phase-vocoder-processor");
 
-        this.gainNode = audioCtx.createGain();
+        this.gainNode = Game.AUDIO_CTX.createGain();
 
         this.isLoaded = true;
     }
@@ -49,12 +52,12 @@ class PAudio {
         if (!this.isPlaying && this.gainNode) {
             this.isPlaying = true;
 
-            this.src = audioCtx.createBufferSource();
+            this.src = Game.AUDIO_CTX.createBufferSource();
 
-            this.gainNode.gain.value = musicVol * masterVol;
+            this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL;
 
             this.src.buffer = this.buf;
-            this.src.playbackRate.value = playbackRate;
+            this.src.playbackRate.value = Game.PLAYBACK_RATE;
             this.src.onended = () => {
                 const tempCurrentTime = this.getCurrentTime();
 
@@ -67,20 +70,20 @@ class PAudio {
             };
 
             let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
-            pitchFactorParam.value = 1 / playbackRate;
+            pitchFactorParam.value = 1 / Game.PLAYBACK_RATE;
 
             this.src.connect(this.phazeNode);
             this.phazeNode.connect(this.gainNode);
-            this.gainNode.connect(audioCtx.destination);
+            this.gainNode.connect(Game.AUDIO_CTX.destination);
 
-            this.startTime = audioCtx.currentTime * 1000;
+            this.startTime = Game.AUDIO_CTX.currentTime * 1000;
             this.absStartTime = performance.now();
             this.src.start(
-                audioCtx.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
+                Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
                 this.currentTime / 1000 + 60 / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
-            document.querySelector("#playButton").style.backgroundImage = "url(./static/pause.png)";
+            document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
         }
     }
 
@@ -90,8 +93,7 @@ class PAudio {
             this.src.disconnect();
             this.phazeNode.disconnect();
             this.gainNode.disconnect();
-            // this.currentTime += (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
-            this.currentTime += (performance.now() - this.absStartTime) * playbackRate;
+            this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
             this.isPlaying = false;
             document.querySelector("#playButton").style.backgroundImage = "";
         }
@@ -99,8 +101,7 @@ class PAudio {
 
     getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
-        // return this.currentTime + (audioCtx.currentTime * 1000 - this.startTime) * playbackRate;
-        return this.currentTime + (performance.now() - this.absStartTime) * playbackRate;
+        return this.currentTime + (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
     }
 
     get duration() {
@@ -108,7 +109,7 @@ class PAudio {
     }
 }
 
-class HitSample {
+export class HitSample {
     audioObj;
     sliderHead = false;
     sliderTail = false;
@@ -139,7 +140,7 @@ class HitSample {
         this.vol = vol ?? 1;
 
         if (hitsounds.some((hs) => hs.includes("sliderslide") || hs.includes("sliderwhistle"))) {
-            this.gainNode = audioCtx.createGain();
+            this.gainNode = Game.AUDIO_CTX.createGain();
             this.gainNode.gain.value = this.vol;
         }
         // console.log(this.audioObj);
@@ -150,15 +151,15 @@ class HitSample {
         // this.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
         this.srcs = [];
         this.audioObj.forEach((hs) => {
-            const src = audioCtx.createBufferSource();
-            const gainNode = this.gainNode ?? audioCtx.createGain();
+            const src = Game.AUDIO_CTX.createBufferSource();
+            const gainNode = this.gainNode ?? Game.AUDIO_CTX.createGain();
 
             if (!this.gainNode) gainNode.gain.value = this.vol;
 
             if (HitSample.SAMPLES.MAP[hs]) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
             } else {
-                const skinType = Skinning.SKIN_ENUM[skinning.type];
+                const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
                 const samples =
                     skinType !== "CUSTOM" || !HitSample.SAMPLES.CUSTOM[Skinning.SKIN_IDX]
                         ? HitSample.SAMPLES[skinType]
@@ -186,7 +187,7 @@ class HitSample {
     }
 
     playLoop(higherThanStart, lowerThanEnd, timeLeft) {
-        if (higherThanStart && lowerThanEnd && !this.isPlaying && beatmapFile.audioNode.isPlaying) {
+        if (higherThanStart && lowerThanEnd && !this.isPlaying && Game.BEATMAP_FILE.audioNode.isPlaying) {
             clearTimeout(this.currentTimeout);
             this.play(true);
 
@@ -196,7 +197,7 @@ class HitSample {
             }, timeLeft ?? 0);
         }
 
-        if (!higherThanStart || !lowerThanEnd || !beatmapFile.audioNode.isPlaying) {
+        if (!higherThanStart || !lowerThanEnd || !Game.BEATMAP_FILE.audioNode.isPlaying) {
             this.srcs.forEach((src) => {
                 src.stop();
                 src.disconnect();

@@ -1,3 +1,12 @@
+
+import { ObjectsController } from "./HitObjects/ObjectsController.js";
+import { BeatmapFile } from "./BeatmapFile.js";
+import { Skinning } from "./Skinning.js";
+import { ScoreParser } from "./ScoreParser.js";
+import { Game } from "./Game.js";
+import { createDifficultyElement } from "./Utils.js";
+import osuPerformance from "../lib/osujs.js";
+
 document.querySelector("#mapInput").onkeydown = mapInputEnter;
 function mapInputEnter(e) {
     if (e.key === "Enter") {
@@ -35,16 +44,16 @@ document.querySelector("#close").onclick = () => {
     document.querySelector(".difficultySelector").style.display = "none";
 };
 
-function loadDiff() {
-    diffFileName = this.dataset.filename;
+export function loadDiff() {
+    Game.DIFF_FILE_NAME = this.dataset.filename;
     document.querySelector(".difficultySelector").style.display = "none";
 
     submitMap(true);
 }
 
-async function readZip(file) {
-    dropBlob = null;
-    diffFileName = "";
+export async function readZip(file) {
+    Game.DROP_BLOB = null;
+    Game.DIFF_FILE_NAME = "";
 
     const mapFileBlob = file;
     const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
@@ -98,11 +107,11 @@ async function readZip(file) {
 
     for (const obj of diffs) diffList.appendChild(obj.ele);
 
-    dropBlob = file;
+    Game.DROP_BLOB = file;
     zipReader.close();
 }
 
-function submitMap(isDragAndDrop, beatmapID) {
+export function submitMap(isDragAndDrop, beatmapID) {
     window.cancelAnimationFrame(ObjectsController.requestID);
     
     const inputValue = beatmapID ?? document.querySelector("#mapInput").value.trim();
@@ -119,26 +128,18 @@ function submitMap(isDragAndDrop, beatmapID) {
 
     const bID = inputValue.split("/").at(-1);
 
-    if (beatmapFile !== undefined) {
-        beatmapFile.audioNode?.pause();
-        // beatmapFile.beatmapRenderData?.objectsController.draw(beatmapFile.audioNode.getCurrentTime(), true);
+    if (Game.BEATMAP_FILE !== undefined) {
+        Game.BEATMAP_FILE.audioNode?.pause();
     }
 
     const origin = window.location.origin;
 
     if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${bID}`);
-    // else window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}`);
-
-    if (beatmapFile) {
-        // Game.APP.ticker.remove(beatmapFile.beatmapRenderData.objectsController.render);
-    }
-
-    beatmapFile = undefined;
-    beatmapFile = new BeatmapFile(bID ?? -1, isDragAndDrop);
+    
+    Game.BEATMAP_FILE = undefined;
+    Game.BEATMAP_FILE = new BeatmapFile(bID ?? -1, isDragAndDrop);
 
     document.querySelector("#mapInput").value = !isDragAndDrop ? bID : "";
-    // document.querySelector("#progress").value = 0;
-    // if (document.querySelector("audio")) document.querySelector("audio").currentTime = 0.001;
 }
 
 document.querySelector("#submit").addEventListener("click", () => {

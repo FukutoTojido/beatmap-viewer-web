@@ -1,4 +1,4 @@
-class Database {
+export class Database {
     static db = null;
 
     static initDatabase() {

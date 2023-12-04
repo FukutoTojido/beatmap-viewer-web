@@ -1,3 +1,7 @@
+import { Skinning } from "./Skinning.js";
+import { readZip } from "./InputBar.js";
+import { ScoreParser } from "./ScoreParser.js";
+
 document.querySelector("#playerContainer").addEventListener("dragover", function (e) {
     e.preventDefault();
 });

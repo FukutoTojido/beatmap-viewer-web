@@ -1,6 +1,22 @@
-async function showSelector() {}
+import { Game } from "./Game.js";
+import { Timeline } from "./Timeline/Timeline.js";
+import { Beatmap } from "./Beatmap.js";
+import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound } from "./Utils.js";
+import { go, playToggle } from "./ProgressBar.js";
+import { openMenu, setBeatsnapDivisor } from "./Settings.js";
+import { calculateCurrentSR } from "./Settings.js";
+import { HitSample, PAudio } from "./Audio.js";
+import { ScoreParser } from "./ScoreParser.js";
+import { Notification } from "./Notification.js";
+import { urlParams } from "./GlobalVariables.js";
+import { handleCanvasDrag } from "./DragWindow.js";
+import { closePopup } from "./ProgressBar.js";
+import osuPerformance from "../lib/osujs.js";
+import axios from "axios";
+import ky from "ky";
+import md5 from "crypto-js/md5";
 
-class BeatmapFile {
+export class BeatmapFile {
     isFromFile = false;
     osuFile;
     mapId;
@@ -16,6 +32,8 @@ class BeatmapFile {
     diff;
     md5Map;
     isLoaded = false;
+
+    static CURRENT_MAPID;
 
     constructor(mapId, isFromFile) {
         this.mapId = mapId;
@@ -86,7 +104,7 @@ class BeatmapFile {
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
-            dropBlob = blob;
+            Game.DROP_BLOB = blob;
             return blob;
         } catch (e) {
             // return;
@@ -121,7 +139,7 @@ class BeatmapFile {
         if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
         else document.querySelector("#metadata").removeAttribute("href");
 
-        const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : dropBlob;
+        const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
         const zipReader = new zip.ZipReader(mapFileBlobReader);
         const allEntries = await zipReader.getEntries();
@@ -175,7 +193,7 @@ class BeatmapFile {
 
             for (const obj of diffs) diffList.appendChild(obj.ele);
         } else {
-            const map = allEntries.filter((e) => e.filename === diffFileName).at(0);
+            const map = allEntries.filter((e) => e.filename === Game.DIFF_FILE_NAME).at(0);
             const blob = await map.getData(new zip.BlobWriter("text/plain"));
             this.osuFile = await blob.text();
 
@@ -228,7 +246,7 @@ class BeatmapFile {
 
         const modsTemplate = ["HARD_ROCK", "EASY", "DOUBLE_TIME", "HALF_TIME"];
 
-        const modsFlag = [mods.HR, mods.EZ, mods.DT, mods.HT];
+        const modsFlag = [Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT];
 
         const builderOptions = {
             addStacking: true,
@@ -285,7 +303,7 @@ class BeatmapFile {
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);
             console.log("Background Loaded");
-            document.querySelector("#background").src= `${this.backgroundBlobURL}`;
+            document.querySelector("#background").src = `${this.backgroundBlobURL}`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();
@@ -351,24 +369,18 @@ class BeatmapFile {
 
             Timeline.destruct();
 
-            currentMapId = this.mapId;
-            // audioCtx = new AudioContext();
+            Beatmap.CURRENT_MAPID = this.mapId;
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
             const audioArrayBuffer = await this.getOsz();
-            this.audioArrayBuffer = audioArrayBuffer;
-            // console.log(this.audioArrayBuffer, audioArrayBuffer);
             this.audioNode = new PAudio();
             await this.loadHitsounds();
-            // console.log(this.osuFile, this.audioBlobURL, this.backgroundBlobURL);
-
-            // this.audio = new Audio(this.audioBlobURL);
 
             document.querySelector("#loadingText").textContent = `Setting up Audio`;
             await this.audioNode.createBufferNode(audioArrayBuffer);
 
             document.querySelector("#loadingText").textContent = `Setting up HitObjects`;
-            this.md5Map = CryptoJS.MD5(this.osuFile).toString();
+            this.md5Map = md5(this.osuFile).toString();
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
 
             document.querySelector(".loading").style.opacity = 0;
@@ -393,7 +405,7 @@ class BeatmapFile {
                 document.querySelector("#EZ").disabled = true;
                 document.querySelector("#HT").disabled = true;
 
-                calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
+                calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             } else {
                 document.querySelector("#HD").disabled = false;
                 document.querySelector("#HR").disabled = false;
@@ -432,8 +444,8 @@ class BeatmapFile {
 
                 if (e.key === "c" && e.ctrlKey) {
                     // console.log("Copied");
-                    if (selectedHitObject.length) {
-                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => selectedHitObject.includes(o.obj.time));
+                    if (Game.SELECTED.length) {
+                        const objs = this.beatmapRenderData.objectsController.objectsList.filter((o) => Game.SELECTED.includes(o.obj.time));
                         const obj = objs.reduce((prev, curr) => (prev.obj.time > curr.obj.time ? curr : prev));
                         const currentMiliseconds = Math.floor(obj.obj.time % 1000)
                             .toString()
@@ -449,27 +461,32 @@ class BeatmapFile {
                             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
 
-                        (new Notification("Object(s) timestamp copied")).notify();
+                        new Notification("Object(s) timestamp copied").notify();
                     }
                 }
 
                 if (e.key === "a" && e.ctrlKey) {
                     if (document.activeElement === document.querySelector("#jumpToTime")) return;
                     e.preventDefault();
-                    selectedHitObject = this.beatmapRenderData.objectsController.objectsList
+                    Game.SELECTED = this.beatmapRenderData.objectsController.objectsList
                         .filter((o) => !(o.obj instanceof Spinner))
                         .map((o) => o.obj.time);
                 }
 
                 if (e.key === "Escape") {
-                    selectedHitObject = [];
-
                     if (document.querySelector(".seekTo").open) closePopup();
+                    
+                    if (document.querySelector("#settingsPanel").style.opacity === "1") {
+                        openMenu();
+                        return;
+                    }
+
+                    Game.SELECTED = [];
                 }
             };
 
-            if (urlParams.get("b") === currentMapId && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
-                updateTime(parseInt(urlParams.get("t")));
+            if (urlParams.get("b") === Beatmap.CURRENT_MAPID && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
+                // updateTime(parseInt(urlParams.get("t")));
                 // this.beatmapRenderData.objectsController.draw(parseInt(urlParams.get("t")), true);
             } else {
                 // this.beatmapRenderData.objectsController.draw(this.audioNode.getCurrentTime(), true);
@@ -478,8 +495,8 @@ class BeatmapFile {
             // Game.APP.ticker.add(this.beatmapRenderData.objectsController.render);
 
             const scrollEventHandler = (event) => {
-                if (isDragging && currentX !== -1 && currentY !== -1) {
-                    draggingEndTime = this.audioNode.getCurrentTime();
+                if (Game.IS_DRAGGING && Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
+                    Game.DRAGGING_END = this.audioNode.getCurrentTime();
                     handleCanvasDrag();
                 }
 
@@ -500,7 +517,7 @@ class BeatmapFile {
                 }
 
                 setBeatsnapDivisor(document.querySelector("#beat"));
-                (new Notification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`)).notify();
+                new Notification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`).notify();
 
                 // console.log("Scrolled");
             };
@@ -519,13 +536,13 @@ class BeatmapFile {
             // (new Notification(`Finished map setup`)).notify();
         } catch (err) {
             // alert(err);
-            (new Notification(err)).notify();
+            new Notification(err).notify();
             console.error(err);
 
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
-            beatmapFile = undefined;
+            Game.BEATMAP_FILE = undefined;
         }
     }
 }

@@ -1,38 +1,12 @@
-class BeatTick {
-    obj;
+import { Timeline } from "./Timeline.js";
+import { Beatmap } from "../Beatmap.js";
+import { binarySearchNearest } from "../Utils.js";
+import { ObjectsController } from "../HitObjects/ObjectsController.js";
+import { HitSound } from "../HitSound.js";
+import { Game } from "../Game.js";
+import * as PIXI from "pixi.js";
 
-    constructor() {
-        this.obj = new PIXI.Sprite(Timeline.beatLines.tickTexture);
-        this.obj.anchor.set(0.5, 1);
-        Timeline.beatLines.obj.addChild(this.obj);
-    }
-
-    draw(denominator, index, step, delta) {
-        const center = Timeline.WIDTH / 2;
-
-        this.obj.tint = BeatLines.BEAT_LINE_COLOR[denominator] ?? 0x929292;
-
-        this.obj.x = center + index * step - delta;
-        this.obj.y = Timeline.HEIGHT;
-
-        if (denominator !== 1) this.obj.scale.set(1, 0.5);
-    }
-
-    drawLine(lineTime, type, timestamp) {
-        const center = Timeline.WIDTH / 2;
-        const delta = timestamp - lineTime;
-
-        this.obj.tint = type === "beatStep" ? 0xe34653 : 0x1bcc20;
-
-        this.obj.x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
-        this.obj.y = Timeline.HEIGHT;
-        this.obj.alpha = 0.9;
-
-        this.obj.scale.set(1, 3);
-    }
-}
-
-class GreenLineInfo {
+export class GreenLineInfo {
     greenLine;
     sv;
     sample;
@@ -89,15 +63,12 @@ class GreenLineInfo {
         this.sv.y = 0;
 
         let custom = this.greenLine.sampleIdx != 0 ? `:C${this.greenLine.sampleIdx}` : "";
-        const sampleText = new PIXI.Text(
-            `${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom}`,
-            {
-                fontFamily: "Torus",
-                fontSize: 12,
-                fontWeight: 500,
-                tint: 0x161616,
-            }
-        );
+        const sampleText = new PIXI.Text(`${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom}`, {
+            fontFamily: "Torus",
+            fontSize: 12,
+            fontWeight: 500,
+            tint: 0x161616,
+        });
 
         sampleText.x = 0;
         sampleText.anchor.set(0.5);
@@ -129,7 +100,7 @@ class GreenLineInfo {
     }
 }
 
-class BeatLines {
+export class BeatLines {
     obj;
     ticks = [];
     tickTexture;
@@ -149,30 +120,7 @@ class BeatLines {
     };
 
     constructor() {
-        this.obj = new PIXI.Container();
-        this.createTickTexture();
-    }
-
-    createTickTexture() {
-        const graphic = new PIXI.Graphics().beginFill(0xffffff).drawRect(0, 0, 2, 40).endFill();
-
-        const { width, height } = graphic;
-
-        const renderTexture = PIXI.RenderTexture.create({
-            width: width,
-            height: height,
-            multisample: PIXI.MSAA_QUALITY.MEDIUM,
-        });
-
-        Timeline.APP.renderer.render(graphic, {
-            renderTexture,
-            transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
-        });
-
-        Timeline.APP.renderer.framebuffer.blit();
-        graphic.destroy(true);
-
-        this.tickTexture = renderTexture;
+        this.obj = new PIXI.Graphics();
     }
 
     getLineInRange(time, range, type) {
@@ -202,38 +150,50 @@ class BeatLines {
     }
 
     draw(timestamp) {
+        this.obj.clear();
         const { beatstep: currentBeatStep, time: offset } =
             Beatmap.beatStepsList.findLast((timingPoint) => timingPoint.time < timestamp) ?? Beatmap.beatStepsList[0];
         const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500;
 
-        const beatStepList = this.getLineInRange(timestamp, range, "beatStepsList");
-        const timingPointList = this.getLineInRange(timestamp, range, "timingPointsList");
+        const timingPointList = this.getLineInRange(timestamp, range, "timingPointsList").toSorted((a, b) => {
+            if (a.time > b.time) return 1;
+            if (a.time < b.time) return -1;
+            if (a.beatstep) return 1;
+            if (b.beatstep) return -1;
+            return 0;
+        });
 
-        const snap = parseInt(beatsnap);
+        const snap = parseInt(Game.MAPPING.beatsnap);
         const dividedStep = currentBeatStep / snap;
 
         const relativePosition = timestamp - offset;
         const relativeTickPassed = Math.round(relativePosition / dividedStep);
         const nearestTick = offset + relativeTickPassed * dividedStep;
 
-        // console.log(whiteTicksNum);
         const step = dividedStep * (Timeline.ZOOM_DISTANCE / 500);
         const delta = (timestamp - nearestTick) * (Timeline.ZOOM_DISTANCE / 500);
         const ticksNumber = Math.floor(range / dividedStep);
 
-        while (this.ticks.length < ticksNumber * 2 + 1 + beatStepList.length + timingPointList.length) {
-            this.ticks.push(new BeatTick());
+        const center = Timeline.WIDTH / 2;
+
+        for (let i = 0; i < timingPointList.length; i++) {
+            const delta = timestamp - timingPointList[i].time;
+
+            const x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
+            const y = Timeline.HEIGHT;
+
+            this.obj
+                .lineStyle({
+                    width: 1,
+                    color: timingPointList[i].beatstep ? 0xe34653 : 0x1bcc20,
+                    alignment: 0.5,
+                    alpha: 0.9
+                })
+                .moveTo(x, y)
+                .lineTo(x, y - 40 * devicePixelRatio);
         }
 
-        while (this.ticks.length > ticksNumber * 2 + 1 + beatStepList.length + timingPointList.length) {
-            const sprite = this.ticks.pop();
 
-            if (!sprite) break;
-            this.obj.removeChild(sprite.obj);
-            sprite.obj.destroy();
-        }
-
-        let idxCount = 0;
         for (let i = -ticksNumber; i <= ticksNumber; i++) {
             const tickTime = nearestTick + i * dividedStep - offset;
             const whiteTickPassed = Math.round(tickTime / currentBeatStep);
@@ -243,18 +203,16 @@ class BeatLines {
             if (snap === 5 || snap === 10) denominator = 5;
             if (denominator > 48) denominator = 1;
 
-            this.ticks[i + ticksNumber].draw(denominator, i, step, delta);
-
-            idxCount++;
-        }
-
-        for (let i = 0; i < timingPointList.length; i++) {
-            this.ticks[i + idxCount].drawLine(timingPointList[i].time, "timingPoint", timestamp);
-        }
-        idxCount += timingPointList.length;
-
-        for (let i = 0; i < beatStepList.length; i++) {
-            this.ticks[i + idxCount].drawLine(beatStepList[i].time, "beatStep", timestamp);
+            const x = center + i * step - delta;
+            const y = Timeline.HEIGHT;
+            this.obj
+                .lineStyle({
+                    width: 1,
+                    color: BeatLines.BEAT_LINE_COLOR[denominator] ?? 0x929292,
+                    alignment: 0.5,
+                })
+                .moveTo(x, y)
+                .lineTo(x, y - 10 * devicePixelRatio);
         }
 
         this.drawList.forEach((line) => {

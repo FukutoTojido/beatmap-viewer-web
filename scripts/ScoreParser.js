@@ -1,4 +1,16 @@
-class ScoreParser {
+import { Judgement } from "./Judgement.js";
+import { Game } from "./Game.js";
+import { Replay } from "../lib/osr-parser.js";
+import { submitMap } from "./InputBar.js";
+import { ApplyModsToTime } from "./Utils.js";
+import { Spinner } from "./HitObjects/Spinner.js";
+import { HitCircle } from "./HitObjects/HitCircle.js";
+import { Slider } from "./HitObjects/Slider.js";
+import { Beatmap } from "./Beatmap.js";
+import { calculateCurrentSR } from "./Settings.js";
+import axios from "axios";
+
+export class ScoreParser {
     static BLOB;
     static REPLAY_DATA;
     static CURSOR_DATA;
@@ -87,9 +99,9 @@ class ScoreParser {
         ScoreParser.EVAL_LIST = [];
 
         while (currentInputIdx < ScoreParser.CURSOR_DATA.length) {
-            if (currentObjIdx >= beatmapFile.beatmapRenderData.objectsController.objectsList.length) break;
+            if (currentObjIdx >= Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList.length) break;
 
-            const currentObj = beatmapFile.beatmapRenderData.objectsController.objectsList[currentObjIdx].obj;
+            const currentObj = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[currentObjIdx].obj;
             const currentInput = ScoreParser.CURSOR_DATA[currentInputIdx];
 
             if (ScoreParser.EVAL_LIST.at(-1)?.time === currentObj.time) {
@@ -156,7 +168,7 @@ class ScoreParser {
                           };
 
                 const obj = new Judgement(judgementTime, ScoreParser.MODS.includes("ScoreV2") ? val.valV2 : val.val, currentObj.stackHeight, pos);
-                beatmapFile.beatmapRenderData.objectsController.judgementList.push(obj);
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.judgementList.push(obj);
             }
 
             currentInputIdx++;
@@ -488,11 +500,11 @@ class ScoreParser {
                     return accumulated;
                 }, []);
 
-            mods.HD = ScoreParser.MODS.includes("Hidden");
-            mods.HR = ScoreParser.MODS.includes("HardRock");
-            mods.EZ = ScoreParser.MODS.includes("Easy");
-            mods.DT = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
-            mods.HT = ScoreParser.MODS.includes("HalfTime");
+            Game.MODS.HD = ScoreParser.MODS.includes("Hidden");
+            Game.MODS.HR = ScoreParser.MODS.includes("HardRock");
+            Game.MODS.EZ = ScoreParser.MODS.includes("Easy");
+            Game.MODS.DT = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
+            Game.MODS.HT = ScoreParser.MODS.includes("HalfTime");
 
             document.querySelector("#HD").checked = ScoreParser.MODS.includes("Hidden");
             document.querySelector("#HR").checked = ScoreParser.MODS.includes("HardRock");
@@ -521,17 +533,15 @@ class ScoreParser {
 
                 const img = document.createElement("img");
                 img.classList.add("mod");
-                img.src = `./static/mods/${mod}.png`;
+                img.src = `/static/mods/${mod}.png`;
 
                 div.appendChild(img);
                 document.querySelector(".modsList").appendChild(div);
             });
 
-            
-
-            const DTMultiplier = !mods.DT ? 1 : 1.5;
-            const HTMultiplier = !mods.HT ? 1 : 0.75;
-            playbackRate = 1 * DTMultiplier * HTMultiplier;
+            const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
+            const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
+            Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
 
             ScoreParser.MOD_MULTIPLIER = ScoreParser.MODS.reduce(
                 (prev, curr) => {
@@ -549,7 +559,7 @@ class ScoreParser {
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";
 
-            if (ScoreParser.REPLAY_DATA.md5map !== beatmapFile?.md5Map) {
+            if (ScoreParser.REPLAY_DATA.md5map !== Game.BEATMAP_FILE?.md5Map) {
                 const mapData = await this.getMapData(ScoreParser.REPLAY_DATA.md5map);
                 if (!mapData.beatmap_id) {
                     throw "Map is not available online!";
@@ -565,7 +575,7 @@ class ScoreParser {
             document.querySelector("#EZ").disabled = true;
             document.querySelector("#HT").disabled = true;
 
-            calculateCurrentSR([mods.HR, mods.EZ, mods.DT, mods.HT]);
+            calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             // console.log(ScoreParser.REPLAY_DATA, ScoreParser.CURSOR_DATA, ScoreParser.MODS);
         } catch (error) {
             ScoreParser.reset();

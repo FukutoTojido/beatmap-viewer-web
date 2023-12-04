@@ -1,4 +1,9 @@
-class Judgement {
+import { easeOutSine, easeOutQuint, Clamp } from "./Utils.js";
+import { Game } from "./Game.js";
+import { Beatmap } from "./Beatmap.js";
+import * as PIXI from "pixi.js";
+
+export class Judgement {
     val;
     pos;
     stackHeight;
@@ -54,7 +59,7 @@ class Judgement {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-        const y = !mods.HR
+        const y = !Game.MODS.HR
             ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
             : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
 
@@ -70,7 +75,7 @@ class Judgement {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-        const y = !mods.HR
+        const y = !Game.MODS.HR
             ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
             : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
 

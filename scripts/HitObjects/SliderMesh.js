@@ -1,12 +1,8 @@
-function lighten(color, amount) {
-    amount *= 0.25;
-    return Math.min(1, color * (1 + 0.5 * amount) + 1 * amount);
-}
-
-function darken(color, amount) {
-    // amount = 1 - amount;
-    return (color * (47 + (100 - 47) * amount)) / 255;
-}
+import { Game } from "../Game.js";
+import { Beatmap } from "../Beatmap.js";
+import { Skinning } from "../Skinning.js";
+import { Texture } from "../Texture.js";
+import * as PIXI from "pixi.js";
 
 // Ported from https://github.com/111116/webosu/blob/master/scripts/SliderMesh.js
 // Also have a visit at http://osugame.online/ , very cool tbh
@@ -127,7 +123,7 @@ void main() {
     gl_FragColor = min(alpha * a, 1.0) * color;
 }`;
 
-function newTexture(colors, SliderTrackOverride, SliderBorder) {
+export function newTexture() {
     const width = 400;
 
     let buff = new Uint8Array(width * 4);
@@ -243,7 +239,7 @@ function circleGeometry(radius) {
     return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
 }
 
-class SliderGeometryContainers {
+export class SliderGeometryContainers {
     curve;
     geometry;
 
@@ -287,7 +283,7 @@ class SliderMesh extends PIXI.Container {
     }
 
     initiallize(geometry, circle, isSelected) {
-        const inverse = mods.HR ? -1 : 1;
+        const inverse = Game.MODS.HR ? -1 : 1;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -301,10 +297,10 @@ class SliderMesh extends PIXI.Container {
             oy: inverse * 1 * (Game.HEIGHT / Game.APP.view.height) + inverse * dy * this.slider.stackHeight * currentStackOffset,
         };
 
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
 
         this.ncolors = 1;
-        this.uSampler2 = SliderTexture;
+        this.uSampler2 = Texture.SLIDER_TEXTURE;
         this.select = isSelected;
         this.circle = circle;
         this.geometry = geometry;
@@ -321,7 +317,7 @@ class SliderMesh extends PIXI.Container {
             circleBaseScale,
             sliderBorder: skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0] ?? [1.0, 1.0, 1.0, 1.0],
             sliderTrackOverride: skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint ?? this.tint,
-            skinning: parseFloat(skinning.type),
+            skinning: parseFloat(Game.SKINNING.type),
         };
         this.shader = PIXI.Shader.from(vertexSrc, fragmentSrc, this.uniforms);
         // console.log(this.shader)
@@ -332,7 +328,7 @@ class SliderMesh extends PIXI.Container {
     }
 
     _renderDefault(renderer) {
-        const inverse = mods.HR ? -1 : 1;
+        const inverse = Game.MODS.HR ? -1 : 1;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -353,7 +349,7 @@ class SliderMesh extends PIXI.Container {
         }
         renderer.batch.flush();
 
-        const skinType = Skinning.SKIN_ENUM[skinning.type];
+        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
 
         // upload color info to shared shader uniform
         this.uniforms.alpha = this.alpha;
@@ -365,7 +361,7 @@ class SliderMesh extends PIXI.Container {
         this.uniforms.dt = 0;
         this.uniforms.ot = 0.5;
         this.uniforms.tint = this.tint;
-        this.uniforms.skinning = parseFloat(skinning.type);
+        this.uniforms.skinning = parseFloat(Game.SKINNING.type);
         this.uniforms.select = this.select;
         this.uniforms.circleBaseScale = circleBaseScale;
         this.uniforms.sliderBorder = (skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0]) ?? [1.0, 1.0, 1.0, 1.0];

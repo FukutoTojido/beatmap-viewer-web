@@ -1,4 +1,10 @@
-class ProgressBar {
+import { Beatmap } from "./Beatmap.js";
+import { Clamp } from "./Utils.js";
+import { setAudioTime } from "./ProgressBar.js";
+import { Game } from "./Game.js";
+import * as PIXI from "pixi.js";
+
+export class ProgressBar {
     static renderer;
     static stage;
     static container;
@@ -9,6 +15,9 @@ class ProgressBar {
 
     static WIDTH;
     static HEIGHT;
+
+    static TIMELINE_WIDTH;
+    static TIMELINE_HEIGHT;
 
     static PERCENTAGE = 0;
     static IS_DRAGGING = false;
@@ -42,10 +51,15 @@ class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
+            .endFill()
+            .lineStyle()
+            .beginFill(0x88c0d0)
+            .drawCircle(0, 0, 2)
             .endFill();
         this.thumb.y = this.HEIGHT / 2;
 
-        this.thumb.interactive = true;
+        // this.thumb.interactive = true;
+        this.thumb.eventMode = "static";
 
         this.thumb.on("mouseenter", (e) => {
             this.restyle(true);
@@ -63,7 +77,8 @@ class ProgressBar {
         this.container.addChild(this.thumb);
         this.container.x = 40 * window.devicePixelRatio;
         this.container.hitArea = new PIXI.Rectangle(-40 * window.devicePixelRatio, 0, this.WIDTH, this.HEIGHT);
-        this.container.interactive = true;
+        // this.container.interactive = true;
+        this.container.eventMode = "static";
 
         this.container.on("mousedown", (e) => {
             this.handleMouseDown(e);
@@ -93,53 +108,45 @@ class ProgressBar {
     }
 
     static initTimingPoints() {
-        const children = this.timeline.removeChildren();
-        children.forEach((child) => child.destroy());
+        this.timeline.clear();
+        this.timeline.x = 40 * devicePixelRatio;
+        this.timeline.y = 10 * devicePixelRatio;
 
-        this.timelineObjs = [];
+        if (!Game.BEATMAP_FILE?.audioNode) return;
 
-        const fullTime = beatmapFile.audioNode.duration;
+        const fullTime = Game.BEATMAP_FILE.audioNode.duration;
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
-        Beatmap.mergedPoints.forEach((point) => {
-            const x = (point.time / fullTime) * width;
+        Beatmap.timingPointsList
+            .toSorted((a, b) => {
+                if (a.time > b.time) return 1;
+                if (a.time < b.time) return -1;
+                if (a.beatstep) return 1;
+                if (b.beatstep) return -1;
+                return 0;
+            })
+            .forEach((point, idx, arr) => {
+                const x = (point.time / fullTime) * width;
+                const xNext = ((arr[idx + 1]?.time ?? Game.BEATMAP_FILE.audioNode.duration) / fullTime) * width;
 
-            const line = new PIXI.Graphics()
-                .lineStyle({
-                    width: 1,
-                    color: point.beatstep ? 0xf5425a : 0x42f560,
-                })
-                .moveTo(x, 0)
-                .lineTo(x, height);
+                this.timeline
+                    .lineStyle({
+                        width: 1 * devicePixelRatio,
+                        color: point.beatstep ? 0xf5425a : 0x42f560,
+                        alpha: 0.6,
+                    })
+                    .moveTo(x, 0)
+                    .lineTo(x, height);
 
-            line.alpha = 0.5;
+                if (!point.isKiai) return;
 
-            this.timelineObjs.push(line);
-        });
-
-        this.timeline.addChild(...this.timelineObjs);
-    }
-
-    static repositionTimingPoints() {
-        if (!beatmapFile?.audioNode) return;
-
-        const fullTime = beatmapFile.audioNode.duration;
-        const width = this.WIDTH - 80 * window.devicePixelRatio;
-        const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
-
-        Beatmap.mergedPoints.forEach((point, idx) => {
-            const x = (point.time / fullTime) * width;
-
-            this.timelineObjs[idx]
-                .clear()
-                .lineStyle({
-                    width: 1,
-                    color: point.beatstep ? 0xf5425a : 0x42f560,
-                })
-                .moveTo(x, 0)
-                .lineTo(x, height);
-        });
+                this.timeline
+                    .lineStyle()
+                    .beginFill(0xf58d42, 0.4)
+                    .drawRect(x, height / 2, xNext - x, height)
+                    .endFill();
+            });
     }
 
     static init() {
@@ -160,14 +167,17 @@ class ProgressBar {
         this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.stage = new PIXI.Container();
 
-        this.timeline = new PIXI.Container();
+        this.timeline = new PIXI.Graphics();
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
-        this.stage.addChild(this.timeline);
+        this.stage.addChildAt(this.timeline, 0);
 
         this.initLine();
         this.initThumb();
         this.initContainer();
+
+        // globalThis.__PIXI_RENDERER__ = this.renderer;
+        // globalThis.__PIXI_STAGE__ = this.stage;
     }
 
     static handleMouseDown(e) {
@@ -213,10 +223,7 @@ class ProgressBar {
 
         this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.restyle();
-
-        this.timeline.x = 40 * devicePixelRatio;
-        this.timeline.y = 10 * devicePixelRatio;
-        this.repositionTimingPoints();
+        this.initTimingPoints();
 
         this.thumb.y = this.HEIGHT / 2;
 
@@ -259,14 +266,17 @@ class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
+            .lineStyle()
+            .beginFill(isHover ? bgColor : accentColor)
+            .drawCircle(0, 0, 2)
             .endFill();
     }
 
     static update(time) {
         this.resize();
 
-        if (beatmapFile?.audioNode?.buf) {
-            this.thumb.x = (time / (beatmapFile?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
+        if (Game.BEATMAP_FILE?.audioNode?.buf) {
+            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
         }
 
         this.renderer.render(this.stage);

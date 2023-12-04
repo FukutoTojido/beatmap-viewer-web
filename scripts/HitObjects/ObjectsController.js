@@ -1,4 +1,17 @@
-class ObjectsController {
+import { Game } from "../Game.js";
+import { Timestamp } from "../Timestamp.js";
+import { Timeline } from "../Timeline/Timeline.js";
+import { ProgressBar } from "../Progress.js";
+import { Beatmap } from "../Beatmap.js";
+import { HitCircle } from "./HitCircle.js";
+import { Slider } from "./Slider.js";
+import { Spinner } from "./Spinner.js";
+import { handleCanvasDrag } from "../DragWindow.js";
+import { Fixed, Clamp, binarySearch } from "../Utils.js";
+import { ScoreParser } from "../ScoreParser.js";
+import { TimingPanel } from "../TimingPanel.js";
+
+export class ObjectsController {
     hitCirclesList;
     slidersList;
     objectsList;
@@ -45,19 +58,16 @@ class ObjectsController {
     }
 
     draw(timestamp, staticDraw) {
-        if (timestamp > beatmapFile.audioNode.duration) {
-            beatmapFile.audioNode.pause();
+        if (timestamp > Game.BEATMAP_FILE.audioNode.duration) {
+            Game.BEATMAP_FILE.audioNode.pause();
         }
 
         this.lastTime = performance.now();
 
-        if (didMove && currentX !== -1 && currentY !== -1) {
-            draggingEndTime = beatmapFile.audioNode.getCurrentTime();
+        if (Game.DID_MOVE && Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
+            Game.DRAGGING_END = Game.BEATMAP_FILE.audioNode.getCurrentTime();
             handleCanvasDrag(false, true);
         }
-
-        // updateTime(timestamp);
-        // setSliderTime();
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
@@ -66,14 +76,14 @@ class ObjectsController {
         ObjectsController.CURRENT_BPM = currentBPM;
         ObjectsController.CURRENT_SV = currentSV;
 
-        const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
-        if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {
-            document.querySelector(".highlightPoint").style.transform = `translateY(${currentPoint * highlightH}px)`;
-            document.querySelector(".highlightPoint").scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-            });
-        }
+        // const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
+        // if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {
+        //     document.querySelector(".highlightPoint").style.transform = `translateY(${currentPoint * highlightH}px)`;
+        //     document.querySelector(".highlightPoint").scrollIntoView({
+        //         behavior: "smooth",
+        //         block: "nearest",
+        //     });
+        // }
 
         if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
             document.querySelector(".timingContainer").classList.remove("kiai");
@@ -92,11 +102,11 @@ class ObjectsController {
         if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
             document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
-        const currentAR = Clamp(Beatmap.stats.approachRate * (mods.HR ? 1.4 : 1) * (mods.EZ ? 0.5 : 1), 0, 10);
+        const currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
         const compareFunc = (element, value) => {
-            if ((sliderAppearance.hitAnim ? element.obj.killTime : Math.max(element.obj.killTime + 800, element.obj.killTime)) < value) return -1;
+            if ((Game.SLIDER_APPEARANCE.hitAnim ? element.obj.killTime : Math.max(element.obj.killTime + 800, element.obj.killTime)) < value) return -1;
             if (element.obj.time - currentPreempt > value) return 1;
             return 0;
         };
@@ -124,7 +134,7 @@ class ObjectsController {
         this.filtered = drawList;
 
         const selected = [];
-        selectedHitObject.forEach((time) => {
+        Game.SELECTED.forEach((time) => {
             const objIndex = binarySearch(this.objectsList, time, (element, value) => {
                 if (element.obj.time === value) return 0;
                 if (element.obj.time < value) return -1;
@@ -193,17 +203,6 @@ class ObjectsController {
         }
 
         ObjectsController.lastTimestamp = timestamp;
-
-        // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
-        //     if (beatmapFile.audioNode !== undefined && beatmapFile !== undefined) {
-        //         const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-        //         const timestampNext = currentAudioTime;
-        //         this.lastTimestamp = timestamp;
-        //         ObjectsController.lastTimestamp = timestamp;
-
-        //         return this.draw(timestampNext);
-        //     }
-        // });
     }
 
     reinitializeAllSliders() {
@@ -215,28 +214,19 @@ class ObjectsController {
     }
 
     static render() {
-        // ObjectsController.requestID = window.requestAnimationFrame((currentTime) => {
-        //     const currentAudioTime = beatmapFile.audioNode.getCurrentTime();
-        //     const timestamp = currentAudioTime;
-        //     return this.draw(timestamp);
-        // });
         Game.appResize();
         Timeline.resize();
 
         Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
 
-        const currentAudioTime = beatmapFile?.audioNode?.getCurrentTime();
+        const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
         Timestamp.update(currentAudioTime ?? 0);
         ProgressBar.update(currentAudioTime ?? 0);
+        TimingPanel.update(currentAudioTime ?? 0);
 
-        if (currentAudioTime && beatmapFile?.beatmapRenderData?.objectsController) {
-            beatmapFile.beatmapRenderData.objectsController.draw(currentAudioTime);
+        if (currentAudioTime && Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) {
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);
         }
-
-        // window.requestAnimationFrame(() => {
-        //     ObjectsController.lastRenderTime = startTime;
-        //     ObjectsController.render();
-        // });
     }
 }

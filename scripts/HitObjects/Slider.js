@@ -1,4 +1,20 @@
-class Slider {
+import { Game } from "../Game.js";
+import { Texture } from "../Texture.js";
+import { Beatmap } from "../Beatmap.js";
+import { ObjectsController } from "./ObjectsController.js";
+import { ProgressBar } from "../Progress.js";
+import { HitCircle } from "./HitCircle.js";
+import { SliderGeometryContainers } from "./SliderMesh.js";
+import { SliderBall } from "./SliderBall.js";
+import { ReverseArrow } from "./ReverseArrow.js";
+import { SliderTick } from "./SliderTick.js";
+import { Fixed, Clamp, Dist, Add, FlipHR, LinearEstimation } from "../Utils.js";
+import { Skinning } from "../Skinning.js";
+import { ScoreParser } from "../ScoreParser.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as PIXI from "pixi.js";
+
+export class Slider {
     originalArr = [];
     angleList = [];
     realTrackPoints;
@@ -85,7 +101,7 @@ class Slider {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = this.sliderEndEvalPosition.x + stackHeight * currentStackOffset;
-        const y = !mods.HR
+        const y = !Game.MODS.HR
             ? this.sliderEndEvalPosition.y + stackHeight * currentStackOffset
             : 384 - this.sliderEndEvalPosition.y + stackHeight * currentStackOffset;
 
@@ -103,7 +119,7 @@ class Slider {
             this.hitSounds.sliderWhistle.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
         this.hitSounds.sliderSlide.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
 
-        if (!beatmapFile.audioNode.isPlaying) return;
+        if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
 
         if (timestamp >= this.hitTime && ObjectsController.lastTimestamp < this.hitTime) {
             if (!ScoreParser.REPLAY_DATA) {
@@ -112,9 +128,9 @@ class Slider {
             }
 
             // Will reimplement later
-            // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-            // if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
-            //     object.hitsounds.sliderHead.play();
+            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+            if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider Head").eval === 1)
+                this.hitSounds.sliderHead.play();
             return;
         }
 
@@ -125,9 +141,9 @@ class Slider {
             }
 
             // Will reimplement later
-            // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-            // if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
-            //     object.hitsounds.sliderTail.play();
+            const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.time);
+            if (evaluation && evaluation.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1)
+                this.hitSounds.sliderTail.play();
             return;
         }
     }
@@ -145,7 +161,7 @@ class Slider {
 
         // Calculate object opacity
         let currentOpacity = 0;
-        if (!mods.HD) {
+        if (!Game.MODS.HD) {
             currentOpacity = 1;
 
             if (timestamp < this.time) {
@@ -153,7 +169,7 @@ class Slider {
             }
             if (timestamp > this.endTime) {
                 currentOpacity = 1 - (timestamp - this.endTime) / fadeOutTime;
-                if (sliderAppearance.snaking && this.hitTime <= this.killTime) currentOpacity = 0;
+                if (Game.SLIDER_APPEARANCE.snaking && this.hitTime <= this.killTime) currentOpacity = 0;
             }
         } else {
             currentOpacity = 1 - (timestamp - this.time) / (this.endTime - this.time);
@@ -167,7 +183,7 @@ class Slider {
         const currentPercentage = Clamp((timestamp - this.time) / (this.endTime - this.time), 0, 1);
 
         // Set object snaking section
-        if (sliderAppearance.snaking) {
+        if (Game.SLIDER_APPEARANCE.snaking) {
             if (timestamp < this.hitTime) {
                 this.SliderMesh.startt = 0;
 
@@ -190,8 +206,8 @@ class Slider {
         // this.sliderBall.tint = colour;
 
         // Set slider color
-        const colors = sliderAppearance.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = sliderAppearance.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
+        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
         this.SliderMesh.tintid = 0;
         this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
         // console.log(this.SliderMesh.tint);
@@ -199,7 +215,7 @@ class Slider {
         this.nodesLine.clear().lineStyle(1, 0xffffff);
         this.nodesGraphics.forEach((node, idx) => {
             let { x, y } = this.nodes[idx].position;
-            if (mods.HR) y = 384 - y;
+            if (Game.MODS.HR) y = 384 - y;
 
             x = (parseInt(x) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
             y = (parseInt(y) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
@@ -576,7 +592,7 @@ class Slider {
                 continue;
             }
 
-            const accountedPointAtT = mods.HR ? Add(FlipHR(pointAtT), additionalMemory) : Add(pointAtT, additionalMemory);
+            const accountedPointAtT = Game.MODS.HR ? Add(FlipHR(pointAtT), additionalMemory) : Add(pointAtT, additionalMemory);
             // Untrack slider if release keys / move out of slider follow circle
             if (state === "TRACKING")
                 if (currentInput.inputArray.length === 0 || Fixed(Dist(currentInput, accountedPointAtT) / (2.4 * radius), 5) > 1) {
@@ -609,7 +625,7 @@ class Slider {
                         if (
                             currentInput.inputArray.length === 0 ||
                             Fixed(
-                                Dist(estimatedInput, !mods.HR ? sliderParts[sliderPartIdx] : FlipHR(sliderParts[sliderPartIdx])) / (2.4 * radius),
+                                Dist(estimatedInput, !Game.MODS.HR ? sliderParts[sliderPartIdx] : FlipHR(sliderParts[sliderPartIdx])) / (2.4 * radius),
                                 5
                             ) > 1
                         ) {

@@ -1,4 +1,4 @@
-class Notification {
+export class Notification {
     timeout;   
     dialog;
     button;
@@ -20,7 +20,7 @@ class Notification {
         button.classList.add("notiDismiss");
 
         const img2 = document.createElement("img");
-        img2.src = "static/close.png";
+        img2.src = "/static/close.png";
         img2.width = 24;
         img2.height = 24;
 

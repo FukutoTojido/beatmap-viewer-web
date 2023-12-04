@@ -1,4 +1,16 @@
-async function removeSkin() {
+import { Game } from "./Game.js";
+import { Texture } from "./Texture.js";
+import { Timeline } from "./Timeline/Timeline.js";
+import { loadDiff } from "./InputBar.js";
+import { Timestamp } from "./Timestamp.js";
+import { ProgressBar } from "./Progress.js";
+import { Skinning } from "./Skinning.js";
+import { HitSample } from "./Audio.js";
+import { Database } from "./Database.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import axios from "axios";
+
+export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
 
     if (Skinning.SKIN_IDX == this.parentElement.dataset.customIndex) {
@@ -19,14 +31,14 @@ async function removeSkin() {
     await refreshSkinDB();
 }
 
-function selectSkin() {
+export function selectSkin() {
     const skinType = Skinning.SKIN_ENUM[this.parentElement.dataset.skinId.toUpperCase()];
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.skinning.type = skinType;
     currentLocalStorage.skinning.val = this.parentElement.dataset.customIndex;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    skinning.type = skinType;
+    Game.SKINNING.type = skinType;
 
     if (this.parentElement.dataset.skinId === "custom") {
         Skinning.SKIN_IDX = this.parentElement.dataset.customIndex;
@@ -38,7 +50,7 @@ function selectSkin() {
     document.querySelector("#skinDropdown").style.display = "";
 }
 
-async function refreshSkinDB() {
+export async function refreshSkinDB() {
     const res = await Database.readObjStore("skins");
     const allKeys = await Database.getAllKeys();
 
@@ -92,7 +104,7 @@ async function refreshSkinDB() {
     }, {});
 }
 
-async function loadLocalStorage() {
+export async function loadLocalStorage() {
     document.querySelector("#loadingText").textContent = `Initializing: Default Samples`;
     await loadDefaultSamples();
     document.querySelector("#loadingText").textContent = `Initializing: Default Skins`;
@@ -156,7 +168,7 @@ async function loadLocalStorage() {
     }
 }
 
-function Clamp(val, from, to) {
+export function Clamp(val, from, to) {
     return Math.max(Math.min(val, to), from);
 }
 
@@ -169,13 +181,13 @@ const difficultyColourSpectrum = d3
     .interpolate(d3.interpolateRgb.gamma(2.2));
 
 // https://github.com/ppy/osu-web/blob/master/resources/js/utils/beatmap-helper.ts#L81
-const getDiffColor = (rating) => {
+export const getDiffColor = (rating) => {
     if (rating < 0.1) return "#AAAAAA";
     if (rating >= 9) return "#000000";
     return difficultyColourSpectrum(rating);
 };
 
-const createDifficultyElement = (obj) => {
+export const createDifficultyElement = (obj) => {
     const ele = document.createElement("div");
     ele.classList.add("diff");
 
@@ -213,9 +225,9 @@ const createDifficultyElement = (obj) => {
     };
 };
 
-const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+export const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-const loadColorPalette = (bg) => {
+export const loadColorPalette = (bg) => {
     const vibrant = new Vibrant(bg);
     const swatches = vibrant.swatches();
 
@@ -239,7 +251,6 @@ const loadColorPalette = (bg) => {
         });
 
         Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
-        ProgressBar.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
     }
 
     const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb();
@@ -251,39 +262,39 @@ const loadColorPalette = (bg) => {
     ProgressBar.restyle();
 };
 
-async function loadDefaultSamples() {
+export async function loadDefaultSamples() {
     for (const skin of ["ARGON", "LEGACY"])
         for (const sampleset of ["normal", "soft", "drum"]) {
             for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
                 // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
                 const res = (
-                    await axios.get(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
+                    await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
                         responseType: "arraybuffer",
                     })
                 ).data;
 
-                const buffer = await audioCtx.decodeAudioData(res);
+                const buffer = await Game.AUDIO_CTX.decodeAudioData(res);
                 HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
                 HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
             }
         }
 }
 
-async function loadSampleSound(sample, idx, buf) {
+export async function loadSampleSound(sample, idx, buf) {
     try {
         if (!buf) {
             HitSample.SAMPLES.MAP[`${sample}${idx}`] = null;
             return;
         }
 
-        const buffer = await audioCtx.decodeAudioData(buf);
+        const buffer = await Game.AUDIO_CTX.decodeAudioData(buf);
         HitSample.SAMPLES.MAP[`${sample}${idx}`] = buffer;
     } catch {
         console.log("Unable to decode " + `${sample}${idx}`);
     }
 }
 
-function toDataUrl(url, callback) {
+export function toDataUrl(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
         var reader = new FileReader();
@@ -297,7 +308,7 @@ function toDataUrl(url, callback) {
     xhr.send();
 }
 
-function changeZoomRate(zoomStep, the) {
+export function changeZoomRate(zoomStep, the) {
     Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + zoomStep * 20, 20, 800);
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -306,8 +317,15 @@ function changeZoomRate(zoomStep, the) {
 
     the.blur();
 }
+document.querySelector(".zoom .plus").onclick = () => {
+    changeZoomRate(1, document.querySelector(".zoom .plus"));
+};
 
-function debounce(func, timeout = 100) {
+document.querySelector(".zoom .minus").onclick = () => {
+    changeZoomRate(-1, document.querySelector(".zoom .minus"));
+};
+
+export function debounce(func, timeout = 100) {
     let timer;
     return function (event) {
         if (timer) clearTimeout(timer);
@@ -315,7 +333,7 @@ function debounce(func, timeout = 100) {
     };
 }
 
-const binarySearchRange = (list, startValue, endValue, key) => {
+export const binarySearchRange = (list, startValue, endValue, key) => {
     let start = 0;
     let end = list.length - 1;
 
@@ -340,7 +358,7 @@ const binarySearchRange = (list, startValue, endValue, key) => {
     return -1;
 };
 
-const binarySearch = (list, value, compareFunc) => {
+export const binarySearch = (list, value, compareFunc) => {
     let start = 0;
     let end = list.length - 1;
 
@@ -362,7 +380,7 @@ const binarySearch = (list, value, compareFunc) => {
     return -1;
 };
 
-const binarySearchNearest = (list, value, compareFunc) => {
+export const binarySearchNearest = (list, value, compareFunc) => {
     let start = 0;
     let end = list.length - 1;
     let mid = start + Math.floor((end - start) / 2);
@@ -385,17 +403,17 @@ const binarySearchNearest = (list, value, compareFunc) => {
     return mid;
 };
 
-const Fixed = (val, decimalPlace) => Math.round(val * 10 ** decimalPlace) / 10 ** decimalPlace;
-const Dist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-const Add = (p1, p2) => {
+export const Fixed = (val, decimalPlace) => Math.round(val * 10 ** decimalPlace) / 10 ** decimalPlace;
+export const Dist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+export const Add = (p1, p2) => {
     return { x: p1.x + p2.x, y: p1.y + p2.y };
 };
 
-const FlipHR = (coord) => {
+export const FlipHR = (coord) => {
     return { x: coord.x, y: 384 - coord.y };
 };
 
-const LinearEstimation = (start, end, t) => {
+export const LinearEstimation = (start, end, t) => {
     const deltaX = end.x - start.x;
     const deltaY = end.y - start.y;
 
@@ -405,14 +423,15 @@ const LinearEstimation = (start, end, t) => {
     };
 };
 
-const ApplyModsToTime = (time, mods) => {
+export const ApplyModsToTime = (time, mods) => {
     if (mods.includes("DoubleTime")) return time / 1.5;
 
     if (mods.includes("HalfTime")) return time / 0.75;
 
     return time;
 };
-const TranslateToZero = (point) => {
+
+export const TranslateToZero = (point) => {
     const pointCop = { ...point };
     pointCop.x -= 256;
     pointCop.y -= 192;
@@ -420,26 +439,26 @@ const TranslateToZero = (point) => {
     return pointCop;
 };
 
-const easeOutQuint = (t) => {
+export const easeOutQuint = (t) => {
     return 1 - Math.pow(1 - t, 5);
 };
 
-const easeInSine = (x) => {
+export const easeInSine = (x) => {
     return 1 - Math.cos((x * Math.PI) / 2);
 };
 
-const easeOutSine = (x) => {
+export const easeOutSine = (x) => {
     return Math.sin((x * Math.PI) / 2);
 };
 
-const easeOutBack = (x) => {
+export const easeOutBack = (x) => {
     const c1 = 1.70158;
     const c3 = c1 + 1;
 
     return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
 };
 
-const easeOutElastic = (x) => {
+export const easeOutElastic = (x) => {
     const c4 = (2 * Math.PI) / 3;
 
     return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;

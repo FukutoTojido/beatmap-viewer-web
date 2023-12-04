@@ -1,4 +1,7 @@
-class Texture {
+import { Game } from "./Game.js"
+import * as PIXI from "pixi.js";
+
+export class Texture {
     static SELECTED;
     static ARGON = {
         DEFAULTS: null,
@@ -19,6 +22,7 @@ class Texture {
         APPROACH_CIRCLE: null,
     };
     static CUSTOM = {};
+    static SLIDER_TEXTURE;
 
     static createSelectedHitCircle() {
         return new PIXI.Graphics()
@@ -187,7 +191,7 @@ class Texture {
 
     static generateDefaultTextures() {
         Texture.SELECTED = {
-            texture: PIXI.Texture.from("static/legacy/hitcircleselect@2x.png"),
+            texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
             isHD: false,
         };
         Texture.ARGON.HIT_CIRCLE = {
@@ -204,7 +208,7 @@ class Texture {
                 isHD: false,
             },
             arrow: {
-                texture: PIXI.Texture.from("static/arrow.png"),
+                texture: PIXI.Texture.from("/static/arrow.png"),
                 isHD: false,
             },
             gradient: {
@@ -214,11 +218,11 @@ class Texture {
         };
         Texture.ARGON.REVERSE_ARROW = {
             arrow: {
-                texture: PIXI.Texture.from("static/argon/reversearrow@2x.png"),
+                texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
                 isHD: false,
             },
             ring: {
-                texture: PIXI.Texture.from("static/argon/repeat-edge-piece.png"),
+                texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
                 isHD: false,
             },
         };
@@ -227,7 +231,7 @@ class Texture {
             isHD: false,
         };
         Texture.ARGON.APPROACH_CIRCLE = {
-            texture: PIXI.Texture.from("static/argon/approachcircle@2x.png"),
+            texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
             isHD: false,
         };
         Texture.ARGON.DEFAULTS = [...Array(10)].fill(null, 0, 10).map((_, idx) => {

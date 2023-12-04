@@ -1,4 +1,9 @@
-class TimelineDragWindow {
+import { Timeline } from "./Timeline.js";
+import { binarySearch } from "../Utils.js";
+import { Game } from "../Game.js";
+import * as PIXI from "pixi.js";
+
+export class TimelineDragWindow {
     isDragging = false;
     obj;
     dragWindow;
@@ -14,7 +19,7 @@ class TimelineDragWindow {
         const selectedList = [];
 
         if (this.startTimestamp && this.endTimestamp) {
-            const objList = beatmapFile.beatmapRenderData.objectsController.objectsList;
+            const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
             const compareFunc = (element, _) => {
                 let startTime = this.startTimestamp;
                 let endTime = this.endTimestamp;
@@ -49,23 +54,24 @@ class TimelineDragWindow {
             }
         }
 
-        if (!this.isObjectSelecting) selectedHitObject = selectedList.map((o) => o.obj.time);
+        if (!this.isObjectSelecting) Game.SELECTED = selectedList.map((o) => o.obj.time);
     }
 
     constructor() {
         this.obj = new PIXI.Graphics().beginFill(0xffffff, 0.01).drawRect(0, 0, Timeline.WIDTH, Timeline.HEIGHT);
-        this.obj.interactive = true;
+        // this.obj.interactive = true;
+        this.obj.eventMode = "static"
 
         this.dragWindow = new PIXI.Graphics().drawRect(0, 0, 0, 0);
         this.obj.addChild(this.dragWindow);
 
         this.obj.on("mousedown", (e) => {
-            if (!beatmapFile) return;
+            if (!Game.BEATMAP_FILE) return;
             if (this.isObjectSelecting) return;
 
             const { x, y } = this.obj.toLocal(e.global);
             const center = Timeline.WIDTH / 2;
-            const currentTime = beatmapFile.audioNode.getCurrentTime();
+            const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
 
             this.startTimestamp = currentTime - ((center - x) / Timeline.ZOOM_DISTANCE) * 500;
             this.isDragging = true;
@@ -84,7 +90,7 @@ class TimelineDragWindow {
 
         const { x, y } = this.obj.toLocal(e.global);
         const center = Timeline.WIDTH / 2;
-        const currentTime = beatmapFile.audioNode.getCurrentTime();
+        const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
 
         this.endTimestamp = currentTime - ((center - x) / Timeline.ZOOM_DISTANCE) * 500;
         this.currentX = x;

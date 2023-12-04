@@ -1,4 +1,11 @@
-class Skinning {
+import { Texture } from "./Texture.js";
+import { HitSample } from "./Audio.js";
+import { refreshSkinDB } from "./Utils.js";
+import { Notification } from "./Notification.js";
+import { Database } from "./Database.js";
+import { Game } from "./Game.js";
+
+export class Skinning {
     static HIT_CIRCLE = null;
     static HIT_CIRCLE_OVERLAY = null;
     static SLIDER_B = null;
@@ -40,14 +47,14 @@ class Skinning {
     static SKIN_LIST = [];
 
     static async changeSkin() {
-        if (skinning.type !== "4") {
-            document.querySelector(".skinSelector").textContent = Skinning.SKIN_NAME[skinning.type];
-            console.log(skinning.type);
+        if (Game.SKINNING.type !== "4") {
+            document.querySelector(".skinSelector").textContent = Skinning.SKIN_NAME[Game.SKINNING.type];
+            // console.log(Game.SKINNING.type);
             return;
         }
 
         if (!Skinning.SKIN_LIST[Skinning.SKIN_IDX]) {
-            skinning.type = "2";
+            Game.SKINNING.type = "2";
             Skinning.SKIN_IDX = -1;
             document.querySelector(".skinSelector").textContent = "Legacy";
             return;
@@ -204,7 +211,7 @@ class Skinning {
                 }
 
                 try {
-                    const buffer = await audioCtx.decodeAudioData(hs.buf);
+                    const buffer = await Game.AUDIO_CTX.decodeAudioData(hs.buf);
                     HitSample.SAMPLES.CUSTOM[forIdx][name] = buffer;
                 } catch {
                     continue;
@@ -290,7 +297,7 @@ class Skinning {
         await refreshSkinDB();
 
         Skinning.SKIN_IDX = skinIdx;
-        skinning.type = "4";
+        Game.SKINNING.type = "4";
         Skinning.changeSkin();
 
         zipReader.close();

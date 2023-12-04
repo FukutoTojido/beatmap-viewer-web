@@ -11,6 +11,7 @@ const toggleTimingPanel = (forceOpen) => {
 
     document.querySelector(".timingPanel").classList.toggle("show");
 };
+document.querySelector(".timings").onclick = () => toggleTimingPanel();
 
 const toggleMetadataPanel = (forceOpen) => {
     if (forceOpen) {
@@ -25,6 +26,7 @@ const toggleMetadataPanel = (forceOpen) => {
 
     document.querySelector(".metadataPanel").classList.toggle("show");
 };
+document.querySelector(".metadatas").onclick = () => toggleMetadataPanel();
 
 const openSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideInAnim");
@@ -34,11 +36,12 @@ const openSidePanel = () => {
 const closeSidePanel = () => {
     document.querySelector(".sidePanel").classList.remove("slideOutAnim");
     document.querySelector(".sidePanel").classList.add("slideInAnim");
-    document.querySelector(".timingPanel").classList.remove("show");
+    // document.querySelector(".timingPanel").classList.remove("show");
     document.querySelector(".metadataPanel").classList.remove("show");
 };
+document.querySelector(".closeSidepanel").onclick = closeSidePanel;
 
-const toggleSidePanel = (type) => {
+export const toggleSidePanel = (type) => {
     if (document.querySelector(".sidePanel").classList.contains("slideOutAnim")) {
         if (type === "timing" && document.querySelector(".metadataPanel").classList.contains("show")) {
             toggleTimingPanel(true);
@@ -63,3 +66,4 @@ const toggleSidePanel = (type) => {
 
     toggleMetadataPanel(true);
 };
+document.querySelector(".timingContainer").onclick = () => toggleSidePanel("timing");
