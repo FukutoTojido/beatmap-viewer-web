@@ -119,7 +119,6 @@ export function setEffectVolume(slider) {
 
     if (Game.BEATMAP_FILE === undefined) return;
 
-    HitSample.masterGainNode.gain.value = Game.MASTER_VOL * Game.HS_VOL;
 }
 document.querySelector("#effect").oninput = () => setEffectVolume(document.querySelector("#effect"));
 

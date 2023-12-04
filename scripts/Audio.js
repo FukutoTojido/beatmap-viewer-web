@@ -58,7 +58,7 @@ export class PAudio {
 
             this.src.buffer = this.buf;
             this.src.playbackRate.value = Game.PLAYBACK_RATE;
-            this.src.onended = () => {
+            this.src.ended = () => {
                 const tempCurrentTime = this.getCurrentTime();
 
                 if (tempCurrentTime >= this.buf.duration * 1000) {
@@ -118,8 +118,6 @@ export class HitSample {
     isPlaying = false;
 
     srcs = [];
-    gainNode;
-
     currentTimeout;
 
     static masterGainNode;
@@ -139,22 +137,13 @@ export class HitSample {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
 
-        if (hitsounds.some((hs) => hs.includes("sliderslide") || hs.includes("sliderwhistle"))) {
-            this.gainNode = Game.AUDIO_CTX.createGain();
-            this.gainNode.gain.value = this.vol;
-        }
         // console.log(this.audioObj);
     }
 
     play(isLoop) {
-        // console.log(this.audioObj, "Played");
-        // this.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
         this.srcs = [];
         this.audioObj.forEach((hs) => {
             const src = Game.AUDIO_CTX.createBufferSource();
-            const gainNode = this.gainNode ?? Game.AUDIO_CTX.createGain();
-
-            if (!this.gainNode) gainNode.gain.value = this.vol;
 
             if (HitSample.SAMPLES.MAP[hs]) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
@@ -168,16 +157,11 @@ export class HitSample {
                 src.buffer = samples[hs.replaceAll(/\d/g, "")];
             }
 
-            src.connect(isLoop ? this.gainNode : gainNode);
-            src.ended = () => {
-                src.disconnect();
-                gainNode.disconnect();
-            };
-
-            // this.gainNode.gain.value = this.vol;
-            gainNode.connect(HitSample.masterGainNode);
+            src.connect(HitSample.masterGainNode);
 
             src.start();
+            src.ended = () => src.disconnect();
+            
             this.isPlaying = true;
 
             if (isLoop) src.loop = true;
