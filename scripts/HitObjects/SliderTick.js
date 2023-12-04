@@ -73,6 +73,10 @@ export class SliderTick {
             this.hitSound.play();
             return;
         }
+
+        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.slider.time);
+        if (evaluation && evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Tick")[this.spanIdx].eval === 1)
+            this.hitSound.play();
     }
 
     draw(timestamp) {

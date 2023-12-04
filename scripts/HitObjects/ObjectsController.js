@@ -7,7 +7,7 @@ import { HitCircle } from "./HitCircle.js";
 import { Slider } from "./Slider.js";
 import { Spinner } from "./Spinner.js";
 import { handleCanvasDrag } from "../DragWindow.js";
-import { Fixed, Clamp, binarySearch } from "../Utils.js";
+import { Fixed, Clamp, binarySearch, binarySearchNearest } from "../Utils.js";
 import { ScoreParser } from "../ScoreParser.js";
 import { TimingPanel } from "../TimingPanel.js";
 
@@ -106,7 +106,8 @@ export class ObjectsController {
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
         const compareFunc = (element, value) => {
-            if ((Game.SLIDER_APPEARANCE.hitAnim ? element.obj.killTime : Math.max(element.obj.killTime + 800, element.obj.killTime)) < value) return -1;
+            if ((Game.SLIDER_APPEARANCE.hitAnim ? element.obj.killTime : Math.max(element.obj.killTime + 800, element.obj.killTime)) < value)
+                return -1;
             if (element.obj.time - currentPreempt > value) return 1;
             return 0;
         };
@@ -182,17 +183,19 @@ export class ObjectsController {
         });
 
         if (ScoreParser.CURSOR_DATA) {
-            const posInfoIndex = ScoreParser.CURSOR_DATA.slice(0, -1).findLastIndex((cursorData) => cursorData.time <= timestamp);
-            const lerp_x =
-                ScoreParser.CURSOR_DATA[posInfoIndex].x +
-                ((timestamp - ScoreParser.CURSOR_DATA[posInfoIndex].time) /
-                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].time - ScoreParser.CURSOR_DATA[posInfoIndex].time)) *
-                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].x - ScoreParser.CURSOR_DATA[posInfoIndex].x);
-            const lerp_y =
-                ScoreParser.CURSOR_DATA[posInfoIndex].y +
-                ((timestamp - ScoreParser.CURSOR_DATA[posInfoIndex].time) /
-                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].time - ScoreParser.CURSOR_DATA[posInfoIndex].time)) *
-                    (ScoreParser.CURSOR_DATA[posInfoIndex + 1].y - ScoreParser.CURSOR_DATA[posInfoIndex].y);
+            let posInfoIndex = binarySearchNearest(ScoreParser.CURSOR_DATA.slice(0, -1), timestamp, (cursorData, timestamp) => {
+                if (cursorData.time < timestamp) return -1;
+                if (cursorData.time > timestamp) return 1;
+                return 0;
+            });
+
+            while (posInfoIndex > 0 && ScoreParser.CURSOR_DATA[posInfoIndex].time > timestamp) posInfoIndex--;
+
+            const current = ScoreParser.CURSOR_DATA[posInfoIndex];
+            const next = ScoreParser.CURSOR_DATA[posInfoIndex + 1] ?? ScoreParser.CURSOR_DATA[posInfoIndex];
+
+            const lerp_x = current.x + Clamp((timestamp - current.time) / (next.time - current.time), 0, 1) * (next.x - current.x);
+            const lerp_y = current.y + Clamp((timestamp - current.time) / (next.time - current.time), 0, 1) * (next.y - current.y);
 
             if (posInfoIndex !== -1) {
                 // Game.CURSOR.x = Game.OFFSET_X + lerp_x * (Game.WIDTH / 512);

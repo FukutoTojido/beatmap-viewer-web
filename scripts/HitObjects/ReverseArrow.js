@@ -66,13 +66,13 @@ export class ReverseArrow {
         }
 
         // Will reimplement later;
-        // const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === object.obj.time);
-        // if (
-        //     evaluation &&
-        //     evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[currentRepeatIdx - 1].eval ===
-        //         1
-        // )
-        //     object.hitsounds.sliderReverse[currentRepeatIdx - 1].play();
+        const evaluation = ScoreParser.EVAL_LIST.find((evaluation) => evaluation.time === this.baseSlider.time);
+        if (
+            evaluation &&
+            evaluation.checkPointState.filter((checkPoint) => checkPoint.type === "Slider Repeat")[this.idx].eval ===
+                1
+        )
+            this.baseSlider.hitSounds.sliderReverse[this.idx].play();
     }
 
     draw(timestamp) {
