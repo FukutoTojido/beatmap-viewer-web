@@ -172,7 +172,7 @@ export class BeatLines {
 
         const step = dividedStep * (Timeline.ZOOM_DISTANCE / 500);
         const delta = (timestamp - nearestTick) * (Timeline.ZOOM_DISTANCE / 500);
-        const ticksNumber = Math.floor(range / dividedStep);
+        const ticksNumber = Math.ceil(range / dividedStep);
 
         const center = Timeline.WIDTH / 2;
 
