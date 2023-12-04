@@ -3,13 +3,14 @@ import { Timeline } from "./Timeline/Timeline.js";
 import { Beatmap } from "./Beatmap.js";
 import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound } from "./Utils.js";
 import { go, playToggle } from "./ProgressBar.js";
-import { setBeatsnapDivisor } from "./Settings.js";
+import { openMenu, setBeatsnapDivisor } from "./Settings.js";
 import { calculateCurrentSR } from "./Settings.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { ScoreParser } from "./ScoreParser.js";
 import { Notification } from "./Notification.js";
 import { urlParams } from "./GlobalVariables.js";
 import { handleCanvasDrag } from "./DragWindow.js";
+import { closePopup } from "./ProgressBar.js";
 import osuPerformance from "../lib/osujs.js";
 import axios from "axios";
 import ky from "ky";
@@ -302,7 +303,7 @@ export class BeatmapFile {
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);
             console.log("Background Loaded");
-            document.querySelector("#background").src= `${this.backgroundBlobURL}`;
+            document.querySelector("#background").src = `${this.backgroundBlobURL}`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();
@@ -460,7 +461,7 @@ export class BeatmapFile {
                             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
 
-                        (new Notification("Object(s) timestamp copied")).notify();
+                        new Notification("Object(s) timestamp copied").notify();
                     }
                 }
 
@@ -473,9 +474,14 @@ export class BeatmapFile {
                 }
 
                 if (e.key === "Escape") {
-                    Game.SELECTED = [];
-
                     if (document.querySelector(".seekTo").open) closePopup();
+                    
+                    if (document.querySelector("#settingsPanel").style.opacity === "1") {
+                        openMenu();
+                        return;
+                    }
+
+                    Game.SELECTED = [];
                 }
             };
 
@@ -511,7 +517,7 @@ export class BeatmapFile {
                 }
 
                 setBeatsnapDivisor(document.querySelector("#beat"));
-                (new Notification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`)).notify();
+                new Notification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`).notify();
 
                 // console.log("Scrolled");
             };
@@ -530,7 +536,7 @@ export class BeatmapFile {
             // (new Notification(`Finished map setup`)).notify();
         } catch (err) {
             // alert(err);
-            (new Notification(err)).notify();
+            new Notification(err).notify();
             console.error(err);
 
             document.querySelector(".loading").style.opacity = 0;

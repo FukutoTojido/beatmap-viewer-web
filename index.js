@@ -3,6 +3,8 @@ import { loadLocalStorage } from "./scripts/Utils.js";
 import { Texture } from "./scripts/Texture.js";
 import { BeatmapFile } from "./scripts/BeatmapFile.js";
 import { urlParams } from "./scripts/GlobalVariables.js";
+import { toggleSidePanel } from "./scripts/SidePanel.js";
+import { openMenu } from "./scripts/Settings.js";
 
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
@@ -74,6 +76,25 @@ function setupDefaultStorage() {
     // Init
     Game.init();
     Texture.generateDefaultTextures();
+
+    document.body.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        switch (e.key) {
+            case "F6": {
+                e.preventDefault();
+                toggleSidePanel("timing");
+                break;
+            }
+            case "F4": {
+                e.preventDefault();
+                toggleSidePanel("metadata");
+                break;
+            }
+            case "o": {
+                if (e.ctrlKey) openMenu();
+            }
+        }
+    });
 
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
         Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));

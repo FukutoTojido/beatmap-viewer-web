@@ -41,7 +41,7 @@ const closeSidePanel = () => {
 };
 document.querySelector(".closeSidepanel").onclick = closeSidePanel;
 
-const toggleSidePanel = (type) => {
+export const toggleSidePanel = (type) => {
     if (document.querySelector(".sidePanel").classList.contains("slideOutAnim")) {
         if (type === "timing" && document.querySelector(".metadataPanel").classList.contains("show")) {
             toggleTimingPanel(true);
