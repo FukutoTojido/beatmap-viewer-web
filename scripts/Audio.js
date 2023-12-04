@@ -136,12 +136,12 @@ export class HitSample {
     constructor(hitsounds, vol) {
         this.audioObj = hitsounds;
         this.vol = vol ?? 1;
-
         // console.log(this.audioObj);
     }
 
     play(isLoop) {
         this.srcs = [];
+
         this.audioObj.forEach((hs) => {
             const src = Game.AUDIO_CTX.createBufferSource();
 
@@ -158,14 +158,12 @@ export class HitSample {
             }
 
             src.connect(HitSample.masterGainNode);
-
             src.start();
             src.onended = () => {
                 src.disconnect();
             };
 
             this.isPlaying = true;
-
             if (isLoop) src.loop = true;
 
             this.srcs.push(src);
@@ -183,10 +181,9 @@ export class HitSample {
             }, timeLeft ?? 0);
         }
 
-        if (!higherThanStart || !lowerThanEnd || !Game.BEATMAP_FILE.audioNode.isPlaying) {
+        if (this.isPlaying && (!higherThanStart || !lowerThanEnd || !Game.BEATMAP_FILE.audioNode.isPlaying)) {
             this.srcs.forEach((src) => {
                 src.stop();
-                src.disconnect();
             });
             this.isPlaying = false;
         }
