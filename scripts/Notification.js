@@ -54,7 +54,7 @@ export class Notification {
         this.timeout = setTimeout(close, 2000);
 
         this.button.addEventListener("click", () => {
-            clearTimeout(timeout);
+            clearTimeout(this.timeout);
             close();
         });
     }

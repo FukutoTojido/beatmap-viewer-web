@@ -75,7 +75,11 @@ export class ObjectsController {
         const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "mergedPoints", true);
 
         ObjectsController.CURRENT_BPM = currentBPM;
-        ObjectsController.CURRENT_SV = currentSV;
+
+        if (JSON.stringify(currentSV) !== JSON.stringify(ObjectsController.CURRENT_SV)) {
+            ObjectsController.CURRENT_SV = currentSV;
+            TimingPanel.scrollTo(timestamp);
+        }
 
         // const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
         // if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {

@@ -3,6 +3,7 @@ import { Beatmap } from "./Beatmap";
 import { Clamp, binarySearchNearest } from "./Utils";
 import * as PIXI from "pixi.js";
 import * as TWEEN from "@tweenjs/tween.js";
+import { Game } from "./Game";
 
 class TimingPoint {
     obj;
@@ -22,7 +23,7 @@ class TimingPoint {
     constructor(timingPoint, idx) {
         this.timingPoint = timingPoint;
         this.idx = idx;
-        this.obj = new PIXI.Container();
+        this.obj = new PIXI.Graphics();
         this.obj.y = 40 * devicePixelRatio * this.idx;
         this.obj.cullable = true;
         this.obj.eventMode = "none";
@@ -162,6 +163,18 @@ class TimingPoint {
 
     update() {
         this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
+
+        this.obj.clear();
+
+        if (this.idx === TimingPanel.CURRENT_SV_IDX) {
+            const rootCSS = document.querySelector(":root");
+            const bg = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+
+            this.obj
+                .beginFill(bg)
+                .drawRoundedRect(0, 0, TimingPanel.WIDTH - 10 * devicePixelRatio, 40 * devicePixelRatio, 5 * devicePixelRatio)
+                .endFill();
+        }
     }
 }
 
@@ -190,6 +203,8 @@ export class TimingPanel {
     static TOUCH_VELOCITY = 0;
     static TOUCH_LAST_TIMESTAMP = 0;
     static TOUCH_TWEEN = null;
+
+    static CURRENT_SV_IDX = 0;
 
     static init() {
         const { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
@@ -245,6 +260,38 @@ export class TimingPanel {
 
         globalThis.__PIXI_RENDERER__ = this.renderer;
         globalThis.__PIXI_STAGE__ = this.stage;
+    }
+
+    static scrollTo(timestamp) {
+        if (!Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) return;
+
+        let foundIndex = binarySearchNearest(this.POINTS, timestamp, (point, time) => {
+            if (point.timingPoint.time < time) return -1;
+            if (point.timingPoint.time > time) return 1;
+            return 0;
+        });
+
+        while (foundIndex > 0 && this.POINTS[foundIndex].timingPoint.time > timestamp) foundIndex--;
+
+        this.CURRENT_SV_IDX = foundIndex;
+
+        let rate = this.SCROLLED;
+        if (40 * devicePixelRatio * foundIndex - this.SCROLLED < 0) rate = 40 * devicePixelRatio * foundIndex;
+        if (40 * devicePixelRatio * foundIndex - this.SCROLLED > this.HEIGHT - 40 * devicePixelRatio)
+            rate = 40 * devicePixelRatio * foundIndex - (this.HEIGHT - 40 * devicePixelRatio);
+
+        if (rate === this.SCROLLED) return;
+
+        const tween = new TWEEN.Tween({ rate: this.SCROLLED }, false)
+            .to({ rate }, 50)
+            .easing(TWEEN.Easing.Quintic.Out)
+            .onUpdate((object) => {
+                this.SCROLLED = object.rate;
+            })
+            .start();
+
+        tween.onComplete = () => TWEEN.remove(tween);
+        TWEEN.add(tween);
     }
 
     static handleTouchDown(e) {
@@ -360,8 +407,13 @@ export class TimingPanel {
 
         this.stage.removeChildren();
 
-        let idx = Math.floor(TimingPanel.SCROLLED / (40 * devicePixelRatio));
-        while (idx < this.POINTS.length && 40 * devicePixelRatio * idx - TimingPanel.SCROLLED < this.HEIGHT) {
+        let idx = Math.floor(this.SCROLLED / (40 * devicePixelRatio));
+        while (idx < this.POINTS.length && 40 * devicePixelRatio * idx - this.SCROLLED < this.HEIGHT) {
+            if (idx < 0) {
+                idx++;
+                continue;
+            }
+
             const point = this.POINTS[idx++];
 
             this.stage.addChild(point.obj);
