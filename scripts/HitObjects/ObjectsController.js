@@ -224,13 +224,14 @@ export class ObjectsController {
         Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
 
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
-        Timestamp.update(currentAudioTime ?? 0);
-        ProgressBar.update(currentAudioTime ?? 0);
-        TimingPanel.update(currentAudioTime ?? 0);
 
         if (currentAudioTime && Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) {
             Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);
         }
+
+        Timestamp.update(currentAudioTime ?? 0);
+        ProgressBar.update(currentAudioTime ?? 0);
+        TimingPanel.update(currentAudioTime ?? 0);
     }
 }
