@@ -4,8 +4,8 @@ An osu! beatmap viewer on the web.
 ## Special Thanks
 - Beatmap Mirror from [Nerinyan](https://nerinyan.moe) by **[Zeee2](https://github.com/zeee2)**
 - Slider Shader from [webosu](https://github.com/111116/webosu) by **[111116](https://github.com/111116)**
-- node-osr-parser port from [node-osr-parser](https://github.com/minhducsun2002/node-osr-parser) by **[minhducsun2002](https://github.com/minhducsun2002)**
-- phaze from [phaze](https://github.com/olvb/phaze) by **[olvb](https://github.com/olvb)**
+- [node-osr-parser](https://github.com/minhducsun2002/node-osr-parser) by **[minhducsun2002](https://github.com/minhducsun2002)**
+- [phaze](https://github.com/olvb/phaze) by **[olvb](https://github.com/olvb)**
 
 ## Features
 - Play a beatmap (custom hitsounds supported, keysounding are also supported)
