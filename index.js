@@ -88,7 +88,7 @@ function setupDefaultStorage() {
                 break;
             }
             case "o": {
-                e.preventDefault();
+                if (e.ctrlKey) e.preventDefault();
                 break;
             }
         }
