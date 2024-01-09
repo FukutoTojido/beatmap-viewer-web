@@ -253,7 +253,7 @@ export const loadColorPalette = (bg) => {
         Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
     }
 
-    const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb();
+    const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb() ?? swatches.Muted?.getRgb() ?? [255, 255, 255];
     if (accent) {
         const accentHex = d3.color(`rgb(${parseInt(accent[0])}, ${parseInt(accent[1])}, ${parseInt(accent[2])})`);
         rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
