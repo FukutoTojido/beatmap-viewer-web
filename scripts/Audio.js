@@ -7,7 +7,7 @@ export class PAudio {
     buf;
     src;
     phazeNode;
-    currentTime = 0.001;
+    currentTime = 1;
     startTime = 0;
     absStartTime = 0;
     isPlaying = false;
@@ -85,7 +85,7 @@ export class PAudio {
             this.absStartTime = performance.now();
             this.src.start(
                 Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
-                this.currentTime / 1000 + 0.015 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
+                this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
             document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
@@ -98,6 +98,7 @@ export class PAudio {
             this.src.disconnect();
             this.phazeNode.disconnect();
             this.gainNode.disconnect();
+            // this.currentTime += (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) * Game.PLAYBACK_RATE;
             this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
             this.isPlaying = false;
             document.querySelector("#playButton").style.backgroundImage = "";
@@ -106,7 +107,17 @@ export class PAudio {
 
     getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
+        if (((performance.now() - this.absStartTime) - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime)) > 50) {
+            this.pause();
+            this.play();
+
+            console.log("Shifted")
+        }
+
         return this.currentTime + (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
+
+        // console.log((performance.now() - this.absStartTime), (Game.AUDIO_CTX.currentTime * 1000 - this.startTime))
+        // return this.currentTime + (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) * Game.PLAYBACK_RATE;
     }
 
     get duration() {
