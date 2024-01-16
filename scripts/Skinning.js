@@ -89,7 +89,7 @@ export class Skinning {
         const blob = await entry.getData(new zip.BlobWriter("text/plain"));
         const text = await blob.text();
 
-        const lines = text.split("\n");
+        const lines = text.split("\n").map(line => line.trim()).filter(line => !/^(\/\/|\#|\;).*/g.test(line));
 
         const name = lines
             .find((line) => line.includes("Name: "))

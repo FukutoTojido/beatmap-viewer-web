@@ -236,7 +236,7 @@ export class BeatmapFile {
             document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
 
-            if (beatmapSetID && beatmapID && beatmapSetID !== -1 && beatmapID !== -1) {
+            if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
                 window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}`);
                 document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
             } else {
