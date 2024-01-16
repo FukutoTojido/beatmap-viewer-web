@@ -107,7 +107,7 @@ export class PAudio {
 
     getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
-        if (((performance.now() - this.absStartTime) - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime)) > 50) {
+        if (((performance.now() - this.absStartTime) - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime)) > 20) {
             this.pause();
             this.play();
 
