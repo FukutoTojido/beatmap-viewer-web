@@ -12,7 +12,7 @@ An osu! beatmap viewer on the web.
 - Change beatmap clockrate to match DT and HT (Audio might has some artifacts while playing)
 - Change beatmap visual to match HR and EZ
 - Switching between Argon slider style and Legacy slider style
-- Background dim, ~~background blur~~, etc. You know it
+- Background dim, background blur, etc. You know it
 - **Watch replay (experimental, unstable af)**
 - Import skins
 
