@@ -823,9 +823,6 @@ export class Slider {
 
         // console.log(this.time, this.angleList);
 
-        if (this.time === 142750)
-            console.log(JSON.stringify(this.angleList));
-
         // start = performance.now();
         this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, this);
         this.reInitialize();

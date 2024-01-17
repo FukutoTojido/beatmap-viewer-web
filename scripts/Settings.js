@@ -70,14 +70,15 @@ export function setBackgroundDim(slider) {
 }
 document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySelector("#dim"));
 
-// export function setBackgroundBlur(slider) {
-//     // console.log(slider.value);
-//     // document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
-//     // document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
-//     // const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-//     // currentLocalStorage.background.blur = slider.value;
-//     // localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
-// }
+export function setBackgroundBlur(slider) {
+    // console.log(slider.value);
+    document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
+    document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.background.blur = slider.value;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+}
+document.querySelector("#blur").oninput = () => setBackgroundBlur(document.querySelector("#blur"));
 
 // AUDIO
 export function setMasterVolume(slider) {

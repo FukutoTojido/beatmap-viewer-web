@@ -2,6 +2,7 @@ import { Game } from "../Game.js";
 import { Beatmap } from "../Beatmap.js";
 import { Skinning } from "../Skinning.js";
 import { Texture } from "../Texture.js";
+import { binarySearchNearest } from "../Utils.js";
 import * as PIXI from "pixi.js";
 
 // Ported from https://github.com/111116/webosu/blob/master/scripts/SliderMesh.js
@@ -408,7 +409,17 @@ class SliderMesh extends PIXI.Container {
             }
             this.uniforms.dt = 0;
             this.uniforms.ot = 1;
-            let p = this.curve.find((point) => point.t >= this.startt);
+
+            let idx = binarySearchNearest(this.curve, this.startt, (current, val) => {
+                if (current < val) return -1;
+                if (current > val) return 1;
+                return 0;
+            });
+            while (this.curve[idx].t < this.startt && idx < this.curve.length) idx++;
+            while (this.curve[idx].t > this.startt && idx >= 0) idx--;
+            let p = this.curve[idx];
+
+            // let p = this.curve.find((point) => point.t >= this.startt);
             this.uniforms.ox += p.x * this.uniforms.dx;
             this.uniforms.oy += p.y * this.uniforms.dy;
             bind(this.circle);
@@ -424,7 +435,17 @@ class SliderMesh extends PIXI.Container {
             }
             this.uniforms.dt = 0;
             this.uniforms.ot = 1;
-            let p = this.curve.findLast((point) => point.t <= this.endt);
+
+            let idx = binarySearchNearest(this.curve, this.endt, (current, val) => {
+                if (current < val) return -1;
+                if (current > val) return 1;
+                return 0;
+            });
+            while (this.curve[idx].t > this.endt && idx >= 0) idx--;
+            while (this.curve[idx].t < this.endt && idx < this.curve.length) idx++;
+            let p = this.curve[idx];
+
+            // let p = this.curve.findLast((point) => point.t <= this.endt);
             this.uniforms.ox += p.x * this.uniforms.dx;
             this.uniforms.oy += p.y * this.uniforms.dy;
             bind(this.circle);

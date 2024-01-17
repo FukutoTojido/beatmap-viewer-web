@@ -71,8 +71,8 @@ export class SliderBall {
 
         if (timestamp < this.baseSlider.time || timestamp >= this.baseSlider.endTime + 200) this.obj.alpha = 0;
         if (timestamp >= this.baseSlider.time && timestamp < this.baseSlider.time + 300) {
-            const alphaB = Clamp((timestamp - this.baseSlider.time) / 200, 0, 1);
-            const alphaF = Clamp((timestamp - this.baseSlider.time) / 150, 0, 1);
+            const alphaB = Clamp((timestamp - this.baseSlider.time) / Math.min(200, this.baseSlider.sliderTime), 0, 1);
+            const alphaF = Clamp((timestamp - this.baseSlider.time) / Math.min(180, this.baseSlider.sliderTime), 0, 1);
 
             this.sliderB.alpha = easeOutQuint(alphaB);
             this.followCircle.alpha = easeOutQuint(alphaF);
