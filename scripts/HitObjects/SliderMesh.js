@@ -238,6 +238,29 @@ function circleGeometry(radius) {
     return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
 }
 
+function getPointAtT(list, t) {
+    if (t <= 0) return list.at(0);
+    if (t >= 1) return list.at(-1);
+
+    const startIdx = Math.floor(t * (list.length - 1));
+    const endIdx = Math.ceil(t * (list.length - 1));
+    const rawIdx = t * (list.length - 1);
+
+    const lerpValue = rawIdx % startIdx;
+
+    const x = list[startIdx].x + lerpValue * (list[endIdx].x - list[startIdx].x);
+    const y = list[startIdx].y + lerpValue * (list[endIdx].y - list[startIdx].y);
+    const angle = list[startIdx].angle + lerpValue * (list[endIdx].angle - list[startIdx].angle);
+    // const t = (time - this.time) / (this.endTime - this.time);
+
+    return {
+        x,
+        y,
+        t,
+        angle,
+    };
+}
+
 export class SliderGeometryContainers {
     curve;
     geometry;
@@ -410,14 +433,16 @@ class SliderMesh extends PIXI.Container {
             this.uniforms.dt = 0;
             this.uniforms.ot = 1;
 
-            let idx = binarySearchNearest(this.curve, this.startt, (current, val) => {
-                if (current < val) return -1;
-                if (current > val) return 1;
-                return 0;
-            });
-            while (this.curve[idx].t < this.startt && idx < this.curve.length) idx++;
-            while (this.curve[idx].t > this.startt && idx >= 0) idx--;
-            let p = this.curve[idx];
+            // let idx = binarySearchNearest(this.curve, this.startt, (current, val) => {
+            //     if (current < val) return -1;
+            //     if (current > val) return 1;
+            //     return 0;
+            // });
+            // while (this.curve[idx].t < this.startt && idx < this.curve.length) idx++;
+            // while (this.curve[idx].t > this.startt && idx >= 0) idx--;
+            // let p = this.curve[idx];
+
+            let p = getPointAtT(this.curve, this.startt);
 
             // let p = this.curve.find((point) => point.t >= this.startt);
             this.uniforms.ox += p.x * this.uniforms.dx;
@@ -436,14 +461,16 @@ class SliderMesh extends PIXI.Container {
             this.uniforms.dt = 0;
             this.uniforms.ot = 1;
 
-            let idx = binarySearchNearest(this.curve, this.endt, (current, val) => {
-                if (current < val) return -1;
-                if (current > val) return 1;
-                return 0;
-            });
-            while (this.curve[idx].t > this.endt && idx >= 0) idx--;
-            while (this.curve[idx].t < this.endt && idx < this.curve.length) idx++;
-            let p = this.curve[idx];
+            // let idx = binarySearchNearest(this.curve, this.endt, (current, val) => {
+            //     if (current < val) return -1;
+            //     if (current > val) return 1;
+            //     return 0;
+            // });
+            // while (this.curve[idx].t > this.endt && idx >= 0) idx--;
+            // while (this.curve[idx].t < this.endt && idx < this.curve.length) idx++;
+            // let p = this.curve[idx];
+
+            let p = getPointAtT(this.curve, this.endt);
 
             // let p = this.curve.findLast((point) => point.t <= this.endt);
             this.uniforms.ox += p.x * this.uniforms.dx;
