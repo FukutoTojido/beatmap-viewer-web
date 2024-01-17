@@ -28,9 +28,7 @@ void main() {
 const fragmentSrc = `
 precision mediump float;
 varying float dist;
-uniform sampler2D uSampler2;
 uniform float alpha;
-uniform float texturepos;
 uniform vec4 tint;
 uniform bool select;
 uniform float circleBaseScale;
@@ -67,7 +65,7 @@ void main() {
 
     vec4 borderColor = sliderBorder;
 
-    vec4 baseColor = texture2D(uSampler2, vec2(dist, texturepos));
+    vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 color_mixed = sliderTrackOverride;
 
     if (skinning != 2.0 && skinning != 3.0 && skinning != 4.0) color_mixed = tint;
@@ -75,7 +73,7 @@ void main() {
     float scale = circleBaseScale;
     if (skinning == 0.0 && !select) scale *= 0.95;
 
-    float position = vec2(dist, texturepos).x / scale;
+    float position = dist / scale;
 
     vec4 outerColor = darken(color_mixed, 0.1);
     vec4 innerColor = lighten(color_mixed, 0.5);
@@ -217,10 +215,10 @@ function curveGeometry(curve0, radius) {
         let t = dx1 * dy2 - dx2 * dy1; // d1 x d2
         if (t > 0) {
             // turning counterclockwise
-            addArc(5 * i, 5 * i - 1, 5 * i + 2);
+            addArc(5 * i, 5 * i - 1, 5 * i + 2, curve[i].t);
         } else {
             // turning clockwise or straight back
-            addArc(5 * i, 5 * i + 1, 5 * i - 2);
+            addArc(5 * i, 5 * i + 1, 5 * i - 2, curve[i].t);
         }
     }
     return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
