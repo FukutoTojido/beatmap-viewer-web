@@ -17,11 +17,11 @@ export class SliderEnd {
     }
 
     draw(timestamp) {
-        if (!Game.SLIDER_APPEARANCE.sliderend) {
+        if (!Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type === "0") {
             this.hitCircle.obj.alpha = 0;
             return;
         } 
-        
+
         this.hitCircle.colourHaxedIdx = this.baseSlider.colourHaxedIdx;
         this.hitCircle.colourIdx = this.baseSlider.colourIdx;
 
@@ -58,12 +58,12 @@ export class SliderEnd {
         }
 
         if (timestamp > startTime + currentFadeIn && Game.MODS.HD) {
-            this.hitCircle.obj.alpha = this.baseSlider.opacity;
+            this.hitCircle.obj.alpha = this.baseSlider.opacity * 0.9;
             return;
         }
 
         if (timestamp >= startTime + currentFadeIn && timestamp < this.baseSlider.endTime) {
-            this.hitCircle.obj.alpha = 1;
+            this.hitCircle.obj.alpha = 0.9;
             return;
         }
     }

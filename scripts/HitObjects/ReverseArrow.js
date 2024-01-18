@@ -90,7 +90,7 @@ export class ReverseArrow {
 
         this.hitCircle.draw(timestamp);
         this.hitCircle.number.obj.alpha = 0;
-        this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend ? 1 : 0;
+        this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type !== "0" ? 0.9 : 0;
 
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
@@ -124,7 +124,8 @@ export class ReverseArrow {
             return;
         }
 
-        if (timestamp > this.baseSlider.time && Game.MODS.HD) this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend ? this.baseSlider.opacity : 0;
+        if (timestamp > this.baseSlider.time && Game.MODS.HD)
+            this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type !== "0" ? this.baseSlider.opacity * 0.9 : 0;
 
         const fadeInTime = Math.min(300, this.baseSlider.sliderTime);
         if (this.idx !== 0) {
