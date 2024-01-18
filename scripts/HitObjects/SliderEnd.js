@@ -27,9 +27,7 @@ export class SliderEnd {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         const x = this.endPosition.x + stackHeight * currentStackOffset;
-        const y = !Game.MODS.HR
-            ? this.endPosition.y + stackHeight * currentStackOffset
-            : 384 - this.endPosition.y + stackHeight * currentStackOffset;
+        const y = !Game.MODS.HR ? this.endPosition.y + stackHeight * currentStackOffset : 384 - this.endPosition.y + stackHeight * currentStackOffset;
 
         this.hitCircle.obj.x = x * Game.SCALE_RATE;
         this.hitCircle.obj.y = y * Game.SCALE_RATE;
@@ -39,7 +37,7 @@ export class SliderEnd {
 
         const startTime = this.baseSlider.time - currentPreempt + currentPreempt / 3;
 
-        if (timestamp < this.baseSlider.endTime && !Game.SLIDER_APPEARANCE.snaking) {
+        if ((timestamp < this.baseSlider.endTime && !Game.SLIDER_APPEARANCE.snaking)) {
             this.hitCircle.obj.alpha = this.baseSlider.opacity;
             return;
         }
@@ -51,6 +49,11 @@ export class SliderEnd {
 
         if (timestamp >= startTime && timestamp < startTime + currentFadeIn) {
             this.hitCircle.obj.alpha = (timestamp - startTime) / currentFadeIn;
+            return;
+        }
+
+        if (timestamp > startTime + currentFadeIn && Game.MODS.HD) {
+            this.hitCircle.obj.alpha = this.baseSlider.opacity;
             return;
         }
 

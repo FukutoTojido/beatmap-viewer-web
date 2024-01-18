@@ -124,6 +124,8 @@ export class ReverseArrow {
             return;
         }
 
+        if (timestamp > this.baseSlider.time && Game.MODS.HD) this.hitCircle.obj.alpha = this.baseSlider.opacity;
+
         const fadeInTime = Math.min(300, this.baseSlider.sliderTime);
         if (this.idx !== 0) {
             if (timestamp < this.time - this.baseSlider.sliderTime * 2) return;
