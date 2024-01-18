@@ -57,7 +57,7 @@ export class HitCircle {
         this.selected.x = x * Game.SCALE_RATE;
         this.selected.y = y * Game.SCALE_RATE;
 
-        this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
+        this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
     }
 
     playHitsound(timestamp) {
