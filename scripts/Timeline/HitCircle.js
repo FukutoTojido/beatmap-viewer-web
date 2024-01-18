@@ -28,6 +28,7 @@ export class TimelineHitCircle {
         hitCircle.anchor.set(0.5, 0.5);
         hitCircleOverlay.anchor.set(0.5, 0.5);
         selected.anchor.set(0.5, 0.5);
+        selected.scale.set(0.5);
 
         this.hitCircle = hitCircle;
         this.hitCircle.tint = 0xffffff;
