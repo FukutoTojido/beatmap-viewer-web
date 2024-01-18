@@ -182,6 +182,7 @@ export function handleCheckBox(checkbox) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = Game.SLIDER_APPEARANCE[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+        return;
     }
 
     if (["showGreenLine"].includes(checkbox.name)) {
@@ -193,6 +194,7 @@ export function handleCheckBox(checkbox) {
 
         if (Game.MAPPING[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
         else document.querySelector(".timelineContainer").style.height = "60px";
+        return;
     }
 
     if (!Game.BEATMAP_FILE) return;
