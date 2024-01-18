@@ -1,4 +1,5 @@
 import { Game } from "./Game.js"
+import { Database } from "./Database.js";
 import * as PIXI from "pixi.js";
 
 export class Texture {
@@ -189,10 +190,11 @@ export class Texture {
         return renderTexture;
     }
 
-    static generateDefaultTextures() {
+    static async generateDefaultTextures() {
         Texture.SELECTED = {
-            texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
-            isHD: false,
+            // texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
+            texture: PIXI.Texture.from(await Database.getDefaults("base64s", "hitcircleselect@2x", "legacy")),
+            isHD: true,
         };
         Texture.ARGON.HIT_CIRCLE = {
             texture: Texture.createTexture("HIT_CIRCLE"),
@@ -218,11 +220,13 @@ export class Texture {
         };
         Texture.ARGON.REVERSE_ARROW = {
             arrow: {
-                texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
-                isHD: false,
+                // texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
+                texture: PIXI.Texture.from(await Database.getDefaults("base64s", "reversearrow@2x", "argon")),
+                isHD: true,
             },
             ring: {
-                texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
+                // texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
+                texture: PIXI.Texture.from(await Database.getDefaults("base64s", "repeat-edge-piece", "argon")),
                 isHD: false,
             },
         };
@@ -231,23 +235,37 @@ export class Texture {
             isHD: false,
         };
         Texture.ARGON.APPROACH_CIRCLE = {
-            texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
-            isHD: false,
+            // texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
+            texture: PIXI.Texture.from(await Database.getDefaults("base64s", "approachcircle@2x", "argon")),
+            isHD: true,
         };
-        Texture.ARGON.DEFAULTS = [...Array(10)].fill(null, 0, 10).map((_, idx) => {
-            return {
-                texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
-                isHD: false,
-            };
-        });
+        Texture.ARGON.DEFAULTS = [];
+        for (const idx in [...Array(10)].fill(null, 0, 10)) {
+            Texture.ARGON.DEFAULTS.push({
+                // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
+                texture: PIXI.Texture.from(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
+                isHD: true,
+            });
+        };
 
-        Texture.updateTextureFor("HIT_CIRCLE");
-        Texture.updateTextureFor("HIT_CIRCLE_OVERLAY");
-        Texture.updateTextureFor("SLIDER_B");
-        Texture.updateTextureFor("SLIDER_FOLLOW_CIRCLE");
-        Texture.updateTextureFor("REVERSE_ARROW");
-        Texture.updateTextureFor("APPROACH_CIRCLE");
-        Texture.updateNumberTextures([...Array(10)].fill({}, 0, 10));
+        await Texture.updateTextureFor("HIT_CIRCLE");
+        await Texture.updateTextureFor("HIT_CIRCLE_OVERLAY");
+        await Texture.updateTextureFor("SLIDER_B");
+        await Texture.updateTextureFor("SLIDER_FOLLOW_CIRCLE");
+        await Texture.updateTextureFor("REVERSE_ARROW");
+        await Texture.updateTextureFor("APPROACH_CIRCLE");
+
+        const LEGACY_NUM = [];
+        for (const idx in [...Array(10)].fill(null, 0, 10)) {
+            LEGACY_NUM.push({
+                // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
+                base64: await Database.getDefaults("base64s", `default-${idx}@2x`, "legacy"),
+                isHD: true,
+            });
+        };
+
+        // console.log(LEGACY_NUM);
+        await Texture.updateNumberTextures(LEGACY_NUM);
     }
 
     static updateNumberTextures(arr, forIdx) {
@@ -269,7 +287,7 @@ export class Texture {
         });
     }
 
-    static updateTextureFor(type, base64, isHD, forIdx) {
+    static async updateTextureFor(type, base64, isHD, forIdx) {
         if (forIdx && !Texture.CUSTOM[forIdx]) {
             Texture.CUSTOM[forIdx] = {
                 DEFAULTS: null,
@@ -288,21 +306,24 @@ export class Texture {
         switch (type) {
             case "HIT_CIRCLE":
                 textureSet.HIT_CIRCLE = {
-                    texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircle@2x.png"),
-                    isHD: base64 ? isHD : false,
+                    // texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircle@2x.png"),
+                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `hitcircle@2x`, "legacy")),
+                    isHD: base64 ? isHD : true,
                 };
                 break;
             case "HIT_CIRCLE_OVERLAY":
                 textureSet.HIT_CIRCLE_OVERLAY = {
-                    texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircleoverlay@2x.png"),
-                    isHD: base64 ? isHD : false,
+                    // texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircleoverlay@2x.png"),
+                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `hitcircleoverlay@2x`, "legacy")),
+                    isHD: base64 ? isHD : true,
                 };
                 break;
             case "SLIDER_B":
                 textureSet.SLIDER_B = {
                     ring: {
-                        texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/sliderb0@2x.png"),
-                        isHD: base64 ? isHD : false,
+                        // texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/sliderb0@2x.png"),
+                        texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `sliderb0@2x`, "legacy")),
+                        isHD: base64 ? isHD : true,
                     },
                     arrow: {
                         texture: PIXI.Texture.from("static/empty.png"),
@@ -317,8 +338,9 @@ export class Texture {
             case "REVERSE_ARROW":
                 textureSet.REVERSE_ARROW = {
                     arrow: {
-                        texture: PIXI.Texture.from(base64 ?? "static/legacy/reversearrow@2x.png"),
-                        isHD: base64 ? isHD : false,
+                        // texture: PIXI.Texture.from(base64 ?? "static/legacy/reversearrow@2x.png"),
+                        texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `reversearrow@2x`, "legacy")),
+                        isHD: base64 ? isHD : true,
                     },
                     ring: {
                         texture: PIXI.Texture.from("static/empty.png"),
@@ -328,14 +350,16 @@ export class Texture {
                 break;
             case "SLIDER_FOLLOW_CIRCLE":
                 textureSet.SLIDER_FOLLOW_CIRCLE = {
-                    texture: PIXI.Texture.from(base64 ?? "static/legacy/sliderfollowcircle@2x.png"),
-                    isHD: base64 ? isHD : false,
+                    // texture: PIXI.Texture.from(base64 ?? "static/legacy/sliderfollowcircle@2x.png"),
+                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `sliderfollowcircle@2x`, "legacy")),
+                    isHD: base64 ? isHD : true,
                 };
                 break;
             case "APPROACH_CIRCLE":
                 textureSet.APPROACH_CIRCLE = {
-                    texture: PIXI.Texture.from(base64 ?? "static/legacy/approachcircle@2x.png"),
-                    isHD: base64 ? isHD : false,
+                    // texture: PIXI.Texture.from(base64 ?? "static/legacy/approachcircle@2x.png"),
+                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `approachcircle@2x`, "legacy")),
+                    isHD: base64 ? isHD : true,
                 };
                 break;
         }

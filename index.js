@@ -75,7 +75,7 @@ function setupDefaultStorage() {
 
     // Init
     Game.init();
-    Texture.generateDefaultTextures();
+    await Texture.generateDefaultTextures();
 
     document.body.addEventListener("keydown", (e) => {
         switch (e.key) {

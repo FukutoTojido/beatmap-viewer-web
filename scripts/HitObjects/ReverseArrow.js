@@ -99,7 +99,7 @@ export class ReverseArrow {
             circleBaseScale * Game.SCALE_RATE * (textures.REVERSE_ARROW.arrow.isHD ? 0.5 : 1) * (236 / 256) ** 2 * (skinType === "ARGON" ? 0.95 : 1);
 
         this.arrowSprite.scale.set(baseScale * (1 + easeOutSine(pulseRate) * 0.2));
-        this.ringSprite.scale.set(0.5 * (229 / 200) * baseScale);
+        this.ringSprite.scale.set((229 / 200) * baseScale);
         this.ringSprite.x = easeOutSine(pulseRate) * -12 * (512 / Game.WIDTH);
         this.obj.scale.set(1);
         this.obj.alpha = 0;

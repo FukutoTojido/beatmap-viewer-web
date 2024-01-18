@@ -3,6 +3,7 @@ import { Texture } from "../Texture.js";
 import { Beatmap } from "../Beatmap.js";
 import { ObjectsController } from "./ObjectsController.js";
 import { ProgressBar } from "../Progress.js";
+import { SliderEnd } from "./SliderEnd.js";
 import { HitCircle } from "./HitCircle.js";
 import { SliderGeometryContainers } from "./SliderMesh.js";
 import { SliderBall } from "./SliderBall.js";
@@ -50,6 +51,7 @@ export class Slider {
     revArrows = [];
     ticks = [];
     ball;
+    sliderEnd;
 
     angleE;
     angleS;
@@ -136,24 +138,24 @@ export class Slider {
             return;
         }
 
-        if (timestamp >= this.endTime && ObjectsController.lastTimestamp < this.endTime) {
-            if (!ScoreParser.REPLAY_DATA) {
-                this.hitSounds.sliderTail.play();
-                return;
-            }
+        // if (timestamp >= this.endTime && ObjectsController.lastTimestamp < this.endTime) {
+        //     if (!ScoreParser.REPLAY_DATA) {
+        //         this.hitSounds.sliderTail.play();
+        //         return;
+        //     }
 
-            // Will reimplement later
-            const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.time, (evaluation, time) => {
-                if (evaluation.time < time) return -1;
-                if (evaluation.time > time) return 1;
-                return 0;
-            });
+        //     // Will reimplement later
+        //     const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.time, (evaluation, time) => {
+        //         if (evaluation.time < time) return -1;
+        //         if (evaluation.time > time) return 1;
+        //         return 0;
+        //     });
 
-            if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1) {
-                this.hitSounds.sliderTail.play();
-                return;
-            }
-        }
+        //     if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1) {
+        //         this.hitSounds.sliderTail.play();
+        //         return;
+        //     }
+        // }
     }
 
     drawBorder(timestamp) {
@@ -246,6 +248,7 @@ export class Slider {
     draw(timestamp) {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
+        this.sliderEnd.draw(timestamp);
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
@@ -786,6 +789,8 @@ export class Slider {
         // this.draw(0.5);
         // console.log(this.repeat % 2);
 
+        this.sliderEnd = new SliderEnd(this);
+
         if (this.repeat > 1) {
             const deltaXE = this.angleList.at(-1).x - this.angleList.at(-2).x;
             const deltaYE = this.angleList.at(-1).y - this.angleList.at(-2).y;
@@ -872,6 +877,7 @@ export class Slider {
         this.selectedSliderEnd = new PIXI.Sprite(Texture.SELECTED.texture);
         this.selectedSliderEnd.anchor.set(0.5);
 
+        // SliderContainer.addChild(this.sliderEnd.hitCircle.obj);
         SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);
         SliderContainer.addChild(this.nodesContainer);

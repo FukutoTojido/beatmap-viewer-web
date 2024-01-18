@@ -253,6 +253,7 @@ export class HitCircle {
 
         const selected = new PIXI.Sprite(Texture.SELECTED.texture);
         selected.anchor.set(0.5);
+        selected.scale.set(0.5);
         this.selected = selected;
 
         const hitCircleOverlaySprite = new PIXI.Sprite(Texture.ARGON.HIT_CIRCLE_OVERLAY.texture);

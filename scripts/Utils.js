@@ -105,10 +105,10 @@ export async function refreshSkinDB() {
 }
 
 export async function loadLocalStorage() {
+    await Database.initDatabase();
     document.querySelector("#loadingText").textContent = `Initializing: Default Samples`;
     await loadDefaultSamples();
     document.querySelector("#loadingText").textContent = `Initializing: Default Skins`;
-    await Database.initDatabase();
     await refreshSkinDB();
     // const res = await Database.readObjStore("skins");
     // const res = await Database.getAllKeys();
@@ -267,13 +267,15 @@ export async function loadDefaultSamples() {
         for (const sampleset of ["normal", "soft", "drum"]) {
             for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
                 // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
-                const res = (
-                    await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
-                        responseType: "arraybuffer",
-                    })
-                ).data;
+                // const res = (
+                //     await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
+                //         responseType: "arraybuffer",
+                //     })
+                // ).data;
 
-                const buffer = await Game.AUDIO_CTX.decodeAudioData(res);
+                const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
+                // console.log(arrBuf);
+                const buffer = await (Game.AUDIO_CTX.decodeAudioData(arrBuf));
                 HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
                 HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
             }
@@ -306,6 +308,20 @@ export function toDataUrl(url, callback) {
     xhr.open("GET", url);
     xhr.responseType = "blob";
     xhr.send();
+}
+
+export function imageToBase64(url) {
+    return new Promise(async (resolve, reject) => {
+        const data = await fetch(url)
+        const blob = await data.blob();
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onload = () => {
+            const base64data = reader.result;
+            resolve(base64data)
+        }
+    })
+
 }
 
 export function changeZoomRate(zoomStep, the) {
