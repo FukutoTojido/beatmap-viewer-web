@@ -1,7 +1,7 @@
 import { Game } from "../Game.js";
 import { Texture } from "../Texture.js";
 import { Beatmap } from "../Beatmap.js";
-import { Clamp, easeOutQuint } from "../Utils.js";
+import { Clamp, easeOutQuint, easeOutSine } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import * as PIXI from "pixi.js";
 
@@ -76,7 +76,7 @@ export class SliderBall {
 
             this.sliderB.alpha = easeOutQuint(alphaB);
             this.followCircle.alpha = easeOutQuint(alphaF);
-            this.followCircle.scale.set((1.5 + alphaF * 0.9) * sliderFollowSkinScale);
+            this.followCircle.scale.set((1.5 + easeOutSine(alphaF) * 0.9) * sliderFollowSkinScale);
         }
 
         this.arrow.scale.set(0.7, 0.8);
@@ -112,7 +112,7 @@ export class SliderBall {
 
             this.sliderB.alpha = 1 - easeOutQuint(alphaB);
             this.followCircle.alpha = 1 - easeOutQuint(alphaF);
-            this.followCircle.scale.set((1.5 + (1 - alphaF) * 0.9) * sliderFollowSkinScale);
+            this.followCircle.scale.set((1.5 + easeOutSine(1 - alphaF) * 0.9) * sliderFollowSkinScale);
         }
     }
 }
