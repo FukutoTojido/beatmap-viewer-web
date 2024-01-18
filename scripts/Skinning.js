@@ -48,6 +48,8 @@ export class Skinning {
 
     static async changeSkin() {
         if (Game.SKINNING.type !== "4") {
+            Skinning.DEFAULT_COLORS = [0xffc000, 0x00ca00, 0x127cff, 0xf21839];
+            Skinning.HIT_CIRCLE_PREFIX = "default";
             document.querySelector(".skinSelector").textContent = Skinning.SKIN_NAME[Game.SKINNING.type];
             // console.log(Game.SKINNING.type);
             return;
@@ -56,6 +58,8 @@ export class Skinning {
         if (!Skinning.SKIN_LIST[Skinning.SKIN_IDX]) {
             Game.SKINNING.type = "2";
             Skinning.SKIN_IDX = -1;
+            Skinning.DEFAULT_COLORS = [0xffc000, 0x00ca00, 0x127cff, 0xf21839];
+            Skinning.HIT_CIRCLE_PREFIX = "default";
             document.querySelector(".skinSelector").textContent = "Legacy";
             return;
         }

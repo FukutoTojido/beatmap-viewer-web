@@ -2,6 +2,7 @@ import { Beatmap } from "./Beatmap.js";
 import { Clamp } from "./Utils.js";
 import { Notification } from "./Notification.js";
 import { Game } from "./Game.js";
+import TWEEN, { Tween } from "@tweenjs/tween.js";
 
 export function setAudioTime(value) {
     if (!Game.BEATMAP_FILE?.audioNode) return;
@@ -55,6 +56,10 @@ export function go(precise, isForward) {
     const relativeTickPassed = Math.round(relativePosition / step);
 
     const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
+
+    // const tween = new Tween({ time: current }).easing(TWEEN.Easing.Sinusoidal.Out).to({ time: goTo }, 100).onUpdate((obj) => {
+    //     Game.BEATMAP_FILE.audioNode.seekTo(obj.time);
+    // }).start();
 
     Game.BEATMAP_FILE.audioNode.seekTo(goTo);
 }
