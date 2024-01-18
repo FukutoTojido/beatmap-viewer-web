@@ -110,7 +110,7 @@ export class Slider {
         this.selectedSliderEnd.x = x * Game.SCALE_RATE;
         this.selectedSliderEnd.y = y * Game.SCALE_RATE;
 
-        this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
+        this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
     }
 
     playHitsound(timestamp) {
