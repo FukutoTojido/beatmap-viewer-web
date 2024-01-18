@@ -35,6 +35,7 @@ function setupDefaultStorage() {
         },
         sliderAppearance: {
             snaking: true,
+            sliderend: true,
             hitAnim: true,
             ignoreSkin: false,
         },

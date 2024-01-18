@@ -178,7 +178,7 @@ export function handleCheckBox(checkbox) {
     const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
     const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
 
-    if (["snaking", "hitAnim", "ignoreSkin"].includes(checkbox.name)) {
+    if (["snaking", "sliderend", "hitAnim", "ignoreSkin"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = Game.SLIDER_APPEARANCE[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));

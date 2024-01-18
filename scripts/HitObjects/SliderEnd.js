@@ -17,6 +17,11 @@ export class SliderEnd {
     }
 
     draw(timestamp) {
+        if (!Game.SLIDER_APPEARANCE.sliderend) {
+            this.hitCircle.obj.alpha = 0;
+            return;
+        } 
+        
         this.hitCircle.colourHaxedIdx = this.baseSlider.colourHaxedIdx;
         this.hitCircle.colourIdx = this.baseSlider.colourIdx;
 
