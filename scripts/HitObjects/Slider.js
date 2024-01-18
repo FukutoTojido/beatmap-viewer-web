@@ -248,7 +248,7 @@ export class Slider {
     draw(timestamp) {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
-        // this.sliderEnd.draw(timestamp);
+        this.sliderEnd.draw(timestamp);
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
@@ -844,8 +844,9 @@ export class Slider {
         const SliderContainer = new PIXI.Container();
         SliderContainer.addChild(this.SliderMeshContainer);
 
-        this.revArrows.forEach((arrow) => SliderContainer.addChild(arrow.obj));
         this.ticks.forEach((tick) => SliderContainer.addChild(tick.obj));
+        SliderContainer.addChild(this.sliderEnd.hitCircle.obj);
+        this.revArrows.forEach((arrow) => SliderContainer.addChild(arrow.obj));
 
         this.nodesContainer = new PIXI.Container();
         this.nodesLine = new PIXI.Graphics().lineStyle(1, 0xffffff).moveTo(this.nodes[0].position.x, this.nodes[0].position.y);
@@ -877,7 +878,6 @@ export class Slider {
         this.selectedSliderEnd = new PIXI.Sprite(Texture.SELECTED.texture);
         this.selectedSliderEnd.anchor.set(0.5);
 
-        // SliderContainer.addChild(this.sliderEnd.hitCircle.obj);
         SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);
         SliderContainer.addChild(this.nodesContainer);

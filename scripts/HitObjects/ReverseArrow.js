@@ -6,6 +6,7 @@ import { Clamp, easeOutSine, binarySearch } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as PIXI from "pixi.js";
+import { HitCircle } from "./HitCircle.js";
 
 export class ReverseArrow {
     baseSlider;
@@ -21,6 +22,8 @@ export class ReverseArrow {
     ringSprite;
     arrowSprite;
     baseUnit = 200 / 2;
+
+    hitCircle;
 
     constructor(baseSlider, time, position, angle, stackHeight, idx) {
         this.baseSlider = baseSlider;
@@ -39,7 +42,10 @@ export class ReverseArrow {
         ringSprite.scale.set(0.5 * (229 / 200));
         this.ringSprite = ringSprite;
 
+        this.hitCircle = new HitCircle(0, 0, this.time, null);
+
         this.obj = new PIXI.Container();
+        this.obj.addChild(this.hitCircle.obj);
         this.obj.addChild(ringSprite);
         this.obj.addChild(arrowSprite);
 
@@ -78,6 +84,14 @@ export class ReverseArrow {
 
     draw(timestamp) {
         this.playHitsound(timestamp);
+
+        this.hitCircle.colourHaxedIdx = this.baseSlider.colourHaxedIdx;
+        this.hitCircle.colourIdx = this.baseSlider.colourIdx;
+
+        this.hitCircle.draw(timestamp);
+        this.hitCircle.number.obj.alpha = 0;
+        this.hitCircle.obj.alpha = 1;
+
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
@@ -92,6 +106,7 @@ export class ReverseArrow {
         this.obj.x = (this.position.x + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.rotation = !Game.MODS.HR ? this.angle : Math.PI * 2 - this.angle;
+        this.hitCircle.obj.rotation = !Game.MODS.HR ? -this.angle : -(Math.PI * 2 - this.angle);
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
