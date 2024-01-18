@@ -138,24 +138,24 @@ export class Slider {
             return;
         }
 
-        // if (timestamp >= this.endTime && ObjectsController.lastTimestamp < this.endTime) {
-        //     if (!ScoreParser.REPLAY_DATA) {
-        //         this.hitSounds.sliderTail.play();
-        //         return;
-        //     }
+        if (timestamp >= this.endTime && ObjectsController.lastTimestamp < this.endTime) {
+            if (!ScoreParser.REPLAY_DATA) {
+                this.hitSounds.sliderTail.play();
+                return;
+            }
 
-        //     // Will reimplement later
-        //     const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.time, (evaluation, time) => {
-        //         if (evaluation.time < time) return -1;
-        //         if (evaluation.time > time) return 1;
-        //         return 0;
-        //     });
+            // Will reimplement later
+            const evaluation = binarySearch(ScoreParser.EVAL_LIST, this.time, (evaluation, time) => {
+                if (evaluation.time < time) return -1;
+                if (evaluation.time > time) return 1;
+                return 0;
+            });
 
-        //     if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1) {
-        //         this.hitSounds.sliderTail.play();
-        //         return;
-        //     }
-        // }
+            if (ScoreParser.EVAL_LIST[evaluation]?.checkPointState.findLast((checkPoint) => checkPoint.type === "Slider End").eval === 1) {
+                this.hitSounds.sliderTail.play();
+                return;
+            }
+        }
     }
 
     drawBorder(timestamp) {
@@ -248,7 +248,7 @@ export class Slider {
     draw(timestamp) {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
-        this.sliderEnd.draw(timestamp);
+        // this.sliderEnd.draw(timestamp);
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
