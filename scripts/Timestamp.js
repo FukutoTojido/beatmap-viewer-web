@@ -1,6 +1,8 @@
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { parseTime } from "./ProgressBar.js";
 import * as PIXI from "pixi.js";
+import { Component } from "./WindowManager.js";
+import { Game } from "./Game.js";
 
 export class Timestamp {
     static renderer;
@@ -8,6 +10,8 @@ export class Timestamp {
 
     static WIDTH;
     static HEIGHT;
+
+    static MASTER_CONTAINER;
 
     static digits = {
         minutes: [],
@@ -30,9 +34,13 @@ export class Timestamp {
     }
 
     static init() {
-        this.renderer = new PIXI.Renderer({ width: 110, height: 60, backgroundColor: 0x4c566a, antialias: true, autoDensity: true });
-        document.querySelector("#timeContainer").append(this.renderer.view);
-        this.stage = new PIXI.Container();
+        // this.renderer = new PIXI.Renderer({ width: 110, height: 60, backgroundColor: 0x4c566a, antialias: true, autoDensity: true });
+        // document.querySelector("#timeContainer").append(this.renderer.view);
+
+        this.MASTER_CONTAINER = new Component(0, Game.APP.renderer.height - 60, 110, 60);
+        this.MASTER_CONTAINER.alpha = 1;
+        
+        this.stage = this.MASTER_CONTAINER.container;
 
         this.WIDTH = 120;
         this.HEIGHT = 60;
@@ -91,6 +99,6 @@ export class Timestamp {
             this.digits.minutes[idx].text = val;
         });
 
-        this.renderer.render(this.stage);
+        // this.renderer.render(this.stage);
     }
 }

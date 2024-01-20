@@ -21,8 +21,8 @@ void main() {
         test = 1.0;
 
     gl_Position = vec4(position[0], position[1], position[3] + 2.0 * test, 1.0);
-    gl_Position.x = gl_Position.x * dx + ox;
-    gl_Position.y = gl_Position.y * dy + oy;
+    gl_Position.x = -1.0 + gl_Position.x * dx + ox;
+    gl_Position.y = gl_Position.y * dy + 1.0 + oy;
 }`;
 
 // fragment shader source
@@ -309,8 +309,8 @@ class SliderMesh extends PIXI.Container {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
-        const dx = (2 * Game.WIDTH) / Game.APP.view.width / 512;
-        const dy = (inverse * (-2 * Game.HEIGHT)) / Game.APP.view.height / 384;
+        const dx = (1 * Game.WIDTH) / Game.MASTER_CONTAINER.w / 512;
+        const dy = (inverse * (-1 * Game.HEIGHT)) / Game.MASTER_CONTAINER.h / 384;
 
         const transform = {
             dx: dx,
@@ -354,14 +354,17 @@ class SliderMesh extends PIXI.Container {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
-        const dx = (2 * Game.WIDTH) / Game.APP.view.width / 512;
+        const dx = 2 * (Game.WIDTH / 512) / Game.APP.view.width;
         const dy = (inverse * (-2 * Game.HEIGHT)) / Game.APP.view.height / 384;
+
+        const offsetX = this.slider.stackHeight * currentStackOffset * dx;
+        const offsetY = this.slider.stackHeight * currentStackOffset * dy * inverse;
 
         const transform = {
             dx: dx,
-            ox: -1 * (Game.WIDTH / Game.APP.view.width) + dx * this.slider.stackHeight * currentStackOffset,
+            ox: 2 * (Game.MASTER_CONTAINER.x + Game.OFFSET_X) / Game.APP.renderer.width + offsetX,
             dy: dy,
-            oy: inverse * 1 * (Game.HEIGHT / Game.APP.view.height) + inverse * dy * this.slider.stackHeight * currentStackOffset,
+            oy: -2 * (Game.MASTER_CONTAINER.y + Game.OFFSET_Y) / Game.APP.renderer.height + offsetY
         };
 
         var shader = this.shader;

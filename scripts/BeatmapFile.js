@@ -527,10 +527,10 @@ export class BeatmapFile {
                 passive: false,
             });
 
-            document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
-                capture: true,
-                passive: false,
-            });
+            // document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
+            //     capture: true,
+            //     passive: false,
+            // });
 
             this.isLoaded = true;
             // (new Notification(`Finished map setup`)).notify();

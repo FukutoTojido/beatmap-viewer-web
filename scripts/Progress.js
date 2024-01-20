@@ -3,6 +3,7 @@ import { Clamp } from "./Utils.js";
 import { setAudioTime } from "./ProgressBar.js";
 import { Game } from "./Game.js";
 import * as PIXI from "pixi.js";
+import { Component } from "./WindowManager.js";
 
 export class ProgressBar {
     static renderer;
@@ -150,22 +151,24 @@ export class ProgressBar {
     }
 
     static init() {
-        const { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
+        this.WIDTH = Game.MASTER_CONTAINER.w - 110 - 360;
+        this.HEIGHT = 60 * devicePixelRatio;
 
-        this.WIDTH = parseInt(width) * window.devicePixelRatio;
-        this.HEIGHT = parseInt(height) * window.devicePixelRatio;
+        // this.renderer = new PIXI.Renderer({
+        //     width: this.WIDTH,
+        //     height: this.HEIGHT,
+        //     backgroundColor: 0x4c566a,
+        //     backgroundAlpha: 0,
+        //     antialias: true,
+        //     autoDensity: true,
+        // });
+        // document.querySelector(".progressBarContainer").append(this.renderer.view);
+        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
-        this.renderer = new PIXI.Renderer({
-            width: this.WIDTH,
-            height: this.HEIGHT,
-            backgroundColor: 0x4c566a,
-            backgroundAlpha: 0,
-            antialias: true,
-            autoDensity: true,
-        });
-        document.querySelector(".progressBarContainer").append(this.renderer.view);
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-        this.stage = new PIXI.Container();
+        this.MASTER_CONTAINER = new Component((110 + 360), Game.APP.renderer.height - 60, this.WIDTH, this.HEIGHT);
+        this.MASTER_CONTAINER.alpha = 1;
+
+        this.stage = this.MASTER_CONTAINER.container;
 
         this.timeline = new PIXI.Graphics();
         this.timeline.x = 40 * devicePixelRatio;
@@ -208,20 +211,24 @@ export class ProgressBar {
     }
 
     static resize() {
-        let { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
+        if (this.MASTER_CONTAINER.w !== Game.MASTER_CONTAINER.w - 110 - 360) {
+            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - 110 - 360;
+        }
 
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+        // let { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
 
-        if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
+        const width = this.MASTER_CONTAINER.w;
+        const height = this.MASTER_CONTAINER.h;
+
+        // if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
 
         if (this.WIDTH === width && this.HEIGHT === height) return;
 
         this.WIDTH = width;
         this.HEIGHT = height;
-        this.renderer.resize(this.WIDTH, this.HEIGHT);
+        // this.renderer.resize(this.WIDTH, this.HEIGHT);
 
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.restyle();
         this.initTimingPoints();
 
@@ -232,9 +239,8 @@ export class ProgressBar {
     }
 
     static restyle(isHover) {
-        const rootCSS = document.querySelector(":root");
-        let bgColor = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
-        let accentColor = parseInt(rootCSS.style.getPropertyValue("--accent-1").slice(1), 16);
+        let bgColor = Game.COLOR_PALETTES.primary1;
+        let accentColor = Game.COLOR_PALETTES.accent1;
 
         if (!bgColor) bgColor = 0x171a1f;
         if (!accentColor) accentColor = 0x88c0d0;
@@ -279,6 +285,6 @@ export class ProgressBar {
             this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
         }
 
-        this.renderer.render(this.stage);
+        // this.renderer.render(this.stage);
     }
 }

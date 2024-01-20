@@ -1,3 +1,8 @@
+import { Game } from "./Game";
+import * as TWEEN from "@tweenjs/tween.js";
+import { Component } from "./WindowManager";
+import { TimingPanel } from "./TimingPanel";
+
 const toggleTimingPanel = (forceOpen) => {
     if (forceOpen === true) {
         document.querySelector(".metadataPanel").classList.remove("show");
@@ -66,4 +71,27 @@ export const toggleSidePanel = (type) => {
 
     toggleMetadataPanel(true);
 };
-document.querySelector(".timingContainer").onclick = () => toggleSidePanel("timing");
+
+const testX = () => {
+    Game.SHOW_TIMING_PANEL = !Game.SHOW_TIMING_PANEL;
+
+    const reduction = !Game.SHOW_TIMING_PANEL ? 0 : 400;
+    const tween = new TWEEN.Tween({ reduction: !Game.SHOW_TIMING_PANEL ? 400 : 0 })
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .to({ reduction }, 100)
+        .onUpdate((obj) => {
+            Game.REDUCTION = obj.reduction
+        })
+        .start();
+};
+
+// document.querySelector(".timingContainer").onclick = () => toggleSidePanel("timing");
+document.querySelector(".timingContainer").onclick = () => testX();
+
+export class MetadataPanel {
+    static MASTER_CONTAINER;
+
+    static init() {
+        this.MASTER_CONTAINER = new Component(0, 0, 400, Game.APP.renderer.height - 60);
+    }
+}

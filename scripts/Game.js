@@ -7,11 +7,13 @@ import { Slider } from "./HitObjects/Slider.js";
 import { handleCanvasDrag, checkCollide } from "./DragWindow.js";
 import { HitSample } from "./Audio.js";
 import { TimingPanel } from "./TimingPanel.js";
+import { Component } from "./WindowManager.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import * as PIXI from "pixi.js";
 
 export class Game {
     static APP;
+    static MASTER_CONTAINER;
     static CONTAINER;
     static GRID;
     static DRAG_WINDOW;
@@ -61,6 +63,18 @@ export class Game {
     static DIFF_FILE_NAME = "";
     static DROP_BLOB = null;
     static BEATMAP_FILE = undefined;
+
+    static COLOR_PALETTES = {
+        accent1: 0x88c0d0,
+        primary1: 0x171a1f,
+        primary2: 0x2e3440,
+        primary3: 0x3b4252,
+        primary4: 0x434c5e,
+        primary5: 0x4c566a,
+    };
+
+    static SHOW_TIMING_PANEL = false;
+    static REDUCTION = 0;
 
     // Add certain objects from container
     static addToContainer(objectsList) {
@@ -164,7 +178,10 @@ export class Game {
 
             const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
 
-            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            let { x, y } = (e.global);
+            x -= Game.OFFSET_X;
+            y -= Game.OFFSET_Y + Game.MASTER_CONTAINER.y;
+
             x /= Game.SCALE_RATE;
             y /= Game.SCALE_RATE;
 
@@ -192,19 +209,22 @@ export class Game {
             Game.DID_MOVE = false;
         };
 
-        grid.on("click", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("click", (e) => {
             clickControl(e);
         });
-        grid.on("touchstart", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("touchstart", (e) => {
             clickControl(e);
         });
 
-        grid.on("touchend", (e) => {});
+        Game.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {});
 
-        grid.on("mousedown", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("mousedown", (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
-            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            let { x, y } = (e.global);
+            x -= Game.OFFSET_X;
+            y -= Game.OFFSET_Y + Game.MASTER_CONTAINER.y;
+
             x /= Game.WIDTH / 512;
             y /= Game.WIDTH / 512;
 
@@ -228,7 +248,7 @@ export class Game {
             // console.log("Mouse DOWN");
         });
 
-        grid.on("mouseup", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("mouseup", (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
             if (Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
@@ -239,12 +259,17 @@ export class Game {
             // console.log("Mouse UP");
         });
 
-        grid.on("mousemove", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("mousemove", (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
-            let { x, y } = Game.CONTAINER.toLocal(e.global);
-            x /= Game.WIDTH / 512;
-            y /= Game.WIDTH / 512;
+            let { x, y } = (e.global);
+            x -= Game.OFFSET_X;
+            y -= Game.OFFSET_Y + Game.MASTER_CONTAINER.y;
+
+            x /= Game.SCALE_RATE;
+            y /= Game.SCALE_RATE;
+
+            // console.log(x, y);
 
             if (Game.IS_DRAGGING) {
                 Game.DID_MOVE = true;
@@ -297,6 +322,7 @@ export class Game {
         // Set container offset
         container.x = Game.OFFSET_X;
         container.y = Game.OFFSET_Y;
+        container.eventMode = "static";
 
         return container;
     }
@@ -304,6 +330,7 @@ export class Game {
     static appResize() {
         // Resize Game Field
         Game.appSizeSetup();
+        Game.gameSizeSetup();
 
         // Reposition grid
         Game.GRID.x = Game.OFFSET_X;
@@ -319,8 +346,8 @@ export class Game {
         Game.DRAG_WINDOW.y = Game.OFFSET_Y;
 
         // Reposition FPS
-        Game.FPS.x = Game.APP.view.width - 10;
-        Game.FPS.y = Game.APP.view.height - 10;
+        Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
+        Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
     }
 
     static appSizeSetup() {
@@ -329,31 +356,8 @@ export class Game {
         width = parseInt(width) * window.devicePixelRatio;
         height = parseInt(height) * window.devicePixelRatio;
 
-        if (Game.WIDTH === width && Game.HEIGHT === height) return;
-
-        Game.WIDTH = width;
-        Game.HEIGHT = height;
-        Game.APP.renderer.resize(Game.WIDTH, Game.HEIGHT);
-
-        // Change game width and height to match 4:3 aspect ratio
-        if (Game.WIDTH / 512 > Game.HEIGHT / 384) {
-            Game.WIDTH = (Game.HEIGHT / 384) * 512;
-        } else {
-            Game.HEIGHT = (Game.WIDTH / 512) * 384;
-        }
-
-        // Re-scale game size by 80% to make space for padding
-        Game.WIDTH *= 0.8;
-        Game.HEIGHT *= 0.8;
-
-        // Calculate offset
-        Game.OFFSET_X = (Game.APP.view.width - Game.WIDTH) / 2;
-        Game.OFFSET_Y = (Game.APP.view.height - Game.HEIGHT) / 2;
-
-        // Re-scale Game Canvas on Retina / Mobile devices
-
-        // ...
-        Game.SCALE_RATE = Game.WIDTH / 512;
+        if (Game.APP.renderer.width === width && Game.APP.renderer.height === height) return;
+        Game.APP.renderer.resize(width, height);
         Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
@@ -368,6 +372,44 @@ export class Game {
         });
 
         Game.appSizeSetup();
+        Game.gameInit();
+    }
+
+    static gameSizeSetup() {
+        Game.MASTER_CONTAINER.w = Game.APP.renderer.width - Game.REDUCTION;
+        if (Game.MASTER_CONTAINER.h !== Game.APP.renderer.height - 120) Game.MASTER_CONTAINER.h = Game.APP.renderer.height - 120;
+
+        if (Game.WIDTH === Game.MASTER_CONTAINER.w && Game.HEIGHT === Game.MASTER_CONTAINER.h) return;
+
+        Game.WIDTH = Game.MASTER_CONTAINER.w;
+        Game.HEIGHT = Game.MASTER_CONTAINER.h;
+
+        // Change game width and height to match 4:3 aspect ratio
+        if (Game.WIDTH / 512 > Game.HEIGHT / 384) {
+            Game.WIDTH = (Game.HEIGHT / 384) * 512;
+        } else {
+            Game.HEIGHT = (Game.WIDTH / 512) * 384;
+        }
+
+        // Re-scale game size by 80% to make space for padding
+        Game.WIDTH *= 0.8;
+        Game.HEIGHT *= 0.8;
+
+        // Calculate offset
+        Game.OFFSET_X = (Game.MASTER_CONTAINER.w - Game.WIDTH) / 2;
+        Game.OFFSET_Y = (Game.MASTER_CONTAINER.h - Game.HEIGHT) / 2;
+
+        // Re-scale Game Canvas on Retina / Mobile devices
+
+        // ...
+        Game.SCALE_RATE = Game.WIDTH / 512;
+    }
+
+    static gameInit() {
+        Game.MASTER_CONTAINER = new Component(0, 60, Game.APP.renderer.width, Game.APP.renderer.height - 120);
+        Game.MASTER_CONTAINER.color = 0x000000;
+        Game.MASTER_CONTAINER.alpha = 0.01;
+        Game.gameSizeSetup();
     }
 
     static init() {
@@ -378,20 +420,29 @@ export class Game {
         Game.FPS = Game.FPSInit();
         Game.CURSOR = Game.CursorInit();
 
-        Game.APP.stage.addChild(Game.GRID);
-        Game.APP.stage.addChild(Game.DRAG_WINDOW);
-        Game.APP.stage.addChild(Game.CONTAINER);
-        Game.APP.stage.addChild(Game.FPS);
-        Game.APP.stage.addChild(Game.CURSOR.obj);
+        Game.MASTER_CONTAINER.container.addChild(Game.GRID);
+        Game.MASTER_CONTAINER.container.addChild(Game.DRAG_WINDOW);
+        Game.MASTER_CONTAINER.container.addChild(Game.CONTAINER);
+        Game.MASTER_CONTAINER.container.addChild(Game.FPS);
+        Game.MASTER_CONTAINER.container.addChild(Game.CURSOR.obj);
+
+        Game.APP.stage.addChild(Game.MASTER_CONTAINER.masterContainer);
 
         Timestamp.init();
+        Game.APP.stage.addChild(Timestamp.MASTER_CONTAINER.masterContainer);
+
         ProgressBar.init();
+        Game.APP.stage.addChild(ProgressBar.MASTER_CONTAINER.masterContainer);
+
         Timeline.init();
+        Game.APP.stage.addChild(Timeline.MASTER_CONTAINER.masterContainer);
+
         TimingPanel.init();
+        Game.APP.stage.addChild(TimingPanel.MASTER_CONTAINER.masterContainer);
 
         // Add Game Canvas to DOM
         document.querySelector("#playerContainer").appendChild(Game.APP.view);
-        // globalThis.__PIXI_APP__ = Game.APP;
+        globalThis.__PIXI_APP__ = Game.APP;
 
         HitSample.masterGainNode = Game.AUDIO_CTX.createGain();
         HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;

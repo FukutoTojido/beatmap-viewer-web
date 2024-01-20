@@ -4,6 +4,7 @@ import { Clamp, binarySearchNearest } from "./Utils";
 import * as PIXI from "pixi.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Game } from "./Game";
+import { Component } from "./WindowManager";
 
 class TimingPoint {
     obj;
@@ -113,10 +114,9 @@ class TimingPoint {
     }
 
     changeColor() {
-        const rootCSS = document.querySelector(":root");
-        const bg = parseInt(rootCSS.style.getPropertyValue("--primary-4").slice(1), 16);
-        const bgDark = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
-        const accent = parseInt(rootCSS.style.getPropertyValue("--accent-1").slice(1), 16);
+        const bg = Game.COLOR_PALETTES.primary4;
+        const bgDark = Game.COLOR_PALETTES.primary1;
+        const accent = Game.COLOR_PALETTES.accent1;
 
         this.marker
             .clear()
@@ -167,8 +167,7 @@ class TimingPoint {
         this.obj.clear();
 
         if (this.idx === TimingPanel.CURRENT_SV_IDX) {
-            const rootCSS = document.querySelector(":root");
-            const bg = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+            const bg = Game.COLOR_PALETTES.primary5;
 
             this.obj
                 .beginFill(bg)
@@ -206,24 +205,22 @@ export class TimingPanel {
 
     static CURRENT_SV_IDX = 0;
 
+    static MASTER_CONTAINER;
+
+    static SIZE_X = 0;
+    static SIZE_Y = 0;
+
     static init() {
-        const { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
+        this.MASTER_CONTAINER = new Component(0, 60, 360 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        this.MASTER_CONTAINER.padding = 20;
+        this.MASTER_CONTAINER.alpha = 1;
+        this.MASTER_CONTAINER.borderRadius = 10;
 
-        this.WIDTH = parseInt(width) * window.devicePixelRatio;
-        this.HEIGHT = parseInt(height) * window.devicePixelRatio;
+        this.WIDTH = this.MASTER_CONTAINER.w;
+        this.HEIGHT = this.MASTER_CONTAINER.h;
 
-        this.renderer = new PIXI.Renderer({
-            width: this.WIDTH,
-            height: this.HEIGHT,
-            backgroundColor: 0xffffff,
-            backgroundAlpha: 0,
-            antialias: true,
-            autoDensity: true,
-        });
-        document.querySelector(".timingPanel").append(this.renderer.view);
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-
-        this.stage = new PIXI.Container();
+        this.stage = this.MASTER_CONTAINER.container;
         this.stage.hitArea = new PIXI.Rectangle(0, 0, this.WIDTH, this.HEIGHT);
 
         this.stage.on("wheel", (e) => {
@@ -258,8 +255,8 @@ export class TimingPanel {
 
         this.stage.addChild(this.scrollbar);
 
-        globalThis.__PIXI_RENDERER__ = this.renderer;
-        globalThis.__PIXI_STAGE__ = this.stage;
+        // globalThis.__PIXI_RENDERER__ = this.renderer;
+        // globalThis.__PIXI_STAGE__ = this.stage;
     }
 
     static scrollTo(timestamp) {
@@ -378,18 +375,22 @@ export class TimingPanel {
     }
 
     static resize() {
-        let { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
+        // let { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
 
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+        // width = parseInt(width) * window.devicePixelRatio;
+        // height = parseInt(height) * window.devicePixelRatio;
 
-        if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
+        // if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
+        this.MASTER_CONTAINER.x = Game.APP.renderer.width - Game.REDUCTION;
 
-        if (this.WIDTH === width && this.HEIGHT === height) return;
+        if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        if (this.MASTER_CONTAINER.w !== 360 * devicePixelRatio) this.MASTER_CONTAINER.w = 360 * devicePixelRatio;
+        if (this.MASTER_CONTAINER.h !== Game.APP.renderer.height - 100) this.MASTER_CONTAINER.h = Game.APP.renderer.height - 100;
+        if (this.WIDTH === this.MASTER_CONTAINER.w && this.HEIGHT === this.MASTER_CONTAINER.h) return;
 
-        this.WIDTH = width;
-        this.HEIGHT = height;
-        this.renderer.resize(this.WIDTH, this.HEIGHT);
+        this.WIDTH = this.MASTER_CONTAINER.w;
+        this.HEIGHT = this.MASTER_CONTAINER.h;
+        // this.renderer.resize(this.WIDTH, this.HEIGHT);
 
         this.stage.hitArea = new PIXI.Rectangle(0, 0, this.WIDTH, this.HEIGHT);
         this.MAX_HEIGHT = 40 * devicePixelRatio * Beatmap.timingPointsList.length;
@@ -399,13 +400,14 @@ export class TimingPanel {
             .beginFill(0xaaaaaa, this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1)
             .drawRoundedRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT));
 
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
     static update(time) {
         this.resize();
 
         this.stage.removeChildren();
+        this.stage.addChild(this.MASTER_CONTAINER.mask);
 
         let idx = Math.floor(this.SCROLLED / (40 * devicePixelRatio));
         while (idx < this.POINTS.length && 40 * devicePixelRatio * idx - this.SCROLLED < this.HEIGHT) {
@@ -425,6 +427,6 @@ export class TimingPanel {
         this.scrollbar.x = this.WIDTH - 5 * devicePixelRatio;
         this.scrollbar.y = (this.HEIGHT - this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT)) * (this.SCROLLED / (this.MAX_HEIGHT - this.HEIGHT));
 
-        this.renderer.render(this.stage);
+        // this.renderer.render(this.stage);
     }
 }

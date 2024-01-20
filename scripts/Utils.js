@@ -151,6 +151,8 @@ export async function loadLocalStorage() {
         document.querySelector("#softoffsetVal").innerHTML = `${parseInt(currentLocalStorage.mapping.offset)}ms`;
         // hsVol = currentLocalStorage.volume.hs;
 
+        document.querySelector("#showGreenLine").checked = currentLocalStorage.mapping.showGreenLine
+
         Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
             if (["snaking", "hitAnim", "ignoreSkin"].includes(k)) {
                 document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
@@ -163,8 +165,8 @@ export async function loadLocalStorage() {
         Timeline.SHOW_GREENLINE = currentLocalStorage.mapping.showGreenLine;
         Timeline.ZOOM_DISTANCE = currentLocalStorage.timeline.zoomRate;
 
-        if (Timeline.SHOW_GREENLINE) document.querySelector(".timeline").style.height = "";
-        else document.querySelector(".timelineContainer").style.height = "60px";
+        // if (Timeline.SHOW_GREENLINE) document.querySelector(".timeline").style.height = "";
+        // else document.querySelector(".timelineContainer").style.height = "60px";
     }
 }
 
@@ -248,15 +250,19 @@ export const loadColorPalette = (bg) => {
 
         primaryPalette.forEach((val, idx) => {
             rootCSS.style.setProperty(`--primary-${idx + 1}`, val);
+            Game.COLOR_PALETTES[`primary${idx + 1}`] = val;
         });
 
-        Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+        // Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+        Timestamp.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary5;
+        ProgressBar.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
     }
 
     const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb() ?? swatches.Muted?.getRgb() ?? [255, 255, 255];
     if (accent) {
         const accentHex = d3.color(`rgb(${parseInt(accent[0])}, ${parseInt(accent[1])}, ${parseInt(accent[2])})`);
         rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
+        Game.COLOR_PALETTES.accent1 = accentHex.formatHex();
     }
 
     ProgressBar.restyle();
@@ -333,13 +339,13 @@ export function changeZoomRate(zoomStep, the) {
 
     the.blur();
 }
-document.querySelector(".zoom .plus").onclick = () => {
-    changeZoomRate(1, document.querySelector(".zoom .plus"));
-};
+// document.querySelector(".zoom .plus").onclick = () => {
+//     changeZoomRate(1, document.querySelector(".zoom .plus"));
+// };
 
-document.querySelector(".zoom .minus").onclick = () => {
-    changeZoomRate(-1, document.querySelector(".zoom .minus"));
-};
+// document.querySelector(".zoom .minus").onclick = () => {
+//     changeZoomRate(-1, document.querySelector(".zoom .minus"));
+// };
 
 export function debounce(func, timeout = 100) {
     let timer;

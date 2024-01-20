@@ -393,10 +393,10 @@ svg {
     /* width: 1366px; */
     /* width: 1600px; */
     /* width: 1920px; */
-    border-radius: 20px 20px 0 0;
+    border-radius: 10px 10px 0 0;
     background-size: cover;
     background-position: center;
-    /* overflow: hidden; */
+    overflow: hidden;
     transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
     /* z-index: 1; */
 }
@@ -412,6 +412,7 @@ canvas {
     /* transition: cubic-bezier(0, 0.4, 0, 1) 200ms; */
     /* transition: ease-in-out 200ms; */
     transform-origin: top left;
+    /* overflow: hidden; */
 }
 
 #overlay {
@@ -445,6 +446,8 @@ canvas {
 
     display: flex;
     flex-direction: column;
+
+    display: none;
 }
 
 #metadata:hover {
@@ -482,6 +485,8 @@ canvas {
 
     font-size: 0.7rem;
     font-weight: 300;
+
+    display: none;
 
     /* transition: cubic-bezier(0, 0.4, 0, 1) 500ms; */
 }
