@@ -78,58 +78,8 @@
     }
 
     .contentWrapper {
-        display: unset;
-    }
-
-    .contentWrapper:has(.slideOutAnim) #playerWrapper {
-        width: 100%;
-    }
-
-    #playerContainer {
-        /* flex: 1; */
-        /* aspect-ratio: 16 / 9; */
-        /* width: 100%; */
-        /* height: 100%; */
-        border-radius: 0;
-        /* margin-bottom: 120px; */
-        aspect-ratio: 4 / 3;
-        flex: unset;
-    }
-
-    #overlay,
-    #background {
-        border-radius: 0;
-    }
-
-    #metadata {
-        margin: 0;
-        padding: 30px;
-    }
-
-    .stats {
-        position: relative;
-        inset: unset;
-
-        width: 100%;
-        margin: 0;
-        border-radius: 0;
-        justify-content: center;
-    }
-
-    #metadata {
-        position: relative;
-        /* top: 100%; */
-
-        width: 100%;
-        /* height: 120px; */
-        padding: 20px;
-
-        background-color: var(--primary-2);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-
-        font-size: 3vw;
+        /* display: unset; */
+        /* gap: 0; */
     }
 
     .thePlayer {

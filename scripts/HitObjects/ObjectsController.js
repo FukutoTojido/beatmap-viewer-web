@@ -11,6 +11,9 @@ import { Fixed, Clamp, binarySearch, binarySearchNearest } from "../Utils.js";
 import { ScoreParser } from "../ScoreParser.js";
 import { TimingPanel } from "../TimingPanel.js";
 import { HitSample } from "../Audio.js";
+import { MetadataPanel } from "../SidePanel.js";
+import { PlayContainer } from "../PlayButtons.js";
+import { BPM } from "../BPM.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -90,22 +93,22 @@ export class ObjectsController {
         //     });
         // }
 
-        if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
-            document.querySelector(".timingContainer").classList.remove("kiai");
-        }
+        // if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
+        //     document.querySelector(".timingContainer").classList.remove("kiai");
+        // }
 
-        if (currentSV.isKiai && !document.querySelector(".timingContainer").classList.contains("kiai")) {
-            document.querySelector(".timingContainer").classList.add("kiai");
-            document.querySelector(".timingContainer").style.animationDuration = `${currentBPM.beatstep}ms`;
-            document.querySelector(".timingContainer").style.animationDelay =
-                currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
-        }
+        // if (currentSV.isKiai && !document.querySelector(".timingContainer").classList.contains("kiai")) {
+        //     document.querySelector(".timingContainer").classList.add("kiai");
+        //     document.querySelector(".timingContainer").style.animationDuration = `${currentBPM.beatstep}ms`;
+        //     document.querySelector(".timingContainer").style.animationDelay =
+        //         currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
+        // }
 
-        if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
-            document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+        // if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
+        //     document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
 
-        if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
-            document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
+        // if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
+        //     document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         const currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
@@ -173,9 +176,11 @@ export class ObjectsController {
         ]);
 
         if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
-            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
+            // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
+            Game.MASTER_CONTAINER.alpha = document.querySelector("#dim").value * 0.7;
         } else {
-            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
+            // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
+            Game.MASTER_CONTAINER.alpha = document.querySelector("#dim").value;
         }
 
         judgements.forEach((object) => {
@@ -235,7 +240,10 @@ export class ObjectsController {
         }
 
         Timestamp.update(currentAudioTime ?? 0);
+        BPM.update(currentAudioTime ?? 0);
+        PlayContainer.update(currentAudioTime ?? 0);
         ProgressBar.update(currentAudioTime ?? 0);
         TimingPanel.update(currentAudioTime ?? 0);
+        MetadataPanel.update(currentAudioTime ?? 0);
     }
 }

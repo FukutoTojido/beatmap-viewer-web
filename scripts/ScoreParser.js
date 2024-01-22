@@ -600,11 +600,11 @@ export class ScoreParser {
 
         Game.CURSOR.obj.alpha = 0;
 
-        document.querySelector(".thePlayer").style.display = "";
-        document.querySelector(".thePlayer").style.backgroundImage = "";
-        document.querySelector(".playerName").textContent = "";
-        document.querySelector(".playerAva").src = "";
-        document.querySelector(".modsList").innerHTML = "";
+        // document.querySelector(".thePlayer").style.display = "";
+        // document.querySelector(".thePlayer").style.backgroundImage = "";
+        // document.querySelector(".playerName").textContent = "";
+        // document.querySelector(".playerAva").src = "";
+        // document.querySelector(".modsList").innerHTML = "";
     }
 
     constructor(blob) {
@@ -619,10 +619,10 @@ export class ScoreParser {
 
         Game.CURSOR.obj.alpha = 1;
 
-        document.querySelector(".thePlayer").style.display = "";
-        document.querySelector(".thePlayer").style.backgroundImage = "";
-        document.querySelector(".playerName").textContent = "";
-        document.querySelector(".playerAva").src = "";
-        document.querySelector(".modsList").innerHTML = "";
+        // document.querySelector(".thePlayer").style.display = "";
+        // document.querySelector(".thePlayer").style.backgroundImage = "";
+        // document.querySelector(".playerName").textContent = "";
+        // document.querySelector(".playerAva").src = "";
+        // document.querySelector(".modsList").innerHTML = "";
     }
 }

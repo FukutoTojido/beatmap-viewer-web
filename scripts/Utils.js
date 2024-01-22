@@ -9,6 +9,8 @@ import { HitSample } from "./Audio.js";
 import { Database } from "./Database.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import axios from "axios";
+import { PlayContainer } from "./PlayButtons.js";
+import { BPM } from "./BPM.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
@@ -130,11 +132,12 @@ export async function loadLocalStorage() {
 
         document.querySelector("#dim").value = currentLocalStorage.background.dim;
         document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
-        document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
+        // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
+        Game.MASTER_CONTAINER.alpha = currentLocalStorage.background.dim;
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;
         document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
-        document.querySelector("#overlay").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
+        // document.querySelector("#overlay").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
 
         document.querySelector("#master").value = currentLocalStorage.volume.master;
         document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;
@@ -254,7 +257,15 @@ export const loadColorPalette = (bg) => {
         });
 
         // Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
-        Timestamp.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary5;
+        Game.STATS.container.color = Game.COLOR_PALETTES.primary2;
+        Game.INFO.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        Timestamp.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary4;
+        BPM.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        PlayContainer.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.playButton.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.prevButton.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.nextButton.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.infoButton.color = Game.COLOR_PALETTES.primary2;
         ProgressBar.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
     }
 

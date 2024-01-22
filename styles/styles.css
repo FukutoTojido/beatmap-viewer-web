@@ -362,152 +362,13 @@ svg {
     position: relative;
     width: 100%;
     flex: 1;
-
-    /* gap: 20px; */
-
-    display: flex;
-
-    /* transition: cubic-bezier(0, 0.4, 0, 1) 200ms; */
-}
-
-#playerWrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-
-    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
-}
-
-.contentWrapper:has(.slideOutAnim) #playerWrapper {
-    width: calc(100% - 420px);
-}
-
-#playerContainer {
-    position: relative;
-    /* margin: 20px; */
-    /* aspect-ratio: 16 / 9; */
-    width: 100%;
-    /* height: 100%; */
-    flex: 1;
-    /* width: 1366px; */
-    /* width: 1600px; */
-    /* width: 1920px; */
-    border-radius: 10px 10px 0 0;
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
-    /* z-index: 1; */
 }
 
 canvas {
     position: absolute;
-    /* inset: 0 0 0 0; */
-    /* margin: auto; */
-    /* height: 100%; */
-    /* transform: scaleY(-1); */
-    /* z-index: 0; */
-    /* background-color: rgba(255, 255, 255, 0.1); */
-    /* transition: cubic-bezier(0, 0.4, 0, 1) 200ms; */
-    /* transition: ease-in-out 200ms; */
     transform-origin: top left;
-    /* overflow: hidden; */
-}
 
-#overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    background-color: rgba(0 0 0 /0.8);
-
-    border-radius: 20px 20px 0 0;
-    transition: ease-in-out 300ms;
-}
-
-#background {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    border-radius: 20px 20px 0 0;
-    object-fit: cover;
-
-    /* transition: ease-in-out 200ms; */
-    /* transition: cubic-bezier(0, 0.4, 0, 1) 500ms; */
-}
-
-#metadata {
-    position: absolute;
-    /* width: 100%; */
-    font-size: 1rem;
-    margin: 30px;
-
-    display: flex;
-    flex-direction: column;
-
-    display: none;
-}
-
-#metadata:hover {
-    color: rgb(255, 187, 0);
-    transition: ease-out 100ms;
-}
-
-#artistTitle {
-    /* width: 100%; */
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-#versionCreator {
-    /* width: 100%; */
-    font-size: 1em;
-    font-weight: 400;
-}
-
-#versionCreator span {
-    font-weight: 600;
-}
-
-.stats {
-    position: absolute;
-    right: 0;
-    top: 0;
-    margin: 20px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background-color: var(--primary-3);
-    padding: 10px;
-    border-radius: 30px;
-
-    font-size: 0.7rem;
-    font-weight: 300;
-
-    display: none;
-
-    /* transition: cubic-bezier(0, 0.4, 0, 1) 500ms; */
-}
-
-.stats span {
-    font-weight: 500;
-}
-
-.stat {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding: 0 10px;
-}
-
-.SRContainer span {
-    padding: 5px 15px;
-    background-color: var(--text-1);
-    color: black;
-    border-radius: 100px;
+    user-select: none;
 }
 
 .thePlayer {
@@ -610,6 +471,7 @@ canvas {
     gap: 0px;
 
     overflow: hidden;
+    display: none;
 }
 
 @keyframes popup {
@@ -1153,13 +1015,13 @@ button:hover {
 }
 
 #settingsPanel {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: -600px;
 
     max-width: 90vw;
     width: 600px;
-    height: 100dvh;
+    height: 100%;
 
     background-color: var(--primary-2);
 

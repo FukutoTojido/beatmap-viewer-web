@@ -3,7 +3,8 @@ import { loadLocalStorage } from "./scripts/Utils.js";
 import { Texture } from "./scripts/Texture.js";
 import { BeatmapFile } from "./scripts/BeatmapFile.js";
 import { urlParams } from "./scripts/GlobalVariables.js";
-import { toggleSidePanel } from "./scripts/SidePanel.js";
+// import { toggleSidePanel } from "./scripts/SidePanel.js";
+import { toggleTimingPanel } from "./scripts/BPM.js";
 import { openMenu } from "./scripts/Settings.js";
 
 document.querySelector(".loading").style.opacity = 1;
@@ -70,12 +71,13 @@ function setupDefaultStorage() {
     Game.SKINNING = JSON.parse(localStorage.getItem("settings")).skinning;
     Game.MAPPING = JSON.parse(localStorage.getItem("settings")).mapping;
 
+    // Init
+    Game.init();
+
     await loadLocalStorage();
     document.querySelector(".loading").style.opacity = 0;
     document.querySelector(".loading").style.display = "none";
 
-    // Init
-    Game.init();
     await Texture.generateDefaultTextures();
 
     document.body.addEventListener("keydown", (e) => {
@@ -99,12 +101,12 @@ function setupDefaultStorage() {
         switch (e.key) {
             case "F6": {
                 e.preventDefault();
-                toggleSidePanel("timing");
+                toggleTimingPanel();
                 break;
             }
             case "F4": {
                 e.preventDefault();
-                toggleSidePanel("metadata");
+                // toggleSidePanel("metadata");
                 break;
             }
             case "o": {
@@ -117,6 +119,13 @@ function setupDefaultStorage() {
             }
         }
     });
+
+    document.querySelector(".contentWrapper").addEventListener("wheel", (e) => {
+        if (e.ctrlKey) e.preventDefault();
+    }, {
+        capture: true,
+        passive: false
+    })
 
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
         Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));

@@ -1,7 +1,7 @@
 import { Game } from "./Game.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { Beatmap } from "./Beatmap.js";
-import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound } from "./Utils.js";
+import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound, Clamp } from "./Utils.js";
 import { go, playToggle } from "./ProgressBar.js";
 import { openMenu, setBeatsnapDivisor } from "./Settings.js";
 import { calculateCurrentSR } from "./Settings.js";
@@ -129,15 +129,20 @@ export class BeatmapFile {
                 throw new Error("Not a standard map!");
             }
 
-            document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
-            document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
-                mapsetData.beatmaps.find((map) => map.id == this.mapId).version
-            }</span> - Mapset by <span>${mapsetData.creator}</span>`;
+            // document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
+            // document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
+            //     mapsetData.beatmaps.find((map) => map.id == this.mapId).version
+            // }</span> - Mapset by <span>${mapsetData.creator}</span>`;
+
+            Game.INFO.title = mapsetData.title;
+            Game.INFO.artist = mapsetData.artist;
+            Game.INFO.difficulty = mapsetData.beatmaps.find((map) => map.id == this.mapId).version;
+            Game.INFO.mapper = mapsetData.creator;
         }
 
         const setId = mapsetData?.id;
-        if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
-        else document.querySelector("#metadata").removeAttribute("href");
+        // if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
+        // else document.querySelector("#metadata").removeAttribute("href");
 
         const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
@@ -232,8 +237,14 @@ export class BeatmapFile {
                 .at(0)
                 ?.replace("BeatmapSetID:", "");
 
-            document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
-            document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
+            // document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
+            // document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
+
+            Game.INFO.title = title;
+            Game.INFO.artist = artist;
+            Game.INFO.difficulty = version;
+            Game.INFO.mapper = creator;
+
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
 
             if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
@@ -256,15 +267,21 @@ export class BeatmapFile {
         const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
         const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-        document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
-        document.querySelector("#AR").textContent = round(beatmapData.difficulty.approachRate);
-        document.querySelector("#OD").textContent = round(beatmapData.difficulty.overallDifficulty);
-        document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
-        document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
-        document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+        // document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
+        // document.querySelector("#AR").textContent = round(beatmapData.difficulty.approachRate);
+        // document.querySelector("#OD").textContent = round(beatmapData.difficulty.overallDifficulty);
+        // document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
+        // document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
+        // document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
-        if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
-        else document.querySelector("#SR").style.color = "black";
+        Game.STATS.CS = round(beatmapData.difficulty.circleSize);
+        Game.STATS.AR = round(beatmapData.difficulty.approachRate);
+        Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
+        Game.STATS.HP = round(beatmapData.difficulty.drainRate);
+        Game.STATS.SR = round(beatmapData.difficulty.starRating);
+
+        // if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
+        // else document.querySelector("#SR").style.color = "black";
 
         // console.log(beatmapData)
         // console.log(difficultyAttributes)
@@ -303,7 +320,7 @@ export class BeatmapFile {
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);
             console.log("Background Loaded");
-            document.querySelector("#background").src = `${this.backgroundBlobURL}`;
+            // document.querySelector("#background").src = `${this.backgroundBlobURL}`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();
@@ -475,7 +492,7 @@ export class BeatmapFile {
 
                 if (e.key === "Escape") {
                     if (document.querySelector(".seekTo").open) closePopup();
-                    
+
                     if (document.querySelector("#settingsPanel").style.opacity === "1") {
                         openMenu();
                         return;
@@ -507,7 +524,7 @@ export class BeatmapFile {
                     return;
                 }
 
-                event.preventDefault();
+                // event.preventDefault();
 
                 if (event.deltaY > 0) {
                     document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value) - 1, 1);
@@ -522,10 +539,27 @@ export class BeatmapFile {
                 // console.log("Scrolled");
             };
 
-            document.querySelector("#playerContainer").addEventListener("wheel", scrollEventHandler, {
+            Game.WRAPPER.masterContainer.on("wheel", scrollEventHandler, {
                 capture: true,
                 passive: false,
             });
+
+            Timeline.MASTER_CONTAINER.masterContainer.on(
+                "wheel",
+                (e) => {
+                    if (!e.altKey) {
+                        scrollEventHandler(e);
+                        return;
+                    }
+
+                    if (e.deltaY > 0) Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE - 20, 20, 800);
+                    if (e.deltaY < 0) Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + 20, 20, 800);
+                },
+                {
+                    capture: true,
+                    passive: false,
+                }
+            );
 
             // document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
             //     capture: true,

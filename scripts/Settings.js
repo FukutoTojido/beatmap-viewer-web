@@ -61,7 +61,8 @@ document.querySelector("#custom-mirror").onblur = () => setCustomMirror(document
 // BACKGROUND
 export function setBackgroundDim(slider) {
     // console.log(slider.value);
-    document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
+    // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
+    Game.MASTER_CONTAINER.alpha = slider.value;
     document.querySelector("#bgDimVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -72,7 +73,7 @@ document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySe
 
 export function setBackgroundBlur(slider) {
     // console.log(slider.value);
-    document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
+    // document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
     document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.background.blur = slider.value;
@@ -192,8 +193,8 @@ export function handleCheckBox(checkbox) {
 
         Timeline.SHOW_GREENLINE = Game.MAPPING[checkbox.name];
 
-        if (Game.MAPPING[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
-        else document.querySelector(".timelineContainer").style.height = "60px";
+        // if (Game.MAPPING[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
+        // else document.querySelector(".timelineContainer").style.height = "60px";
         return;
     }
 

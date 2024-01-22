@@ -17,11 +17,14 @@ class Button {
         this.w = w;
         this.h = h;
 
-        this.graphics = new PIXI.Graphics().beginFill(Game.COLOR_PALETTES.primary3).drawRect(x, y, w, h);
+        this.graphics = new PIXI.Graphics().beginFill(Game.COLOR_PALETTES.primary3).drawRect(0, 0, w, h);
         this.graphics.eventMode = "static";
 
         this.graphics.on("mouseenter", () => (this.isHover = true));
         this.graphics.on("mouseleave", () => (this.isHover = false));
+
+        this.graphics.x = this.x;
+        this.graphics.y = this.y;
 
         if (imgURL) {
             const texture = PIXI.Texture.from(imgURL);
@@ -29,22 +32,34 @@ class Button {
             this.graphics.addChild(sprite);
 
             sprite.anchor.set(0.5);
-            sprite.x = this.x + this.w / 2;
-            sprite.y = this.y + this.h / 2;
-            sprite.width = this.h - 10;
-            sprite.height = this.h - 10;
+            sprite.x = this.w / 2;
+            sprite.y = this.h / 2;
+
+            this.sprite = sprite;
         }
     }
 
     setOnClick(fn) {
         this.graphics.on("click", fn);
+        this.graphics.on("tap", fn);
     }
 
     draw(timestamp) {
+        this.h = Timeline.MASTER_CONTAINER.h / 2;
+
+        this.graphics.x = this.x;
+        this.graphics.y = this.y === 0 ? 0 : Timeline.MASTER_CONTAINER.h / 2;
+
         this.graphics
             .clear()
             .beginFill(!this.isHover ? Game.COLOR_PALETTES.primary3 : Game.COLOR_PALETTES.primary4)
-            .drawRect(this.x, this.y, this.w, this.h);
+            .drawRect(0, 0, this.w * devicePixelRatio, this.h);
+
+        if (!this.sprite) return;
+
+        this.sprite.scale.set(0.5 * devicePixelRatio);
+        this.sprite.x = this.w * devicePixelRatio / 2;
+        this.sprite.y = this.h / 2;
     }
 }
 
@@ -72,6 +87,10 @@ export class TimelineZoomer {
     }
 
     draw(timestamp) {
+        this.graphics
+            .clear()
+            .beginFill(Game.COLOR_PALETTES.primary3)
+            .drawRect(0, 0, 40 * devicePixelRatio, Timeline.HEIGHT);
         this.zoomIn.draw(timestamp);
         this.zoomOut.draw(timestamp);
     }

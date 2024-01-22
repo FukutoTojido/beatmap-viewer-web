@@ -12,7 +12,9 @@ const vertexSrc = `
 precision mediump float;
 attribute vec4 position;
 varying float dist;
-uniform float dx,dy,dt,ox,oy,ot, circleBaseScale;
+uniform float dx,dy,dt,ox,oy,ot,circleBaseScale;
+uniform bool inverse;
+
 void main() {
     dist = position[3];
     float test = 0.0;
@@ -20,9 +22,11 @@ void main() {
     if (position[2] * dt > ot)
         test = 1.0;
 
+    float y = !inverse ? position[1] : 384.0 - position[1];
+
     gl_Position = vec4(position[0], position[1], position[3] + 2.0 * test, 1.0);
     gl_Position.x = -1.0 + gl_Position.x * dx + ox;
-    gl_Position.y = gl_Position.y * dy + 1.0 + oy;
+    gl_Position.y = (y * dy + 1.0) + oy;
 }`;
 
 // fragment shader source
@@ -333,6 +337,7 @@ class SliderMesh extends PIXI.Container {
             dy: transform.dy,
             ox: transform.ox,
             oy: transform.oy,
+            inverse: false,
             texturepos: 0,
             tint: this.tint,
             select: this.select,
@@ -354,17 +359,19 @@ class SliderMesh extends PIXI.Container {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
-        const dx = 2 * (Game.WIDTH / 512) / Game.APP.view.width;
-        const dy = (inverse * (-2 * Game.HEIGHT)) / Game.APP.view.height / 384;
+        const dx = (2 * (Game.WIDTH / 512)) / Game.APP.view.width;
+        const dy = (-2 * Game.HEIGHT) / Game.APP.view.height / 384;
 
         const offsetX = this.slider.stackHeight * currentStackOffset * dx;
-        const offsetY = this.slider.stackHeight * currentStackOffset * dy * inverse;
+        const offsetY = this.slider.stackHeight * currentStackOffset * dy;
 
         const transform = {
             dx: dx,
-            ox: 2 * (Game.MASTER_CONTAINER.x + Game.OFFSET_X) / Game.APP.renderer.width + offsetX,
+            ox: (2 * (Game.MASTER_CONTAINER.x + Game.OFFSET_X)) / Game.APP.renderer.width + offsetX,
+            // ox: 0,
             dy: dy,
-            oy: -2 * (Game.MASTER_CONTAINER.y + Game.OFFSET_Y) / Game.APP.renderer.height + offsetY
+            oy: (-2 * (Game.MASTER_CONTAINER.y + Game.OFFSET_Y + Game.WRAPPER.y)) / Game.APP.renderer.height + offsetY,
+            // oy: 0
         };
 
         var shader = this.shader;
@@ -383,6 +390,7 @@ class SliderMesh extends PIXI.Container {
         this.uniforms.ox = transform.ox;
         this.uniforms.dy = transform.dy;
         this.uniforms.oy = transform.oy;
+        this.uniforms.inverse = Game.MODS.HR;
         this.uniforms.dt = 0;
         this.uniforms.ot = 0.5;
         this.uniforms.tint = this.tint;
@@ -436,20 +444,16 @@ class SliderMesh extends PIXI.Container {
             this.uniforms.dt = 0;
             this.uniforms.ot = 1;
 
-            // let idx = binarySearchNearest(this.curve, this.startt, (current, val) => {
-            //     if (current < val) return -1;
-            //     if (current > val) return 1;
-            //     return 0;
-            // });
-            // while (this.curve[idx].t < this.startt && idx < this.curve.length) idx++;
-            // while (this.curve[idx].t > this.startt && idx >= 0) idx--;
-            // let p = this.curve[idx];
-
             let p = getPointAtT(this.curve, this.startt);
-
-            // let p = this.curve.find((point) => point.t >= this.startt);
             this.uniforms.ox += p.x * this.uniforms.dx;
-            this.uniforms.oy += p.y * this.uniforms.dy;
+
+            if (Game.MODS.HR) {
+                p.y = 384 - p.y;
+                this.uniforms.oy += p.y * this.uniforms.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
+            } else {
+                this.uniforms.oy += p.y * this.uniforms.dy;
+            }
+
             bind(this.circle);
             gl.drawElements(this.drawMode, indexLength, glType, 0);
         } else if (this.startt == 0.0) {
@@ -464,20 +468,16 @@ class SliderMesh extends PIXI.Container {
             this.uniforms.dt = 0;
             this.uniforms.ot = 1;
 
-            // let idx = binarySearchNearest(this.curve, this.endt, (current, val) => {
-            //     if (current < val) return -1;
-            //     if (current > val) return 1;
-            //     return 0;
-            // });
-            // while (this.curve[idx].t > this.endt && idx >= 0) idx--;
-            // while (this.curve[idx].t < this.endt && idx < this.curve.length) idx++;
-            // let p = this.curve[idx];
-
             let p = getPointAtT(this.curve, this.endt);
-
-            // let p = this.curve.findLast((point) => point.t <= this.endt);
             this.uniforms.ox += p.x * this.uniforms.dx;
-            this.uniforms.oy += p.y * this.uniforms.dy;
+
+            if (Game.MODS.HR) {
+                p.y = 384 - p.y;
+                this.uniforms.oy += p.y * this.uniforms.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
+            } else {
+                this.uniforms.oy += p.y * this.uniforms.dy;
+            }
+
             bind(this.circle);
             gl.drawElements(this.drawMode, indexLength, glType, 0);
         } else {

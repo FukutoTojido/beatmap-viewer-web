@@ -4,6 +4,7 @@ import { setAudioTime } from "./ProgressBar.js";
 import { Game } from "./Game.js";
 import * as PIXI from "pixi.js";
 import { Component } from "./WindowManager.js";
+import { PlayContainer } from "./PlayButtons.js";
 
 export class ProgressBar {
     static renderer;
@@ -151,7 +152,7 @@ export class ProgressBar {
     }
 
     static init() {
-        this.WIDTH = Game.MASTER_CONTAINER.w - 110 - 360;
+        this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
         this.HEIGHT = 60 * devicePixelRatio;
 
         // this.renderer = new PIXI.Renderer({
@@ -165,7 +166,8 @@ export class ProgressBar {
         // document.querySelector(".progressBarContainer").append(this.renderer.view);
         // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
-        this.MASTER_CONTAINER = new Component((110 + 360), Game.APP.renderer.height - 60, this.WIDTH, this.HEIGHT);
+        this.MASTER_CONTAINER = new Component((110 + 360 + 60) * devicePixelRatio, Game.WRAPPER.h - 60 * devicePixelRatio, this.WIDTH, this.HEIGHT);
+        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
         this.MASTER_CONTAINER.alpha = 1;
 
         this.stage = this.MASTER_CONTAINER.container;
@@ -211,9 +213,17 @@ export class ProgressBar {
     }
 
     static resize() {
-        if (this.MASTER_CONTAINER.w !== Game.MASTER_CONTAINER.w - 110 - 360) {
-            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - 110 - 360;
+        if (innerWidth / innerHeight < 1) {
+            this.MASTER_CONTAINER.x = 0;
+            this.MASTER_CONTAINER.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
+            this.MASTER_CONTAINER.w = Game.WRAPPER.w;
+        } else {
+            this.MASTER_CONTAINER.x = (110 + 360 + 60) * devicePixelRatio;
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
         }
+
+        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
 
         // let { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
 

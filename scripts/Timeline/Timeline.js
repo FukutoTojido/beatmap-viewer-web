@@ -23,7 +23,7 @@ export class Timeline {
     static ZOOMER;
 
     static init() {
-        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60);
+        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 * devicePixelRatio);
         Timeline.MASTER_CONTAINER.color = 0x000000;
         Timeline.MASTER_CONTAINER.alpha = 0.5;
         Timeline.MASTER_CONTAINER.borderRadius = 10;
@@ -80,10 +80,16 @@ export class Timeline {
     }
 
     static resize() {
-        // let { width, height } = getComputedStyle(document.querySelector(".timeline"));
-        // width = parseInt(width) * window.devicePixelRatio;
-        // height = parseInt(height) * window.devicePixelRatio;
         if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
+        Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+        Timeline.ZOOMER.draw();
+
+        if (innerWidth / innerHeight < 1) {
+            Timeline.MASTER_CONTAINER.borderRadius = 0;
+        } else {
+            Timeline.MASTER_CONTAINER.borderRadius = 10;
+        }
+
         if (Timeline.WIDTH === Timeline.MASTER_CONTAINER.w && Timeline.HEIGHT === Timeline.MASTER_CONTAINER.h) return;
 
         Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;
@@ -101,7 +107,6 @@ export class Timeline {
         Timeline.hitArea.draw(timestamp);
         Timeline.centerLine.x = Timeline.WIDTH / 2;
         Timeline.centerLine.scale.set(1, Timeline.HEIGHT);
-        Timeline.ZOOMER.draw(timestamp);
 
         const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
 

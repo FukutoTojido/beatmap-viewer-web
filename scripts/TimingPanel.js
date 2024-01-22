@@ -211,9 +211,9 @@ export class TimingPanel {
     static SIZE_Y = 0;
 
     static init() {
-        this.MASTER_CONTAINER = new Component(0, 60, 360 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
-        this.MASTER_CONTAINER.padding = 20;
+        this.MASTER_CONTAINER.padding = 15;
         this.MASTER_CONTAINER.alpha = 1;
         this.MASTER_CONTAINER.borderRadius = 10;
 
@@ -375,21 +375,16 @@ export class TimingPanel {
     }
 
     static resize() {
-        // let { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
-
-        // width = parseInt(width) * window.devicePixelRatio;
-        // height = parseInt(height) * window.devicePixelRatio;
-
-        // if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
-        this.MASTER_CONTAINER.x = Game.APP.renderer.width - Game.REDUCTION;
-
+        this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
+        this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+        this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
+        this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        
         if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
-        if (this.MASTER_CONTAINER.w !== 360 * devicePixelRatio) this.MASTER_CONTAINER.w = 360 * devicePixelRatio;
-        if (this.MASTER_CONTAINER.h !== Game.APP.renderer.height - 100) this.MASTER_CONTAINER.h = Game.APP.renderer.height - 100;
-        if (this.WIDTH === this.MASTER_CONTAINER.w && this.HEIGHT === this.MASTER_CONTAINER.h) return;
+        if (this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 && this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2) return;
 
-        this.WIDTH = this.MASTER_CONTAINER.w;
-        this.HEIGHT = this.MASTER_CONTAINER.h;
+        this.WIDTH = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
+        this.HEIGHT = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;
         // this.renderer.resize(this.WIDTH, this.HEIGHT);
 
         this.stage.hitArea = new PIXI.Rectangle(0, 0, this.WIDTH, this.HEIGHT);

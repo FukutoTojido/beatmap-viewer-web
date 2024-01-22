@@ -88,7 +88,7 @@ export class PAudio {
                 this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
 
-            document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
+            // document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
         }
     }
 
@@ -101,7 +101,7 @@ export class PAudio {
             // this.currentTime += (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) * Game.PLAYBACK_RATE;
             this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
             this.isPlaying = false;
-            document.querySelector("#playButton").style.backgroundImage = "";
+            // document.querySelector("#playButton").style.backgroundImage = "";
         }
     }
 

@@ -15,6 +15,8 @@ export class Component {
         this._color = color;
         this._alpha = alpha;
         this._padding = 0;
+        this._borderBox = true;
+        this.overflow = "hidden";
 
         this.masterContainer = new PIXI.Container();
         this.masterContainer.x = this._x;
@@ -39,9 +41,6 @@ export class Component {
 
         this.masterContainer.addChild(this.container);
         this.masterContainer.eventMode = "dynamic";
-        this.masterContainer.on("mousedown", () => {
-            console.log("ALI")
-        })
 
         this.redraw();
     }
@@ -83,7 +82,7 @@ export class Component {
     }
 
     get borderRadius() {
-        return this._borderRadius;
+        return this._borderRadius * devicePixelRatio;
     }
 
     set borderRadius(val) {
@@ -92,13 +91,22 @@ export class Component {
     }
 
     get padding() {
-        return this._padding;
+        return this._padding * devicePixelRatio;
     }
 
     set padding(val) {
         this._padding = val;
 
         this.updatePosition();
+        this.redraw();
+    }
+
+    get borderBox() {
+        return this._borderBox;
+    }
+
+    set borderBox(val) {
+        this._borderBox = val;
         this.redraw();
     }
 
@@ -136,14 +144,36 @@ export class Component {
     }
 
     redraw() {
+        this.container.x = this.padding;
+        this.container.y = this.padding;
+
+        if (this.borderBox) {
+            this.paddingMask.clear().beginFill(0x000000, 0.01).drawRoundedRect(0, 0, this._w, this._h, this.borderRadius);
+            this.background.clear().beginFill(this._color, this._alpha).drawRoundedRect(0, 0, this._w, this._h, this.borderRadius);
+            this.mask
+                .clear()
+                .beginFill(0x000000, 0.01)
+                .drawRoundedRect(0, 0, this._w - this.padding * 2, this._h - this.padding * 2, 0);
+
+            return;
+        }
+
         this.paddingMask
             .clear()
             .beginFill(0x000000, 0.01)
-            .drawRoundedRect(0, 0, this._w + this._padding * 2, this._h + this._padding * 2, this._borderRadius);
+            .drawRoundedRect(0, 0, this._w + this.padding * 2, this._h + this.padding * 2, this.borderRadius);
         this.background
             .clear()
             .beginFill(this._color, this._alpha)
-            .drawRoundedRect(0, 0, this._w + this._padding * 2, this._h + this._padding * 2, this._borderRadius);
+            .drawRoundedRect(0, 0, this._w + this.padding * 2, this._h + this.padding * 2, this.borderRadius);
         this.mask.clear().beginFill(0x000000, 0.01).drawRoundedRect(0, 0, this._w, this._h, 0);
+
+        if (this.overflow === "hidden") {
+            this.container.mask = this.mask;
+        }
+
+        if (this.overflow === "visible") {
+            this.container.mask = undefined;
+        }
     }
 }
