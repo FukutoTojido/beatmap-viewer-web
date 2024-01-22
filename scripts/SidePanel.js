@@ -3,6 +3,8 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Component } from "./WindowManager";
 import { TimingPanel } from "./TimingPanel";
 import bezier from "bezier-easing";
+import { FlexBox } from "./Stats";
+import * as PIXI from "pixi.js";
 
 export function toggleMetadataPanel() {
     let result = {
@@ -64,6 +66,16 @@ export class MetadataPanel {
     static SOURCE;
     static TAG;
 
+    static LABEL = {
+        artist: null,
+        romanized_artist: null,
+        title: null,
+        romanized_title: null,
+        difficulty_name: null,
+        source: null,
+        tag: null,
+    };
+
     static init() {
         this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
@@ -74,7 +86,35 @@ export class MetadataPanel {
         this.WIDTH = this.MASTER_CONTAINER.w;
         this.HEIGHT = this.MASTER_CONTAINER.h;
 
+        this.flex = new FlexBox();
+        this.flex.flexDirection = "row";
+        this.flex.gap = 5;
+        this.flex.justifyContent = "start";
 
+        const contentStyle = {
+            fontSize: 16,
+            fontFamily: "Torus",
+            fill: "white",
+            fontWeight: 500,
+            wordWrap: true,
+        };
+
+        const labelStyle = {
+            fontSize: 12,
+            fontFamily: "Torus",
+            fill: "white",
+            fontWeight: 300,
+            wordWrap: true,
+        };
+
+        Object.keys(this.LABEL).forEach((label) => {
+            this.LABEL[label] = new PIXI.Text(label.replaceAll("_", " "), labelStyle);
+            this[label.toUpperCase()] = new PIXI.Text("", contentStyle);
+
+            this.flex.addChild(this.LABEL[label], this[label.toUpperCase()]);
+        });
+
+        this.MASTER_CONTAINER.container.addChild(this.flex.container);
     }
 
     static resize() {
@@ -84,7 +124,11 @@ export class MetadataPanel {
         this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
 
         if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
-        if (this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 && this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2) return;
+        if (
+            this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 &&
+            this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2
+        )
+            return;
 
         this.WIDTH = this.MASTER_CONTAINER.w;
         this.HEIGHT = this.MASTER_CONTAINER.h;

@@ -127,6 +127,7 @@ export class FlexBox {
         this.container = new PIXI.Container();
         this._gap = 0;
         this._flexDirection = "column";
+        this._justifyContent = "center";
     }
 
     addChild(...children) {
@@ -151,6 +152,15 @@ export class FlexBox {
     set flexDirection(val) {
         if (!["row", "column"].includes(val)) return;
         this._flexDirection = val;
+        this.update();
+    }
+
+    get justifyContent() {
+        return this._justifyContent;
+    }
+
+    set justifyContent(val) {
+        this._justifyContent = val;
         this.update();
     }
 
@@ -189,8 +199,9 @@ export class FlexBox {
         const centerFactor = this.flexDirection === "column" ? "height" : "width";
 
         this.children.forEach((child, idx, arr) => {
-            child[_static] = Math.ceil((this.getLargestChildFactor(centerFactor) - child[centerFactor]) * 0.5);
-
+            if (this.justifyContent === "center") child[_static] = Math.ceil((this.getLargestChildFactor(centerFactor) - child[centerFactor]) * 0.5);
+            if (this.justifyContent === "start") child[_static] = 0;
+            
             if (idx === 0) {
                 child[dynamic] = 0;
                 return;
