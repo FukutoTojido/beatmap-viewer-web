@@ -16,6 +16,7 @@ import { HitSample } from "./Audio.js";
 import { HitSound } from "./HitSound.js";
 import { Texture } from "./Texture.js";
 import { TimingPanel } from "./TimingPanel.js";
+import { MetadataPanel } from "./SidePanel.js";
 
 export class Beatmap {
     objectsController;
@@ -338,13 +339,21 @@ export class Beatmap {
         const source = getValue("Source");
         const tags = getValue("Tags");
 
-        document.querySelector(".meta-artist").textContent = artistUnicode;
-        document.querySelector(".meta-r-artist").textContent = artist;
-        document.querySelector(".meta-title").textContent = titleUnicode;
-        document.querySelector(".meta-r-title").textContent = title;
-        document.querySelector(".meta-diff").textContent = diff;
-        document.querySelector(".meta-source").textContent = source;
-        document.querySelector(".meta-tags").textContent = tags;
+        // document.querySelector(".meta-artist").textContent = artistUnicode;
+        // document.querySelector(".meta-r-artist").textContent = artist;
+        // document.querySelector(".meta-title").textContent = titleUnicode;
+        // document.querySelector(".meta-r-title").textContent = title;
+        // document.querySelector(".meta-diff").textContent = diff;
+        // document.querySelector(".meta-source").textContent = source;
+        // document.querySelector(".meta-tags").textContent = tags;
+
+        MetadataPanel.artist = artist;
+        MetadataPanel.romanized_artist = artistUnicode;
+        MetadataPanel.title = title;
+        MetadataPanel.romanized_title = titleUnicode;
+        MetadataPanel.difficulty_name = diff;
+        MetadataPanel.source = source;
+        MetadataPanel.tag = tags;
     }
 
     constructor(rawBeatmap, delay) {

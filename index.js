@@ -6,6 +6,7 @@ import { urlParams } from "./scripts/GlobalVariables.js";
 // import { toggleSidePanel } from "./scripts/SidePanel.js";
 import { toggleTimingPanel } from "./scripts/BPM.js";
 import { openMenu } from "./scripts/Settings.js";
+import { toggleMetadataPanel } from "./scripts/SidePanel.js";
 
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
@@ -107,6 +108,7 @@ function setupDefaultStorage() {
             case "F4": {
                 e.preventDefault();
                 // toggleSidePanel("metadata");
+                toggleMetadataPanel();
                 break;
             }
             case "o": {

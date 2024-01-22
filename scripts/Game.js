@@ -85,6 +85,7 @@ export class Game {
     static SHOW_METADATA = false;
     static SHOW_TIMING_PANEL = false;
     static REDUCTION = 0;
+    static COMPUTED_HEIGHT = 0;
 
     // Add certain objects from container
     static addToContainer(objectsList) {
@@ -375,11 +376,12 @@ export class Game {
         width = parseInt(width) * window.devicePixelRatio;
         height = parseInt(height) * window.devicePixelRatio;
         const preHeight = height;
+        Game.COMPUTED_HEIGHT = preHeight;
 
         if (innerWidth / innerHeight < 1) {
             height = Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio);
 
-            if (preHeight !== height) {
+            if (preHeight !== height && document.querySelector(".contentWrapper").style.height !== height) {
                 document.querySelector(".contentWrapper").style.height = `${height}px`;
             }
         }
@@ -453,12 +455,13 @@ export class Game {
         Game.WRAPPER.masterContainer.eventMode = "dynamic";
 
         Game.WRAPPER.masterContainer.on("touchstart", (e) => {
+            if (Game.SHOW_TIMING_PANEL || Game.SHOW_METADATA) return;
             Game.START_DRAG_Y = e.global.y;
             Game.IS_DRAGSCROLL = true;
         })
 
         Game.WRAPPER.masterContainer.on("touchmove", (e) => {
-            if (!Game.IS_DRAGSCROLL) return;
+            if (!Game.IS_DRAGSCROLL || Game.SHOW_TIMING_PANEL || Game.SHOW_METADATA) return;
 
             const delta =  e.global.y - Game.START_DRAG_Y;
             window.scrollBy(0, -delta / devicePixelRatio);
@@ -466,6 +469,8 @@ export class Game {
         })
 
         Game.WRAPPER.masterContainer.on("touchend", (e) => {
+            if (Game.SHOW_TIMING_PANEL || Game.SHOW_METADATA) return;
+
             Game.START_DRAG_Y = 0;
             Game.IS_DRAGSCROLL = false;
         })

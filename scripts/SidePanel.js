@@ -3,7 +3,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Component } from "./WindowManager";
 import { TimingPanel } from "./TimingPanel";
 import bezier from "bezier-easing";
-import { FlexBox } from "./Stats";
+import { Container, FlexBox } from "./Stats";
 import * as PIXI from "pixi.js";
 
 export function toggleMetadataPanel() {
@@ -46,6 +46,10 @@ export function toggleMetadataPanel() {
         })
         .to({ reduction: result }, 200)
         .onUpdate((obj) => {
+            if (innerWidth / innerHeight < 1) {
+                return;
+            }
+
             Game.REDUCTION = obj.reduction.game;
             MetadataPanel.SIZE_X = obj.reduction.metadata;
             TimingPanel.SIZE_X = obj.reduction.timing;
@@ -76,6 +80,18 @@ export class MetadataPanel {
         tag: null,
     };
 
+    static CONTAINERS = {
+        artist: null,
+        romanized_artist: null,
+        title: null,
+        romanized_title: null,
+        difficulty_name: null,
+        source: null,
+        tag: null,
+    };
+
+    static container;
+
     static init() {
         this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
@@ -88,8 +104,14 @@ export class MetadataPanel {
 
         this.flex = new FlexBox();
         this.flex.flexDirection = "row";
-        this.flex.gap = 5;
+        this.flex.gap = 20;
         this.flex.justifyContent = "start";
+
+        this.container = new Container();
+        this.container.paddingX = 20;
+        this.container.paddingY = 20;
+        this.container.color = Game.COLOR_PALETTES.primary2;
+        this.container.borderRadius = 10;
 
         const contentStyle = {
             fontSize: 16,
@@ -103,18 +125,87 @@ export class MetadataPanel {
             fontSize: 12,
             fontFamily: "Torus",
             fill: "white",
-            fontWeight: 300,
+            fontWeight: 400,
             wordWrap: true,
         };
 
         Object.keys(this.LABEL).forEach((label) => {
             this.LABEL[label] = new PIXI.Text(label.replaceAll("_", " "), labelStyle);
             this[label.toUpperCase()] = new PIXI.Text("", contentStyle);
+            this.CONTAINERS[label] = new FlexBox();
+            this.CONTAINERS[label].flexDirection = "row";
+            this.CONTAINERS[label].justifyContent = "start";
+            this.CONTAINERS[label].gap = 6;
 
-            this.flex.addChild(this.LABEL[label], this[label.toUpperCase()]);
+            this.CONTAINERS[label].addChild(this.LABEL[label], this[label.toUpperCase()]);
+            this.flex.addChild(this.CONTAINERS[label].container);
+            this.container.addChild(this.flex.container);
         });
 
-        this.MASTER_CONTAINER.container.addChild(this.flex.container);
+        this.MASTER_CONTAINER.container.addChild(this.container.container);
+    }
+
+    static get artist() {
+        return this._artist;
+    }
+
+    static set artist(val) {
+        this._artist = val;
+        this.ARTIST.text = val;
+    }
+
+    static get romanized_artist() {
+        return this._romanized_artist;
+    }
+
+    static set romanized_artist(val) {
+        this._romanized_artist = val;
+        this.ROMANIZED_ARTIST.text = val;
+    }
+
+    static get title() {
+        return this._title;
+    }
+
+    static set title(val) {
+        this._title = val;
+        this.TITLE.text = val;
+    }
+
+    static get romanized_title() {
+        return this._romanized_title;
+    }
+
+    static set romanized_title(val) {
+        this._romanized_title = val;
+        this.ROMANIZED_TITLE.text = val;
+    }
+
+    static get difficulty_name() {
+        return this._difficulty_name;
+    }
+
+    static set difficulty_name(val) {
+        this._difficulty_name = val;
+        this.DIFFICULTY_NAME.text = val;
+    }
+
+    static get source() {
+        return this._source;
+    }
+
+    static set source(val) {
+        this._source = val;
+        this.SOURCE.text = val;
+    }
+
+    static get tag() {
+        return this._tag;
+    }
+
+    static set tag(val) {
+        this._tag = val;
+        this.TAG.text = val;
     }
 
     static resize() {
@@ -123,7 +214,6 @@ export class MetadataPanel {
         this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
         this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
 
-        if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         if (
             this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 &&
             this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2
@@ -136,5 +226,18 @@ export class MetadataPanel {
 
     static update() {
         this.resize();
+        Object.keys(this.LABEL).forEach((label) => {
+            this.LABEL[label].style.wordWrapWidth = this.container.width - this.container.paddingX;
+            this[label.toUpperCase()].style.wordWrapWidth = this.container.width - this.container.paddingX;
+
+            this.LABEL[label].style.fontSize = 12 * devicePixelRatio;
+            this[label.toUpperCase()].style.fontSize = 16 * devicePixelRatio;
+        });
+
+        this.container.width = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
+        this.container.height = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;
+
+        this.flex.update();
+        this.container.update();
     }
 }

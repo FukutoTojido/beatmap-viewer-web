@@ -86,6 +86,7 @@ export class PlayContainer {
         this.MASTER_CONTAINER = new Container();
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary2;
         this.MASTER_CONTAINER.alpha = 1;
+        this.MASTER_CONTAINER.placeItemsCenter = true;
 
         this.flex = new FlexBox();
 

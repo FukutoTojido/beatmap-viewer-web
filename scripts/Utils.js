@@ -11,6 +11,7 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import axios from "axios";
 import { PlayContainer } from "./PlayButtons.js";
 import { BPM } from "./BPM.js";
+import { MetadataPanel } from "./SidePanel.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
@@ -267,6 +268,8 @@ export const loadColorPalette = (bg) => {
         PlayContainer.nextButton.color = Game.COLOR_PALETTES.primary2;
         PlayContainer.infoButton.color = Game.COLOR_PALETTES.primary2;
         ProgressBar.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
+        MetadataPanel.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        MetadataPanel.container.color = Game.COLOR_PALETTES.primary1;
     }
 
     const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb() ?? swatches.Muted?.getRgb() ?? [255, 255, 255];

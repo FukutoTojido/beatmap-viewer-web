@@ -23,6 +23,8 @@ export class Container {
         this.container.addChild(this.background, this.content);
         this.container.x = 0;
         this.container.y = 0;
+
+        this.placeItemsCenter = false;
     }
 
     addChild(child) {
@@ -109,11 +111,13 @@ export class Container {
         this.container.x = this.x;
         this.container.y = this.y;
 
-        if (!this._width) this.content.x = this.paddingX;
-        else this.content.x = (this.width - this.content.width) / 2;
-
-        if (!this._height) this.content.y = this.paddingY;
-        else this.content.y = (this.height - this.content.height) / 2;
+        if (!this.placeItemsCenter) {
+            this.content.x = this.paddingX;
+            this.content.y = this.paddingY;
+        } else {
+            this.content.x = (this.width - this.content.width) / 2;
+            this.content.y = (this.height - this.content.height) / 2;
+        }
 
         this.background.clear().beginFill(this.color, this.alpha).drawRoundedRect(0, 0, this.width, this.height, this.borderRadius).endFill();
     }
@@ -201,7 +205,7 @@ export class FlexBox {
         this.children.forEach((child, idx, arr) => {
             if (this.justifyContent === "center") child[_static] = Math.ceil((this.getLargestChildFactor(centerFactor) - child[centerFactor]) * 0.5);
             if (this.justifyContent === "start") child[_static] = 0;
-            
+
             if (idx === 0) {
                 child[dynamic] = 0;
                 return;
@@ -251,6 +255,7 @@ export class Stats {
         this.container.paddingY = 5;
         this.container.color = Game.COLOR_PALETTES.primary2;
         this.container.borderRadius = 20;
+        this.container.placeItemsCenter = true;
 
         this.container.addChild(this.flex.container);
 

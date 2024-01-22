@@ -375,13 +375,24 @@ export class TimingPanel {
     }
 
     static resize() {
-        this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
-        this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
-        this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-        this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
-        
+        // if (innerWidth / innerHeight < 1) {
+        //     this.MASTER_CONTAINER.x = 0;
+        //     this.MASTER_CONTAINER.y = Game.WRAPPER.h * 0.3;
+        //     this.MASTER_CONTAINER.w = Game.WRAPPER.w;
+        //     this.MASTER_CONTAINER.h = Game.WRAPPER.h * 0.7;
+        // } else {
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
+            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        // }
+
         if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
-        if (this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 && this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2) return;
+        if (
+            this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 &&
+            this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2
+        )
+            return;
 
         this.WIDTH = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
         this.HEIGHT = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;

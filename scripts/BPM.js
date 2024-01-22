@@ -46,6 +46,10 @@ export function toggleTimingPanel() {
         })
         .to({ reduction: result }, 200)
         .onUpdate((obj) => {
+            if (innerWidth / innerHeight < 1) {
+                return;
+            }
+
             Game.REDUCTION = obj.reduction.game;
             MetadataPanel.SIZE_X = obj.reduction.metadata;
             TimingPanel.SIZE_X = obj.reduction.timing;
