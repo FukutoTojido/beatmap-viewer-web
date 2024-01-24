@@ -5,6 +5,7 @@ import { Timeline } from "./Timeline/Timeline.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { Game } from "./Game.js";
 import osuPerformance from "../lib/osujs.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {
@@ -160,15 +161,27 @@ export function calculateCurrentSR(modsFlag) {
     const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-    document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
-    document.querySelector("#AR").textContent = round(difficultyAttributes.approachRate);
-    document.querySelector("#OD").textContent = round(difficultyAttributes.overallDifficulty);
-    document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
-    document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
-    document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+    // document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
+    // document.querySelector("#AR").textContent = round(difficultyAttributes.approachRate);
+    // document.querySelector("#OD").textContent = round(difficultyAttributes.overallDifficulty);
+    // document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
+    // document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
+    // document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
-    if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
-    else document.querySelector("#SR").style.color = "black";
+    // if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
+    // else document.querySelector("#SR").style.color = "black";
+
+    Game.STATS.CS = round(beatmapData.difficulty.circleSize);
+    Game.STATS.AR = round(beatmapData.difficulty.approachRate);
+    Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
+    Game.STATS.HP = round(beatmapData.difficulty.drainRate);
+    Game.STATS.SR = round(difficultyAttributes.starRating);
+    Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes.starRating)).formatHex().slice(1), 16);
+
+    if (difficultyAttributes.starRating >= 6.5) Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45deg, 100%, 70%)").formatHex().slice(1), 16);
+    else Game.STATS.SRSprite.style.fill = 0x000000;
+
+    Game.STATS.update();
 }
 
 export function handleCheckBox(checkbox) {

@@ -1,4 +1,4 @@
-import { Game } from "./Game.js"
+import { Game } from "./Game.js";
 import { Database } from "./Database.js";
 import * as PIXI from "pixi.js";
 
@@ -27,33 +27,22 @@ export class Texture {
 
     static createSelectedHitCircle() {
         return new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 10,
                 color: 0xf2cc0f,
                 alpha: 1,
                 cap: "round",
-                alignment: 0,
+                alignment: 1,
             })
-            .arc(0, 0, 59, 0, Math.PI * 2);
+            .arc(0, 0, 59, 0, Math.PI * 2).stroke();
     }
 
     static createHitCircle() {
-        const hitCircle = new PIXI.Graphics();
+        const hitCircle = new PIXI.Container();
 
-        const circle_1 = new PIXI.Graphics();
-        circle_1.beginFill(0xffffff);
-        circle_1.drawCircle(0, 0, 59);
-        circle_1.endFill();
-
-        const circle_2 = new PIXI.Graphics();
-        circle_2.beginFill(0x9a9a9a);
-        circle_2.drawCircle(0, 0, 47);
-        circle_2.endFill();
-
-        const circle_3 = new PIXI.Graphics();
-        circle_3.beginFill(0x2f2f2f);
-        circle_3.drawCircle(0, 0, 35);
-        circle_3.endFill();
+        const circle_1 = new PIXI.Graphics().circle(0, 0, 59).fill(0xffffff);
+        const circle_2 = new PIXI.Graphics().circle(0, 0, 47).fill(0x9a9a9a);
+        const circle_3 = new PIXI.Graphics().circle(0, 0, 35).fill(0x2f2f2f);
 
         hitCircle.addChild(circle_1);
         hitCircle.addChild(circle_2);
@@ -64,38 +53,38 @@ export class Texture {
 
     static createHitCircleOverlay() {
         return new PIXI.Graphics()
-            .lineStyle({
-                width: 4,
-                color: 0xffffff,
-                alpha: 1,
-                cap: "round",
-                alignment: 0,
-            })
-            .arc(0, 0, 67, 0, Math.PI * 2);
-    }
-
-    static createApproachCircle() {
-        return new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 1,
             })
-            .drawCircle(0, 0, 59);
+            .arc(0, 0, 67, 0, Math.PI * 2).stroke();
     }
 
-    static createSliderBall() {
-        const sliderBallOutLine = new PIXI.Graphics()
-            .lineStyle({
-                width: 15,
+    static createApproachCircle() {
+        return new PIXI.Graphics()
+            .setStrokeStyle({
+                width: 4,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .arc(0, 0, 59, 0, Math.PI * 2);
+            .circle(0, 0, 59).stroke();
+    }
+
+    static createSliderBall() {
+        const sliderBallOutLine = new PIXI.Graphics()
+            .setStrokeStyle({
+                width: 15,
+                color: 0xffffff,
+                alpha: 1,
+                cap: "round",
+                alignment: 1,
+            })
+            .arc(0, 0, 59, 0, Math.PI * 2).stroke();
 
         const sliderBallContainer = new PIXI.Container();
         sliderBallContainer.addChild(sliderBallOutLine);
@@ -103,7 +92,7 @@ export class Texture {
         return sliderBallContainer;
     }
 
-    static createSliderBallBG() {
+    static async createSliderBallBG() {
         const radius = 59;
 
         const canvas = document.createElement("canvas");
@@ -119,7 +108,7 @@ export class Texture {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, radius * 2, radius * 2);
 
-        const tx = PIXI.Texture.from(canvas);
+        const tx = await PIXI.Assets.load(canvas.toDataURL());
         return tx;
 
         // const bg = new PIXI.Graphics().beginTextureFill(tx).drawRect(0, 0, radius * 2, radius * 2).endFill();
@@ -131,21 +120,20 @@ export class Texture {
 
     static createSliderFollowCircle() {
         const graphic = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 8,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
-                alignment: 0,
+                alignment: 1,
             })
-            .beginFill(0xffffff, 0.3)
-            .drawCircle(0, 0, 128)
-            .endFill();
+            .circle(0, 0, 128)
+            .fill({ color: 0xffffff, alpha: 0.3} ).stroke()
 
         return graphic;
     }
 
-    static createTexture(type) {
+    static async createTexture(type) {
         let graphics = null;
 
         switch (type) {
@@ -162,7 +150,7 @@ export class Texture {
                 graphics = Texture.createSliderBall();
                 break;
             case "SLIDER_BALL_BG":
-                return Texture.createSliderBallBG();
+                return await Texture.createSliderBallBG();
             case "SLIDER_FOLLOW_CIRCLE":
                 graphics = Texture.createSliderFollowCircle();
                 break;
@@ -174,16 +162,18 @@ export class Texture {
         const renderTexture = PIXI.RenderTexture.create({
             width: width,
             height: height,
-            multisample: PIXI.MSAA_QUALITY.MEDIUM,
+            antialias: true
             // resolution: window.devicePixelRatio,
         });
 
-        Game.APP.renderer.render(graphics, {
-            renderTexture,
+        Game.APP.renderer.render({
+            container: graphics,
+            target: renderTexture,
+            clearColor: new PIXI.Color([0, 0, 0, 0.0]),
             transform: new PIXI.Matrix(1, 0, 0, 1, width / 2, height / 2),
         });
 
-        Game.APP.renderer.framebuffer.blit();
+        // Game.APP.renderer.framebuffer.blit();
 
         graphics.destroy(true);
 
@@ -193,60 +183,60 @@ export class Texture {
     static async generateDefaultTextures() {
         Texture.SELECTED = {
             // texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
-            texture: PIXI.Texture.from(await Database.getDefaults("base64s", "hitcircleselect@2x", "legacy")),
+            texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "hitcircleselect@2x", "legacy")),
             isHD: true,
         };
         Texture.ARGON.HIT_CIRCLE = {
-            texture: Texture.createTexture("HIT_CIRCLE"),
+            texture: await Texture.createTexture("HIT_CIRCLE"),
             isHD: false,
         };
         Texture.ARGON.HIT_CIRCLE_OVERLAY = {
-            texture: Texture.createTexture("HIT_CIRCLE_OVERLAY"),
+            texture: await Texture.createTexture("HIT_CIRCLE_OVERLAY"),
             isHD: false,
         };
         Texture.ARGON.SLIDER_B = {
             ring: {
-                texture: Texture.createTexture("SLIDER_BALL"),
+                texture: await Texture.createTexture("SLIDER_BALL"),
                 isHD: false,
             },
             arrow: {
-                texture: PIXI.Texture.from("/static/arrow.png"),
+                texture: await PIXI.Assets.load("/static/arrow.png"),
                 isHD: false,
             },
             gradient: {
-                texture: Texture.createTexture("SLIDER_BALL_BG"),
+                texture: await Texture.createTexture("SLIDER_BALL_BG"),
                 isHD: false,
             },
         };
         Texture.ARGON.REVERSE_ARROW = {
             arrow: {
                 // texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
-                texture: PIXI.Texture.from(await Database.getDefaults("base64s", "reversearrow@2x", "argon")),
+                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "reversearrow@2x", "argon")),
                 isHD: true,
             },
             ring: {
                 // texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
-                texture: PIXI.Texture.from(await Database.getDefaults("base64s", "repeat-edge-piece", "argon")),
+                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "repeat-edge-piece", "argon")),
                 isHD: false,
             },
         };
         Texture.ARGON.SLIDER_FOLLOW_CIRCLE = {
-            texture: Texture.createTexture("SLIDER_FOLLOW_CIRCLE"),
+            texture: await Texture.createTexture("SLIDER_FOLLOW_CIRCLE"),
             isHD: false,
         };
         Texture.ARGON.APPROACH_CIRCLE = {
             // texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
-            texture: PIXI.Texture.from(await Database.getDefaults("base64s", "approachcircle@2x", "argon")),
+            texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "approachcircle@2x", "argon")),
             isHD: true,
         };
         Texture.ARGON.DEFAULTS = [];
         for (const idx in [...Array(10)].fill(null, 0, 10)) {
             Texture.ARGON.DEFAULTS.push({
                 // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
-                texture: PIXI.Texture.from(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
+                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
                 isHD: true,
             });
-        };
+        }
 
         await Texture.updateTextureFor("HIT_CIRCLE");
         await Texture.updateTextureFor("HIT_CIRCLE_OVERLAY");
@@ -262,29 +252,36 @@ export class Texture {
                 base64: await Database.getDefaults("base64s", `default-${idx}@2x`, "legacy"),
                 isHD: true,
             });
-        };
+        }
 
         // console.log(LEGACY_NUM);
         await Texture.updateNumberTextures(LEGACY_NUM);
     }
 
-    static updateNumberTextures(arr, forIdx) {
+    static async updateNumberTextures(arr, forIdx) {
         if (forIdx) {
-            Texture.CUSTOM[forIdx].DEFAULTS = arr.map(({ base64, isHD }, idx) => {
-                return {
-                    texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from(`static/legacy/default-${idx}@2x.png`),
+            Texture.CUSTOM[forIdx].DEFAULTS = [];
+            for (const [idx, obj] of arr.entries()) {
+                const { base64, isHD } = obj;
+
+                Texture.CUSTOM[forIdx].DEFAULTS.push({
+                    texture: base64 ? await PIXI.Assets.load(base64) : await PIXI.Assets.load(`static/legacy/default-${idx}@2x.png`),
                     isHD: base64 ? isHD : false,
-                };
-            });
+                });
+            }
             return;
         }
 
-        Texture.LEGACY.DEFAULTS = arr.map(({ base64, isHD }, idx) => {
-            return {
-                texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from(`static/legacy/default-${idx}@2x.png`),
+        Texture.LEGACY.DEFAULTS = [];
+        for (const [idx, obj] of arr.entries()) {
+            const { base64, isHD } = obj;
+            const texture = base64 ? await PIXI.Assets.load(base64) : await PIXI.Assets.load(`static/legacy/default-${idx}@2x.png`);
+            
+            Texture.LEGACY.DEFAULTS.push({
+                texture,
                 isHD: base64 ? isHD : false,
-            };
-        });
+            });
+        }
     }
 
     static async updateTextureFor(type, base64, isHD, forIdx) {
@@ -300,21 +297,20 @@ export class Texture {
             };
         }
 
-
         const textureSet = forIdx ? Texture.CUSTOM[forIdx] : Texture.LEGACY;
 
         switch (type) {
             case "HIT_CIRCLE":
                 textureSet.HIT_CIRCLE = {
                     // texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircle@2x.png"),
-                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `hitcircle@2x`, "legacy")),
+                    texture: await PIXI.Assets.load(base64 ?? (await Database.getDefaults("base64s", `hitcircle@2x`, "legacy"))),
                     isHD: base64 ? isHD : true,
                 };
                 break;
             case "HIT_CIRCLE_OVERLAY":
                 textureSet.HIT_CIRCLE_OVERLAY = {
                     // texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/hitcircleoverlay@2x.png"),
-                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `hitcircleoverlay@2x`, "legacy")),
+                    texture: await PIXI.Assets.load(base64 ?? (await Database.getDefaults("base64s", `hitcircleoverlay@2x`, "legacy"))),
                     isHD: base64 ? isHD : true,
                 };
                 break;
@@ -322,15 +318,15 @@ export class Texture {
                 textureSet.SLIDER_B = {
                     ring: {
                         // texture: base64 ? PIXI.Texture.from(base64) : PIXI.Texture.from("static/legacy/sliderb0@2x.png"),
-                        texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `sliderb0@2x`, "legacy")),
+                        texture: await PIXI.Assets.load(base64 ?? (await Database.getDefaults("base64s", `sliderb0@2x`, "legacy"))),
                         isHD: base64 ? isHD : true,
                     },
                     arrow: {
-                        texture: PIXI.Texture.from("static/empty.png"),
+                        texture: await PIXI.Assets.load("static/empty.png"),
                         isHD: false,
                     },
                     gradient: {
-                        texture: PIXI.Texture.from("static/empty.png"),
+                        texture: await PIXI.Assets.load("static/empty.png"),
                         isHD: false,
                     },
                 };
@@ -339,11 +335,11 @@ export class Texture {
                 textureSet.REVERSE_ARROW = {
                     arrow: {
                         // texture: PIXI.Texture.from(base64 ?? "static/legacy/reversearrow@2x.png"),
-                        texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `reversearrow@2x`, "legacy")),
+                        texture: await PIXI.Assets.load(base64 ?? (await Database.getDefaults("base64s", `reversearrow@2x`, "legacy"))),
                         isHD: base64 ? isHD : true,
                     },
                     ring: {
-                        texture: PIXI.Texture.from("static/empty.png"),
+                        texture: await PIXI.Assets.load("static/empty.png"),
                         isHD: false,
                     },
                 };
@@ -351,14 +347,14 @@ export class Texture {
             case "SLIDER_FOLLOW_CIRCLE":
                 textureSet.SLIDER_FOLLOW_CIRCLE = {
                     // texture: PIXI.Texture.from(base64 ?? "static/legacy/sliderfollowcircle@2x.png"),
-                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `sliderfollowcircle@2x`, "legacy")),
+                    texture: await PIXI.Assets.load(base64 ?? (await Database.getDefaults("base64s", `sliderfollowcircle@2x`, "legacy"))),
                     isHD: base64 ? isHD : true,
                 };
                 break;
             case "APPROACH_CIRCLE":
                 textureSet.APPROACH_CIRCLE = {
                     // texture: PIXI.Texture.from(base64 ?? "static/legacy/approachcircle@2x.png"),
-                    texture: PIXI.Texture.from(base64 ?? await Database.getDefaults("base64s", `approachcircle@2x`, "legacy")),
+                    texture: await PIXI.Assets.load(base64 ?? (await Database.getDefaults("base64s", `approachcircle@2x`, "legacy"))),
                     isHD: base64 ? isHD : true,
                 };
                 break;

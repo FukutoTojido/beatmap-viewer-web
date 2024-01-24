@@ -6,6 +6,7 @@ import * as PIXI from "pixi.js";
 export class TimelineDragWindow {
     isDragging = false;
     obj;
+    graphics;
     dragWindow;
 
     startTimestamp;
@@ -58,12 +59,14 @@ export class TimelineDragWindow {
     }
 
     constructor() {
-        this.obj = new PIXI.Graphics().beginFill(0xffffff, 0.01).drawRect(0, 0, Timeline.WIDTH, Timeline.HEIGHT);
-        // this.obj.interactive = true;
-        this.obj.eventMode = "static"
+        this.obj = new PIXI.Container();
+        this.obj.eventMode = "static";
 
-        this.dragWindow = new PIXI.Graphics().drawRect(0, 0, 0, 0);
-        this.obj.addChild(this.dragWindow);
+        this.graphics = new PIXI.Graphics().rect(0, 0, Timeline.WIDTH, Timeline.HEIGHT).fill({ color: 0xffffff, alpha: 0.01} );
+        // this.obj.interactive = true;
+
+        this.dragWindow = new PIXI.Graphics().rect(0, 0, 0, 0);
+        this.obj.addChild(this.graphics, this.dragWindow);
 
         this.obj.on("mousedown", (e) => {
             if (!Game.BEATMAP_FILE) return;
@@ -124,7 +127,7 @@ export class TimelineDragWindow {
     }
 
     resize() {
-        this.obj.clear().beginFill(0xffffff, 0.01).drawRect(0, 0, Timeline.WIDTH, Timeline.HEIGHT);
+        this.graphics.clear().rect(0, 0, Timeline.WIDTH, Timeline.HEIGHT).fill({ color: 0xffffff, alpha: 0.01 });
     }
 
     draw(timestamp) {
@@ -156,7 +159,7 @@ export class TimelineDragWindow {
 
         this.dragWindow
             .clear()
-            .beginFill(0xffffff, 0.2)
-            .drawRect(xStart, 0, xEnd - xStart, Timeline.HEIGHT);
+            .rect(xStart, 0, xEnd - xStart, Timeline.HEIGHT)
+            .fill({ color: 0xffffff, alpha: 0.2 });
     }
 }

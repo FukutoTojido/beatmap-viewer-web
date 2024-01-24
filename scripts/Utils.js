@@ -56,7 +56,6 @@ export function selectSkin() {
 export async function refreshSkinDB() {
     const res = await Database.readObjStore("skins");
     const allKeys = await Database.getAllKeys();
-
     [...document.querySelectorAll('[data-skin-id="custom"]')].forEach((ele) => ele.remove());
 
     const skinDropdown = document.querySelector("#skinDropdown");
@@ -84,19 +83,25 @@ export async function refreshSkinDB() {
         div.appendChild(delButton);
         skinDropdown.appendChild(div);
 
-        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"].forEach(
-            (element) => {
-                if (!base64s[element]) return;
+        for (const element of [
+            "HIT_CIRCLE",
+            "HIT_CIRCLE_OVERLAY",
+            "SLIDER_B",
+            "REVERSE_ARROW",
+            "DEFAULTS",
+            "SLIDER_FOLLOW_CIRCLE",
+            "APPROACH_CIRCLE",
+        ]) {
+            if (!base64s[element]) continue;
 
-                if (element === "DEFAULTS") {
-                    Texture.updateNumberTextures(base64s[element], skinId);
-                    return;
-                }
-
-                const { base64, isHD } = base64s[element];
-                Texture.updateTextureFor(element, base64, isHD, skinId);
+            if (element === "DEFAULTS") {
+                await Texture.updateNumberTextures(base64s[element], skinId);
+                continue;
             }
-        );
+
+            const { base64, isHD } = base64s[element];
+            await Texture.updateTextureFor(element, base64, isHD, skinId);
+        }
 
         await Skinning.loadHitsounds(samples, skinId);
     }
@@ -155,7 +160,7 @@ export async function loadLocalStorage() {
         document.querySelector("#softoffsetVal").innerHTML = `${parseInt(currentLocalStorage.mapping.offset)}ms`;
         // hsVol = currentLocalStorage.volume.hs;
 
-        document.querySelector("#showGreenLine").checked = currentLocalStorage.mapping.showGreenLine
+        document.querySelector("#showGreenLine").checked = currentLocalStorage.mapping.showGreenLine;
 
         Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
             if (["snaking", "hitAnim", "ignoreSkin"].includes(k)) {
@@ -272,7 +277,10 @@ export const loadColorPalette = (bg) => {
         MetadataPanel.container.color = Game.COLOR_PALETTES.primary1;
     }
 
-    const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb() ?? swatches.Muted?.getRgb() ?? [255, 255, 255];
+    const accent = swatches.LightVibrant?.getRgb() ??
+        swatches.LightMuted?.getRgb() ??
+        swatches.Vibrant?.getRgb() ??
+        swatches.Muted?.getRgb() ?? [255, 255, 255];
     if (accent) {
         const accentHex = d3.color(`rgb(${parseInt(accent[0])}, ${parseInt(accent[1])}, ${parseInt(accent[2])})`);
         rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
@@ -295,7 +303,7 @@ export async function loadDefaultSamples() {
 
                 const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
                 // console.log(arrBuf);
-                const buffer = await (Game.AUDIO_CTX.decodeAudioData(arrBuf));
+                const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
                 HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
                 HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
             }
@@ -332,16 +340,15 @@ export function toDataUrl(url, callback) {
 
 export function imageToBase64(url) {
     return new Promise(async (resolve, reject) => {
-        const data = await fetch(url)
+        const data = await fetch(url);
         const blob = await data.blob();
         const reader = new FileReader();
         reader.readAsDataURL(blob);
         reader.onload = () => {
             const base64data = reader.result;
-            resolve(base64data)
-        }
-    })
-
+            resolve(base64data);
+        };
+    });
 }
 
 export function changeZoomRate(zoomStep, the) {

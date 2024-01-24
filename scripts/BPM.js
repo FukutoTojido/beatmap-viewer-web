@@ -85,26 +85,30 @@ export class BPM {
             this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         });
 
-        this.BPM_TEXT = new PIXI.Text("0BPM", {
-            fontFamily: "Torus",
-            fontSize: 16,
-            fontWeight: 500,
-            fill: 0xffffff,
+        this.BPM_TEXT = new PIXI.Text({
+            text: "0BPM",
+            style: {
+                fontFamily: "Torus",
+                fontSize: 16,
+                fontWeight: 500,
+                fill: 0xffffff,
+            },
         });
 
         this.BPM_TEXT.anchor.set(1, 0.5);
         this.BPM_TEXT.x = this.MASTER_CONTAINER.w / 2 - 5;
         this.BPM_TEXT.y = this.MASTER_CONTAINER.h / 2;
 
-        this.FLAIR = new PIXI.Graphics()
-            .beginFill(0x9beea7)
-            .drawRoundedRect(this.MASTER_CONTAINER.w / 2 + 5, this.MASTER_CONTAINER.h / 2 - 10, 50, 20);
+        this.FLAIR = new PIXI.Graphics().roundRect(this.MASTER_CONTAINER.w / 2 + 5, this.MASTER_CONTAINER.h / 2 - 10, 50, 20).fill(0x9beea7);
 
-        this.SV_TEXT = new PIXI.Text("0.00x", {
-            fontFamily: "Torus",
-            fontSize: 12,
-            fontWeight: 500,
-            fill: 0x202020,
+        this.SV_TEXT = new PIXI.Text({
+            text: "0.00x",
+            style: {
+                fontFamily: "Torus",
+                fontSize: 12,
+                fontWeight: 500,
+                fill: 0x202020,
+            },
         });
 
         this.SV_TEXT.anchor.set(0.5, 0.5);
@@ -128,20 +132,19 @@ export class BPM {
         }
         this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
 
-
         this.BPM_TEXT.x = this.MASTER_CONTAINER.w / 2 - 5 * devicePixelRatio;
         this.BPM_TEXT.y = this.MASTER_CONTAINER.h / 2;
         this.BPM_TEXT.style.fontSize = 16 * devicePixelRatio;
         this.BPM_TEXT.resolution = devicePixelRatio;
 
         this.FLAIR.clear()
-            .beginFill(0x9beea7)
-            .drawRoundedRect(
+            .roundRect(
                 this.MASTER_CONTAINER.w / 2 + 5 * devicePixelRatio,
                 this.MASTER_CONTAINER.h / 2 - 10 * devicePixelRatio,
                 50 * devicePixelRatio,
                 20 * devicePixelRatio
-            );
+            )
+            .fill(0x9beea7);
 
         this.SV_TEXT.x = this.MASTER_CONTAINER.w / 2 + 5 * devicePixelRatio + 25 * devicePixelRatio;
         this.SV_TEXT.y = this.MASTER_CONTAINER.h / 2;

@@ -50,6 +50,7 @@ export class Component {
     }
 
     set x(val) {
+        if (val === this._x) return;
         this._x = val;
         this.updatePosition();
     }
@@ -59,6 +60,7 @@ export class Component {
     }
 
     set y(val) {
+        if (val === this._y) return;
         this._y = val;
         this.updatePosition();
     }
@@ -68,6 +70,8 @@ export class Component {
     }
 
     set w(val) {
+        if (val === this._w) return;
+
         this._w = val;
         this.redraw();
     }
@@ -77,6 +81,8 @@ export class Component {
     }
 
     set h(val) {
+        if (val === this._h) return;
+
         this._h = val;
         this.redraw();
     }
@@ -86,6 +92,8 @@ export class Component {
     }
 
     set borderRadius(val) {
+        if (val === this._borderRadius) return;
+
         this._borderRadius = val;
         this.redraw();
     }
@@ -95,6 +103,7 @@ export class Component {
     }
 
     set padding(val) {
+        if (val === this._padding) return;
         this._padding = val;
 
         this.updatePosition();
@@ -106,6 +115,7 @@ export class Component {
     }
 
     set borderBox(val) {
+        if (val === this._borderBox) return;
         this._borderBox = val;
         this.redraw();
     }
@@ -115,6 +125,8 @@ export class Component {
     }
 
     set color(val) {
+        if (val === this._color) return;
+
         this._color = val;
         this.redraw();
     }
@@ -124,6 +136,8 @@ export class Component {
     }
 
     set alpha(val) {
+        if (val === this._alpha) return;
+
         this._alpha = val;
         this.redraw();
     }
@@ -148,25 +162,25 @@ export class Component {
         this.container.y = this.padding;
 
         if (this.borderBox) {
-            this.paddingMask.clear().beginFill(0x000000, 0.01).drawRoundedRect(0, 0, this._w, this._h, this.borderRadius);
-            this.background.clear().beginFill(this._color, this._alpha).drawRoundedRect(0, 0, this._w, this._h, this.borderRadius);
+            this.paddingMask.clear().roundRect(0, 0, this._w, this._h, this.borderRadius).fill({ color: 0x000000, alpha: 0.01 });
+            this.background.clear().roundRect(0, 0, this._w, this._h, this.borderRadius).fill({ color: this._color, alpha: this._alpha });
             this.mask
                 .clear()
-                .beginFill(0x000000, 0.01)
-                .drawRoundedRect(0, 0, this._w - this.padding * 2, this._h - this.padding * 2, 0);
+                .roundRect(0, 0, this._w - this.padding * 2, this._h - this.padding * 2, 0)
+                .fill({ color: 0x000000, alpha: 0.01 });
 
             return;
         }
 
         this.paddingMask
             .clear()
-            .beginFill(0x000000, 0.01)
-            .drawRoundedRect(0, 0, this._w + this.padding * 2, this._h + this.padding * 2, this.borderRadius);
+            .roundRect(0, 0, this._w + this.padding * 2, this._h + this.padding * 2, this.borderRadius)
+            .fill({ color: 0x000000, alpha: 0.01 });
         this.background
             .clear()
-            .beginFill(this._color, this._alpha)
-            .drawRoundedRect(0, 0, this._w + this.padding * 2, this._h + this.padding * 2, this.borderRadius);
-        this.mask.clear().beginFill(0x000000, 0.01).drawRoundedRect(0, 0, this._w, this._h, 0);
+            .roundRect(0, 0, this._w + this.padding * 2, this._h + this.padding * 2, this.borderRadius)
+            .fill({ color: this._color, alpha: this._alpha });
+        this.mask.clear().roundRect(0, 0, this._w, this._h, 0).fill({ color: 0x000000, alpha: 0.01 });
 
         if (this.overflow === "hidden") {
             this.container.mask = this.mask;

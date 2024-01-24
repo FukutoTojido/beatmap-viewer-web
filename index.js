@@ -73,7 +73,7 @@ function setupDefaultStorage() {
     Game.MAPPING = JSON.parse(localStorage.getItem("settings")).mapping;
 
     // Init
-    Game.init();
+    await Game.init();
 
     await loadLocalStorage();
     document.querySelector(".loading").style.opacity = 0;

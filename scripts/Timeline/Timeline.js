@@ -5,6 +5,7 @@ import { Game } from "../Game.js";
 import { Component } from "../WindowManager.js";
 import * as PIXI from "pixi.js";
 import { TimelineZoomer } from "./Zoomer.js";
+import { TimelineHitCircle } from "./HitCircle.js";
 
 export class Timeline {
     static obj;
@@ -22,7 +23,7 @@ export class Timeline {
     static BASE_CONTAINER;
     static ZOOMER;
 
-    static init() {
+    static async init() {
         Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 * devicePixelRatio);
         Timeline.MASTER_CONTAINER.color = 0x000000;
         Timeline.MASTER_CONTAINER.alpha = 0.5;
@@ -54,10 +55,11 @@ export class Timeline {
         // Timeline.APP.stage.addChild(Timeline.obj);
 
         Timeline.ZOOMER = new TimelineZoomer();
+        await Timeline.ZOOMER.init();
         Timeline.MASTER_CONTAINER.container.addChild(Timeline.ZOOMER.graphics);
 
         Timeline.centerLine = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 1,
                 color: 0xffffff,
                 alignment: 1,
@@ -65,7 +67,8 @@ export class Timeline {
             .moveTo(-1, 0)
             .lineTo(-1, 1)
             .moveTo(+1, 0)
-            .lineTo(+1, 1);
+            .lineTo(+1, 1)
+            .stroke();
         Timeline.BASE_CONTAINER.addChild(Timeline.centerLine);
         // Timeline.APP.stage.addChild(Timeline.centerLine);
 
@@ -108,7 +111,7 @@ export class Timeline {
         Timeline.centerLine.x = Timeline.WIDTH / 2;
         Timeline.centerLine.scale.set(1, Timeline.HEIGHT);
 
-        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
+        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList.slice(2, 3);
 
         const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD;
 

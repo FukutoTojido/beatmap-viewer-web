@@ -37,6 +37,7 @@ export class Container {
 
     set paddingX(val) {
         this._paddingX = val;
+        this.update();
     }
 
     get paddingY() {
@@ -45,6 +46,7 @@ export class Container {
 
     set paddingY(val) {
         this._paddingY = val;
+        this.update();
     }
 
     get color() {
@@ -54,6 +56,7 @@ export class Container {
     set color(val) {
         this._color = val;
         this.alpha = 1;
+        this.update();
     }
 
     get alpha() {
@@ -62,7 +65,7 @@ export class Container {
 
     set alpha(val) {
         this._alpha = val;
-        return;
+        this.update();
     }
 
     get width() {
@@ -71,7 +74,9 @@ export class Container {
     }
 
     set width(val) {
+        if (val === this._width) return;
         this._width = val;
+        this.update();
     }
 
     get height() {
@@ -80,7 +85,9 @@ export class Container {
     }
 
     set height(val) {
+        if (val === this._height) return;
         this._height = val;
+        this.update();
     }
 
     get x() {
@@ -88,7 +95,9 @@ export class Container {
     }
 
     set x(val) {
+        if (val === this._x) return;
         this._x = val;
+        this.update();
     }
 
     get y() {
@@ -96,7 +105,9 @@ export class Container {
     }
 
     set y(val) {
+        if (val === this._y) return;
         this._y = val;
+        this.update();
     }
 
     get borderRadius() {
@@ -104,7 +115,9 @@ export class Container {
     }
 
     set borderRadius(val) {
+        if (val === this._borderRadius) return;
         this._borderRadius = val;
+        this.update();
     }
 
     update() {
@@ -119,7 +132,7 @@ export class Container {
             this.content.y = (this.height - this.content.height) / 2;
         }
 
-        this.background.clear().beginFill(this.color, this.alpha).drawRoundedRect(0, 0, this.width, this.height, this.borderRadius).endFill();
+        this.background.clear().roundRect(0, 0, this.width, this.height, this.borderRadius).fill({ color: this.color, alpha: this.alpha });
     }
 }
 
@@ -233,11 +246,31 @@ export class Stats {
             fill: 0xffffff,
         };
 
-        this.CSSprite = new PIXI.Text(`CS ${this._CS}`, this.style);
-        this.ARSprite = new PIXI.Text(`AR ${this._AR}`, this.style);
-        this.ODSprite = new PIXI.Text(`OD ${this._OD}`, this.style);
-        this.HPSprite = new PIXI.Text(`HP ${this._HP}`, this.style);
-        this.SRSprite = new PIXI.Text(`${this._SR}★`, this.style);
+        this.CSSprite = new PIXI.Text({
+            text: `CS ${this._CS}`,
+            // renderMode: "html",
+            style: this.style,
+        });
+        this.ARSprite = new PIXI.Text({
+            text: `AR ${this._AR}`,
+            // renderMode: "html",
+            style: this.style,
+        });
+        this.ODSprite = new PIXI.Text({
+            text: `OD ${this._OD}`,
+            // renderMode: "html",
+            style: this.style,
+        });
+        this.HPSprite = new PIXI.Text({
+            text: `HP ${this._HP}`,
+            // renderMode: "html",
+            style: this.style,
+        });
+        this.SRSprite = new PIXI.Text({
+            text: `${this._SR}★`,
+            // renderMode: "html",
+            style: this.style,
+        });
 
         this.srContainer = new Container();
         this.srContainer.addChild(this.SRSprite);
@@ -318,6 +351,9 @@ export class Stats {
         this.ODSprite.style.fontSize = 12 * devicePixelRatio;
         this.HPSprite.style.fontSize = 12 * devicePixelRatio;
         this.SRSprite.style.fontSize = 12 * devicePixelRatio;
+    
+        this.srContainer.update();
+        this.flex.update();
 
         if (innerWidth / innerHeight < 1) {
             this.container.x = 0;
@@ -326,15 +362,13 @@ export class Stats {
             this.container.width = Game.WRAPPER.w;
             this.flex.gap = 40;
         } else {
+            this.container.width = undefined;
             this.container.x = Game.WRAPPER.w - this.container.width - 10 * devicePixelRatio;
             this.container.y = 10 * devicePixelRatio;
             this.container.borderRadius = 20;
-            this.container.width = undefined;
             this.flex.gap = 20;
         }
 
-        this.srContainer.update();
-        this.flex.update();
         this.container.update();
     }
 }

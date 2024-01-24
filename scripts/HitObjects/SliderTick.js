@@ -28,14 +28,14 @@ export class SliderTick {
 
         this.obj = new PIXI.Container();
         this.graphic = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 3,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
-                alignment: 0,
+                alignment: 1,
             })
-            .drawCircle(0, 0, 4);
+            .circle(0, 0, 4).stroke();
         this.obj.addChild(this.graphic);
         this.scale = Beatmap.moddedStats.radius / 54.4;
 

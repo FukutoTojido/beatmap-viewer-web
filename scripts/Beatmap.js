@@ -546,8 +546,6 @@ export class Beatmap {
         Beatmap.COLORS = coloursList;
         // console.log(coloursList);
 
-        Texture.SLIDER_TEXTURE = newTexture();
-
         const breakPeriods = rawBeatmap
             .split("\r\n")
             .filter((line) => /^2,[0-9]+,[0-9]+$/g.test(line))

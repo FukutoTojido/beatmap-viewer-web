@@ -22,7 +22,7 @@ export class SliderBall {
         const sliderFollowCircle = new PIXI.Sprite(Texture.ARGON.SLIDER_FOLLOW_CIRCLE.texture);
         const sprite = new PIXI.Sprite(Texture.ARGON.SLIDER_B.arrow.texture);
         const outerRing = new PIXI.Sprite(Texture.ARGON.SLIDER_B.ring.texture);
-        const bgMask = new PIXI.Graphics().beginFill(0xffffff).drawCircle(0, 0, 59).endFill();
+        const bgMask = new PIXI.Graphics().circle(0, 0, 59).fill(0xffffff);
         const bgSprite = new PIXI.Sprite(Texture.ARGON.SLIDER_B.gradient.texture);
         bgSprite.mask = bgMask;
 

@@ -27,37 +27,35 @@ export class ProgressBar {
 
     static initLine() {
         this.line = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                align: 0,
                 color: 0x88c0d0,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2);
+            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2)
+            .stroke();
     }
 
     static initThumb() {
         this.thumb = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                alignment: 1,
+                alignment: 0,
                 color: 0x88c0d0,
             })
-            .beginFill(0x171a1f)
-            .drawRoundedRect(
+            .roundRect(
                 -20 * window.devicePixelRatio,
                 -5 * window.devicePixelRatio,
                 40 * window.devicePixelRatio,
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .endFill()
-            .lineStyle()
-            .beginFill(0x88c0d0)
-            .drawCircle(0, 0, 2)
-            .endFill();
+            .fill(0x171a1f).stroke()
+            .setStrokeStyle()
+            .circle(0, 0, 2)
+            .fill(0x88c0d0);
         this.thumb.y = this.HEIGHT / 2;
 
         // this.thumb.interactive = true;
@@ -133,38 +131,28 @@ export class ProgressBar {
                 const xNext = ((arr[idx + 1]?.time ?? Game.BEATMAP_FILE.audioNode.duration) / fullTime) * width;
 
                 this.timeline
-                    .lineStyle({
+                    .setStrokeStyle({
                         width: 1 * devicePixelRatio,
                         color: point.beatstep ? 0xf5425a : 0x42f560,
                         alpha: 0.6,
                     })
                     .moveTo(x, 0)
-                    .lineTo(x, height);
+                    .lineTo(x, height).stroke();
 
                 if (!point.isKiai) return;
 
                 this.timeline
-                    .lineStyle()
-                    .beginFill(0xf58d42, 0.4)
-                    .drawRect(x, height / 2, xNext - x, height)
-                    .endFill();
+                    .setStrokeStyle({
+                        alpha: 0
+                    })
+                    .rect(x, height / 2, xNext - x, height)
+                    .fill({ color: 0xf58d42, alpha: 0.4 }).stroke();
             });
     }
 
     static init() {
         this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
         this.HEIGHT = 60 * devicePixelRatio;
-
-        // this.renderer = new PIXI.Renderer({
-        //     width: this.WIDTH,
-        //     height: this.HEIGHT,
-        //     backgroundColor: 0x4c566a,
-        //     backgroundAlpha: 0,
-        //     antialias: true,
-        //     autoDensity: true,
-        // });
-        // document.querySelector(".progressBarContainer").append(this.renderer.view);
-        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
 
         this.MASTER_CONTAINER = new Component((110 + 360 + 60) * devicePixelRatio, Game.WRAPPER.h - 60 * devicePixelRatio, this.WIDTH, this.HEIGHT);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
@@ -180,9 +168,6 @@ export class ProgressBar {
         this.initLine();
         this.initThumb();
         this.initContainer();
-
-        // globalThis.__PIXI_RENDERER__ = this.renderer;
-        // globalThis.__PIXI_STAGE__ = this.stage;
     }
 
     static handleMouseDown(e) {
@@ -257,35 +242,33 @@ export class ProgressBar {
 
         this.line
             .clear()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                align: 0,
                 color: accentColor,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2);
+            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2).stroke();
 
         this.thumb
             .clear()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                alignment: 1,
+                alignment: 0,
                 color: accentColor,
             })
-            .beginFill(isHover ? accentColor : bgColor)
-            .drawRoundedRect(
+            .roundRect(
                 -20 * window.devicePixelRatio,
                 -5 * window.devicePixelRatio,
                 40 * window.devicePixelRatio,
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .lineStyle()
-            .beginFill(isHover ? bgColor : accentColor)
-            .drawCircle(0, 0, 2)
-            .endFill();
+            .fill(isHover ? accentColor : bgColor).stroke()
+            .setStrokeStyle()
+            .circle(0, 0, 2)
+            .fill(isHover ? bgColor : accentColor);
     }
 
     static update(time) {

@@ -40,20 +40,25 @@ export class GreenLineInfo {
     constructor(greenLine) {
         this.greenLine = greenLine;
 
-        const svText = new PIXI.Text(`${this.greenLine.svMultiplier.toFixed(2)}x`, {
-            fontFamily: "Torus",
-            fontSize: 12,
-            fontWeight: 500,
-            align: "center",
-            tint: 0x161616,
+        const svText = new PIXI.Text({
+            text: `${this.greenLine.svMultiplier.toFixed(2)}x`,
+            style: {
+                fontFamily: "Torus",
+                fontSize: 12,
+                fontWeight: 500,
+                align: "center",
+                tint: 0x161616,
+            },
         });
 
         let { width: svWidth, height: svHeight } = svText;
         svWidth += 10;
         svHeight += 3;
 
-        this.sv = new PIXI.Graphics().beginFill(0x89f0a3).drawRoundedRect(-svWidth / 2, 0, svWidth, svHeight, 10);
-        this.sv.addChild(svText);
+        this.sv = new PIXI.Container();
+        this.svGraphics = new PIXI.Graphics().roundRect(-svWidth / 2, 0, svWidth, svHeight, 10).fill(0x89f0a3);
+
+        this.sv.addChild(this.svGraphics, svText);
         this.sv.cullable = true;
 
         svText.x = 0;
@@ -63,11 +68,14 @@ export class GreenLineInfo {
         this.sv.y = 0;
 
         let custom = this.greenLine.sampleIdx != 0 ? `:C${this.greenLine.sampleIdx}` : "";
-        const sampleText = new PIXI.Text(`${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom}`, {
-            fontFamily: "Torus",
-            fontSize: 12,
-            fontWeight: 500,
-            tint: 0x161616,
+        const sampleText = new PIXI.Text({
+            text: `${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom}`,
+            style: {
+                fontFamily: "Torus",
+                fontSize: 12,
+                fontWeight: 500,
+                tint: 0x161616,
+            },
         });
 
         sampleText.x = 0;
@@ -79,8 +87,10 @@ export class GreenLineInfo {
 
         sampleText.y = -sampleHeight / 2;
 
-        this.sample = new PIXI.Graphics().beginFill(0xfaff75).drawRoundedRect(-sampleWidth / 2, -sampleHeight, sampleWidth, sampleHeight, 10);
-        this.sample.addChild(sampleText);
+        this.sample = new PIXI.Container();
+        this.sampleGraphics = new PIXI.Graphics().roundRect(-sampleWidth / 2, -sampleHeight, sampleWidth, sampleHeight, 10).fill(0xfaff75);
+        
+        this.sample.addChild(this.sampleGraphics, sampleText);
         this.sample.cullable = true;
 
         this.sample.y = Timeline.HEIGHT;
@@ -183,16 +193,16 @@ export class BeatLines {
             const y = Timeline.HEIGHT;
 
             this.obj
-                .lineStyle({
+                .setStrokeStyle({
                     width: 1,
                     color: timingPointList[i].beatstep ? 0xe34653 : 0x1bcc20,
                     alignment: 0.5,
-                    alpha: 0.9
+                    alpha: 0.9,
                 })
                 .moveTo(x, y)
-                .lineTo(x, y - 40 * devicePixelRatio);
+                .lineTo(x, y - 40 * devicePixelRatio)
+                .stroke();
         }
-
 
         for (let i = -ticksNumber; i <= ticksNumber; i++) {
             const tickTime = nearestTick + i * dividedStep - offset;
@@ -206,13 +216,14 @@ export class BeatLines {
             const x = center + i * step - delta;
             const y = Timeline.HEIGHT;
             this.obj
-                .lineStyle({
+                .setStrokeStyle({
                     width: 1,
                     color: BeatLines.BEAT_LINE_COLOR[denominator] ?? 0x929292,
                     alignment: 0.5,
                 })
                 .moveTo(x, y)
-                .lineTo(x, y - 10 * devicePixelRatio);
+                .lineTo(x, y - 10 * devicePixelRatio)
+                .stroke();
         }
 
         this.drawList.forEach((line) => {

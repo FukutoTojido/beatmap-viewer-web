@@ -10,15 +10,15 @@ export class Button {
     isAlt = false;
     container;
 
-    constructor(x, y, imgURL, altImgURL) {
+    async init(x, y, imgURL, altImgURL) {
         this.x = x;
         this.y = y;
         this._color = Game.COLOR_PALETTES.primary2;
         this.imgURL = imgURL;
         this.altImgURL = altImgURL ?? imgURL;
 
-        this.texture = PIXI.Texture.from(this.imgURL);
-        this.altTexture = altImgURL ? PIXI.Texture.from(this.altImgURL) : this.texture;
+        this.texture = await PIXI.Assets.load(this.imgURL);
+        this.altTexture = altImgURL ? await PIXI.Assets.load(this.altImgURL) : this.texture;
 
         this.sprite = new PIXI.Sprite(this.texture);
         this.sprite.scale.set(this.imgURL === "static/info.png" ? 1 : 0.75);
@@ -41,6 +41,8 @@ export class Button {
 
         this.container.addChild(this.graphics, this.sprite);
     }
+
+    constructor() {}
 
     get color() {
         return this._color;
@@ -70,7 +72,10 @@ export class Button {
     }
 
     redraw() {
-        this.graphics.clear().beginFill(this.color).drawRect(0, 0, 60 * devicePixelRatio, 60 * devicePixelRatio);
+        this.graphics
+            .clear()
+            .rect(0, 0, 60 * devicePixelRatio, 60 * devicePixelRatio)
+            .fill(this.color)
 
         this.container.x = this.x * devicePixelRatio;
         this.container.y = this.y * devicePixelRatio;
@@ -82,7 +87,7 @@ export class Button {
 }
 
 export class PlayContainer {
-    static init() {
+    static async init() {
         this.MASTER_CONTAINER = new Container();
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary2;
         this.MASTER_CONTAINER.alpha = 1;
@@ -90,16 +95,20 @@ export class PlayContainer {
 
         this.flex = new FlexBox();
 
-        this.playButton = new Button(60, 0, "static/play.png", "static/pause.png");
+        this.playButton = new Button();
+        await this.playButton.init(60, 0, "static/play.png", "static/pause.png");
         this.playButton.onclick = () => playToggle();
 
-        this.prevButton = new Button(0, 0, "static/prev.png");
+        this.prevButton = new Button();
+        await this.prevButton.init(0, 0, "static/prev.png");
         this.prevButton.onclick = () => go(null, false);
 
-        this.nextButton = new Button(120, 0, "static/next.png");
+        this.nextButton = new Button();
+        await this.nextButton.init(120, 0, "static/next.png");
         this.nextButton.onclick = () => go(null, true);
 
-        this.infoButton = new Button(180, 0, "static/info.png");
+        this.infoButton = new Button();
+        await this.infoButton.init(180, 0, "static/info.png");
         this.infoButton.onclick = () => toggleMetadataPanel();
 
         this.flex.addChild(this.prevButton.container);
@@ -118,11 +127,10 @@ export class PlayContainer {
         } else {
             this.MASTER_CONTAINER.x = 290 * devicePixelRatio;
             this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.width =  240 * devicePixelRatio;
+            this.MASTER_CONTAINER.width = 240 * devicePixelRatio;
         }
 
         this.MASTER_CONTAINER.container.h = 60 * devicePixelRatio;
-
 
         this.playButton.redraw();
         this.prevButton.redraw();

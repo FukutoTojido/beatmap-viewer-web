@@ -130,8 +130,11 @@ export class MetadataPanel {
         };
 
         Object.keys(this.LABEL).forEach((label) => {
-            this.LABEL[label] = new PIXI.Text(label.replaceAll("_", " "), labelStyle);
-            this[label.toUpperCase()] = new PIXI.Text("", contentStyle);
+            this.LABEL[label] = new PIXI.Text({
+                text: label.replaceAll("_", " "),
+                style: labelStyle,
+            });
+            this[label.toUpperCase()] = new PIXI.Text({ text: "", style: contentStyle });
             this.CONTAINERS[label] = new FlexBox();
             this.CONTAINERS[label].flexDirection = "row";
             this.CONTAINERS[label].justifyContent = "start";
@@ -237,7 +240,7 @@ export class MetadataPanel {
         this.container.width = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
         this.container.height = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;
 
-        this.flex.update();
+        // this.flex.update();
         this.container.update();
     }
 }

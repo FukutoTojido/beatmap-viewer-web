@@ -282,8 +282,11 @@ export class BeatmapFile {
         Game.STATS.SR = round(difficultyAttributes.starRating);
         Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes.starRating)).formatHex().slice(1), 16);
 
-        if (difficultyAttributes.starRating >= 6.5) Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45deg, 100%, 70%)").formatHex().slice(1), 16);
+        if (difficultyAttributes.starRating >= 6.5)
+            Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45deg, 100%, 70%)").formatHex().slice(1), 16);
         else Game.STATS.SRSprite.style.fill = 0x000000;
+
+        Game.STATS.update();
 
         // console.log(beatmapData)
         // console.log(difficultyAttributes)

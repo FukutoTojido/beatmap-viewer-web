@@ -19,11 +19,17 @@ export class Timestamp {
         miliseconds: [],
     };
 
+    static EMIT_CHANGE = false;
+
     static createDigit(x = 0, type = "digit") {
-        const digit = new PIXI.BitmapText(type === "digit" ? `0` : ":", {
-            fontName: "Torus",
-            fontSize: 16,
-            align: "center",
+        const digit = new PIXI.Text({
+            text: type === "digit" ? `0` : ":",
+            renderMode: "bitmap",
+            style: {
+                fontName: "Torus",
+                fontSize: 16 * devicePixelRatio,
+                align: "center",
+            },
         });
 
         digit.anchor.set(0.5);
@@ -101,6 +107,8 @@ export class Timestamp {
     }
 
     static update(time) {
+        if (Game.DEVE_RATIO !== devicePixelRatio) this.EMIT_CHANGE = true;
+
         this.MASTER_CONTAINER.x = 0;
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height;
@@ -126,33 +134,41 @@ export class Timestamp {
         currentDigits.miliseconds.forEach((val, idx) => {
             if (val === lastDigits.miliseconds[idx]) return;
             this.digits.miliseconds[idx].text = val;
+
+            if (!this.EMIT_CHANGE) return;
             this.digits.miliseconds[idx].x = 9 * idx * devicePixelRatio;
             this.digits.miliseconds[idx].y = this.HEIGHT / 2;
-            this.digits.miliseconds[idx].fontSize = 16 * devicePixelRatio;
+            this.digits.miliseconds[idx].style.fontSize = 16 * devicePixelRatio;
         });
 
         currentDigits.seconds.forEach((val, idx) => {
             if (val === lastDigits.seconds[idx]) return;
             this.digits.seconds[idx].text = val;
+
+            if (!this.EMIT_CHANGE) return;
             this.digits.seconds[idx].x = 9 * idx * devicePixelRatio;
             this.digits.seconds[idx].y = this.HEIGHT / 2;
-            this.digits.seconds[idx].fontSize = 16 * devicePixelRatio;
+            this.digits.seconds[idx].style.fontSize = 16 * devicePixelRatio;
         });
 
         currentDigits.minutes.forEach((val, idx) => {
             if (val === lastDigits.minutes[idx]) return;
             this.digits.minutes[idx].text = val;
+
+            if (!this.EMIT_CHANGE) return;
             this.digits.minutes[idx].x = 9 * idx * devicePixelRatio;
             this.digits.minutes[idx].y = this.HEIGHT / 2;
-            this.digits.minutes[idx].fontSize = 16 * devicePixelRatio;
+            this.digits.minutes[idx].style.fontSize = 16 * devicePixelRatio;
         });
 
+        if (!this.EMIT_CHANGE) return;
         this.colons.forEach((colon) => {
             colon.x = 16 * devicePixelRatio;
             colon.y = this.HEIGHT / 2 - 1 * devicePixelRatio;
-            colon.fontSize = 16 * devicePixelRatio;
+            colon.style.fontSize = 16 * devicePixelRatio;
         });
 
+        this.EMIT_CHANGE = false;
         // this.renderer.render(this.stage);
     }
 }
