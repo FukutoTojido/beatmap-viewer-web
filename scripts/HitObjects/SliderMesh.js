@@ -318,9 +318,9 @@ class SliderMesh extends PIXI.Container {
 
         const transform = {
             dx: dx,
-            ox: -1 * (Game.WIDTH / Game.APP.view.width) + dx * this.slider.stackHeight * currentStackOffset,
+            ox: -1 * (Game.WIDTH / Game.APP.renderer.width) + dx * this.slider.stackHeight * currentStackOffset,
             dy: dy,
-            oy: inverse * 1 * (Game.HEIGHT / Game.APP.view.height) + inverse * dy * this.slider.stackHeight * currentStackOffset,
+            oy: inverse * 1 * (Game.HEIGHT / Game.APP.renderer.height) + inverse * dy * this.slider.stackHeight * currentStackOffset,
         };
 
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
@@ -359,8 +359,8 @@ class SliderMesh extends PIXI.Container {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
-        const dx = (2 * (Game.WIDTH / 512)) / Game.APP.view.width;
-        const dy = (-2 * Game.HEIGHT) / Game.APP.view.height / 384;
+        const dx = (2 * (Game.WIDTH / 512)) / Game.APP.renderer.width;
+        const dy = (-2 * Game.HEIGHT) / Game.APP.renderer.height / 384;
 
         const offsetX = this.slider.stackHeight * currentStackOffset * dx;
         const offsetY = this.slider.stackHeight * currentStackOffset * dy;

@@ -3,7 +3,8 @@ import { Component } from "./WindowManager";
 import { Game } from "./Game";
 import { go, playToggle } from "./ProgressBar";
 import { toggleMetadataPanel } from "./SidePanel";
-import { Container, FlexBox } from "./Stats";
+import { Container } from "./UI/Container";
+import { FlexBox } from "./UI/FlexBox";
 import { BPM } from "./BPM";
 
 export class Button {
@@ -66,8 +67,14 @@ export class Button {
     }
 
     set onclick(fn) {
-        this.container.on("click", fn);
-        this.container.on("tap", fn);
+        this.container.on("click", (e) => {
+            fn(e);
+            this.redraw();
+        });
+        this.container.on("tap", (e) => {
+            fn(e);
+            this.redraw();
+        });
         this._onclick = fn;
     }
 
@@ -75,7 +82,7 @@ export class Button {
         this.graphics
             .clear()
             .rect(0, 0, 60 * devicePixelRatio, 60 * devicePixelRatio)
-            .fill(this.color)
+            .fill(this.color);
 
         this.container.x = this.x * devicePixelRatio;
         this.container.y = this.y * devicePixelRatio;
@@ -117,9 +124,11 @@ export class PlayContainer {
         this.flex.addChild(this.infoButton.container);
 
         this.MASTER_CONTAINER.addChild(this.flex.container);
+
+        this.forceUpdate();
     }
 
-    static update() {
+    static forceUpdate() {
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = 0;
             this.MASTER_CONTAINER.y = BPM.MASTER_CONTAINER.y + BPM.MASTER_CONTAINER.h;
@@ -138,5 +147,10 @@ export class PlayContainer {
         this.infoButton.redraw();
 
         this.MASTER_CONTAINER.update();
+    }
+
+    static update() {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceUpdate();
     }
 }

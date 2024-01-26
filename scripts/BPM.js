@@ -53,6 +53,8 @@ export function toggleTimingPanel() {
             Game.REDUCTION = obj.reduction.game;
             MetadataPanel.SIZE_X = obj.reduction.metadata;
             TimingPanel.SIZE_X = obj.reduction.timing;
+
+            Game.EMIT_STACK.push(true);
         })
         .start();
 }

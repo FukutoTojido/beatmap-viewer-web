@@ -236,7 +236,7 @@ export class ObjectsController {
 
         if (currentAudioTime && Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) {
             Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(currentAudioTime);
-            // Timeline.draw(currentAudioTime);
+            Timeline.draw(currentAudioTime);
         }
 
         Timestamp.update(currentAudioTime ?? 0);
@@ -245,5 +245,7 @@ export class ObjectsController {
         ProgressBar.update(currentAudioTime ?? 0);
         TimingPanel.update(currentAudioTime ?? 0);
         MetadataPanel.update(currentAudioTime ?? 0);
+
+        Game.EMIT_STACK.pop();
     }
 }

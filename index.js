@@ -7,9 +7,38 @@ import { urlParams } from "./scripts/GlobalVariables.js";
 import { toggleTimingPanel } from "./scripts/BPM.js";
 import { openMenu } from "./scripts/Settings.js";
 import { toggleMetadataPanel } from "./scripts/SidePanel.js";
+import * as PIXI from "pixi.js";
 
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
+
+PIXI.BitmapFontManager.install(
+    "TorusBitmap15",
+    {
+        fontSize: 15,
+        align: "right",
+        fill: "white",
+        fontFamily: "Torus",
+        fontWeight: 500
+    },
+    {
+        chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :"],
+    }
+);
+
+PIXI.BitmapFontManager.install(
+    "TorusBitmap16",
+    {
+        fontSize: 16,
+        align: "right",
+        fill: "white",
+        fontFamily: "Torus",
+        fontWeight: 500
+    },
+    {
+        chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :"],
+    }
+);
 
 function setupDefaultStorage() {
     const settingsTemplate = {
@@ -122,12 +151,16 @@ function setupDefaultStorage() {
         }
     });
 
-    document.querySelector(".contentWrapper").addEventListener("wheel", (e) => {
-        if (e.ctrlKey) e.preventDefault();
-    }, {
-        capture: true,
-        passive: false
-    })
+    document.querySelector(".contentWrapper").addEventListener(
+        "wheel",
+        (e) => {
+            if (e.ctrlKey) e.preventDefault();
+        },
+        {
+            capture: true,
+            passive: false,
+        }
+    );
 
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
         Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));

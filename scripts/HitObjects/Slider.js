@@ -221,7 +221,7 @@ export class Slider {
         // this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
         // console.log(this.SliderMesh.tint);
 
-        this.nodesLine.clear().setStrokeStyle({ width: 1, color: 0xffffff });
+        this.nodesLine.clear().setStrokeStyle({ width: 2, color: 0xffffff });
         this.nodesGraphics.forEach((node, idx) => {
             let { x, y } = this.nodes[idx].position;
             if (Game.MODS.HR) y = 384 - y;
@@ -849,12 +849,14 @@ export class Slider {
         this.revArrows.forEach((arrow) => SliderContainer.addChild(arrow.obj));
 
         this.nodesContainer = new PIXI.Container();
+
         this.nodesLine = new PIXI.Graphics()
             .setStrokeStyle({
-                width: 1,
+                width: 2,
                 color: 0xffffff,
             })
             .moveTo(this.nodes[0].position.x, this.nodes[0].position.y);
+        this.nodesContainer.addChild(this.nodesLine);
 
         this.nodesGraphics = this.nodes.map((node) => {
             const fillColor = node.type === "White Anchor" ? 0xffffff : 0xff0000;
@@ -864,23 +866,14 @@ export class Slider {
             this.nodesLine.lineTo(x, y);
 
             const graphic = new PIXI.Graphics()
-                .setStrokeStyle({
-                    width: 1,
-                    color: 0x000000,
-                    alpha: 1,
-                    alignment: 0,
-                })
-                .rect(-4, -4, 8, 8)
-                .fill(fillColor)
-                .stroke();
+                .circle(0, 0, 5)
+                .fill(fillColor);
             this.nodesContainer.addChild(graphic);
 
             return graphic;
         });
 
         this.nodesLine.stroke();
-
-        this.nodesContainer.addChild(this.nodesLine);
 
         this.selectedSliderEnd = new PIXI.Sprite(Texture.SELECTED.texture);
         this.selectedSliderEnd.anchor.set(0.5);

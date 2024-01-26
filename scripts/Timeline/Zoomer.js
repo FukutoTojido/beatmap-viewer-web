@@ -88,8 +88,8 @@ export class TimelineZoomer {
         this.zoomOut = new Button();
         await this.zoomOut.init(0, Timeline.MASTER_CONTAINER.h / 2, 40, Timeline.MASTER_CONTAINER.h / 2, "static/minus.png");
 
-        this.container.addChild(this.zoomIn.graphics);
-        this.container.addChild(this.zoomOut.graphics);
+        this.container.addChild(this.zoomIn.container);
+        this.container.addChild(this.zoomOut.container);
 
         this.zoomIn.setOnClick(() => {
             Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + 1 * 20, 20, 800);

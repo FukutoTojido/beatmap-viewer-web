@@ -111,13 +111,19 @@ export class Game {
     }
 
     static FPSInit() {
+        const fpsStyle = {
+            fontFamily: "TorusBitmap15",
+            align: "right",
+            fontSize: 15,
+            fill: "white",
+            fontWeight: 500
+        };
+
         const fpsSprite = new PIXI.Text({
             text: `0fps\nInfinite ms`,
             renderMode: "bitmap",
             style: {
-                fontName: "Torus",
-                align: "right",
-                fontSize: 15,
+                ...fpsStyle,
             },
         });
 
@@ -363,11 +369,10 @@ export class Game {
         // Reposition FPS
         Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
         Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
+        Game.FPS.style.fontSize = 15 * devicePixelRatio;
 
         Game.STATS.update();
         Game.INFO.update();
-
-        this.EMIT_STACK.pop();
     }
 
     static appSizeSetup() {
@@ -390,7 +395,7 @@ export class Game {
         this.EMIT_STACK.push(true);
         Game.APP.renderer.resize(width, height);
 
-        Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        Game.APP.canvas.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
     static async appInit() {
@@ -402,7 +407,7 @@ export class Game {
             autoDensity: true,
             backgroundAlpha: 0,
             resizeTo: document.querySelector(".contentWrapper"),
-            preference: "webgpu",
+            preference: "webgl",
         });
 
         Game.appSizeSetup();
@@ -415,21 +420,28 @@ export class Game {
         if (Game.WRAPPER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio) {
             Game.WRAPPER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
             this.EMIT_STACK.push(true);
-            console.log("width changed")
         }
 
         if (Game.WRAPPER.h !== Game.APP.renderer.height - 70 * devicePixelRatio) {
             Game.WRAPPER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
             this.EMIT_STACK.push(true);
-            console.log("height changed")
         }
 
-        Game.MASTER_CONTAINER.w = Game.WRAPPER.w;
+        if (Game.MASTER_CONTAINER.w !== Game.WRAPPER.w) {
+            Game.MASTER_CONTAINER.w = Game.WRAPPER.w;
+            this.EMIT_STACK.push(true);
+        }
 
         if (innerWidth / innerHeight < 1) {
-            Game.MASTER_CONTAINER.h = Game.WRAPPER.w * (3 / 4);
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.w * (3 / 4)) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.w * (3 / 4);
+                this.EMIT_STACK.push(true);
+            }
         } else {
-            Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 60 * devicePixelRatio) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
+                this.EMIT_STACK.push(true);
+            }
         }
 
         if (Game.WIDTH === Game.MASTER_CONTAINER.w && Game.HEIGHT === Game.MASTER_CONTAINER.h) return;

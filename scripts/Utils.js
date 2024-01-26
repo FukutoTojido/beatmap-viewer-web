@@ -275,6 +275,8 @@ export const loadColorPalette = (bg) => {
         ProgressBar.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
         MetadataPanel.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         MetadataPanel.container.color = Game.COLOR_PALETTES.primary1;
+
+        Timeline.ZOOMER.draw();
     }
 
     const accent = swatches.LightVibrant?.getRgb() ??

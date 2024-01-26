@@ -3,7 +3,8 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Component } from "./WindowManager";
 import { TimingPanel } from "./TimingPanel";
 import bezier from "bezier-easing";
-import { Container, FlexBox } from "./Stats";
+import { Container } from "./UI/Container";
+import { FlexBox } from "./UI/FlexBox";
 import * as PIXI from "pixi.js";
 
 export function toggleMetadataPanel() {
@@ -53,6 +54,8 @@ export function toggleMetadataPanel() {
             Game.REDUCTION = obj.reduction.game;
             MetadataPanel.SIZE_X = obj.reduction.metadata;
             TimingPanel.SIZE_X = obj.reduction.timing;
+
+            Game.EMIT_STACK.push(true);
         })
         .start();
 }
@@ -146,6 +149,7 @@ export class MetadataPanel {
         });
 
         this.MASTER_CONTAINER.container.addChild(this.container.container);
+        this.forceUpdate();
     }
 
     static get artist() {
@@ -155,6 +159,7 @@ export class MetadataPanel {
     static set artist(val) {
         this._artist = val;
         this.ARTIST.text = val;
+        this.forceUpdate();
     }
 
     static get romanized_artist() {
@@ -164,6 +169,7 @@ export class MetadataPanel {
     static set romanized_artist(val) {
         this._romanized_artist = val;
         this.ROMANIZED_ARTIST.text = val;
+        this.forceUpdate();
     }
 
     static get title() {
@@ -173,6 +179,7 @@ export class MetadataPanel {
     static set title(val) {
         this._title = val;
         this.TITLE.text = val;
+        this.forceUpdate();
     }
 
     static get romanized_title() {
@@ -182,6 +189,7 @@ export class MetadataPanel {
     static set romanized_title(val) {
         this._romanized_title = val;
         this.ROMANIZED_TITLE.text = val;
+        this.forceUpdate();
     }
 
     static get difficulty_name() {
@@ -191,6 +199,7 @@ export class MetadataPanel {
     static set difficulty_name(val) {
         this._difficulty_name = val;
         this.DIFFICULTY_NAME.text = val;
+        this.forceUpdate();
     }
 
     static get source() {
@@ -200,6 +209,7 @@ export class MetadataPanel {
     static set source(val) {
         this._source = val;
         this.SOURCE.text = val;
+        this.forceUpdate();
     }
 
     static get tag() {
@@ -227,7 +237,7 @@ export class MetadataPanel {
         this.HEIGHT = this.MASTER_CONTAINER.h;
     }
 
-    static update() {
+    static forceUpdate() {
         this.resize();
         Object.keys(this.LABEL).forEach((label) => {
             this.LABEL[label].style.wordWrapWidth = this.container.width - this.container.paddingX;
@@ -242,5 +252,10 @@ export class MetadataPanel {
 
         // this.flex.update();
         this.container.update();
+    }
+
+    static update() {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceUpdate();
     }
 }

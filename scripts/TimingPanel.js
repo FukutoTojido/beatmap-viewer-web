@@ -265,6 +265,8 @@ export class TimingPanel {
 
         this.stage.addChild(this.scrollbar);
 
+        this.update();
+
         // globalThis.__PIXI_RENDERER__ = this.renderer;
         // globalThis.__PIXI_STAGE__ = this.stage;
     }
@@ -409,6 +411,8 @@ export class TimingPanel {
         //     this.MASTER_CONTAINER.w = Game.WRAPPER.w;
         //     this.MASTER_CONTAINER.h = Game.WRAPPER.h * 0.7;
         // } else {
+        if (Game.EMIT_STACK.length === 0) return;
+
         this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
         this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
         this.MASTER_CONTAINER.w = 400 * devicePixelRatio;

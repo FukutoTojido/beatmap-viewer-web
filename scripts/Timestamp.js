@@ -26,9 +26,10 @@ export class Timestamp {
             text: type === "digit" ? `0` : ":",
             renderMode: "bitmap",
             style: {
-                fontName: "Torus",
+                fontFamily: "TorusBitmap16",
                 fontSize: 16 * devicePixelRatio,
                 align: "center",
+                fontWeight: 500,
             },
         });
 

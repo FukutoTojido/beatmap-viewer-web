@@ -70,10 +70,10 @@ export class TimelineSlider {
                         value: [0.0, 0.0, 0.0, 1.0],
                         type: "vec4<f32>"
                     },
-                    // selected: {
-                    //     value: false,
-                    //     type: "bool"
-                    // }
+                    selected: {
+                        value: false,
+                        type: "bool"
+                    }
                 }
             }
         })

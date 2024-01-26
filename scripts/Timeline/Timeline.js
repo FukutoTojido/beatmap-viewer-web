@@ -37,15 +37,6 @@ export class Timeline {
 
         Timeline.MASTER_CONTAINER.container.addChild(Timeline.BASE_CONTAINER);
 
-        // Timeline.APP = new PIXI.Application({
-        //     width: Timeline.WIDTH,
-        //     height: Timeline.HEIGHT,
-        //     antialias: true,
-        //     autoDensity: true,
-        //     backgroundAlpha: 0,
-        // });
-        // Timeline.APP.renderer = Game.APP.renderer;
-
         Timeline.hitArea = new TimelineDragWindow();
         Timeline.BASE_CONTAINER.addChild(Timeline.hitArea.obj);
         // Timeline.APP.stage.addChild(Timeline.hitArea.obj);
@@ -70,19 +61,13 @@ export class Timeline {
             .lineTo(+1, 1)
             .stroke();
         Timeline.BASE_CONTAINER.addChild(Timeline.centerLine);
-        // Timeline.APP.stage.addChild(Timeline.centerLine);
 
         Timeline.beatLines = new BeatLines();
         Timeline.BASE_CONTAINER.addChild(Timeline.beatLines.obj);
-        // Timeline.APP.stage.addChild(Timeline.beatLines.obj);
-
-        // Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-
-        // document.querySelector(".timeline").appendChild(Timeline.APP.view);
-        // globalThis.__PIXI_APP__ = Timeline.APP;
     }
 
     static resize() {
+        if (Game.EMIT_STACK.length === 0) return;
         if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
         Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
         Timeline.ZOOMER.draw();
@@ -98,9 +83,6 @@ export class Timeline {
         Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;
         Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
 
-        // Timeline.APP.renderer.resize(Timeline.WIDTH, Timeline.HEIGHT);
-        // Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-
         Timeline.hitArea.resize();
     }
 
@@ -111,7 +93,7 @@ export class Timeline {
         Timeline.centerLine.x = Timeline.WIDTH / 2;
         Timeline.centerLine.scale.set(1, Timeline.HEIGHT);
 
-        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList.slice(2, 3);
+        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
 
         const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD;
 
