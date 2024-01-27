@@ -77,9 +77,18 @@ export class ObjectsController {
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
         const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "mergedPoints", true);
 
-        ObjectsController.CURRENT_BPM = currentBPM;
+        if (JSON.stringify(ObjectsController.CURRENT_BPM) !== JSON.stringify(currentBPM)) {
+            BPM.BPM_TEXT.text = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+            ObjectsController.CURRENT_BPM = currentBPM;
+        }
+        // if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
+        //     document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+
+        // if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
+        //     document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         if (JSON.stringify(currentSV) !== JSON.stringify(ObjectsController.CURRENT_SV)) {
+            BPM.SV_TEXT.text = `${currentSV.svMultiplier.toFixed(2)}x`;
             ObjectsController.CURRENT_SV = currentSV;
             TimingPanel.scrollTo(timestamp);
         }
@@ -103,12 +112,6 @@ export class ObjectsController {
         //     document.querySelector(".timingContainer").style.animationDelay =
         //         currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
         // }
-
-        // if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
-        //     document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
-
-        // if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
-        //     document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         const currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);

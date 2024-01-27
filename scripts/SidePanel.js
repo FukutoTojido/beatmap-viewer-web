@@ -240,8 +240,8 @@ export class MetadataPanel {
     static forceUpdate() {
         this.resize();
         Object.keys(this.LABEL).forEach((label) => {
-            this.LABEL[label].style.wordWrapWidth = this.container.width - this.container.paddingX;
-            this[label.toUpperCase()].style.wordWrapWidth = this.container.width - this.container.paddingX;
+            this.LABEL[label].style.wordWrapWidth = this.container.width - this.container.paddingX * 2;
+            this[label.toUpperCase()].style.wordWrapWidth = this.container.width - this.container.paddingX * 2;
 
             this.LABEL[label].style.fontSize = 12 * devicePixelRatio;
             this[label.toUpperCase()].style.fontSize = 16 * devicePixelRatio;

@@ -17,6 +17,8 @@ export class Text {
     }
 
     set text(val) {
+        if (this._text === val) return;
+        
         this._text = val;
         this._sprite.text = val;
         this._metrics = PIXI.CanvasTextMetrics.measureText(val, this._sprite.style);
