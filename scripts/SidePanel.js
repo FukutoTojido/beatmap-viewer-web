@@ -5,6 +5,7 @@ import { TimingPanel } from "./TimingPanel";
 import bezier from "bezier-easing";
 import { Container } from "./UI/Container";
 import { FlexBox } from "./UI/FlexBox";
+import { Text } from "./UI/Text";
 import * as PIXI from "pixi.js";
 
 export function toggleMetadataPanel() {
@@ -133,17 +134,17 @@ export class MetadataPanel {
         };
 
         Object.keys(this.LABEL).forEach((label) => {
-            this.LABEL[label] = new PIXI.Text({
+            this.LABEL[label] = new Text({
                 text: label.replaceAll("_", " "),
                 style: labelStyle,
             });
-            this[label.toUpperCase()] = new PIXI.Text({ text: "", style: contentStyle });
+            this[label.toUpperCase()] = new Text({ text: "", style: contentStyle });
             this.CONTAINERS[label] = new FlexBox();
             this.CONTAINERS[label].flexDirection = "row";
             this.CONTAINERS[label].justifyContent = "start";
             this.CONTAINERS[label].gap = 6;
 
-            this.CONTAINERS[label].addChild(this.LABEL[label], this[label.toUpperCase()]);
+            this.CONTAINERS[label].addChild(this.LABEL[label].sprite, this[label.toUpperCase()].sprite);
             this.flex.addChild(this.CONTAINERS[label].container);
             this.container.addChild(this.flex.container);
         });
@@ -245,6 +246,12 @@ export class MetadataPanel {
 
             this.LABEL[label].style.fontSize = 12 * devicePixelRatio;
             this[label.toUpperCase()].style.fontSize = 16 * devicePixelRatio;
+
+            this.LABEL[label].update();
+            this[label.toUpperCase()].update();
+
+            this.CONTAINERS[label].update();
+            this.flex.update();
         });
 
         this.container.width = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
