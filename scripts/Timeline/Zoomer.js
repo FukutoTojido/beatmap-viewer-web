@@ -19,16 +19,22 @@ class Button {
         this.h = h;
 
         this.graphics = new PIXI.Graphics().rect(0, 0, w, h).fill(Game.COLOR_PALETTES.primary3);
-        this.graphics.eventMode = "static";
 
         this.container = new PIXI.Container();
-        this.container.on("mouseenter", () => (this.isHover = true));
-        this.container.on("mouseleave", () => (this.isHover = false));
+        this.container.on("mouseenter", () => {
+            this.isHover = true;
+            this.draw();
+        });
+        this.container.on("mouseleave", () => {
+            this.isHover = false;
+            this.draw();
+        });
+        this.container.eventMode = "static";
 
         this.container.x = this.x;
         this.container.y = this.y;
 
-        this.container.addChild(this.graphics)
+        this.container.addChild(this.graphics);
 
         if (imgURL) {
             const texture = await PIXI.Assets.load(imgURL);
@@ -59,7 +65,7 @@ class Button {
         this.graphics
             .clear()
             .rect(0, 0, this.w * devicePixelRatio, this.h)
-            .fill(!this.isHover ? Game.COLOR_PALETTES.primary3 : Game.COLOR_PALETTES.primary4)
+            .fill(!this.isHover ? Game.COLOR_PALETTES.primary3 : Game.COLOR_PALETTES.primary4);
 
         if (!this.sprite) return;
 

@@ -47,7 +47,7 @@ export class Timeline {
 
         Timeline.ZOOMER = new TimelineZoomer();
         await Timeline.ZOOMER.init();
-        Timeline.MASTER_CONTAINER.container.addChild(Timeline.ZOOMER.graphics);
+        Timeline.MASTER_CONTAINER.container.addChild(Timeline.ZOOMER.container);
 
         Timeline.centerLine = new PIXI.Graphics()
             .setStrokeStyle({
