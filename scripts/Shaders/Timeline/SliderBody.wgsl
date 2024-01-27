@@ -13,6 +13,7 @@ struct LocalUniforms {
 
 struct CustomUniforms {
     tint: vec4<f32>,
+    selected: f32
 }
 
 @group(0) @binding(0) var<uniform> globalUniforms : GlobalUniforms;
@@ -38,7 +39,39 @@ fn vsMain(
     );
 };
 
+fn darken(color: vec4<f32>, strength: f32) -> vec4<f32> {
+    var scalar: f32 = max(1.0, 1.0 + strength);
+    var ret: vec4<f32> = vec4<f32>(0, 0, 0, 1);
+
+    ret[0] = min(1.0, color[0] / scalar);
+    ret[1] = min(1.0, color[1] / scalar);
+    ret[2] = min(1.0, color[2] / scalar);
+
+    return ret;
+}
+
 @fragment
 fn fsMain(input : VertexOutput) -> @location(0) vec4<f32>{
-    return customUniforms.tint * globalUniforms.worldColorAlpha;
+    var blurRate = 0.1;
+    var alpha = 1.0;
+    var totalAlpha = 0.7;
+    var tint = customUniforms.tint;
+
+    var outerColor = darken(tint, 0.1);
+    var innerColor = tint;
+
+    var color = mix(outerColor, innerColor, input.dist);
+
+    if (customUniforms.selected > 0.0) {
+        color = tint;
+        totalAlpha = 1.0;
+    }
+
+    color[3] = 1.0;
+
+    if (input.dist > 1.0 - blurRate) {
+        alpha = (1.0 - input.dist) / blurRate;
+    }
+
+    return color * alpha * totalAlpha;
 }

@@ -43,8 +43,7 @@ export class TimelineSlider {
         const bodyGeometry = this.createLine(1);
 
         // const shader = PIXI.Shader.from(vertexShader, fragmentShader, uniforms);
-        const gpu = new PIXI.GpuProgram({
-            name: "timeline-shader",
+        const gpu = PIXI.GpuProgram.from({
             vertex: {
                 source: gpuShader,
                 entryPoint: "vsMain"
@@ -54,8 +53,10 @@ export class TimelineSlider {
                 entryPoint: "fsMain"
             }
         })
+        gpu.autoAssignGlobalUniforms = true;
+        gpu.autoAssignLocalUniforms = true;
 
-        const gl = new PIXI.GlProgram({
+        const gl = PIXI.GlProgram.from({
             name: "timeline-shader",
             vertex: glVertexShader,
             fragment: glFragmentShader
@@ -71,8 +72,8 @@ export class TimelineSlider {
                         type: "vec4<f32>"
                     },
                     selected: {
-                        value: false,
-                        type: "bool"
+                        value: 0,
+                        type: "f32"
                     }
                 }
             }
@@ -93,7 +94,7 @@ export class TimelineSlider {
         this.meshTail.hitArea = new PIXI.Rectangle(0, 0, 0, 0);
 
         // this.obj.addChild(meshHead);
-        // this.obj.addChild(meshBody);
+        this.obj.addChild(meshBody);
         // this.obj.addChild(meshTail);
 
         const sliderHead = new TimelineHitCircle(hitObject);
@@ -163,17 +164,17 @@ export class TimelineSlider {
         this.meshHead.position.set(headPosition, Timeline.HEIGHT / 2);
         this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshHead.shader.resources.customUniforms.uniforms.tint = tint;
-        this.meshHead.shader.resources.customUniforms.uniforms.selected = selected;
+        this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
 
         this.meshBody.position.set(headPosition, Timeline.HEIGHT / 2);
         this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshBody.shader.resources.customUniforms.uniforms.tint = tint;
-        this.meshBody.shader.resources.customUniforms.uniforms.selected = selected;
+        this.meshBody.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
 
         this.meshTail.position.set(endPosition, Timeline.HEIGHT / 2);
         this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshTail.shader.resources.customUniforms.uniforms.tint = tint;
-        this.meshTail.shader.resources.customUniforms.uniforms.selected = selected;
+        this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
 
         this.sliderHead.draw(timestamp);
         this.sliderTail.draw(timestamp, true);

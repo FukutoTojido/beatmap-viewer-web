@@ -1,7 +1,7 @@
 precision mediump float;
 
 uniform vec4 tint;
-uniform bool selected;
+uniform float selected;
 
 varying float colorDist;
 
@@ -31,7 +31,7 @@ void main() {
     vec4 innerColor = tint;
 
     vec4 color = mix(outerColor, innerColor, colorDist);
-    if (selected) {
+    if (selected > 0.0) {
         color = tint;
         totalAlpha = 1.0;
     }
