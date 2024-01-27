@@ -8,7 +8,6 @@ import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { HitCircle } from "./HitObjects/HitCircle.js";
 import { Slider } from "./HitObjects/Slider.js";
 import { Spinner } from "./HitObjects/Spinner.js";
-import { newTexture } from "./HitObjects/SliderMesh.js";
 import { TimelineHitCircle } from "./Timeline/HitCircle.js";
 import { TimelineSlider } from "./Timeline/Slider.js";
 import { Skinning } from "./Skinning.js";

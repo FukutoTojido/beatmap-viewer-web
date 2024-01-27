@@ -3,6 +3,7 @@ An osu! beatmap viewer on the web.
 
 ## Special Thanks
 - Beatmap Mirror from [Nerinyan](https://nerinyan.moe) by **[Zeee2](https://github.com/zeee2)**
+- Slider Implementation inspired by **[Marvin](https://github.com/minetoblend)** from [osu-cad](https://github.com/minetoblend/osu-cad/)
 - Slider Shader from [webosu](https://github.com/111116/webosu) by **[111116](https://github.com/111116)**
 - [node-osr-parser](https://github.com/minhducsun2002/node-osr-parser) by **[minhducsun2002](https://github.com/minhducsun2002)**
 - [phaze](https://github.com/olvb/phaze) by **[olvb](https://github.com/olvb)**

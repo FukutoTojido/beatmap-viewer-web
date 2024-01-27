@@ -340,10 +340,10 @@ picocolors@^1.0.0:
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
   integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
 
-pixi.js@^8.0.0-rc.5:
-  version "8.0.0-rc.5"
-  resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-8.0.0-rc.5.tgz#5006e6a2bb89fd16aaf48748f9569627e40b8f4b"
-  integrity sha512-Xm3aPFzn6M8pYFeLr4J9kjl/PwTEz725OlBO6fyPXUXpDRl5h9nMSMeAaZhs4aq34Lck6a3HqxO+CBTZAuxpfg==
+pixi.js@^8.0.0-rc.6:
+  version "8.0.0-rc.6"
+  resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-8.0.0-rc.6.tgz#3ddeb7914b32c8875394cad9c9af4d12caf94829"
+  integrity sha512-NZM5f1FtnVfee+Hmp7UTgE4+2Y8GPDHWm7OcKOmjoQULQasQDPoIbEJFjUTenaZSXfboDgyWPy386llKmOgaMw==
   dependencies:
     "@pixi/colord" "^2.9.6"
     "@types/css-font-loading-module" "^0.0.12"

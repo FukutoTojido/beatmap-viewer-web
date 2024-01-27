@@ -4,6 +4,7 @@ import { Skinning } from "../Skinning.js";
 import { Texture } from "../Texture.js";
 import { binarySearchNearest } from "../Utils.js";
 import * as PIXI from "pixi.js";
+import { SliderBody } from "./SliderBody.js";
 
 // Ported from https://github.com/111116/webosu/blob/master/scripts/SliderMesh.js
 // Also have a visit at http://osugame.online/ , very cool tbh
@@ -126,24 +127,9 @@ void main() {
     gl_FragColor = min(alpha * a, 1.0) * color;
 }`;
 
-export function newTexture() {
-    const width = 400;
-
-    let buff = new Uint8Array(width * 4);
-
-    for (let i = 0; i < width; i++) {
-        buff[i * 4] = 0;
-        buff[i * 4 + 1] = 0;
-        buff[i * 4 + 2] = 0;
-        buff[i * 4 + 3] = 1.0;
-    }
-
-    return PIXI.Texture.fromBuffer(buff, width, 1);
-}
-
 const DIVIDES = 64;
 
-function curveGeometry(curve0, radius) {
+export function curveGeometry(curve0, radius) {
     // returning PIXI.Geometry object
     // osu relative coordinate -> osu pixels
     // console.log(curve0);
@@ -226,10 +212,15 @@ function curveGeometry(curve0, radius) {
             addArc(5 * i, 5 * i + 1, 5 * i - 2, curve[i].t);
         }
     }
-    return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
+    return new PIXI.Geometry({
+        attributes: {
+            position: vert,
+        },
+        indexBuffer: index,
+    });
 }
 
-function circleGeometry(radius) {
+export function circleGeometry(radius) {
     let vert = new Array();
     let index = new Array();
     vert.push(0.0, 0.0, 0.0, 0.0); // center
@@ -239,7 +230,13 @@ function circleGeometry(radius) {
         vert.push(radius * Math.cos(theta), radius * Math.sin(theta), 0.0, 1.0);
         index.push(0, i + 1, ((i + 1) % DIVIDES) + 1);
     }
-    return new PIXI.Geometry().addAttribute("position", vert, 4).addIndex(index);
+    return new PIXI.Geometry({
+        attributes: {
+            position: vert,
+            isCirc: new Array(vert.length / 4).fill(1.0),
+        },
+        indexBuffer: index,
+    });
 }
 
 function getPointAtT(list, t) {
@@ -275,8 +272,14 @@ export class SliderGeometryContainers {
     constructor(curve, slider) {
         this.curve = curve;
 
-        this.sliderContainer = new SliderMesh(curve, slider);
-        this.selSliderContainer = new SliderMesh(curve, slider);
+        // this.sliderContainer = new SliderMesh(this.curve, slider);
+        // this.selSliderContainer = new SliderMesh(this.curve, slider);
+
+        this.geometry = SliderBody.curveGeometry(this.curve, SliderBody.RADIUS);
+        this.circle = SliderBody.circleGeometry(SliderBody.RADIUS);
+
+        this.sliderContainer = new SliderBody(this.curve, this.geometry, this.circle, slider, false);
+        this.selSliderContainer = new SliderBody(this.curve, this.geometry, this.circle, slider, true);
     }
 
     initiallize(radius) {
@@ -302,10 +305,10 @@ class SliderMesh extends PIXI.Container {
 
         // blend mode, culling, depth testing, direction of rendering triangles, backface, etc.
         this.state = PIXI.State.for2d();
-        this.drawMode = PIXI.DRAW_MODES.TRIANGLES;
+        // this.drawMode = PIXI.DRAW_MODES.TRIANGLES;
         // Inherited from DisplayMode, set defaults
-        this.blendMode = PIXI.BLEND_MODES.NORMAL;
-        this._roundPixels = PIXI.settings.ROUND_PIXELS;
+        // this.blendMode = PIXI.BLEND_MODES.NORMAL;
+        // this._roundPixels = PIXI.settings.ROUND_PIXELS;
     }
 
     initiallize(geometry, circle, isSelected) {
@@ -325,28 +328,42 @@ class SliderMesh extends PIXI.Container {
 
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
 
-        this.ncolors = 1;
-        this.uSampler2 = Texture.SLIDER_TEXTURE;
         this.select = isSelected;
         this.circle = circle;
         this.geometry = geometry;
-        this.uniforms = {
-            uSampler2: this.uSampler2,
-            alpha: 1.0,
-            dx: transform.dx,
-            dy: transform.dy,
-            ox: transform.ox,
-            oy: transform.oy,
-            inverse: false,
-            texturepos: 0,
-            tint: this.tint,
-            select: this.select,
-            circleBaseScale,
-            sliderBorder: skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0] ?? [1.0, 1.0, 1.0, 1.0],
-            sliderTrackOverride: skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint ?? this.tint,
-            skinning: parseFloat(Game.SKINNING.type),
-        };
-        this.shader = PIXI.Shader.from(vertexSrc, fragmentSrc, this.uniforms);
+
+        const gl = new PIXI.GlProgram({
+            vertex: vertexSrc,
+            fragment: fragmentSrc,
+        });
+
+        this.shader = PIXI.Shader.from({
+            gl,
+            resources: {
+                customUniforms: {
+                    alpha: { value: 1.0, type: "f32" },
+                    dx: { value: transform.dx, type: "f32" },
+                    dy: { value: transform.dy, type: "f32" },
+                    dt: { value: 0, type: "f32" },
+                    ox: { value: transform.ox, type: "f32" },
+                    oy: { value: transform.oy, type: "f32" },
+                    ot: { value: 1, type: "f32" },
+                    inverse: { value: false, type: "bool" },
+                    tint: { value: this.tint, type: "vec4<f32>" },
+                    select: { value: this.select, type: "bool" },
+                    circleBaseScale: { value: circleBaseScale, type: "f32" },
+                    sliderBorder: {
+                        value: skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0] ?? [1.0, 1.0, 1.0, 1.0],
+                        type: "vec4<f32>",
+                    },
+                    sliderTrackOverride: {
+                        value: skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint ?? this.tint,
+                        type: "vec4<f32>",
+                    },
+                    skinning: { value: parseFloat(Game.SKINNING.type), type: "f32" },
+                },
+            },
+        });
         // console.log(this.shader)
     }
 
@@ -376,32 +393,34 @@ class SliderMesh extends PIXI.Container {
 
         var shader = this.shader;
         shader.alpha = this.worldAlpha;
-        if (shader.update) {
-            shader.update();
-        }
-        renderer.batch.flush();
+        // if (shader.update) {
+        //     shader.update();
+        // }
+        // renderer.batch.flush();
 
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
 
         // upload color info to shared shader uniform
-        this.uniforms.alpha = this.alpha;
-        this.uniforms.texturepos = 0;
-        this.uniforms.dx = transform.dx;
-        this.uniforms.ox = transform.ox;
-        this.uniforms.dy = transform.dy;
-        this.uniforms.oy = transform.oy;
-        this.uniforms.inverse = Game.MODS.HR;
-        this.uniforms.dt = 0;
-        this.uniforms.ot = 0.5;
-        this.uniforms.tint = this.tint;
-        this.uniforms.skinning = parseFloat(Game.SKINNING.type);
-        this.uniforms.select = this.select;
-        this.uniforms.circleBaseScale = circleBaseScale;
-        this.uniforms.sliderBorder = (skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0]) ?? [1.0, 1.0, 1.0, 1.0];
-        this.uniforms.sliderTrackOverride = (skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint) ?? this.tint;
+        this.shader.resources.customUniforms.uniforms.alpha = this.alpha;
+        this.shader.resources.customUniforms.uniforms.dx = transform.dx;
+        this.shader.resources.customUniforms.uniforms.ox = transform.ox;
+        this.shader.resources.customUniforms.uniforms.dy = transform.dy;
+        this.shader.resources.customUniforms.uniforms.oy = transform.oy;
+        this.shader.resources.customUniforms.uniforms.inverse = Game.MODS.HR;
+        this.shader.resources.customUniforms.uniforms.dt = 0;
+        this.shader.resources.customUniforms.uniforms.ot = 0.5;
+        this.shader.resources.customUniforms.uniforms.tint = this.tint;
+        this.shader.resources.customUniforms.uniforms.skinning = parseFloat(Game.SKINNING.type);
+        this.shader.resources.customUniforms.uniforms.select = this.select;
+        this.shader.resources.customUniforms.uniforms.circleBaseScale = circleBaseScale;
+        this.shader.resources.customUniforms.uniforms.sliderBorder = (skinType === "CUSTOM" ? Skinning.SLIDER_BORDER : [1.0, 1.0, 1.0, 1.0]) ?? [
+            1.0, 1.0, 1.0, 1.0,
+        ];
+        this.shader.resources.customUniforms.uniforms.sliderTrackOverride =
+            (skinType === "CUSTOM" ? Skinning.SLIDER_TRACK_OVERRIDE : this.tint) ?? this.tint;
 
-        let ox0 = this.uniforms.ox;
-        let oy0 = this.uniforms.oy;
+        let ox0 = this.shader.resources.customUniforms.uniforms.ox;
+        let oy0 = this.shader.resources.customUniforms.uniforms.oy;
 
         const gl = renderer.gl;
         gl.clearDepth(1.0); // setting depth of clear
@@ -428,30 +447,30 @@ class SliderMesh extends PIXI.Container {
 
         if (this.startt == 0.0 && this.endt == 1.0) {
             // display whole slider
-            this.uniforms.dt = 0;
-            this.uniforms.ot = 1;
+            this.shader.resources.customUniforms.uniforms.dt = 0;
+            this.shader.resources.customUniforms.uniforms.ot = 1;
             bind(this.geometry);
             gl.drawElements(this.drawMode, indexLength, glType, 0);
         } else if (this.endt == 1.0) {
             // snaking out
             if (this.startt != 1.0) {
                 // we want portion: t > this.startt
-                this.uniforms.dt = -1;
-                this.uniforms.ot = -this.startt;
+                this.shader.resources.customUniforms.uniforms.dt = -1;
+                this.shader.resources.customUniforms.uniforms.ot = -this.startt;
                 bind(this.geometry);
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
             }
-            this.uniforms.dt = 0;
-            this.uniforms.ot = 1;
+            this.shader.resources.customUniforms.uniforms.dt = 0;
+            this.shader.resources.customUniforms.uniforms.ot = 1;
 
             let p = getPointAtT(this.curve, this.startt);
-            this.uniforms.ox += p.x * this.uniforms.dx;
+            this.shader.resources.customUniforms.uniforms.ox += p.x * this.shader.resources.customUniforms.uniforms.dx;
 
             if (Game.MODS.HR) {
                 p.y = 384 - p.y;
-                this.uniforms.oy += p.y * this.uniforms.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
+                this.shader.resources.customUniforms.uniforms.oy += p.y * this.shader.resources.customUniforms.uniforms.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
             } else {
-                this.uniforms.oy += p.y * this.uniforms.dy;
+                this.shader.resources.customUniforms.uniforms.oy += p.y * this.shader.resources.customUniforms.uniforms.dy;
             }
 
             bind(this.circle);
@@ -460,22 +479,22 @@ class SliderMesh extends PIXI.Container {
             // snaking in
             if (this.endt != 0.0) {
                 // we want portion: t < this.endt
-                this.uniforms.dt = 1;
-                this.uniforms.ot = this.endt;
+                this.shader.resources.customUniforms.uniforms.dt = 1;
+                this.shader.resources.customUniforms.uniforms.ot = this.endt;
                 bind(this.geometry);
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
             }
-            this.uniforms.dt = 0;
-            this.uniforms.ot = 1;
+            this.shader.resources.customUniforms.uniforms.dt = 0;
+            this.shader.resources.customUniforms.uniforms.ot = 1;
 
             let p = getPointAtT(this.curve, this.endt);
-            this.uniforms.ox += p.x * this.uniforms.dx;
+            this.shader.resources.customUniforms.uniforms.ox += p.x * this.shader.resources.customUniforms.uniforms.dx;
 
             if (Game.MODS.HR) {
                 p.y = 384 - p.y;
-                this.uniforms.oy += p.y * this.uniforms.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
+                this.shader.resources.customUniforms.uniforms.oy += p.y * this.shader.resources.customUniforms.uniforms.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
             } else {
-                this.uniforms.oy += p.y * this.uniforms.dy;
+                this.shader.resources.customUniforms.uniforms.oy += p.y * this.shader.resources.customUniforms.uniforms.dy;
             }
 
             bind(this.circle);
@@ -495,10 +514,10 @@ class SliderMesh extends PIXI.Container {
             // snaking out
             if (this.startt != 1.0) {
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
-                this.uniforms.ox = ox0;
-                this.uniforms.oy = oy0;
-                this.uniforms.dt = -1;
-                this.uniforms.ot = -this.startt;
+                this.shader.resources.customUniforms.uniforms.ox = ox0;
+                this.shader.resources.customUniforms.uniforms.oy = oy0;
+                this.shader.resources.customUniforms.uniforms.dt = -1;
+                this.shader.resources.customUniforms.uniforms.ot = -this.startt;
                 bind(this.geometry);
             }
             gl.drawElements(this.drawMode, indexLength, glType, 0);
@@ -506,10 +525,10 @@ class SliderMesh extends PIXI.Container {
             // snaking in
             if (this.endt != 0.0) {
                 gl.drawElements(this.drawMode, indexLength, glType, 0);
-                this.uniforms.ox = ox0;
-                this.uniforms.oy = oy0;
-                this.uniforms.dt = 1;
-                this.uniforms.ot = this.endt;
+                this.shader.resources.customUniforms.uniforms.ox = ox0;
+                this.shader.resources.customUniforms.uniforms.oy = oy0;
+                this.shader.resources.customUniforms.uniforms.dt = 1;
+                this.shader.resources.customUniforms.uniforms.ot = this.endt;
                 bind(this.geometry);
             }
             gl.drawElements(this.drawMode, indexLength, glType, 0);
@@ -520,7 +539,7 @@ class SliderMesh extends PIXI.Container {
         gl.depthFunc(gl.LESS); // restore to default depth func
         renderer.state.setDepthTest(false); // restore depth test to disabled
         // restore uniform
-        this.uniforms.ox = ox0;
-        this.uniforms.oy = oy0;
+        this.shader.resources.customUniforms.uniforms.ox = ox0;
+        this.shader.resources.customUniforms.uniforms.oy = oy0;
     }
 }

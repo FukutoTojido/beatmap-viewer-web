@@ -1,31 +1,15 @@
-struct GlobalUniforms {
-    projectionMatrix : mat3x3<f32>,
-    worldTransformMatrix : mat3x3<f32>,
-    worldColorAlpha : vec4<f32>,
-    uResolution : vec2<f32>,
-}
-
-struct LocalUniforms {
-    uTransformMatrix : mat3x3<f32>,
-    uColor : vec4<f32>,
-    uRound : f32,
-}
-
 struct CustomUniforms {
     // Vertex Uniforms
     dx: f32,
-    dy: f32,
-    dt: f32,
     ox: f32,
+    dy: f32,
     oy: f32,
+    dt: f32,
     ot: f32,
-    inverse: bool,
+    inverse: f32,
+    ballPosition: vec2<f32>,
     // Fragment Uniforms
-    border_width: f32,
-    circle_base_scale: f32,
-    outer_color: vec4<f32>,
-    inner_color: vec4<f32>,
-    border_color: vec3<f32>
+    circleBaseScale: f32,
 }
 
 struct VertexOutput {
@@ -33,58 +17,81 @@ struct VertexOutput {
     @location(0) dist : f32,
 }
 
-@group(0) @binding(0) var<uniform> globalUniforms : GlobalUniforms;
-@group(1) @binding(0) var<uniform> localUniforms : LocalUniforms;
-@group(2) @binding(0) var<uniform> customUniforms : CustomUniforms;
+@group(0) @binding(0) var<uniform> customUniforms : CustomUniforms;
 
 @vertex
 fn vsMain(
-    @location(0) position: vec4<f32>
+    @location(0) position: vec4<f32>,
+    @location(1) isCirc: f32
 ) -> VertexOutput {
-    var direction_var : f32 = 0;
-    var y = position[1];
+    var dist = position[3];
 
-    if (possition[2] * dt > ot) {
-        direction_var = 1.0;
+    var t = 0.0;
+    var offset = 1.0;
+
+    if (isCirc == 0.0) {
+        t = customUniforms.dt;
+        offset = customUniforms.ot;
+    };
+
+    var distance_var = 0.0;
+    if (position[2] * t > offset) {
+        distance_var = 1.0;
     }
 
-    if (inverse) {
-        y = 384 - position[1];
+    var y: f32 = 0;
+
+    if (isCirc == 1.0) {
+        if (customUniforms.inverse > 0) {
+            y = 384.0 - (customUniforms.ballPosition[1] + position[1]);
+        } else {
+            y = (customUniforms.ballPosition[1] + position[1]);
+        }
+
+        return VertexOutput(
+            vec4<f32>(
+                -1.0 + (customUniforms.ballPosition[0] + position[0]) * customUniforms.dx + customUniforms.ox, 
+                (y * customUniforms.dy + 1.0) + customUniforms.oy,
+                position[3] + 2.0 * distance_var,
+                1.0
+            ),
+            dist
+        );
+    } else {
+        if (customUniforms.inverse > 0) {
+            y = 384.0 - position[1];
+        } else {
+            y = position[1];
+        }
+
+        return VertexOutput(
+            vec4<f32>(
+                -1.0 + position[0] * customUniforms.dx + customUniforms.ox, 
+                (y * customUniforms.dy + 1.0) + customUniforms.oy,
+                position[3] + 2.0 * distance_var,
+                1.0
+            ),
+            dist
+        );
     }
 
-    return VertexOutput(
-        vec4<f32>(
-            -1.0 + position[0] * dx + ox,
-            y * dy + 1.0 + oy,
-            position[3] + 2 * direction_var,
-            1.0
-        ),
-        position[3]
-    )
+    // return VertexOutput(
+    //     vec4<f32>(position[0], position[1], 0, 1),
+    //     dist
+    // );
 }
 
 @fragment
 fn fsMain(
     input: VertexOutput
 ) -> @location(0) vec4<f32> {
-    const blur_rate : f32 = 0.03;
-    let inner_width : f32 = 1 - border_width;
-    let position : f32 = input.dist / circle_base_scale;
+    var position = input.dist / customUniforms.circleBaseScale;
+    // var position = input.dist;
+    var alpha = 1.0;
 
-    var color : vec4<f32> = mix(innerColor, outerColor, position);
-
-    // Anti-aliasing
-    var a : f32: 1.0;
-
-    if (1.0 - position < blur_rate) {
-        a = (1 - position) / blur_rate;
+    if (position > 1.0) {
+        alpha = 0.0;
     }
 
-    if (positon >= inner_width && position < inner_width + blur_rate) {
-        
-    }
-
-    if (position >= inner_width) {
-        color = border_color;
-    }
+    return vec4<f32>(vec3<f32>(1.0 - position), 1.0) * alpha;
 }
