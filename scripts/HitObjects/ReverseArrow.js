@@ -107,6 +107,8 @@ export class ReverseArrow {
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.rotation = !Game.MODS.HR ? this.angle : Math.PI * 2 - this.angle;
         this.hitCircle.obj.rotation = !Game.MODS.HR ? -this.angle : -(Math.PI * 2 - this.angle);
+        this.hitCircle.obj.x = 0;
+        this.hitCircle.obj.y = 0;
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 

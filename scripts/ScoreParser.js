@@ -458,7 +458,7 @@ export class ScoreParser {
             ScoreParser.REPLAY_DATA = replayData;
             ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
 
-            this.getPlayer();
+            // this.getPlayer();
 
             // Get Cursor Data
             let timestamp = 0;
@@ -512,32 +512,32 @@ export class ScoreParser {
             document.querySelector("#DT").checked = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
             document.querySelector("#HT").checked = ScoreParser.MODS.includes("HalfTime");
 
-            [
-                "NoFail",
-                "Easy",
-                "Hidden",
-                "HardRock",
-                "SuddenDeath",
-                "DoubleTime",
-                "HalfTime",
-                "Nightcore",
-                "Flashlight",
-                "SpunOut",
-                "Perfect",
-                "ScoreV2",
-            ].forEach((mod) => {
-                if (!ScoreParser.MODS.includes(mod)) return;
+            // [
+            //     "NoFail",
+            //     "Easy",
+            //     "Hidden",
+            //     "HardRock",
+            //     "SuddenDeath",
+            //     "DoubleTime",
+            //     "HalfTime",
+            //     "Nightcore",
+            //     "Flashlight",
+            //     "SpunOut",
+            //     "Perfect",
+            //     "ScoreV2",
+            // ].forEach((mod) => {
+            //     if (!ScoreParser.MODS.includes(mod)) return;
 
-                const div = document.createElement("div");
-                div.classList.add("modWrapper");
+            //     const div = document.createElement("div");
+            //     div.classList.add("modWrapper");
 
-                const img = document.createElement("img");
-                img.classList.add("mod");
-                img.src = `/static/mods/${mod}.png`;
+            //     const img = document.createElement("img");
+            //     img.classList.add("mod");
+            //     img.src = `/static/mods/${mod}.png`;
 
-                div.appendChild(img);
-                document.querySelector(".modsList").appendChild(div);
-            });
+            //     div.appendChild(img);
+            //     document.querySelector(".modsList").appendChild(div);
+            // });
 
             const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
             const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
