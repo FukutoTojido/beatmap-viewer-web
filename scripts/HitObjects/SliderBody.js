@@ -184,7 +184,12 @@ export class SliderBody {
 
         const sliderTrackOverride = Skinning.SLIDER_TRACK_OVERRIDE;
         const tint = this.tint;
-        const borderColor = SKIN_TYPE === 0 || SKIN_TYPE === 1 || IS_SELECTED ? tint : Skinning.SLIDER_BORDER ?? [1, 1, 1, 1];
+        const borderColor =
+            SKIN_TYPE === 0 || SKIN_TYPE === 1 || IS_SELECTED
+                ? tint
+                : SKIN_TYPE === 2 || SKIN_TYPE === 3
+                ? [1, 1, 1, 1]
+                : Skinning.SLIDER_BORDER ?? [1, 1, 1, 1];
         const bodyColor = SKIN_TYPE === 0 || SKIN_TYPE === 1 ? tint : sliderTrackOverride ?? this.tint;
         const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (SKIN_TYPE !== 0 || IS_SELECTED ? 1 : 0.95);
         const bodyAlpha = IS_SELECTED ? 0 : SKIN_TYPE !== 0 ? 0.7 : 1;
