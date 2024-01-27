@@ -8,6 +8,7 @@ import { HitCircle } from "./HitObjects/HitCircle.js";
 import { Slider } from "./HitObjects/Slider.js";
 import { Beatmap } from "./Beatmap.js";
 import { calculateCurrentSR } from "./Settings.js";
+import { Fixed } from "./Utils.js";
 import axios from "axios";
 
 export class ScoreParser {
@@ -577,6 +578,7 @@ export class ScoreParser {
 
             calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             // console.log(ScoreParser.REPLAY_DATA, ScoreParser.CURSOR_DATA, ScoreParser.MODS);
+            console.log(ScoreParser.calculateScore());
         } catch (error) {
             ScoreParser.reset();
 

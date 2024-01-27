@@ -52,7 +52,8 @@ export class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .fill(0x171a1f).stroke()
+            .fill(0x171a1f)
+            .stroke()
             .setStrokeStyle()
             .circle(0, 0, 2)
             .fill(0x88c0d0);
@@ -118,36 +119,41 @@ export class ProgressBar {
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
+        this.timeline.setStrokeStyle({
+            width: 1 * devicePixelRatio,
+            color: 0x42f560,
+            alpha: 0.6,
+        });
+
         Beatmap.timingPointsList
-            .toSorted((a, b) => {
-                if (a.time > b.time) return 1;
-                if (a.time < b.time) return -1;
-                if (a.beatstep) return 1;
-                if (b.beatstep) return -1;
-                return 0;
-            })
+            // .toSorted((a, b) => {
+            //     if (a.time > b.time) return 1;
+            //     if (a.time < b.time) return -1;
+            //     if (a.beatstep) return 1;
+            //     if (b.beatstep) return -1;
+            //     return 0;
+            // })
             .forEach((point, idx, arr) => {
                 const x = (point.time / fullTime) * width;
                 const xNext = ((arr[idx + 1]?.time ?? Game.BEATMAP_FILE.audioNode.duration) / fullTime) * width;
 
-                this.timeline
-                    .setStrokeStyle({
-                        width: 1 * devicePixelRatio,
-                        color: point.beatstep ? 0xf5425a : 0x42f560,
-                        alpha: 0.6,
-                    })
-                    .moveTo(x, 0)
-                    .lineTo(x, height).stroke();
+                this.timeline.moveTo(x, 0).lineTo(x, height).stroke();
 
                 if (!point.isKiai) return;
 
-                this.timeline
-                    .setStrokeStyle({
-                        alpha: 0
-                    })
-                    .rect(x, height / 2, xNext - x, height)
-                    .fill({ color: 0xf58d42, alpha: 0.4 }).stroke();
+                this.timeline.rect(x, height / 2, xNext - x, height).fill({ color: 0xf58d42, alpha: 0.4 });
             });
+
+        this.timeline.setStrokeStyle({
+            width: 1 * devicePixelRatio,
+            color: 0xf5425a,
+            alpha: 0.6,
+        });
+
+        Beatmap.beatStepsList.forEach((point) => {
+            const x = (point.time / fullTime) * width;
+            this.timeline.moveTo(x, 0).lineTo(x, height).stroke();
+        });
     }
 
     static init() {
@@ -198,6 +204,8 @@ export class ProgressBar {
     }
 
     static resize() {
+        if (Game.EMIT_STACK.length === 0) return;
+
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = 0;
             this.MASTER_CONTAINER.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
@@ -248,7 +256,8 @@ export class ProgressBar {
                 color: accentColor,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2).stroke();
+            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2)
+            .stroke();
 
         this.thumb
             .clear()
@@ -265,7 +274,8 @@ export class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .fill(isHover ? accentColor : bgColor).stroke()
+            .fill(isHover ? accentColor : bgColor)
+            .stroke()
             .setStrokeStyle()
             .circle(0, 0, 2)
             .fill(isHover ? bgColor : accentColor);

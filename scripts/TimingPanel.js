@@ -265,7 +265,8 @@ export class TimingPanel {
 
         this.stage.addChild(this.scrollbar);
 
-        this.update();
+        this.forceResize();
+        this.forceUpdate();
 
         // globalThis.__PIXI_RENDERER__ = this.renderer;
         // globalThis.__PIXI_STAGE__ = this.stage;
@@ -404,15 +405,7 @@ export class TimingPanel {
         this.EMIT_CHANGE = true;
     }
 
-    static resize() {
-        // if (innerWidth / innerHeight < 1) {
-        //     this.MASTER_CONTAINER.x = 0;
-        //     this.MASTER_CONTAINER.y = Game.WRAPPER.h * 0.3;
-        //     this.MASTER_CONTAINER.w = Game.WRAPPER.w;
-        //     this.MASTER_CONTAINER.h = Game.WRAPPER.h * 0.7;
-        // } else {
-        if (Game.EMIT_STACK.length === 0) return;
-
+    static forceResize() {
         this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
         this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
         this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
@@ -441,14 +434,21 @@ export class TimingPanel {
             .clear()
             .roundRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
             .fill({ color: 0xaaaaaa, alpha: this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1 });
+    }
 
+    static resize() {
+        // if (innerWidth / innerHeight < 1) {
+        //     this.MASTER_CONTAINER.x = 0;
+        //     this.MASTER_CONTAINER.y = Game.WRAPPER.h * 0.3;
+        //     this.MASTER_CONTAINER.w = Game.WRAPPER.w;
+        //     this.MASTER_CONTAINER.h = Game.WRAPPER.h * 0.7;
+        // } else {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceResize();
         // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
-    static update(time) {
-        this.resize();
-        if (!this.EMIT_CHANGE) return;
-
+    static forceUpdate() {
         this.stage.removeChildren();
         this.stage.addChild(this.MASTER_CONTAINER.mask);
 
@@ -470,7 +470,12 @@ export class TimingPanel {
 
         this.scrollbar.x = this.WIDTH - 5 * devicePixelRatio;
         this.scrollbar.y = (this.HEIGHT - this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT)) * (this.SCROLLED / (this.MAX_HEIGHT - this.HEIGHT));
+    }
 
+    static update(time) {
+        this.resize();
+        if (!this.EMIT_CHANGE) return;
+        this.forceUpdate();
         this.EMIT_CHANGE = false;
     }
 }
