@@ -346,10 +346,10 @@ export class Beatmap {
         // document.querySelector(".meta-source").textContent = source;
         // document.querySelector(".meta-tags").textContent = tags;
 
-        MetadataPanel.artist = artist;
-        MetadataPanel.romanized_artist = artistUnicode;
-        MetadataPanel.title = title;
-        MetadataPanel.romanized_title = titleUnicode;
+        MetadataPanel.artist = artistUnicode;
+        MetadataPanel.romanized_artist = artist;
+        MetadataPanel.title = titleUnicode;
+        MetadataPanel.romanized_title = title;
         MetadataPanel.difficulty_name = diff;
         MetadataPanel.source = source;
         MetadataPanel.tag = tags;
