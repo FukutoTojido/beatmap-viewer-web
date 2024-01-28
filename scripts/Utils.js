@@ -251,10 +251,10 @@ export const loadColorPalette = (bg) => {
         // console.log(primary, primaryHex);
         const primaryPalette = [
             primaryHex.darker(2.0).formatHex(),
-            primaryHex.darker(1.5).formatHex(),
             primaryHex.darker(1.0).formatHex(),
-            primaryHex.darker(0.5).formatHex(),
             primaryHex.formatHex(),
+            primaryHex.brighter(1.0).formatHex(),
+            primaryHex.brighter(2.0).formatHex(),
         ];
 
         primaryPalette.forEach((val, idx) => {

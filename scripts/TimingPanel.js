@@ -291,6 +291,8 @@ export class TimingPanel {
         if (40 * devicePixelRatio * foundIndex - this.SCROLLED > this.HEIGHT - 40 * devicePixelRatio)
             rate = 40 * devicePixelRatio * foundIndex - (this.HEIGHT - 40 * devicePixelRatio);
 
+        this.forceUpdate();
+
         if (rate === this.SCROLLED) return;
 
         const tween = new TWEEN.Tween({ rate: this.SCROLLED }, false)
