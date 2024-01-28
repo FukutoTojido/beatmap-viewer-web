@@ -11,8 +11,8 @@ import { Component } from "./WindowManager.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import * as PIXI from "pixi.js";
 import { PlayContainer } from "./PlayButtons.js";
-import { BPM } from "./BPM.js";
-import { MetadataPanel } from "./SidePanel.js";
+import { BPM, toggleTimingPanel } from "./BPM.js";
+import { MetadataPanel, toggleMetadataPanel } from "./SidePanel.js";
 import { TitleArtist } from "./TitleArtist.js";
 import { Stats } from "./Stats.js";
 
@@ -371,20 +371,20 @@ export class Game {
         Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
         Game.FPS.style.fontSize = 15 * devicePixelRatio;
 
-        Game.STATS.update();
         Game.INFO.update();
+        Game.STATS.update();
     }
 
     static appSizeSetup() {
         // Set renderer size to container size
         let { width, height } = getComputedStyle(document.querySelector(".contentWrapper"));
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+        width = Math.round(parseInt(width) * devicePixelRatio);
+        height = Math.round(parseInt(height) * devicePixelRatio);
         const preHeight = height;
         Game.COMPUTED_HEIGHT = preHeight;
 
         if (innerWidth / innerHeight < 1) {
-            height = Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio);
+            height = Math.round(Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio));
 
             if (preHeight !== height && document.querySelector(".contentWrapper").style.height !== height) {
                 document.querySelector(".contentWrapper").style.height = `${height}px`;
@@ -393,6 +393,7 @@ export class Game {
 
         if (Game.APP.renderer.width === width && Game.APP.renderer.height === height) return;
         this.EMIT_STACK.push(true);
+        // console.log("Stack Added! 0", width, height, Game.APP.renderer.width, Game.APP.renderer.height);
         Game.APP.renderer.resize(width, height);
 
         Game.APP.canvas.style.transform = `scale(${1 / window.devicePixelRatio})`;
@@ -417,30 +418,44 @@ export class Game {
     static gameSizeSetup() {
         Game.WRAPPER.y = 70 * devicePixelRatio;
 
-        if (Game.WRAPPER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio) {
-            Game.WRAPPER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
-            this.EMIT_STACK.push(true);
+        if (innerWidth / innerHeight < 1) {
+            if (Game.WRAPPER.w !== Game.APP.renderer.width) {
+                Game.WRAPPER.w = Game.APP.renderer.width;
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 1");
+            }
+        } else {
+            if (Game.WRAPPER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio) {
+                Game.WRAPPER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 2");
+            }
         }
+
 
         if (Game.WRAPPER.h !== Game.APP.renderer.height - 70 * devicePixelRatio) {
             Game.WRAPPER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
             this.EMIT_STACK.push(true);
+            // console.log("Stack Added! 3");
         }
 
         if (Game.MASTER_CONTAINER.w !== Game.WRAPPER.w) {
             Game.MASTER_CONTAINER.w = Game.WRAPPER.w;
             this.EMIT_STACK.push(true);
+            // console.log("Stack Added! 4");
         }
 
         if (innerWidth / innerHeight < 1) {
             if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.w * (3 / 4)) {
                 Game.MASTER_CONTAINER.h = Game.WRAPPER.w * (3 / 4);
                 this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 5");
             }
         } else {
             if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 60 * devicePixelRatio) {
                 Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
                 this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 6");
             }
         }
 
@@ -479,13 +494,12 @@ export class Game {
         Game.WRAPPER.masterContainer.eventMode = "dynamic";
 
         Game.WRAPPER.masterContainer.on("touchstart", (e) => {
-            if (Game.SHOW_TIMING_PANEL || Game.SHOW_METADATA) return;
             Game.START_DRAG_Y = e.global.y;
             Game.IS_DRAGSCROLL = true;
         });
 
         Game.WRAPPER.masterContainer.on("touchmove", (e) => {
-            if (!Game.IS_DRAGSCROLL || Game.SHOW_TIMING_PANEL || Game.SHOW_METADATA) return;
+            if (!Game.IS_DRAGSCROLL) return;
 
             const delta = e.global.y - Game.START_DRAG_Y;
             window.scrollBy(0, -delta / devicePixelRatio);
@@ -493,11 +507,14 @@ export class Game {
         });
 
         Game.WRAPPER.masterContainer.on("touchend", (e) => {
-            if (Game.SHOW_TIMING_PANEL || Game.SHOW_METADATA) return;
-
             Game.START_DRAG_Y = 0;
             Game.IS_DRAGSCROLL = false;
         });
+
+        Game.WRAPPER.masterContainer.on("tap", (e) => {
+            if (Game.SHOW_METADATA && !MetadataPanel.ON_ANIM) toggleMetadataPanel();
+            if (Game.SHOW_TIMING_PANEL && !TimingPanel.ON_ANIM) toggleTimingPanel();
+        })
 
         Game.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, Game.APP.renderer.height - 60);
         Game.gameSizeSetup();

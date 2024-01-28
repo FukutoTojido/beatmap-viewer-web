@@ -9,6 +9,8 @@ import { Text } from "./UI/Text";
 import * as PIXI from "pixi.js";
 
 export function toggleMetadataPanel() {
+    MetadataPanel.ON_ANIM = true;
+
     let result = {
         game: 0,
         timing: 0,
@@ -17,9 +19,9 @@ export function toggleMetadataPanel() {
 
     if (!Game.SHOW_METADATA) {
         result = {
-            game: 400,
+            game: (innerWidth < innerHeight) ? 0 :400,
             timing: 0,
-            metadata: 400,
+            metadata: (innerWidth < innerHeight) ? Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio) : 400,
         };
     }
 
@@ -48,15 +50,14 @@ export function toggleMetadataPanel() {
         })
         .to({ reduction: result }, 200)
         .onUpdate((obj) => {
-            if (innerWidth / innerHeight < 1) {
-                return;
-            }
-
             Game.REDUCTION = obj.reduction.game;
             MetadataPanel.SIZE_X = obj.reduction.metadata;
             TimingPanel.SIZE_X = obj.reduction.timing;
+            MetadataPanel.ON_ANIM = true;
 
             Game.EMIT_STACK.push(true);
+        }).onComplete(() => {
+            MetadataPanel.ON_ANIM = false;
         })
         .start();
 }
@@ -96,12 +97,31 @@ export class MetadataPanel {
 
     static container;
 
+    static ON_ANIM = false;
+
     static init() {
         this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         this.MASTER_CONTAINER.padding = 15;
         this.MASTER_CONTAINER.alpha = 1;
         this.MASTER_CONTAINER.borderRadius = 10;
+        this.MASTER_CONTAINER.masterContainer.on("touchstart", (e) => {
+            Game.START_DRAG_Y = e.global.y;
+            Game.IS_DRAGSCROLL = true;
+        });
+
+        this.MASTER_CONTAINER.masterContainer.on("touchmove", (e) => {
+            if (!Game.IS_DRAGSCROLL) return;
+
+            const delta = e.global.y - Game.START_DRAG_Y;
+            window.scrollBy(0, -delta / devicePixelRatio);
+            Game.START_DRAG_Y = e.global.y;
+        });
+
+        this.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {
+            Game.START_DRAG_Y = 0;
+            Game.IS_DRAGSCROLL = false;
+        });
 
         this.WIDTH = this.MASTER_CONTAINER.w;
         this.HEIGHT = this.MASTER_CONTAINER.h;
@@ -223,10 +243,21 @@ export class MetadataPanel {
     }
 
     static resize() {
-        this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
-        this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
-        this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-        this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        if (innerWidth / innerHeight < 1) {
+            if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio);
+
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
+            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = this.SIZE_X;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
+        } else {
+            if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
+
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
+            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        }
 
         if (
             this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 &&
@@ -240,6 +271,10 @@ export class MetadataPanel {
 
     static forceUpdate() {
         this.resize();
+
+        this.container.width = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
+        this.container.height = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;
+
         Object.keys(this.LABEL).forEach((label) => {
             this.LABEL[label].style.wordWrapWidth = this.container.width - this.container.paddingX * 2;
             this[label.toUpperCase()].style.wordWrapWidth = this.container.width - this.container.paddingX * 2;
@@ -254,11 +289,9 @@ export class MetadataPanel {
             this.flex.update();
         });
 
-        this.container.width = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
-        this.container.height = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;
-
         // this.flex.update();
         this.container.update();
+        this.MASTER_CONTAINER.redraw();
     }
 
     static update() {

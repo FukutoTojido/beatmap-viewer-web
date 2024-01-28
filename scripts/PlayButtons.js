@@ -129,6 +129,8 @@ export class PlayContainer {
     }
 
     static forceUpdate() {
+        if (!this.MASTER_CONTAINER) return;
+
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = 0;
             this.MASTER_CONTAINER.y = BPM.MASTER_CONTAINER.y + BPM.MASTER_CONTAINER.h;

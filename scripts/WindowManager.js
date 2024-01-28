@@ -40,7 +40,7 @@ export class Component {
         this.container.eventMode = "static";
 
         this.masterContainer.addChild(this.container);
-        this.masterContainer.eventMode = "dynamic";
+        this.masterContainer.eventMode = "static";
 
         this.redraw();
     }

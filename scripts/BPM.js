@@ -7,6 +7,8 @@ import { TimingPanel } from "./TimingPanel";
 import { MetadataPanel } from "./SidePanel";
 
 export function toggleTimingPanel() {
+    TimingPanel.ON_ANIM = true;
+    
     let result = {
         game: 0,
         timing: 0,
@@ -15,8 +17,8 @@ export function toggleTimingPanel() {
 
     if (!Game.SHOW_TIMING_PANEL) {
         result = {
-            game: 400,
-            timing: 400,
+            game: (innerWidth < innerHeight) ? 0 : 400,
+            timing: (innerWidth < innerHeight) ? Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio) : 400,
             metadata: 0,
         };
     }
@@ -46,15 +48,14 @@ export function toggleTimingPanel() {
         })
         .to({ reduction: result }, 200)
         .onUpdate((obj) => {
-            if (innerWidth / innerHeight < 1) {
-                return;
-            }
-
             Game.REDUCTION = obj.reduction.game;
             MetadataPanel.SIZE_X = obj.reduction.metadata;
             TimingPanel.SIZE_X = obj.reduction.timing;
+            TimingPanel.ON_ANIM = true;
 
             Game.EMIT_STACK.push(true);
+        }).onComplete(() => {
+            TimingPanel.ON_ANIM = false;
         })
         .start();
 }
@@ -122,7 +123,9 @@ export class BPM {
         this.MASTER_CONTAINER.container.addChild(this.SV_TEXT);
     }
 
-    static update() {
+    static forceUpdate() {
+        if (!this.MASTER_CONTAINER) return;
+
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = Game.WRAPPER.w / 2;
             this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height;
@@ -152,5 +155,10 @@ export class BPM {
         this.SV_TEXT.y = this.MASTER_CONTAINER.h / 2;
         this.SV_TEXT.style.fontSize = 12 * devicePixelRatio;
         this.SV_TEXT.resolution = devicePixelRatio;
+    }
+
+    static update() {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceUpdate();
     }
 }

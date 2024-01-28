@@ -93,9 +93,9 @@ export class TimelineSlider {
         this.meshBody.hitArea = new PIXI.Rectangle(0, 0, 0, 0);
         this.meshTail.hitArea = new PIXI.Rectangle(0, 0, 0, 0);
 
-        // this.obj.addChild(meshHead);
+        this.obj.addChild(meshHead);
         this.obj.addChild(meshBody);
-        // this.obj.addChild(meshTail);
+        this.obj.addChild(meshTail);
 
         const sliderHead = new TimelineHitCircle(hitObject);
         const sliderTail = new TimelineHitCircle(hitObject);

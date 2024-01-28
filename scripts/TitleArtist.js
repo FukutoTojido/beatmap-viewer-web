@@ -1,6 +1,12 @@
 import * as PIXI from "pixi.js";
 import { Component } from "./WindowManager";
 import { Game } from "./Game";
+import { Text } from "./UI/Text";
+import { FlexBox } from "./UI/FlexBox";
+import { Timestamp } from "./Timestamp";
+import { ProgressBar } from "./Progress";
+import { BPM } from "./BPM";
+import { PlayContainer } from "./PlayButtons";
 
 export class TitleArtist {
     constructor() {
@@ -9,7 +15,7 @@ export class TitleArtist {
         this._difficulty = "A STUPID DIFFICULTY NAME THAT SOUNDS EDGY AF LIKE SOMETHING FROM ME OR SOME METAL MAPPERS IDK";
         this._mapper = "EEEEEEEEEEEEEEEE";
 
-        this.titleArtist = new PIXI.Text({
+        this.titleArtist = new Text({
             text: `${this._artist} - ${this._title}`,
             // renderMode: "html",
             style: {
@@ -21,7 +27,7 @@ export class TitleArtist {
             },
         });
 
-        this.diffMapper = new PIXI.Text({
+        this.diffMapper = new Text({
             text: `Difficulty: ${this._difficulty} - Mapset by ${this._mapper} `,
             // renderMode: "html",
             style: {
@@ -42,13 +48,17 @@ export class TitleArtist {
         this.MASTER_CONTAINER.borderBox = false;
         this.MASTER_CONTAINER.padding = 20;
 
+        this.flex = new FlexBox();
+        this.flex.flexDirection = "row";
+        this.flex.gap = 5;
+        this.flex.justifyContent = "start";
+
         this.titleArtist.style.wordWrapWidth = Game.WRAPPER.w - this.MASTER_CONTAINER.padding * 2;
         this.diffMapper.style.wordWrapWidth = Game.WRAPPER.w - this.MASTER_CONTAINER.padding * 2;
-
-        this.MASTER_CONTAINER.container.addChild(this.titleArtist, this.diffMapper);
-        this.diffMapper.y = 5 * devicePixelRatio + this.titleArtist.height;
+        this.flex.addChild(this.titleArtist, this.diffMapper);
 
         this.MASTER_CONTAINER.overflow = "visible";
+        this.MASTER_CONTAINER.container.addChild(this.flex.container);
 
         this.update();
     }
@@ -109,11 +119,15 @@ export class TitleArtist {
     update() {
         this.titleArtist.style.fontSize = 20 * devicePixelRatio;
         this.diffMapper.style.fontSize = 14 * devicePixelRatio;
-        this.diffMapper.y = 5 * devicePixelRatio + this.titleArtist.height;
+        // this.diffMapper.sprite.y = 5 * devicePixelRatio + this.titleArtist.height;
 
         this.titleArtist.style.wordWrapWidth = Game.WRAPPER.w - this.MASTER_CONTAINER.padding * 2;
         this.diffMapper.style.wordWrapWidth = Game.WRAPPER.w - this.MASTER_CONTAINER.padding * 2;
-        this.diffMapper.y = 5 * devicePixelRatio + this.titleArtist.height;
+        // this.diffMapper.sprite.y = 5 * devicePixelRatio + this.titleArtist.height;
+
+        this.titleArtist.update();
+        this.diffMapper.update();
+        this.flex.update();
 
         this.resize();
 
@@ -128,5 +142,14 @@ export class TitleArtist {
         }
 
         this.MASTER_CONTAINER.redraw();
+
+        if (innerWidth / innerHeight < 1) {
+            const currentTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
+            Game.STATS?.update();
+            Timestamp.forceUpdate(currentTime ?? 0);
+            BPM.forceUpdate();
+            PlayContainer.forceUpdate();
+            ProgressBar.forceResize();
+        }
     }
 }

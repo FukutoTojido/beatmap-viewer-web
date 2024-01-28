@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js"
+import { Text } from "./Text";
 
 export class FlexBox {
     container;
@@ -13,7 +14,15 @@ export class FlexBox {
 
     addChild(...children) {
         this.children.push(...children);
-        this.container.addChild(...children);
+
+        children.forEach((child) => {
+            if (child instanceof Text) {
+                this.container.addChild(child.sprite);
+                return;
+            }
+
+            this.container.addChild(child);
+        })
         this.update();
     }
 

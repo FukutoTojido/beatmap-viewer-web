@@ -203,8 +203,8 @@ export class ProgressBar {
         this.restyle();
     }
 
-    static resize() {
-        if (Game.EMIT_STACK.length === 0) return;
+    static forceResize() {
+        if (!this.MASTER_CONTAINER) return;
 
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = 0;
@@ -239,6 +239,11 @@ export class ProgressBar {
 
         this.container.x = 40 * window.devicePixelRatio;
         this.container.hitArea = new PIXI.Rectangle(-40 * window.devicePixelRatio, 0, this.WIDTH, this.HEIGHT);
+    }
+
+    static resize() {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceResize();
     }
 
     static restyle(isHover) {

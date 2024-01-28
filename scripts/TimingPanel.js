@@ -216,6 +216,7 @@ export class TimingPanel {
 
     static MASTER_CONTAINER;
     static SIZE_Y = 0;
+    static ON_ANIM = false;
 
     static init() {
         this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
@@ -319,6 +320,11 @@ export class TimingPanel {
         const deltaY = e.global.y - this.START_Y_TOUCH;
 
         this.START_Y_TOUCH = e.global.y;
+
+        if (this.SCROLLED - deltaY > this.MAX_HEIGHT - this.HEIGHT || this.SCROLLED - deltaY < 0) {
+            window.scrollBy(0, -deltaY / devicePixelRatio);
+        }
+
         this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, this.MAX_HEIGHT - this.HEIGHT);
         this.EMIT_CHANGE = true;
 
@@ -332,9 +338,9 @@ export class TimingPanel {
     static handleTouchUp(e) {
         this.IS_TOUCHING = false;
 
-        const predicted = this.TOUCH_VELOCITY * 200;
+        const predicted = this.TOUCH_VELOCITY * 300;
         this.TOUCH_TWEEN = new TWEEN.Tween({ predicted: this.SCROLLED }, false)
-            .to({ predicted: Clamp(this.SCROLLED - predicted, 0, this.MAX_HEIGHT - this.HEIGHT) }, 200)
+            .to({ predicted: Clamp(this.SCROLLED - predicted, 0, this.MAX_HEIGHT - this.HEIGHT) }, 300)
             .easing(TWEEN.Easing.Quadratic.Out)
             .onUpdate((object) => {
                 this.SCROLLED = object.predicted;
@@ -406,10 +412,22 @@ export class TimingPanel {
     }
 
     static forceResize() {
-        this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
-        this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
-        this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-        this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        if (innerWidth / innerHeight < 1) {
+            if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio);
+
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
+            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = this.SIZE_X;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
+        } else {
+            if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
+
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
+            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        }
+
         // }
 
         if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;

@@ -105,10 +105,37 @@ export class Timestamp {
         this.timeContainer = timeContainer;
 
         this.stage.addChild(timeContainer);
+        this.rePosition();
     }
 
-    static update(time) {
-        if (Game.DEVE_RATIO !== devicePixelRatio) this.EMIT_CHANGE = true;
+    static rePosition() {
+        this.colons.forEach((colon) => {
+            colon.x = 16 * devicePixelRatio;
+            colon.y = this.HEIGHT / 2 - 1 * devicePixelRatio;
+            colon.style.fontSize = 16 * devicePixelRatio;
+        });
+
+        this.digits.minutes.forEach((digit, idx) => {
+            digit.x = 9 * idx * devicePixelRatio;
+            digit.y = this.HEIGHT / 2;
+            digit.style.fontSize = 16 * devicePixelRatio;
+        })
+
+        this.digits.seconds.forEach((digit, idx) => {
+            digit.x = 9 * idx * devicePixelRatio;
+            digit.y = this.HEIGHT / 2;
+            digit.style.fontSize = 16 * devicePixelRatio;
+        })
+
+        this.digits.miliseconds.forEach((digit, idx) => {
+            digit.x = 9 * idx * devicePixelRatio;
+            digit.y = this.HEIGHT / 2;
+            digit.style.fontSize = 16 * devicePixelRatio;
+        })
+    }
+
+    static forceUpdate(time) {
+        if (!this.MASTER_CONTAINER) return;
 
         this.MASTER_CONTAINER.x = 0;
         if (innerWidth / innerHeight < 1) {
@@ -135,40 +162,25 @@ export class Timestamp {
         currentDigits.miliseconds.forEach((val, idx) => {
             if (val === lastDigits.miliseconds[idx]) return;
             this.digits.miliseconds[idx].text = val;
-
-            if (!this.EMIT_CHANGE) return;
-            this.digits.miliseconds[idx].x = 9 * idx * devicePixelRatio;
-            this.digits.miliseconds[idx].y = this.HEIGHT / 2;
-            this.digits.miliseconds[idx].style.fontSize = 16 * devicePixelRatio;
         });
 
         currentDigits.seconds.forEach((val, idx) => {
             if (val === lastDigits.seconds[idx]) return;
             this.digits.seconds[idx].text = val;
-
-            if (!this.EMIT_CHANGE) return;
-            this.digits.seconds[idx].x = 9 * idx * devicePixelRatio;
-            this.digits.seconds[idx].y = this.HEIGHT / 2;
-            this.digits.seconds[idx].style.fontSize = 16 * devicePixelRatio;
         });
 
         currentDigits.minutes.forEach((val, idx) => {
             if (val === lastDigits.minutes[idx]) return;
             this.digits.minutes[idx].text = val;
-
-            if (!this.EMIT_CHANGE) return;
-            this.digits.minutes[idx].x = 9 * idx * devicePixelRatio;
-            this.digits.minutes[idx].y = this.HEIGHT / 2;
-            this.digits.minutes[idx].style.fontSize = 16 * devicePixelRatio;
         });
 
         if (!this.EMIT_CHANGE) return;
-        this.colons.forEach((colon) => {
-            colon.x = 16 * devicePixelRatio;
-            colon.y = this.HEIGHT / 2 - 1 * devicePixelRatio;
-            colon.style.fontSize = 16 * devicePixelRatio;
-        });
+        this.rePosition();
+    }
 
+    static update(time) {
+        if (Game.DEVE_RATIO !== devicePixelRatio) this.EMIT_CHANGE = true;
+        this.forceUpdate(time);
         this.EMIT_CHANGE = false;
         // this.renderer.render(this.stage);
     }
