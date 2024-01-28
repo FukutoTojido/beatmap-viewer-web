@@ -88,7 +88,7 @@ export class ObjectsController {
         //     document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         if (JSON.stringify(currentSV) !== JSON.stringify(ObjectsController.CURRENT_SV)) {
-            BPM.SV_TEXT.text = `${currentSV.svMultiplier.toFixed(2)}x`;
+            if (ObjectsController.CURRENT_SV?.svMultiplier !== currentSV?.svMultiplier) BPM.SV_TEXT.text = `${currentSV.svMultiplier.toFixed(2)}x`;
             ObjectsController.CURRENT_SV = currentSV;
             TimingPanel.scrollTo(timestamp);
         }

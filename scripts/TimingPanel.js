@@ -469,6 +469,7 @@ export class TimingPanel {
     }
 
     static forceUpdate() {
+        if (!Game.SHOW_TIMING_PANEL) return;
         this.stage.removeChildren();
         this.stage.addChild(this.MASTER_CONTAINER.mask);
 
