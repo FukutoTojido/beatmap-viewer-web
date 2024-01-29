@@ -10,10 +10,10 @@ import { PlayContainer } from "./PlayButtons";
 
 export class TitleArtist {
     constructor() {
-        this._title = "A VERY LONG TITLE TITLE ABCDXZY";
-        this._artist = "A VERY LONG ARTIST ARTIST ABSDYYLXC";
-        this._difficulty = "A STUPID DIFFICULTY NAME THAT SOUNDS EDGY AF LIKE SOMETHING FROM ME OR SOME METAL MAPPERS IDK";
-        this._mapper = "EEEEEEEEEEEEEEEE";
+        this._title = "";
+        this._artist = "";
+        this._difficulty = "";
+        this._mapper = "";
 
         this.titleArtist = new Text({
             text: `${this._artist} - ${this._title}`,

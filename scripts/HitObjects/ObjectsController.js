@@ -14,6 +14,7 @@ import { HitSample } from "../Audio.js";
 import { MetadataPanel } from "../SidePanel.js";
 import { PlayContainer } from "../PlayButtons.js";
 import { BPM } from "../BPM.js";
+import * as TWEEN from "@tweenjs/tween.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -178,12 +179,44 @@ export class ObjectsController {
                 .toReversed(),
         ]);
 
-        if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
-            // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
-            Game.MASTER_CONTAINER.alpha = document.querySelector("#dim").value * 0.7;
-        } else {
-            // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
-            Game.MASTER_CONTAINER.alpha = document.querySelector("#dim").value;
+        if (
+            this.breakPeriods.some(
+                (period) =>
+                    period[0] < timestamp &&
+                    period[1] > timestamp &&
+                    (period[1] < ObjectsController.lastTimestamp || period[0] > ObjectsController.lastTimestamp)
+            )
+        ) {
+            const alpha = document.querySelector("#dim").value;
+
+            new TWEEN.Tween({
+                alpha,
+            })
+                .to({ alpha: alpha * 0.7 }, 200)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .onUpdate((object) => {
+                    Game.MASTER_CONTAINER.alpha = object.alpha;
+                })
+                .start();
+        } else if (
+            this.breakPeriods.some(
+                (period) =>
+                    period[0] < ObjectsController.lastTimestamp  &&
+                    period[1] > ObjectsController.lastTimestamp  &&
+                    (period[1] < timestamp || period[0] > timestamp)
+            )
+        ) {
+            const alpha = document.querySelector("#dim").value;
+
+            new TWEEN.Tween({
+                alpha: alpha * 0.7,
+            })
+                .to({ alpha }, 200)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .onUpdate((object) => {
+                    Game.MASTER_CONTAINER.alpha = object.alpha;
+                })
+                .start();
         }
 
         judgements.forEach((object) => {
