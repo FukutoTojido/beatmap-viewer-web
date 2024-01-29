@@ -19,9 +19,9 @@ export function toggleMetadataPanel() {
 
     if (!Game.SHOW_METADATA) {
         result = {
-            game: (innerWidth < innerHeight) ? 0 :400,
+            game: innerWidth < innerHeight ? 0 : 400,
             timing: 0,
-            metadata: (innerWidth < innerHeight) ? Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio) : 400,
+            metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400,
         };
     }
 
@@ -56,7 +56,8 @@ export function toggleMetadataPanel() {
             MetadataPanel.ON_ANIM = true;
 
             Game.EMIT_STACK.push(true);
-        }).onComplete(() => {
+        })
+        .onComplete(() => {
             MetadataPanel.ON_ANIM = false;
         })
         .start();
@@ -244,12 +245,11 @@ export class MetadataPanel {
 
     static resize() {
         if (innerWidth / innerHeight < 1) {
-            if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio);
-
-            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
-            this.MASTER_CONTAINER.w = this.SIZE_X;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
+            if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = Game.WRAPPER.h * 0.75;
+            this.MASTER_CONTAINER.x = 0;
+            this.MASTER_CONTAINER.y = Game.APP.renderer.height - Game.WRAPPER.h * 0.75 * (this.SIZE_X / (Game.WRAPPER.h * 0.75));
+            this.MASTER_CONTAINER.w = Game.APP.renderer.width;
+            this.MASTER_CONTAINER.h = this.SIZE_X;
         } else {
             if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
 

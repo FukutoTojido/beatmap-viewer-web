@@ -18,7 +18,7 @@ export function toggleTimingPanel() {
     if (!Game.SHOW_TIMING_PANEL) {
         result = {
             game: (innerWidth < innerHeight) ? 0 : 400,
-            timing: (innerWidth < innerHeight) ? Math.min(Game.WRAPPER.w - 50 * devicePixelRatio, 400 * devicePixelRatio) : 400,
+            timing: (innerWidth < innerHeight) ? Game.WRAPPER.h * 0.75 : 400,
             metadata: 0,
         };
     }
