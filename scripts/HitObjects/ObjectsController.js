@@ -192,7 +192,7 @@ export class ObjectsController {
             new TWEEN.Tween({
                 alpha,
             })
-                .to({ alpha: alpha * 0.7 }, 200)
+                .to({ alpha: alpha * 0.7 }, 500)
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
                     Game.MASTER_CONTAINER.alpha = object.alpha;
@@ -211,7 +211,7 @@ export class ObjectsController {
             new TWEEN.Tween({
                 alpha: alpha * 0.7,
             })
-                .to({ alpha }, 200)
+                .to({ alpha }, 500)
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
                     Game.MASTER_CONTAINER.alpha = object.alpha;

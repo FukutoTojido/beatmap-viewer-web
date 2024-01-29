@@ -142,8 +142,8 @@ export class BeatmapFile {
         }
 
         const setId = mapsetData?.id;
-        // if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
-        // else document.querySelector("#metadata").removeAttribute("href");
+        if (setId && !this.isFromFile) Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
+        else Beatmap.HREF = null;
 
         const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
@@ -250,9 +250,10 @@ export class BeatmapFile {
 
             if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
                 window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}`);
-                document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
+                Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
             } else {
                 window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/`);
+                Beatmap.HREF = null;
             }
         }
 

@@ -21,6 +21,7 @@ export class Beatmap {
     objectsController;
     static SAMPLE_SET = "Normal";
     static COLORS;
+    static HREF = null;
 
     static difficultyMultiplier = 1;
     static stats = {

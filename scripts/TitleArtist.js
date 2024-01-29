@@ -7,8 +7,11 @@ import { Timestamp } from "./Timestamp";
 import { ProgressBar } from "./Progress";
 import { BPM } from "./BPM";
 import { PlayContainer } from "./PlayButtons";
+import { Beatmap } from "./Beatmap";
 
 export class TitleArtist {
+    onHover = false;
+
     constructor() {
         this._title = "";
         this._artist = "";
@@ -59,6 +62,29 @@ export class TitleArtist {
 
         this.MASTER_CONTAINER.overflow = "visible";
         this.MASTER_CONTAINER.container.addChild(this.flex.container);
+
+        this.MASTER_CONTAINER.container.eventMode = "static";
+
+        this.MASTER_CONTAINER.container.on("mouseenter", (e) => {
+            if (!Beatmap.HREF) return;
+            this.titleArtist.color = 0xffbb00;
+            this.diffMapper.color = 0xffbb00;
+        });
+
+        this.MASTER_CONTAINER.container.on("mouseleave", (e) => {
+            this.titleArtist.color = 0xffffff;
+            this.diffMapper.color = 0xffffff;
+        });
+
+        this.MASTER_CONTAINER.container.on("click", (e) => {
+            if (!Beatmap.HREF) return;
+            open(Beatmap.HREF);
+        });
+
+        this.MASTER_CONTAINER.container.on("tap", (e) => {
+            if (!Beatmap.HREF) return;
+            open(Beatmap.HREF);
+        });
 
         this.update();
     }
