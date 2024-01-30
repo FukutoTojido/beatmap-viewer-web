@@ -80,51 +80,6 @@ export function copyUrlToClipboard() {
 }
 document.querySelector("#previewURL").onclick = copyUrlToClipboard;
 
-export function closePopup() {
-    const popup = document.querySelector(".seekTo");
-
-    popup.classList.remove("popupAnim");
-    popup.classList.add("popoutAnim");
-    popup.close();
-}
-
-export function openPopup() {
-    const popup = document.querySelector(".seekTo");
-
-    popup.classList.remove("popoutAnim");
-    popup.classList.add("popupAnim");
-    popup.show();
-}
-
-export function showPopup() {
-    const popup = document.querySelector(".seekTo");
-    const timeInput = document.querySelector("#jumpToTime");
-    timeInput.blur();
-
-    if (!popup.open) {
-        if (Game.BEATMAP_FILE?.audioNode) {
-            const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
-
-            const minute = Math.floor(currentTime / 60000);
-            const second = Math.floor((currentTime - minute * 60000) / 1000);
-            const mili = currentTime - minute * 60000 - second * 1000;
-
-            timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toFixed(0).padStart(3, "0")}`;
-
-            const origin = window.location.origin;
-            const currentTimestamp = Game.BEATMAP_FILE !== undefined ? Game.BEATMAP_FILE.audioNode.getCurrentTime() : 0;
-            const mapId = Beatmap.CURRENT_MAPID || "";
-            document.querySelector("#previewURL").value = `${origin}${
-                !origin.includes("github.io") ? "" : "/beatmap-viewer-how"
-            }?b=${mapId}&t=${currentTimestamp}`;
-        }
-
-        openPopup();
-        return;
-    }
-
-    closePopup();
-}
 // document.querySelector("#timeContainer").onclick = showPopup;
 
 export function updateTimestamp(value) {

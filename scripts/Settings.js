@@ -1,5 +1,5 @@
 import { selectSkin, round, getDiffColor } from "./Utils.js";
-import { closePopup } from "./ProgressBar.js";
+import { closePopup } from "./Timestamp.js";
 import { Beatmap } from "./Beatmap.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { HitSample, PAudio } from "./Audio.js";
@@ -262,8 +262,8 @@ document.body.addEventListener("click", (e) => {
             e.clientY < popupDialogDimensions.top ||
             e.clientY > popupDialogDimensions.bottom) &&
         document.querySelector(".seekTo").open &&
-        e.target !== document.querySelector("#timeContainer") &&
-        e.target !== document.querySelector("#timeContainer canvas")
+        e.target !== document.querySelector(".contentWrapper") &&
+        e.target !== document.querySelector(".contentWrapper canvas")
     ) {
         closePopup();
     }

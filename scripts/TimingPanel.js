@@ -426,7 +426,7 @@ export class TimingPanel {
         } else {
             if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
 
-            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X * devicePixelRatio;
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
             this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
             this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
             this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;

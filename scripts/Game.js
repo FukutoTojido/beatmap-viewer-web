@@ -15,6 +15,8 @@ import { BPM, toggleTimingPanel } from "./BPM.js";
 import { MetadataPanel, toggleMetadataPanel } from "./SidePanel.js";
 import { TitleArtist } from "./TitleArtist.js";
 import { Stats } from "./Stats.js";
+import { Background } from "./Background.js";
+import { closePopup } from "./Timestamp.js";
 
 export class Game {
     static APP;
@@ -116,7 +118,7 @@ export class Game {
             align: "right",
             fontSize: 15,
             fill: "white",
-            fontWeight: 500
+            fontWeight: 500,
         };
 
         const fpsSprite = new PIXI.Text({
@@ -384,7 +386,9 @@ export class Game {
         Game.COMPUTED_HEIGHT = preHeight;
 
         if (innerWidth / innerHeight < 1) {
-            height = Math.round(Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio));
+            height = Math.round(
+                Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio)
+            );
 
             if (preHeight !== height && document.querySelector(".contentWrapper").style.height !== height) {
                 document.querySelector(".contentWrapper").style.height = `${height}px`;
@@ -431,7 +435,6 @@ export class Game {
                 // console.log("Stack Added! 2");
             }
         }
-
 
         if (Game.WRAPPER.h !== Game.APP.renderer.height - 70 * devicePixelRatio) {
             Game.WRAPPER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
@@ -511,10 +514,29 @@ export class Game {
             Game.IS_DRAGSCROLL = false;
         });
 
+        const hidePopup = (e) => {
+            const { x, y } = Game.WRAPPER.masterContainer.toLocal(e.global);
+
+            const left = Timestamp.MASTER_CONTAINER.x;
+            const right = Timestamp.MASTER_CONTAINER.x + Timestamp.MASTER_CONTAINER.w;
+            const top = Timestamp.MASTER_CONTAINER.y;
+            const bottom = Timestamp.MASTER_CONTAINER.y + Timestamp.MASTER_CONTAINER.h;
+
+            if ((x < left || x > right || y < top || y > bottom) && document.querySelector(".seekTo").open) {
+                closePopup();
+            }
+        };
+
         Game.WRAPPER.masterContainer.on("tap", (e) => {
             if (Game.SHOW_METADATA && !MetadataPanel.ON_ANIM) toggleMetadataPanel();
             if (Game.SHOW_TIMING_PANEL && !TimingPanel.ON_ANIM) toggleTimingPanel();
-        })
+
+            hidePopup(e);
+        });
+
+        Game.WRAPPER.masterContainer.on("click", (e) => {
+            hidePopup(e);
+        });
 
         Game.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, Game.APP.renderer.height - 60);
         Game.gameSizeSetup();
@@ -522,6 +544,7 @@ export class Game {
 
     static async init() {
         await Game.appInit();
+        Game.BACKGROUND = Background.init();
         Game.CONTAINER = Game.containerInit();
         Game.GRID = Game.gridInit();
         Game.DRAG_WINDOW = Game.dragWindowInit();
@@ -535,6 +558,8 @@ export class Game {
         Game.MASTER_CONTAINER.container.addChild(Game.CONTAINER);
         Game.MASTER_CONTAINER.container.addChild(Game.FPS);
         Game.MASTER_CONTAINER.container.addChild(Game.CURSOR.obj);
+
+        Game.WRAPPER.container.addChild(Background.container);
 
         Game.APP.stage.addChild(Game.WRAPPER.masterContainer);
         Game.WRAPPER.container.addChild(Game.MASTER_CONTAINER.masterContainer);
@@ -564,7 +589,7 @@ export class Game {
         Game.APP.stage.addChild(MetadataPanel.MASTER_CONTAINER.masterContainer);
 
         // Add Game Canvas to DOM
-        document.querySelector(".contentWrapper").appendChild(Game.APP.canvas);
+        document.querySelector(".contentWrapper").prepend(Game.APP.canvas);
         globalThis.__PIXI_APP__ = Game.APP;
 
         HitSample.masterGainNode = Game.AUDIO_CTX.createGain();

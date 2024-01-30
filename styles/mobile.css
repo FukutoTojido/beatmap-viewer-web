@@ -124,7 +124,7 @@
         transform-origin: unset;
         padding: 20px;
 
-        bottom: 0;
+        bottom: calc(100vw * 1 / 4) ;
     }
 
     #timeContainer {
