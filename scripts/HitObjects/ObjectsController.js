@@ -67,8 +67,6 @@ export class ObjectsController {
             Game.BEATMAP_FILE.audioNode.pause();
         }
 
-        this.lastTime = performance.now();
-
         if (Game.DID_MOVE && Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
             Game.DRAGGING_END = Game.BEATMAP_FILE.audioNode.getCurrentTime();
             handleCanvasDrag(false, true);
@@ -266,7 +264,9 @@ export class ObjectsController {
         Game.appResize();
         Timeline.resize();
 
-        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
+        const deltaMS = performance.now() - this.lastRenderTime;
+        this.lastRenderTime = performance.now();
+        Game.FPS.text = `${Math.round(1000 / deltaMS)}fps\n${deltaMS.toFixed(2)}ms`;
 
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
 

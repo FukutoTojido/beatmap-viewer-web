@@ -3,6 +3,7 @@ import { parseTime } from "./ProgressBar.js";
 import * as PIXI from "pixi.js";
 import { Component } from "./WindowManager.js";
 import { Game } from "./Game.js";
+import { Beatmap } from "./Beatmap.js";
 
 export function closePopup() {
     const popup = document.querySelector(".seekTo");
