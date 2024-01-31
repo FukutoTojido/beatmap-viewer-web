@@ -18,6 +18,8 @@ import md5 from "crypto-js/md5";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { Background } from "./Background.js";
 import { Spinner } from "./HitObjects/Spinner.js";
+import { toggleMetadataPanel } from "./SidePanel.js";
+import { toggleTimingPanel } from "./BPM.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -507,6 +509,16 @@ export class BeatmapFile {
 
                     if (document.querySelector("#settingsPanel").style.opacity === "1") {
                         openMenu();
+                        return;
+                    }
+
+                    if (Game.SHOW_METADATA) {
+                        toggleMetadataPanel();
+                        return;
+                    }
+
+                    if (Game.SHOW_TIMING_PANEL) {
+                        toggleTimingPanel();
                         return;
                     }
 
