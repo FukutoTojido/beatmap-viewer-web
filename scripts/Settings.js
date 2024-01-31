@@ -74,7 +74,7 @@ document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySe
 
 export function setBackgroundBlur(slider) {
     // console.log(slider.value);
-    // document.querySelector(".mapBG").style.filter = `blur(${slider.value}px)`;
+    document.querySelector(".mapBG").style.filter = `blur(${slider.value}px)`;
     document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.background.blur = slider.value;

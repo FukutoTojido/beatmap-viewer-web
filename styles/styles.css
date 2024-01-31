@@ -372,8 +372,6 @@ svg {
     transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 
     border-radius: 10px 10px 0 0;
-
-    display: none;
 }
 
 .contentWrapper {
@@ -1151,7 +1149,7 @@ button:hover {
     width: 40px;
     height: 10px;
 
-    background: var(--primary-4);
+    background: var(--primary-3);
     border-radius: 20px;
 
     margin-top: -3px;

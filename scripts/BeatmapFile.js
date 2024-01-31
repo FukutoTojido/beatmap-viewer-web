@@ -333,7 +333,7 @@ export class BeatmapFile {
             console.log("Background Loaded");
             Background.src = this.backgroundBlobURL;
 
-            // document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();

@@ -21,6 +21,8 @@ export function toggleTimingPanel() {
             timing: (innerWidth < innerHeight) ? Game.WRAPPER.h * 0.75 : 400,
             metadata: 0,
         };
+
+        document.querySelector(".mapBG").style.width = `calc(100% - 410px)`;
     }
 
     if (Game.SHOW_TIMING_PANEL) {
@@ -29,6 +31,8 @@ export function toggleTimingPanel() {
             timing: 0,
             metadata: 0,
         };
+
+        document.querySelector(".mapBG").style.width = ``;
     }
 
     Game.SHOW_METADATA = false;

@@ -23,6 +23,8 @@ export function toggleMetadataPanel() {
             timing: 0,
             metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400,
         };
+
+        document.querySelector(".mapBG").style.width = `calc(100% - 410px)`;
     }
 
     if (Game.SHOW_METADATA) {
@@ -30,7 +32,8 @@ export function toggleMetadataPanel() {
             game: 0,
             timing: 0,
             metadata: 0,
-        };
+        }
+        document.querySelector(".mapBG").style.width = ``;
     }
 
     Game.SHOW_TIMING_PANEL = false;

@@ -143,7 +143,7 @@ export async function loadLocalStorage() {
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;
         document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
-        // document.querySelector(".mapBG").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
+        document.querySelector(".mapBG").style.filter = `blur(${currentLocalStorage.background.blur}px)`;
 
         document.querySelector("#master").value = currentLocalStorage.volume.master;
         document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;
