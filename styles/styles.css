@@ -540,6 +540,8 @@ canvas {
     transform-origin: bottom left;
 
     box-shadow: 0 5px 10px 0 rgb(0 0 0 /0.5);
+
+    z-index: 1;
 }
 
 .popupAnim {
