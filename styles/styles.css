@@ -1530,6 +1530,8 @@ a:visited {
     width: 100%;
 
     bottom: 120px;
+
+    z-index: 1;
 }
 
 .noti {
