@@ -23,9 +23,10 @@
         "@pixi/ui": "^0.10.1",
         "@tweenjs/tween.js": "^21.0.0",
         "axios": "^1.6.2",
+        "bezier-easing": "^2.1.0",
         "crypto-js": "^4.2.0",
         "ky": "^1.1.3",
-        "pixi.js": "^7.3.2",
+        "pixi.js": "^8.0.0-rc.6",
         "vite": "^5.0.4"
     }
 }

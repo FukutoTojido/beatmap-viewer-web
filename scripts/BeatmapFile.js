@@ -1,7 +1,7 @@
 import { Game } from "./Game.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { Beatmap } from "./Beatmap.js";
-import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound } from "./Utils.js";
+import { createDifficultyElement, round, getDiffColor, loadColorPalette, loadSampleSound, Clamp } from "./Utils.js";
 import { go, playToggle } from "./ProgressBar.js";
 import { openMenu, setBeatsnapDivisor } from "./Settings.js";
 import { calculateCurrentSR } from "./Settings.js";
@@ -10,11 +10,14 @@ import { ScoreParser } from "./ScoreParser.js";
 import { Notification } from "./Notification.js";
 import { urlParams } from "./GlobalVariables.js";
 import { handleCanvasDrag } from "./DragWindow.js";
-import { closePopup } from "./ProgressBar.js";
+import { closePopup } from "./Timestamp.js";
 import osuPerformance from "../lib/osujs.js";
 import axios from "axios";
 import ky from "ky";
 import md5 from "crypto-js/md5";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { Background } from "./Background.js";
+import { Spinner } from "./HitObjects/Spinner.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -129,15 +132,20 @@ export class BeatmapFile {
                 throw new Error("Not a standard map!");
             }
 
-            document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
-            document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
-                mapsetData.beatmaps.find((map) => map.id == this.mapId).version
-            }</span> - Mapset by <span>${mapsetData.creator}</span>`;
+            // document.querySelector("#artistTitle").innerHTML = `${mapsetData.artist} - ${mapsetData.title}`;
+            // document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${
+            //     mapsetData.beatmaps.find((map) => map.id == this.mapId).version
+            // }</span> - Mapset by <span>${mapsetData.creator}</span>`;
+
+            Game.INFO.title = mapsetData.title;
+            Game.INFO.artist = mapsetData.artist;
+            Game.INFO.difficulty = mapsetData.beatmaps.find((map) => map.id == this.mapId).version;
+            Game.INFO.mapper = mapsetData.creator;
         }
 
         const setId = mapsetData?.id;
-        if (setId && !this.isFromFile) document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
-        else document.querySelector("#metadata").removeAttribute("href");
+        if (setId && !this.isFromFile) Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
+        else Beatmap.HREF = null;
 
         const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
         const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
@@ -232,15 +240,22 @@ export class BeatmapFile {
                 .at(0)
                 ?.replace("BeatmapSetID:", "");
 
-            document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
-            document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
+            // document.querySelector("#artistTitle").innerHTML = `${artist} - ${title}`;
+            // document.querySelector("#versionCreator").innerHTML = `Difficulty: <span>${version}</span> - Mapset by <span>${creator}</span>`;
+
+            Game.INFO.title = title;
+            Game.INFO.artist = artist;
+            Game.INFO.difficulty = version;
+            Game.INFO.mapper = creator;
+
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
 
             if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
                 window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}`);
-                document.querySelector("#metadata").href = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
+                Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
             } else {
                 window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/`);
+                Beatmap.HREF = null;
             }
         }
 
@@ -256,15 +271,25 @@ export class BeatmapFile {
         const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
         const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-        document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
-        document.querySelector("#AR").textContent = round(beatmapData.difficulty.approachRate);
-        document.querySelector("#OD").textContent = round(beatmapData.difficulty.overallDifficulty);
-        document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
-        document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
-        document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+        // document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
+        // document.querySelector("#AR").textContent = round(beatmapData.difficulty.approachRate);
+        // document.querySelector("#OD").textContent = round(beatmapData.difficulty.overallDifficulty);
+        // document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
+        // document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
+        // document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
-        if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
-        else document.querySelector("#SR").style.color = "black";
+        Game.STATS.CS = round(beatmapData.difficulty.circleSize);
+        Game.STATS.AR = round(beatmapData.difficulty.approachRate);
+        Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
+        Game.STATS.HP = round(beatmapData.difficulty.drainRate);
+        Game.STATS.SR = round(difficultyAttributes.starRating);
+        Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes.starRating)).formatHex().slice(1), 16);
+
+        if (difficultyAttributes.starRating >= 6.5)
+            Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
+        else Game.STATS.SRSprite.style.fill = 0x000000;
+
+        Game.STATS.update();
 
         // console.log(beatmapData)
         // console.log(difficultyAttributes)
@@ -299,11 +324,14 @@ export class BeatmapFile {
         const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
         if (backgroundFile) {
             const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
+            const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
 
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);
             console.log("Background Loaded");
-            document.querySelector("#background").src = `${this.backgroundBlobURL}`;
+            Background.src = this.backgroundBlobURL;
+
+            // document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();
@@ -475,7 +503,7 @@ export class BeatmapFile {
 
                 if (e.key === "Escape") {
                     if (document.querySelector(".seekTo").open) closePopup();
-                    
+
                     if (document.querySelector("#settingsPanel").style.opacity === "1") {
                         openMenu();
                         return;
@@ -507,7 +535,7 @@ export class BeatmapFile {
                     return;
                 }
 
-                event.preventDefault();
+                // event.preventDefault();
 
                 if (event.deltaY > 0) {
                     document.querySelector("#beat").value = Math.max(parseInt(document.querySelector("#beat").value) - 1, 1);
@@ -522,15 +550,32 @@ export class BeatmapFile {
                 // console.log("Scrolled");
             };
 
-            document.querySelector("#playerContainer").addEventListener("wheel", scrollEventHandler, {
+            Game.WRAPPER.masterContainer.on("wheel", scrollEventHandler, {
                 capture: true,
                 passive: false,
             });
 
-            document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
-                capture: true,
-                passive: false,
-            });
+            Timeline.MASTER_CONTAINER.masterContainer.on(
+                "wheel",
+                (e) => {
+                    if (!e.altKey) {
+                        scrollEventHandler(e);
+                        return;
+                    }
+
+                    if (e.deltaY > 0) Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE - 20, 20, 800);
+                    if (e.deltaY < 0) Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + 20, 20, 800);
+                },
+                {
+                    capture: true,
+                    passive: false,
+                }
+            );
+
+            // document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
+            //     capture: true,
+            //     passive: false,
+            // });
 
             this.isLoaded = true;
             // (new Notification(`Finished map setup`)).notify();

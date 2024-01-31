@@ -1,10 +1,11 @@
 import { selectSkin, round, getDiffColor } from "./Utils.js";
-import { closePopup } from "./ProgressBar.js";
+import { closePopup } from "./Timestamp.js";
 import { Beatmap } from "./Beatmap.js";
 import { Timeline } from "./Timeline/Timeline.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { Game } from "./Game.js";
 import osuPerformance from "../lib/osujs.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {
@@ -61,7 +62,8 @@ document.querySelector("#custom-mirror").onblur = () => setCustomMirror(document
 // BACKGROUND
 export function setBackgroundDim(slider) {
     // console.log(slider.value);
-    document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
+    // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
+    Game.MASTER_CONTAINER.alpha = slider.value;
     document.querySelector("#bgDimVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -72,7 +74,7 @@ document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySe
 
 export function setBackgroundBlur(slider) {
     // console.log(slider.value);
-    document.querySelector("#overlay").style.backdropFilter = `blur(${slider.value}px)`;
+    // document.querySelector(".mapBG").style.filter = `blur(${slider.value}px)`;
     document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.background.blur = slider.value;
@@ -159,15 +161,27 @@ export function calculateCurrentSR(modsFlag) {
     const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-    document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
-    document.querySelector("#AR").textContent = round(difficultyAttributes.approachRate);
-    document.querySelector("#OD").textContent = round(difficultyAttributes.overallDifficulty);
-    document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
-    document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
-    document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
+    // document.querySelector("#CS").textContent = round(beatmapData.difficulty.circleSize);
+    // document.querySelector("#AR").textContent = round(difficultyAttributes.approachRate);
+    // document.querySelector("#OD").textContent = round(difficultyAttributes.overallDifficulty);
+    // document.querySelector("#HP").textContent = round(beatmapData.difficulty.drainRate);
+    // document.querySelector("#SR").textContent = `${round(difficultyAttributes.starRating)}★`;
+    // document.querySelector("#SR").style.backgroundColor = getDiffColor(difficultyAttributes.starRating);
 
-    if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
-    else document.querySelector("#SR").style.color = "black";
+    // if (difficultyAttributes.starRating >= 6.5) document.querySelector("#SR").style.color = "hsl(45deg, 100%, 70%)";
+    // else document.querySelector("#SR").style.color = "black";
+
+    Game.STATS.CS = round(beatmapData.difficulty.circleSize);
+    Game.STATS.AR = round(beatmapData.difficulty.approachRate);
+    Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
+    Game.STATS.HP = round(beatmapData.difficulty.drainRate);
+    Game.STATS.SR = round(difficultyAttributes.starRating);
+    Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes.starRating)).formatHex().slice(1), 16);
+
+    if (difficultyAttributes.starRating >= 6.5) Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
+    else Game.STATS.SRSprite.style.fill = 0x000000;
+
+    Game.STATS.update();
 }
 
 export function handleCheckBox(checkbox) {
@@ -192,8 +206,8 @@ export function handleCheckBox(checkbox) {
 
         Timeline.SHOW_GREENLINE = Game.MAPPING[checkbox.name];
 
-        if (Game.MAPPING[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
-        else document.querySelector(".timelineContainer").style.height = "60px";
+        // if (Game.MAPPING[checkbox.name]) document.querySelector(".timelineContainer").style.height = "";
+        // else document.querySelector(".timelineContainer").style.height = "60px";
         return;
     }
 
@@ -248,8 +262,8 @@ document.body.addEventListener("click", (e) => {
             e.clientY < popupDialogDimensions.top ||
             e.clientY > popupDialogDimensions.bottom) &&
         document.querySelector(".seekTo").open &&
-        e.target !== document.querySelector("#timeContainer") &&
-        e.target !== document.querySelector("#timeContainer canvas")
+        e.target !== document.querySelector(".contentWrapper") &&
+        e.target !== document.querySelector(".contentWrapper canvas")
     ) {
         closePopup();
     }

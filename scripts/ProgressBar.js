@@ -3,6 +3,7 @@ import { Clamp } from "./Utils.js";
 import { Notification } from "./Notification.js";
 import { Game } from "./Game.js";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
+import { PlayContainer } from "./PlayButtons.js";
 
 export function setAudioTime(value) {
     if (!Game.BEATMAP_FILE?.audioNode) return;
@@ -14,12 +15,14 @@ export function playToggle(ele) {
     if (!Game.BEATMAP_FILE?.audioNode?.gainNode || !Game.BEATMAP_FILE?.audioNode?.buf) return;
 
     if (!Game.BEATMAP_FILE.audioNode.isPlaying) {
-        document.querySelector("#playButton").style.backgroundImage = "";
+        // document.querySelector("#playButton").style.backgroundImage = "";
+        PlayContainer.playButton.sprite.texture = PlayContainer.playButton.altTexture;
         Game.BEATMAP_FILE.audioNode.play();
         return;
     }
 
-    document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
+    // document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
+    PlayContainer.playButton.sprite.texture = PlayContainer.playButton.texture;
     Game.BEATMAP_FILE.audioNode.pause();
 }
 
@@ -63,9 +66,9 @@ export function go(precise, isForward) {
 
     Game.BEATMAP_FILE.audioNode.seekTo(goTo);
 }
-document.querySelector("#prevButton").onclick = () => go(null, false);
-document.querySelector("#playButton").onclick = () => playToggle(document.querySelector("#playButton"));
-document.querySelector("#nextButton").onclick = () => go(null, true);
+// document.querySelector("#prevButton").onclick = () => go(null, false);
+// document.querySelector("#playButton").onclick = () => playToggle(document.querySelector("#playButton"));
+// document.querySelector("#nextButton").onclick = () => go(null, true);
 
 export function copyUrlToClipboard() {
     const origin = window.location.origin;
@@ -77,52 +80,7 @@ export function copyUrlToClipboard() {
 }
 document.querySelector("#previewURL").onclick = copyUrlToClipboard;
 
-export function closePopup() {
-    const popup = document.querySelector(".seekTo");
-
-    popup.classList.remove("popupAnim");
-    popup.classList.add("popoutAnim");
-    popup.close();
-}
-
-export function openPopup() {
-    const popup = document.querySelector(".seekTo");
-
-    popup.classList.remove("popoutAnim");
-    popup.classList.add("popupAnim");
-    popup.show();
-}
-
-export function showPopup() {
-    const popup = document.querySelector(".seekTo");
-    const timeInput = document.querySelector("#jumpToTime");
-    timeInput.blur();
-
-    if (!popup.open) {
-        if (Game.BEATMAP_FILE?.audioNode) {
-            const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
-
-            const minute = Math.floor(currentTime / 60000);
-            const second = Math.floor((currentTime - minute * 60000) / 1000);
-            const mili = currentTime - minute * 60000 - second * 1000;
-
-            timeInput.value = `${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}:${mili.toFixed(0).padStart(3, "0")}`;
-
-            const origin = window.location.origin;
-            const currentTimestamp = Game.BEATMAP_FILE !== undefined ? Game.BEATMAP_FILE.audioNode.getCurrentTime() : 0;
-            const mapId = Beatmap.CURRENT_MAPID || "";
-            document.querySelector("#previewURL").value = `${origin}${
-                !origin.includes("github.io") ? "" : "/beatmap-viewer-how"
-            }?b=${mapId}&t=${currentTimestamp}`;
-        }
-
-        openPopup();
-        return;
-    }
-
-    closePopup();
-}
-document.querySelector("#timeContainer").onclick = showPopup;
+// document.querySelector("#timeContainer").onclick = showPopup;
 
 export function updateTimestamp(value) {
     if (!Game.BEATMAP_FILE?.audioNode || (!/^[0-9]+:[0-9]+:[0-9]+.*/g.test(value) && !/^[0-9]+$/g.test(value))) {

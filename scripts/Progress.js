@@ -3,6 +3,10 @@ import { Clamp } from "./Utils.js";
 import { setAudioTime } from "./ProgressBar.js";
 import { Game } from "./Game.js";
 import * as PIXI from "pixi.js";
+import { Component } from "./WindowManager.js";
+import { PlayContainer } from "./PlayButtons.js";
+import vertexSrc from "./Shaders/Progress/TimingPoint.vert?raw";
+import fragmentSrc from "./Shaders/Progress/TimingPoint.frag?raw";
 
 export class ProgressBar {
     static renderer;
@@ -25,37 +29,36 @@ export class ProgressBar {
 
     static initLine() {
         this.line = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                align: 0,
                 color: 0x88c0d0,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2);
+            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2)
+            .stroke();
     }
 
     static initThumb() {
         this.thumb = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                alignment: 1,
+                alignment: 0,
                 color: 0x88c0d0,
             })
-            .beginFill(0x171a1f)
-            .drawRoundedRect(
+            .roundRect(
                 -20 * window.devicePixelRatio,
                 -5 * window.devicePixelRatio,
                 40 * window.devicePixelRatio,
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .endFill()
-            .lineStyle()
-            .beginFill(0x88c0d0)
-            .drawCircle(0, 0, 2)
-            .endFill();
+            .fill(0x171a1f)
+            .stroke()
+            .setStrokeStyle()
+            .circle(0, 0, 2)
+            .fill(0x88c0d0);
         this.thumb.y = this.HEIGHT / 2;
 
         // this.thumb.interactive = true;
@@ -108,7 +111,6 @@ export class ProgressBar {
     }
 
     static initTimingPoints() {
-        this.timeline.clear();
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
 
@@ -118,56 +120,76 @@ export class ProgressBar {
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
-        Beatmap.timingPointsList
-            .toSorted((a, b) => {
-                if (a.time > b.time) return 1;
-                if (a.time < b.time) return -1;
-                if (a.beatstep) return 1;
-                if (b.beatstep) return -1;
-                return 0;
-            })
-            .forEach((point, idx, arr) => {
-                const x = (point.time / fullTime) * width;
-                const xNext = ((arr[idx + 1]?.time ?? Game.BEATMAP_FILE.audioNode.duration) / fullTime) * width;
+        const positionsBuffer = [];
+        const colorBuffer = [];
 
-                this.timeline
-                    .lineStyle({
-                        width: 1 * devicePixelRatio,
-                        color: point.beatstep ? 0xf5425a : 0x42f560,
-                        alpha: 0.6,
-                    })
-                    .moveTo(x, 0)
-                    .lineTo(x, height);
+        Beatmap.timingPointsList.forEach((point, idx) => {
+            const x = (point.time / fullTime) * width;
+            const color = point.beatstep ? [0.96, 0.26, 0.35] : [0.26, 0.96, 0.38];
 
-                if (!point.isKiai) return;
+            positionsBuffer.push(...[x, 0, x, height / 2]);
+            colorBuffer.push(...[...color, ...color]);
+        });
 
-                this.timeline
-                    .lineStyle()
-                    .beginFill(0xf58d42, 0.4)
-                    .drawRect(x, height / 2, xNext - x, height)
-                    .endFill();
-            });
+        const geometry = new PIXI.Geometry({
+            attributes: {
+                aPosition: positionsBuffer,
+                aColor: colorBuffer,
+            },
+            topology: "line-list"
+        });
+
+        this.timeline.geometry = geometry;
+    }
+
+    static reinitPoints() {
+        this.stage.removeChild(this.timeline);
+
+        this.timeline = new PIXI.Mesh({
+            geometry: new PIXI.Geometry({
+                attributes: {
+                    aPosition: [0, 0, 1, 0],
+                    aColor: [1, 0, 0, 1, 1, 1],
+                },
+                topology: "line-list",
+            }),
+            shader: PIXI.Shader.from({
+                gl: PIXI.GlProgram.from({
+                    vertex: vertexSrc,
+                    fragment: fragmentSrc,
+                }),
+            }),
+        });
+        this.timeline.x = 40 * devicePixelRatio;
+        this.timeline.y = 10 * devicePixelRatio;
+        this.stage.addChildAt(this.timeline, 0);
     }
 
     static init() {
-        const { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
+        this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
+        this.HEIGHT = 60 * devicePixelRatio;
 
-        this.WIDTH = parseInt(width) * window.devicePixelRatio;
-        this.HEIGHT = parseInt(height) * window.devicePixelRatio;
+        this.MASTER_CONTAINER = new Component((110 + 360 + 60) * devicePixelRatio, Game.WRAPPER.h - 60 * devicePixelRatio, this.WIDTH, this.HEIGHT);
+        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
+        this.MASTER_CONTAINER.alpha = 1;
 
-        this.renderer = new PIXI.Renderer({
-            width: this.WIDTH,
-            height: this.HEIGHT,
-            backgroundColor: 0x4c566a,
-            backgroundAlpha: 0,
-            antialias: true,
-            autoDensity: true,
+        this.stage = this.MASTER_CONTAINER.container;
+
+        this.timeline = new PIXI.Mesh({
+            geometry: new PIXI.Geometry({
+                attributes: {
+                    aPosition: [0, 0, 1, 0],
+                    aColor: [1, 0, 0, 1, 1, 1],
+                },
+                topology: "line-list",
+            }),
+            shader: PIXI.Shader.from({
+                gl: PIXI.GlProgram.from({
+                    vertex: vertexSrc,
+                    fragment: fragmentSrc,
+                }),
+            }),
         });
-        document.querySelector(".progressBarContainer").append(this.renderer.view);
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-        this.stage = new PIXI.Container();
-
-        this.timeline = new PIXI.Graphics();
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
         this.stage.addChildAt(this.timeline, 0);
@@ -175,9 +197,6 @@ export class ProgressBar {
         this.initLine();
         this.initThumb();
         this.initContainer();
-
-        // globalThis.__PIXI_RENDERER__ = this.renderer;
-        // globalThis.__PIXI_STAGE__ = this.stage;
     }
 
     static handleMouseDown(e) {
@@ -207,22 +226,31 @@ export class ProgressBar {
         this.restyle();
     }
 
-    static resize() {
-        let { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
+    static forceResize() {
+        if (!this.MASTER_CONTAINER) return;
 
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+        if (innerWidth / innerHeight < 1) {
+            this.MASTER_CONTAINER.x = 0;
+            this.MASTER_CONTAINER.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
+            this.MASTER_CONTAINER.w = Game.WRAPPER.w;
+        } else {
+            this.MASTER_CONTAINER.x = (110 + 360 + 60) * devicePixelRatio;
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
+        }
 
-        if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
+        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+
+        const width = this.MASTER_CONTAINER.w;
+        const height = this.MASTER_CONTAINER.h;
 
         if (this.WIDTH === width && this.HEIGHT === height) return;
 
         this.WIDTH = width;
         this.HEIGHT = height;
-        this.renderer.resize(this.WIDTH, this.HEIGHT);
 
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.restyle();
+        if (Game.DEVE_RATIO !== devicePixelRatio) this.reinitPoints();
         this.initTimingPoints();
 
         this.thumb.y = this.HEIGHT / 2;
@@ -231,45 +259,49 @@ export class ProgressBar {
         this.container.hitArea = new PIXI.Rectangle(-40 * window.devicePixelRatio, 0, this.WIDTH, this.HEIGHT);
     }
 
+    static resize() {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceResize();
+    }
+
     static restyle(isHover) {
-        const rootCSS = document.querySelector(":root");
-        let bgColor = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
-        let accentColor = parseInt(rootCSS.style.getPropertyValue("--accent-1").slice(1), 16);
+        let bgColor = Game.COLOR_PALETTES.primary1;
+        let accentColor = Game.COLOR_PALETTES.accent1;
 
         if (!bgColor) bgColor = 0x171a1f;
         if (!accentColor) accentColor = 0x88c0d0;
 
         this.line
             .clear()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                align: 0,
                 color: accentColor,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2);
+            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2)
+            .stroke();
 
         this.thumb
             .clear()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 4 * window.devicePixelRatio,
                 cap: "round",
-                alignment: 1,
+                alignment: 0,
                 color: accentColor,
             })
-            .beginFill(isHover ? accentColor : bgColor)
-            .drawRoundedRect(
+            .roundRect(
                 -20 * window.devicePixelRatio,
                 -5 * window.devicePixelRatio,
                 40 * window.devicePixelRatio,
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .lineStyle()
-            .beginFill(isHover ? bgColor : accentColor)
-            .drawCircle(0, 0, 2)
-            .endFill();
+            .fill(isHover ? accentColor : bgColor)
+            .stroke()
+            .setStrokeStyle()
+            .circle(0, 0, 2)
+            .fill(isHover ? bgColor : accentColor);
     }
 
     static update(time) {
@@ -279,6 +311,6 @@ export class ProgressBar {
             this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
         }
 
-        this.renderer.render(this.stage);
+        // this.renderer.render(this.stage);
     }
 }

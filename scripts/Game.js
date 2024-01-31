@@ -7,11 +7,21 @@ import { Slider } from "./HitObjects/Slider.js";
 import { handleCanvasDrag, checkCollide } from "./DragWindow.js";
 import { HitSample } from "./Audio.js";
 import { TimingPanel } from "./TimingPanel.js";
+import { Component } from "./WindowManager.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import * as PIXI from "pixi.js";
+import { PlayContainer } from "./PlayButtons.js";
+import { BPM, toggleTimingPanel } from "./BPM.js";
+import { MetadataPanel, toggleMetadataPanel } from "./SidePanel.js";
+import { TitleArtist } from "./TitleArtist.js";
+import { Stats } from "./Stats.js";
+import { Background } from "./Background.js";
+import { closePopup } from "./Timestamp.js";
 
 export class Game {
     static APP;
+    static WRAPPER;
+    static MASTER_CONTAINER;
     static CONTAINER;
     static GRID;
     static DRAG_WINDOW;
@@ -36,6 +46,9 @@ export class Game {
     static CURRENT_Y = -1;
     static DRAGGING_START = 0;
     static DRAGGING_END = 0;
+
+    static IS_DRAGSCROLL = false;
+    static START_DRAG_Y = 0;
 
     static AUDIO_CTX = new AudioContext();
     static PLAYBACK_RATE = 1;
@@ -62,6 +75,23 @@ export class Game {
     static DROP_BLOB = null;
     static BEATMAP_FILE = undefined;
 
+    static COLOR_PALETTES = {
+        accent1: 0x88c0d0,
+        primary1: 0x171a1f,
+        primary2: 0x2e3440,
+        primary3: 0x3b4252,
+        primary4: 0x434c5e,
+        primary5: 0x4c566a,
+    };
+
+    static SHOW_METADATA = false;
+    static SHOW_TIMING_PANEL = false;
+    static REDUCTION = 0;
+    static COMPUTED_HEIGHT = 0;
+
+    static DEVE_RATIO = devicePixelRatio;
+    static EMIT_STACK = [];
+
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
@@ -76,41 +106,39 @@ export class Game {
         });
     }
 
-    static CursorInit() {
-        return new Cursor();
+    static async CursorInit() {
+        const cursor = new Cursor();
+        await cursor.init();
+        return cursor;
     }
 
     static FPSInit() {
-        PIXI.BitmapFont.from(
-            "Torus",
-            {
-                fontFamily: "Torus",
-                fontSize: 20,
-                fontWeight: 500,
-                fill: 0xffffff,
-                align: "right",
-            },
-            {
-                chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :"],
-            }
-        );
-
-        const fpsSprite = new PIXI.BitmapText(`0fps\nInfinite ms`, {
-            fontName: "Torus",
+        const fpsStyle = {
+            fontFamily: "TorusBitmap15",
             align: "right",
             fontSize: 15,
+            fill: "white",
+            fontWeight: 500,
+        };
+
+        const fpsSprite = new PIXI.Text({
+            text: `0fps\nInfinite ms`,
+            renderMode: "bitmap",
+            style: {
+                ...fpsStyle,
+            },
         });
 
         fpsSprite.anchor.set(1, 1);
-        fpsSprite.x = Game.APP.view.width - 10;
-        fpsSprite.y = Game.APP.view.height - 10;
+        fpsSprite.x = Game.APP.canvas.width - 10;
+        fpsSprite.y = Game.APP.canvas.height - 10;
 
         return fpsSprite;
     }
 
     static dragWindowInit() {
         // Drag window initialize
-        const dragWindow = new PIXI.Graphics().lineStyle({
+        const dragWindow = new PIXI.Graphics().setStrokeStyle({
             width: 2,
             color: 0xffffff,
             alpha: 1,
@@ -128,20 +156,21 @@ export class Game {
     static gridInit() {
         // Grid initialize
         const graphics = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 1,
                 color: 0xffffff,
                 alpha: 0.1,
                 alignment: 0.5,
             })
-            .drawRect(0, 0, 512, 384);
+            .rect(0, 0, 512, 384)
+            .stroke();
 
         // Draw grid
         const gridWidth = 512 / 16;
         const gridHeight = 384 / 12;
         for (let i = 0; i < 16; i++) {
             for (let j = 0; j < 12; j++) {
-                graphics.drawRect(i * gridWidth, j * gridHeight, gridWidth, gridHeight);
+                graphics.rect(i * gridWidth, j * gridHeight, gridWidth, gridHeight).stroke();
             }
         }
 
@@ -164,7 +193,10 @@ export class Game {
 
             const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
 
-            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            let { x, y } = e.global;
+            x -= Game.OFFSET_X;
+            y -= Game.OFFSET_Y + Game.MASTER_CONTAINER.y + Game.WRAPPER.y;
+
             x /= Game.SCALE_RATE;
             y /= Game.SCALE_RATE;
 
@@ -192,19 +224,22 @@ export class Game {
             Game.DID_MOVE = false;
         };
 
-        grid.on("click", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("click", (e) => {
             clickControl(e);
         });
-        grid.on("touchstart", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("touchstart", (e) => {
             clickControl(e);
         });
 
-        grid.on("touchend", (e) => {});
+        Game.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {});
 
-        grid.on("mousedown", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("mousedown", (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
-            let { x, y } = Game.CONTAINER.toLocal(e.global);
+            let { x, y } = e.global;
+            x -= Game.OFFSET_X;
+            y -= Game.OFFSET_Y + Game.MASTER_CONTAINER.y + Game.WRAPPER.y;
+
             x /= Game.WIDTH / 512;
             y /= Game.WIDTH / 512;
 
@@ -214,21 +249,21 @@ export class Game {
             Game.START_Y = y;
 
             Game.DRAG_WINDOW.clear();
-            Game.DRAG_WINDOW.lineStyle({
+            Game.DRAG_WINDOW.setStrokeStyle({
                 width: 1,
                 color: 0xffffff,
                 alpha: 1,
                 alignment: 0,
             });
 
-            Game.DRAG_WINDOW.beginFill(0xffffff, 0.2).drawRect(x, y, 0, 0).endFill();
+            Game.DRAG_WINDOW.rect(x, y, 0, 0).fill({ color: 0xffffff, alpha: 0.2 }).stroke();
 
             Game.DRAG_WINDOW.alpha = 1;
 
             // console.log("Mouse DOWN");
         });
 
-        grid.on("mouseup", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("mouseup", (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
             if (Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
@@ -239,12 +274,17 @@ export class Game {
             // console.log("Mouse UP");
         });
 
-        grid.on("mousemove", (e) => {
+        Game.MASTER_CONTAINER.masterContainer.on("mousemove", (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;
 
-            let { x, y } = Game.CONTAINER.toLocal(e.global);
-            x /= Game.WIDTH / 512;
-            y /= Game.WIDTH / 512;
+            let { x, y } = e.global;
+            x -= Game.OFFSET_X;
+            y -= Game.OFFSET_Y + Game.MASTER_CONTAINER.y + Game.WRAPPER.y;
+
+            x /= Game.SCALE_RATE;
+            y /= Game.SCALE_RATE;
+
+            // console.log(x, y);
 
             if (Game.IS_DRAGGING) {
                 Game.DID_MOVE = true;
@@ -255,21 +295,21 @@ export class Game {
                 handleCanvasDrag(e);
 
                 Game.DRAG_WINDOW.clear();
-                Game.DRAG_WINDOW.lineStyle({
+                Game.DRAG_WINDOW.setStrokeStyle({
                     width: 1,
                     color: 0xffffff,
                     alpha: 1,
                     alignment: 0,
                 });
 
-                Game.DRAG_WINDOW.beginFill(0xffffff, 0.2)
-                    .drawRect(
-                        (Math.min(Game.START_X, x) * Game.WIDTH) / 512,
-                        (Math.min(Game.START_Y, y) * Game.WIDTH) / 512,
-                        (Math.abs(x - Game.START_X) * Game.WIDTH) / 512,
-                        (Math.abs(y - Game.START_Y) * Game.WIDTH) / 512
-                    )
-                    .endFill();
+                Game.DRAG_WINDOW.rect(
+                    (Math.min(Game.START_X, x) * Game.WIDTH) / 512,
+                    (Math.min(Game.START_Y, y) * Game.WIDTH) / 512,
+                    (Math.abs(x - Game.START_X) * Game.WIDTH) / 512,
+                    (Math.abs(y - Game.START_Y) * Game.WIDTH) / 512
+                )
+                    .fill({ color: 0xffffff, alpha: 0.2 })
+                    .stroke();
             }
 
             const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
@@ -297,13 +337,23 @@ export class Game {
         // Set container offset
         container.x = Game.OFFSET_X;
         container.y = Game.OFFSET_Y;
+        container.eventMode = "static";
 
         return container;
     }
 
     static appResize() {
+        if (innerWidth / innerHeight < 1) {
+            Game.WRAPPER.borderRadius = 0;
+        } else {
+            Game.WRAPPER.borderRadius = 10;
+        }
+
         // Resize Game Field
         Game.appSizeSetup();
+        Game.gameSizeSetup();
+
+        if (this.EMIT_STACK.length === 0) return;
 
         // Reposition grid
         Game.GRID.x = Game.OFFSET_X;
@@ -319,21 +369,103 @@ export class Game {
         Game.DRAG_WINDOW.y = Game.OFFSET_Y;
 
         // Reposition FPS
-        Game.FPS.x = Game.APP.view.width - 10;
-        Game.FPS.y = Game.APP.view.height - 10;
+        Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
+        Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
+        Game.FPS.style.fontSize = 15 * devicePixelRatio;
+
+        Game.INFO.update();
+        Game.STATS.update();
     }
 
     static appSizeSetup() {
         // Set renderer size to container size
-        let { width, height } = getComputedStyle(document.querySelector("#playerContainer"));
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+        let { width, height } = getComputedStyle(document.querySelector(".contentWrapper"));
+        width = Math.round(parseInt(width) * devicePixelRatio);
+        height = Math.round(parseInt(height) * devicePixelRatio);
+        const preHeight = height;
+        Game.COMPUTED_HEIGHT = preHeight;
 
-        if (Game.WIDTH === width && Game.HEIGHT === height) return;
+        if (innerWidth / innerHeight < 1) {
+            height = Math.round(
+                Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio)
+            );
 
-        Game.WIDTH = width;
-        Game.HEIGHT = height;
-        Game.APP.renderer.resize(Game.WIDTH, Game.HEIGHT);
+            if (preHeight !== height && document.querySelector(".contentWrapper").style.height !== height) {
+                document.querySelector(".contentWrapper").style.height = `${height}px`;
+            }
+        }
+
+        if (Game.APP.renderer.width === width && Game.APP.renderer.height === height) return;
+        this.EMIT_STACK.push(true);
+        // console.log("Stack Added! 0", width, height, Game.APP.renderer.width, Game.APP.renderer.height);
+        Game.APP.renderer.resize(width, height);
+
+        Game.APP.canvas.style.transform = `scale(${1 / window.devicePixelRatio})`;
+    }
+
+    static async appInit() {
+        // App initialize
+        Game.APP = new PIXI.Application();
+
+        await Game.APP.init({
+            antialias: true,
+            autoDensity: true,
+            backgroundAlpha: 0,
+            resizeTo: document.querySelector(".contentWrapper"),
+            preference: "webgl",
+        });
+
+        Game.appSizeSetup();
+        Game.gameInit();
+    }
+
+    static gameSizeSetup() {
+        Game.WRAPPER.y = 70 * devicePixelRatio;
+
+        if (innerWidth / innerHeight < 1) {
+            if (Game.WRAPPER.w !== Game.APP.renderer.width) {
+                Game.WRAPPER.w = Game.APP.renderer.width;
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 1");
+            }
+        } else {
+            if (Game.WRAPPER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio) {
+                Game.WRAPPER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 2");
+            }
+        }
+
+        if (Game.WRAPPER.h !== Game.APP.renderer.height - 70 * devicePixelRatio) {
+            Game.WRAPPER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
+            this.EMIT_STACK.push(true);
+            // console.log("Stack Added! 3");
+        }
+
+        if (Game.MASTER_CONTAINER.w !== Game.WRAPPER.w) {
+            Game.MASTER_CONTAINER.w = Game.WRAPPER.w;
+            this.EMIT_STACK.push(true);
+            // console.log("Stack Added! 4");
+        }
+
+        if (innerWidth / innerHeight < 1) {
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.w * (3 / 4)) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.w * (3 / 4);
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 5");
+            }
+        } else {
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 60 * devicePixelRatio) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 6");
+            }
+        }
+
+        if (Game.WIDTH === Game.MASTER_CONTAINER.w && Game.HEIGHT === Game.MASTER_CONTAINER.h) return;
+
+        Game.WIDTH = Game.MASTER_CONTAINER.w;
+        Game.HEIGHT = Game.MASTER_CONTAINER.h;
 
         // Change game width and height to match 4:3 aspect ratio
         if (Game.WIDTH / 512 > Game.HEIGHT / 384) {
@@ -347,51 +479,118 @@ export class Game {
         Game.HEIGHT *= 0.8;
 
         // Calculate offset
-        Game.OFFSET_X = (Game.APP.view.width - Game.WIDTH) / 2;
-        Game.OFFSET_Y = (Game.APP.view.height - Game.HEIGHT) / 2;
+        Game.OFFSET_X = (Game.MASTER_CONTAINER.w - Game.WIDTH) / 2;
+        Game.OFFSET_Y = (Game.MASTER_CONTAINER.h - Game.HEIGHT) / 2;
 
         // Re-scale Game Canvas on Retina / Mobile devices
 
         // ...
         Game.SCALE_RATE = Game.WIDTH / 512;
-        Game.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
     }
 
-    static appInit() {
-        // App initialize
-        Game.APP = new PIXI.Application({
-            width: parseInt(getComputedStyle(document.querySelector("#playerContainer")).width),
-            height: parseInt(getComputedStyle(document.querySelector("#playerContainer")).height),
-            antialias: true,
-            autoDensity: true,
-            backgroundAlpha: 0,
+    static gameInit() {
+        Game.WRAPPER = new Component(0, 70 * devicePixelRatio, Game.APP.renderer.width, Game.APP.renderer.height - 70);
+        Game.WRAPPER.color = 0x000000;
+        Game.WRAPPER.alpha = 0.01;
+        Game.WRAPPER.borderRadius = 10;
+
+        Game.WRAPPER.masterContainer.eventMode = "dynamic";
+
+        Game.WRAPPER.masterContainer.on("touchstart", (e) => {
+            Game.START_DRAG_Y = e.global.y;
+            Game.IS_DRAGSCROLL = true;
         });
 
-        Game.appSizeSetup();
+        Game.WRAPPER.masterContainer.on("touchmove", (e) => {
+            if (!Game.IS_DRAGSCROLL) return;
+
+            const delta = e.global.y - Game.START_DRAG_Y;
+            window.scrollBy(0, -delta / devicePixelRatio);
+            Game.START_DRAG_Y = e.global.y;
+        });
+
+        Game.WRAPPER.masterContainer.on("touchend", (e) => {
+            Game.START_DRAG_Y = 0;
+            Game.IS_DRAGSCROLL = false;
+        });
+
+        const hidePopup = (e) => {
+            const { x, y } = Game.WRAPPER.masterContainer.toLocal(e.global);
+
+            const left = Timestamp.MASTER_CONTAINER.x;
+            const right = Timestamp.MASTER_CONTAINER.x + Timestamp.MASTER_CONTAINER.w;
+            const top = Timestamp.MASTER_CONTAINER.y;
+            const bottom = Timestamp.MASTER_CONTAINER.y + Timestamp.MASTER_CONTAINER.h;
+
+            if ((x < left || x > right || y < top || y > bottom) && document.querySelector(".seekTo").open) {
+                closePopup();
+            }
+        };
+
+        Game.WRAPPER.masterContainer.on("tap", (e) => {
+            if (Game.SHOW_METADATA && !MetadataPanel.ON_ANIM) toggleMetadataPanel();
+            if (Game.SHOW_TIMING_PANEL && !TimingPanel.ON_ANIM) toggleTimingPanel();
+
+            hidePopup(e);
+        });
+
+        Game.WRAPPER.masterContainer.on("click", (e) => {
+            hidePopup(e);
+        });
+
+        Game.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, Game.APP.renderer.height - 60);
+        Game.gameSizeSetup();
     }
 
-    static init() {
-        Game.appInit();
+    static async init() {
+        await Game.appInit();
+        Game.BACKGROUND = Background.init();
         Game.CONTAINER = Game.containerInit();
         Game.GRID = Game.gridInit();
         Game.DRAG_WINDOW = Game.dragWindowInit();
         Game.FPS = Game.FPSInit();
-        Game.CURSOR = Game.CursorInit();
+        Game.CURSOR = await Game.CursorInit();
+        Game.INFO = new TitleArtist("", "", "", "");
+        Game.STATS = new Stats();
 
-        Game.APP.stage.addChild(Game.GRID);
-        Game.APP.stage.addChild(Game.DRAG_WINDOW);
-        Game.APP.stage.addChild(Game.CONTAINER);
-        Game.APP.stage.addChild(Game.FPS);
-        Game.APP.stage.addChild(Game.CURSOR.obj);
+        Game.MASTER_CONTAINER.container.addChild(Game.GRID);
+        Game.MASTER_CONTAINER.container.addChild(Game.DRAG_WINDOW);
+        Game.MASTER_CONTAINER.container.addChild(Game.CONTAINER);
+        Game.MASTER_CONTAINER.container.addChild(Game.FPS);
+        Game.MASTER_CONTAINER.container.addChild(Game.CURSOR.obj);
+
+        Game.WRAPPER.container.addChild(Background.container);
+
+        Game.APP.stage.addChild(Game.WRAPPER.masterContainer);
+        Game.WRAPPER.container.addChild(Game.MASTER_CONTAINER.masterContainer);
+
+        Game.WRAPPER.container.addChild(Game.INFO.MASTER_CONTAINER.masterContainer);
+        Game.WRAPPER.container.addChild(Game.STATS.container.container);
 
         Timestamp.init();
+        Game.WRAPPER.container.addChild(Timestamp.MASTER_CONTAINER.masterContainer);
+
+        BPM.init();
+        Game.WRAPPER.container.addChild(BPM.MASTER_CONTAINER.masterContainer);
+
+        await PlayContainer.init();
+        Game.WRAPPER.container.addChild(PlayContainer.MASTER_CONTAINER.container);
+
         ProgressBar.init();
-        Timeline.init();
+        Game.WRAPPER.container.addChild(ProgressBar.MASTER_CONTAINER.masterContainer);
+
+        await Timeline.init();
+        Game.APP.stage.addChild(Timeline.MASTER_CONTAINER.masterContainer);
+
         TimingPanel.init();
+        Game.APP.stage.addChild(TimingPanel.MASTER_CONTAINER.masterContainer);
+
+        MetadataPanel.init();
+        Game.APP.stage.addChild(MetadataPanel.MASTER_CONTAINER.masterContainer);
 
         // Add Game Canvas to DOM
-        document.querySelector("#playerContainer").appendChild(Game.APP.view);
-        // globalThis.__PIXI_APP__ = Game.APP;
+        document.querySelector(".contentWrapper").prepend(Game.APP.canvas);
+        globalThis.__PIXI_APP__ = Game.APP;
 
         HitSample.masterGainNode = Game.AUDIO_CTX.createGain();
         HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;
@@ -400,6 +599,17 @@ export class Game {
         Game.APP.ticker.add(() => {
             TWEEN.update();
             ObjectsController.render();
+            Game.DEVE_RATIO = devicePixelRatio;
         });
+
+        // const update = () => {
+        //         TWEEN.update();
+        //         ObjectsController.render();
+        //         Game.DEVE_RATIO = devicePixelRatio;
+
+        //         requestAnimationFrame(() => update())
+        // };
+
+        // requestAnimationFrame(() => update());
     }
 }

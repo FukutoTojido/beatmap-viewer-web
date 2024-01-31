@@ -8,6 +8,7 @@ import { HitCircle } from "./HitObjects/HitCircle.js";
 import { Slider } from "./HitObjects/Slider.js";
 import { Beatmap } from "./Beatmap.js";
 import { calculateCurrentSR } from "./Settings.js";
+import { Fixed } from "./Utils.js";
 import axios from "axios";
 
 export class ScoreParser {
@@ -458,7 +459,7 @@ export class ScoreParser {
             ScoreParser.REPLAY_DATA = replayData;
             ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
 
-            this.getPlayer();
+            // this.getPlayer();
 
             // Get Cursor Data
             let timestamp = 0;
@@ -512,32 +513,32 @@ export class ScoreParser {
             document.querySelector("#DT").checked = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
             document.querySelector("#HT").checked = ScoreParser.MODS.includes("HalfTime");
 
-            [
-                "NoFail",
-                "Easy",
-                "Hidden",
-                "HardRock",
-                "SuddenDeath",
-                "DoubleTime",
-                "HalfTime",
-                "Nightcore",
-                "Flashlight",
-                "SpunOut",
-                "Perfect",
-                "ScoreV2",
-            ].forEach((mod) => {
-                if (!ScoreParser.MODS.includes(mod)) return;
+            // [
+            //     "NoFail",
+            //     "Easy",
+            //     "Hidden",
+            //     "HardRock",
+            //     "SuddenDeath",
+            //     "DoubleTime",
+            //     "HalfTime",
+            //     "Nightcore",
+            //     "Flashlight",
+            //     "SpunOut",
+            //     "Perfect",
+            //     "ScoreV2",
+            // ].forEach((mod) => {
+            //     if (!ScoreParser.MODS.includes(mod)) return;
 
-                const div = document.createElement("div");
-                div.classList.add("modWrapper");
+            //     const div = document.createElement("div");
+            //     div.classList.add("modWrapper");
 
-                const img = document.createElement("img");
-                img.classList.add("mod");
-                img.src = `/static/mods/${mod}.png`;
+            //     const img = document.createElement("img");
+            //     img.classList.add("mod");
+            //     img.src = `/static/mods/${mod}.png`;
 
-                div.appendChild(img);
-                document.querySelector(".modsList").appendChild(div);
-            });
+            //     div.appendChild(img);
+            //     document.querySelector(".modsList").appendChild(div);
+            // });
 
             const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
             const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
@@ -577,6 +578,7 @@ export class ScoreParser {
 
             calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             // console.log(ScoreParser.REPLAY_DATA, ScoreParser.CURSOR_DATA, ScoreParser.MODS);
+            console.log(ScoreParser.calculateScore());
         } catch (error) {
             ScoreParser.reset();
 
@@ -600,11 +602,11 @@ export class ScoreParser {
 
         Game.CURSOR.obj.alpha = 0;
 
-        document.querySelector(".thePlayer").style.display = "";
-        document.querySelector(".thePlayer").style.backgroundImage = "";
-        document.querySelector(".playerName").textContent = "";
-        document.querySelector(".playerAva").src = "";
-        document.querySelector(".modsList").innerHTML = "";
+        // document.querySelector(".thePlayer").style.display = "";
+        // document.querySelector(".thePlayer").style.backgroundImage = "";
+        // document.querySelector(".playerName").textContent = "";
+        // document.querySelector(".playerAva").src = "";
+        // document.querySelector(".modsList").innerHTML = "";
     }
 
     constructor(blob) {
@@ -619,10 +621,10 @@ export class ScoreParser {
 
         Game.CURSOR.obj.alpha = 1;
 
-        document.querySelector(".thePlayer").style.display = "";
-        document.querySelector(".thePlayer").style.backgroundImage = "";
-        document.querySelector(".playerName").textContent = "";
-        document.querySelector(".playerAva").src = "";
-        document.querySelector(".modsList").innerHTML = "";
+        // document.querySelector(".thePlayer").style.display = "";
+        // document.querySelector(".thePlayer").style.backgroundImage = "";
+        // document.querySelector(".playerName").textContent = "";
+        // document.querySelector(".playerAva").src = "";
+        // document.querySelector(".modsList").innerHTML = "";
     }
 }

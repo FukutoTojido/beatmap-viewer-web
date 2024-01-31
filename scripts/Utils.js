@@ -9,6 +9,9 @@ import { HitSample } from "./Audio.js";
 import { Database } from "./Database.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import axios from "axios";
+import { PlayContainer } from "./PlayButtons.js";
+import { BPM } from "./BPM.js";
+import { MetadataPanel } from "./SidePanel.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
@@ -53,7 +56,6 @@ export function selectSkin() {
 export async function refreshSkinDB() {
     const res = await Database.readObjStore("skins");
     const allKeys = await Database.getAllKeys();
-
     [...document.querySelectorAll('[data-skin-id="custom"]')].forEach((ele) => ele.remove());
 
     const skinDropdown = document.querySelector("#skinDropdown");
@@ -81,19 +83,25 @@ export async function refreshSkinDB() {
         div.appendChild(delButton);
         skinDropdown.appendChild(div);
 
-        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"].forEach(
-            (element) => {
-                if (!base64s[element]) return;
+        for (const element of [
+            "HIT_CIRCLE",
+            "HIT_CIRCLE_OVERLAY",
+            "SLIDER_B",
+            "REVERSE_ARROW",
+            "DEFAULTS",
+            "SLIDER_FOLLOW_CIRCLE",
+            "APPROACH_CIRCLE",
+        ]) {
+            if (!base64s[element]) continue;
 
-                if (element === "DEFAULTS") {
-                    Texture.updateNumberTextures(base64s[element], skinId);
-                    return;
-                }
-
-                const { base64, isHD } = base64s[element];
-                Texture.updateTextureFor(element, base64, isHD, skinId);
+            if (element === "DEFAULTS") {
+                await Texture.updateNumberTextures(base64s[element], skinId);
+                continue;
             }
-        );
+
+            const { base64, isHD } = base64s[element];
+            await Texture.updateTextureFor(element, base64, isHD, skinId);
+        }
 
         await Skinning.loadHitsounds(samples, skinId);
     }
@@ -130,11 +138,12 @@ export async function loadLocalStorage() {
 
         document.querySelector("#dim").value = currentLocalStorage.background.dim;
         document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
-        document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
+        // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
+        Game.MASTER_CONTAINER.alpha = currentLocalStorage.background.dim;
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;
         document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
-        document.querySelector("#overlay").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
+        // document.querySelector(".mapBG").style.backdropFilter = `blur(${currentLocalStorage.background.blur}px)`;
 
         document.querySelector("#master").value = currentLocalStorage.volume.master;
         document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;
@@ -151,6 +160,8 @@ export async function loadLocalStorage() {
         document.querySelector("#softoffsetVal").innerHTML = `${parseInt(currentLocalStorage.mapping.offset)}ms`;
         // hsVol = currentLocalStorage.volume.hs;
 
+        document.querySelector("#showGreenLine").checked = currentLocalStorage.mapping.showGreenLine;
+
         Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
             if (["snaking", "hitAnim", "ignoreSkin"].includes(k)) {
                 document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
@@ -163,8 +174,8 @@ export async function loadLocalStorage() {
         Timeline.SHOW_GREENLINE = currentLocalStorage.mapping.showGreenLine;
         Timeline.ZOOM_DISTANCE = currentLocalStorage.timeline.zoomRate;
 
-        if (Timeline.SHOW_GREENLINE) document.querySelector(".timeline").style.height = "";
-        else document.querySelector(".timelineContainer").style.height = "60px";
+        // if (Timeline.SHOW_GREENLINE) document.querySelector(".timeline").style.height = "";
+        // else document.querySelector(".timelineContainer").style.height = "60px";
     }
 }
 
@@ -240,23 +251,42 @@ export const loadColorPalette = (bg) => {
         // console.log(primary, primaryHex);
         const primaryPalette = [
             primaryHex.darker(2.0).formatHex(),
-            primaryHex.darker(1.5).formatHex(),
             primaryHex.darker(1.0).formatHex(),
-            primaryHex.darker(0.5).formatHex(),
             primaryHex.formatHex(),
+            primaryHex.brighter(1.0).formatHex(),
+            primaryHex.brighter(2.0).formatHex(),
         ];
 
         primaryPalette.forEach((val, idx) => {
             rootCSS.style.setProperty(`--primary-${idx + 1}`, val);
+            Game.COLOR_PALETTES[`primary${idx + 1}`] = val;
         });
 
-        Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+        // Timestamp.renderer.background.color = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+        Game.STATS.container.color = Game.COLOR_PALETTES.primary2;
+        Game.INFO.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        Timestamp.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary4;
+        BPM.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        PlayContainer.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.playButton.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.prevButton.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.nextButton.color = Game.COLOR_PALETTES.primary2;
+        PlayContainer.infoButton.color = Game.COLOR_PALETTES.primary2;
+        ProgressBar.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
+        MetadataPanel.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        MetadataPanel.container.color = Game.COLOR_PALETTES.primary1;
+
+        Timeline.ZOOMER.draw();
     }
 
-    const accent = swatches.LightVibrant?.getRgb() ?? swatches.LightMuted?.getRgb() ?? swatches.Vibrant?.getRgb() ?? swatches.Muted?.getRgb() ?? [255, 255, 255];
+    const accent = swatches.LightVibrant?.getRgb() ??
+        swatches.LightMuted?.getRgb() ??
+        swatches.Vibrant?.getRgb() ??
+        swatches.Muted?.getRgb() ?? [255, 255, 255];
     if (accent) {
         const accentHex = d3.color(`rgb(${parseInt(accent[0])}, ${parseInt(accent[1])}, ${parseInt(accent[2])})`);
         rootCSS.style.setProperty("--accent-1", accentHex.formatHex());
+        Game.COLOR_PALETTES.accent1 = accentHex.formatHex();
     }
 
     ProgressBar.restyle();
@@ -275,7 +305,7 @@ export async function loadDefaultSamples() {
 
                 const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
                 // console.log(arrBuf);
-                const buffer = await (Game.AUDIO_CTX.decodeAudioData(arrBuf));
+                const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
                 HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
                 HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
             }
@@ -312,16 +342,15 @@ export function toDataUrl(url, callback) {
 
 export function imageToBase64(url) {
     return new Promise(async (resolve, reject) => {
-        const data = await fetch(url)
+        const data = await fetch(url);
         const blob = await data.blob();
         const reader = new FileReader();
         reader.readAsDataURL(blob);
         reader.onload = () => {
             const base64data = reader.result;
-            resolve(base64data)
-        }
-    })
-
+            resolve(base64data);
+        };
+    });
 }
 
 export function changeZoomRate(zoomStep, the) {
@@ -333,13 +362,13 @@ export function changeZoomRate(zoomStep, the) {
 
     the.blur();
 }
-document.querySelector(".zoom .plus").onclick = () => {
-    changeZoomRate(1, document.querySelector(".zoom .plus"));
-};
+// document.querySelector(".zoom .plus").onclick = () => {
+//     changeZoomRate(1, document.querySelector(".zoom .plus"));
+// };
 
-document.querySelector(".zoom .minus").onclick = () => {
-    changeZoomRate(-1, document.querySelector(".zoom .minus"));
-};
+// document.querySelector(".zoom .minus").onclick = () => {
+//     changeZoomRate(-1, document.querySelector(".zoom .minus"));
+// };
 
 export function debounce(func, timeout = 100) {
     let timer;

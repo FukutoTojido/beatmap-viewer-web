@@ -259,26 +259,28 @@ export class Spinner {
 
         const approachCircleContainer = new PIXI.Container();
         const approachCircle = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 2,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .drawCircle(0, 0, 192);
+            .circle(0, 0, 192)
+            .stroke();
 
         approachCircleContainer.addChild(approachCircle);
 
         const spinner = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 2,
                 color: 0xffffff,
                 alpha: 1,
                 cap: "round",
                 alignment: 0,
             })
-            .drawCircle(0, 0, 5);
+            .circle(0, 0, 5)
+            .stroke();
 
         container.addChild(approachCircleContainer);
         container.addChild(spinner);

@@ -4,6 +4,7 @@ import { Clamp, binarySearchNearest } from "./Utils";
 import * as PIXI from "pixi.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Game } from "./Game";
+import { Component } from "./WindowManager";
 
 class TimingPoint {
     obj;
@@ -20,27 +21,30 @@ class TimingPoint {
 
     static FONT_SIZE = 13;
 
+    static EMIT_CHANGE = false;
+
     constructor(timingPoint, idx) {
         this.timingPoint = timingPoint;
         this.idx = idx;
-        this.obj = new PIXI.Graphics();
+        this.graphics = new PIXI.Graphics();
+        this.obj = new PIXI.Container();
         this.obj.y = 40 * devicePixelRatio * this.idx;
         this.obj.cullable = true;
         this.obj.eventMode = "none";
 
         this.marker = new PIXI.Graphics()
-            .beginFill(0x1b1b1b)
-            .drawRoundedRect(
+            .roundRect(
                 90 * devicePixelRatio,
                 5 * devicePixelRatio,
                 TimingPanel.WIDTH - 105 * devicePixelRatio,
                 30 * devicePixelRatio,
                 5 * devicePixelRatio
-            );
+            )
+            .fill(0x1b1b1b);
 
         this.indicator = new PIXI.Graphics()
-            .beginFill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560)
-            .drawRoundedRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio);
+            .roundRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio)
+            .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
 
         let currentTime = timingPoint.time;
         const isNeg = currentTime < 0;
@@ -54,55 +58,64 @@ class TimingPoint {
             .toFixed(0)
             .padStart(3, "0")}`;
 
-        this.timestamp = new PIXI.Text(timestamp, {
-            fontFamily: "Torus",
-            fontWeight: 400,
-            fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
-            fill: 0xffffff,
+        this.timestamp = new PIXI.Text({
+            text: timestamp,
+            style: {
+                fontFamily: "Torus",
+                fontWeight: 400,
+                fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
+                fill: 0xffffff,
+            },
         });
 
         this.timestamp.x = 10 * devicePixelRatio;
         this.timestamp.y = 20 * devicePixelRatio;
         this.timestamp.anchor.set(0, 0.5);
 
-        this.value = new PIXI.Text(
-            `${(timingPoint.beatstep ? 60000 / timingPoint.beatstep : timingPoint.svMultiplier).toFixed(2)}${timingPoint.beatstep ? " BPM" : "x"}`,
-            {
+        this.value = new PIXI.Text({
+            text: `${(timingPoint.beatstep ? 60000 / timingPoint.beatstep : timingPoint.svMultiplier).toFixed(2)}${
+                timingPoint.beatstep ? " BPM" : "x"
+            }`,
+            style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
                 fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
                 fill: 0xffffff,
-            }
-        );
+            },
+        });
 
         this.value.x = 120 * devicePixelRatio;
         this.value.y = 20 * devicePixelRatio;
         this.value.anchor.set(0, 0.5);
 
+        this.obj.addChild(this.graphics);
         this.obj.addChild(this.marker);
         this.obj.addChild(this.indicator);
         this.obj.addChild(this.timestamp);
         this.obj.addChild(this.value);
         // TimingPanel.stage.addChild(this.obj);
 
-        this.sample = new PIXI.Text(
-            `${HitSound.HIT_SAMPLES[timingPoint.sampleSet][0].toUpperCase()}${timingPoint.sampleIdx !== 0 ? ":C" + timingPoint.sampleIdx : ""}`,
-            {
+        this.sample = new PIXI.Text({
+            text: `${HitSound.HIT_SAMPLES[timingPoint.sampleSet][0].toUpperCase()}${timingPoint.sampleIdx !== 0 ? ":C" + timingPoint.sampleIdx : ""}`,
+            style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
                 fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
                 fill: 0xffffff,
-            }
-        );
+            },
+        });
         this.sample.x = 210 * devicePixelRatio;
         this.sample.y = 20 * devicePixelRatio;
         this.sample.anchor.set(0, 0.5);
 
-        this.volume = new PIXI.Text(`${timingPoint.sampleVol}%`, {
-            fontFamily: "Torus",
-            fontWeight: 500,
-            fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
-            fill: 0xffffff,
+        this.volume = new PIXI.Text({
+            text: `${timingPoint.sampleVol}%`,
+            style: {
+                fontFamily: "Torus",
+                fontWeight: 500,
+                fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
+                fill: 0xffffff,
+            },
         });
         this.volume.x = 270 * devicePixelRatio;
         this.volume.y = 20 * devicePixelRatio;
@@ -113,21 +126,20 @@ class TimingPoint {
     }
 
     changeColor() {
-        const rootCSS = document.querySelector(":root");
-        const bg = parseInt(rootCSS.style.getPropertyValue("--primary-4").slice(1), 16);
-        const bgDark = parseInt(rootCSS.style.getPropertyValue("--primary-1").slice(1), 16);
-        const accent = parseInt(rootCSS.style.getPropertyValue("--accent-1").slice(1), 16);
+        const bg = Game.COLOR_PALETTES.primary4;
+        const bgDark = Game.COLOR_PALETTES.primary1;
+        const accent = Game.COLOR_PALETTES.accent1;
 
         this.marker
             .clear()
-            .beginFill(this.timingPoint.isKiai ? accent : bg)
-            .drawRoundedRect(
+            .roundRect(
                 90 * devicePixelRatio,
                 5 * devicePixelRatio,
                 TimingPanel.WIDTH - 105 * devicePixelRatio,
                 30 * devicePixelRatio,
                 5 * devicePixelRatio
-            );
+            )
+            .fill(this.timingPoint.isKiai ? accent : bg);
 
         this.value.style.fill = this.timingPoint.isKiai ? bgDark : 0xffffff;
         this.sample.style.fill = this.timingPoint.isKiai ? bgDark : 0xffffff;
@@ -137,43 +149,41 @@ class TimingPoint {
     resize() {
         this.changeColor();
 
-        this.indicator
-            .clear()
-            .beginFill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560)
-            .drawRoundedRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio);
+        if (Game.DEVE_RATIO !== devicePixelRatio) {
+            this.indicator
+                .clear()
+                .roundRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio)
+                .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
 
-        this.timestamp.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.timestamp.x = 10 * devicePixelRatio;
-        this.timestamp.y = 20 * devicePixelRatio;
+            this.timestamp.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.timestamp.x = 10 * devicePixelRatio;
+            this.timestamp.y = 20 * devicePixelRatio;
 
-        this.value.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.value.x = 120 * devicePixelRatio;
-        this.value.y = 20 * devicePixelRatio;
+            this.value.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.value.x = 120 * devicePixelRatio;
+            this.value.y = 20 * devicePixelRatio;
 
-        this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
+            this.sample.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.sample.x = 210 * devicePixelRatio;
+            this.sample.y = 20 * devicePixelRatio;
 
-        this.sample.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.sample.x = 210 * devicePixelRatio;
-        this.sample.y = 20 * devicePixelRatio;
+            this.volume.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.volume.x = 270 * devicePixelRatio;
+            this.volume.y = 20 * devicePixelRatio;
 
-        this.volume.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.volume.x = 270 * devicePixelRatio;
-        this.volume.y = 20 * devicePixelRatio;
+            this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
+        }
     }
 
     update() {
         this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
 
-        this.obj.clear();
+        this.graphics.clear();
 
         if (this.idx === TimingPanel.CURRENT_SV_IDX) {
-            const rootCSS = document.querySelector(":root");
-            const bg = parseInt(rootCSS.style.getPropertyValue("--primary-5").slice(1), 16);
+            const bg = Game.COLOR_PALETTES.primary5;
 
-            this.obj
-                .beginFill(bg)
-                .drawRoundedRect(0, 0, TimingPanel.WIDTH - 10 * devicePixelRatio, 40 * devicePixelRatio, 5 * devicePixelRatio)
-                .endFill();
+            this.graphics.roundRect(0, 0, TimingPanel.WIDTH - 10 * devicePixelRatio, 40 * devicePixelRatio, 5 * devicePixelRatio).fill(bg);
         }
     }
 }
@@ -206,24 +216,23 @@ export class TimingPanel {
 
     static CURRENT_SV_IDX = 0;
 
+    static MASTER_CONTAINER;
+    static SIZE_Y = 0;
+    static ON_ANIM = false;
+
     static init() {
-        const { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
+        this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        this.MASTER_CONTAINER.padding = 15;
+        this.MASTER_CONTAINER.alpha = 1;
+        this.MASTER_CONTAINER.borderRadius = 10;
 
-        this.WIDTH = parseInt(width) * window.devicePixelRatio;
-        this.HEIGHT = parseInt(height) * window.devicePixelRatio;
+        this.WIDTH = this.MASTER_CONTAINER.w;
+        this.HEIGHT = this.MASTER_CONTAINER.h;
 
-        this.renderer = new PIXI.Renderer({
-            width: this.WIDTH,
-            height: this.HEIGHT,
-            backgroundColor: 0xffffff,
-            backgroundAlpha: 0,
-            antialias: true,
-            autoDensity: true,
-        });
-        document.querySelector(".timingPanel").append(this.renderer.view);
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        this._size_x = 0;
 
-        this.stage = new PIXI.Container();
+        this.stage = this.MASTER_CONTAINER.container;
         this.stage.hitArea = new PIXI.Rectangle(0, 0, this.WIDTH, this.HEIGHT);
 
         this.stage.on("wheel", (e) => {
@@ -235,6 +244,7 @@ export class TimingPanel {
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
                     this.SCROLLED = object.scrolled;
+                    this.EMIT_CHANGE = true;
                 })
                 .start();
 
@@ -258,8 +268,11 @@ export class TimingPanel {
 
         this.stage.addChild(this.scrollbar);
 
-        globalThis.__PIXI_RENDERER__ = this.renderer;
-        globalThis.__PIXI_STAGE__ = this.stage;
+        this.forceResize();
+        this.forceUpdate();
+
+        // globalThis.__PIXI_RENDERER__ = this.renderer;
+        // globalThis.__PIXI_STAGE__ = this.stage;
     }
 
     static scrollTo(timestamp) {
@@ -280,6 +293,8 @@ export class TimingPanel {
         if (40 * devicePixelRatio * foundIndex - this.SCROLLED > this.HEIGHT - 40 * devicePixelRatio)
             rate = 40 * devicePixelRatio * foundIndex - (this.HEIGHT - 40 * devicePixelRatio);
 
+        this.forceUpdate();
+
         if (rate === this.SCROLLED) return;
 
         const tween = new TWEEN.Tween({ rate: this.SCROLLED }, false)
@@ -287,6 +302,7 @@ export class TimingPanel {
             .easing(TWEEN.Easing.Quintic.Out)
             .onUpdate((object) => {
                 this.SCROLLED = object.rate;
+                this.EMIT_CHANGE = true;
             })
             .start();
 
@@ -308,20 +324,32 @@ export class TimingPanel {
         const deltaY = e.global.y - this.START_Y_TOUCH;
 
         this.START_Y_TOUCH = e.global.y;
-        this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, this.MAX_HEIGHT - this.HEIGHT);
 
-        this.TOUCH_VELOCITY = deltaY / (performance.now() - this.TOUCH_LAST_TIMESTAMP);
+        if (this.SCROLLED - deltaY > this.MAX_HEIGHT - this.HEIGHT || this.SCROLLED - deltaY < 0) {
+            window.scrollBy(0, -deltaY / devicePixelRatio);
+        }
+
+        this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, this.MAX_HEIGHT - this.HEIGHT);
+        this.EMIT_CHANGE = true;
+
+        const deltaT = performance.now() - this.TOUCH_LAST_TIMESTAMP;
+
+        if (deltaT !== 0) this.TOUCH_VELOCITY = deltaY / deltaT;
+
         this.TOUCH_LAST_TIMESTAMP = performance.now();
     }
 
     static handleTouchUp(e) {
         this.IS_TOUCHING = false;
 
-        const predicted = this.TOUCH_VELOCITY * 200;
+        const predicted = this.TOUCH_VELOCITY * 300;
         this.TOUCH_TWEEN = new TWEEN.Tween({ predicted: this.SCROLLED }, false)
-            .to({ predicted: Clamp(this.SCROLLED - predicted, 0, this.MAX_HEIGHT - this.HEIGHT) }, 200)
+            .to({ predicted: Clamp(this.SCROLLED - predicted, 0, this.MAX_HEIGHT - this.HEIGHT) }, 300)
             .easing(TWEEN.Easing.Quadratic.Out)
-            .onUpdate((object) => (this.SCROLLED = object.predicted))
+            .onUpdate((object) => {
+                this.SCROLLED = object.predicted;
+                this.EMIT_CHANGE = true;
+            })
             .start();
 
         this.TOUCH_TWEEN.onComplete = () => {
@@ -356,6 +384,7 @@ export class TimingPanel {
         this.START_Y = Clamp(e.global.y, this.DELTA_Y_LOCAL, this.HEIGHT + this.DELTA_Y_LOCAL - scrollBarHeight);
 
         this.SCROLLED = Clamp(this.SCROLLED + deltaY, 0, this.MAX_HEIGHT - this.HEIGHT);
+        this.EMIT_CHANGE = true;
     }
 
     static handleMouseUp(e) {
@@ -368,44 +397,86 @@ export class TimingPanel {
         this.MAX_HEIGHT = 40 * devicePixelRatio * Beatmap.timingPointsList.length;
         this.scrollbar
             .clear()
-            .beginFill(0xaaaaaa, this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1)
-            .drawRoundedRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT));
+            .roundRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
+            .fill({ color: 0xaaaaaa, alpha: this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1 });
         this.POINTS = [];
         this.SCROLLED = 0;
         Beatmap.timingPointsList.forEach((point, idx) => {
-            this.POINTS.push(new TimingPoint(point, idx));
+            const p = new TimingPoint(point, idx)
+            this.POINTS.push(p);
         });
     }
 
-    static resize() {
-        let { width, height } = getComputedStyle(document.querySelector(".timingPanel"));
+    static get SIZE_X() {
+        return this._size_x;
+    }
 
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+    static set SIZE_X(val) {
+        this._size_x = val;
+        this.EMIT_CHANGE = true;
+    }
 
-        if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
+    static forceResize() {
+        if (innerWidth / innerHeight < 1) {
+            if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = Game.WRAPPER.h * 0.75;
 
-        if (this.WIDTH === width && this.HEIGHT === height) return;
+            this.MASTER_CONTAINER.x = 0;
+            this.MASTER_CONTAINER.y = Game.APP.renderer.height - Game.WRAPPER.h * 0.75 * (this.SIZE_X / (Game.WRAPPER.h * 0.75));
+            this.MASTER_CONTAINER.w = Game.APP.renderer.width;
+            this.MASTER_CONTAINER.h = this.SIZE_X;
 
-        this.WIDTH = width;
-        this.HEIGHT = height;
-        this.renderer.resize(this.WIDTH, this.HEIGHT);
+            this.scrollTo(Game.BEATMAP_FILE?.audioNode?.getCurrentTime() ?? 0);
+        } else {
+            if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
+
+            this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
+            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+        }
+
+        // }
+
+        if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+        if (
+            this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 &&
+            this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2 &&
+            Game.DEVE_RATIO === devicePixelRatio
+        )
+            return;
+
+        this.EMIT_CHANGE = true;
+
+        this.WIDTH = this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2;
+        this.HEIGHT = this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2;
+        // this.renderer.resize(this.WIDTH, this.HEIGHT);
 
         this.stage.hitArea = new PIXI.Rectangle(0, 0, this.WIDTH, this.HEIGHT);
+
         this.MAX_HEIGHT = 40 * devicePixelRatio * Beatmap.timingPointsList.length;
 
         this.scrollbar
             .clear()
-            .beginFill(0xaaaaaa, this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1)
-            .drawRoundedRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT));
-
-        this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+            .roundRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
+            .fill({ color: 0xaaaaaa, alpha: this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1 });
     }
 
-    static update(time) {
-        this.resize();
+    static resize() {
+        // if (innerWidth / innerHeight < 1) {
+        //     this.MASTER_CONTAINER.x = 0;
+        //     this.MASTER_CONTAINER.y = Game.WRAPPER.h * 0.3;
+        //     this.MASTER_CONTAINER.w = Game.WRAPPER.w;
+        //     this.MASTER_CONTAINER.h = Game.WRAPPER.h * 0.7;
+        // } else {
+        if (Game.EMIT_STACK.length === 0) return;
+        this.forceResize();
+        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+    }
 
+    static forceUpdate() {
+        if (!Game.SHOW_TIMING_PANEL) return;
         this.stage.removeChildren();
+        this.stage.addChild(this.MASTER_CONTAINER.mask);
 
         let idx = Math.floor(this.SCROLLED / (40 * devicePixelRatio));
         while (idx < this.POINTS.length && 40 * devicePixelRatio * idx - this.SCROLLED < this.HEIGHT) {
@@ -422,9 +493,15 @@ export class TimingPanel {
         }
 
         this.stage.addChild(this.scrollbar);
+
         this.scrollbar.x = this.WIDTH - 5 * devicePixelRatio;
         this.scrollbar.y = (this.HEIGHT - this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT)) * (this.SCROLLED / (this.MAX_HEIGHT - this.HEIGHT));
+    }
 
-        this.renderer.render(this.stage);
+    static update(time) {
+        this.resize();
+        if (!this.EMIT_CHANGE) return;
+        this.forceUpdate();
+        this.EMIT_CHANGE = false;
     }
 }

@@ -8,7 +8,6 @@ import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { HitCircle } from "./HitObjects/HitCircle.js";
 import { Slider } from "./HitObjects/Slider.js";
 import { Spinner } from "./HitObjects/Spinner.js";
-import { newTexture } from "./HitObjects/SliderMesh.js";
 import { TimelineHitCircle } from "./Timeline/HitCircle.js";
 import { TimelineSlider } from "./Timeline/Slider.js";
 import { Skinning } from "./Skinning.js";
@@ -16,11 +15,13 @@ import { HitSample } from "./Audio.js";
 import { HitSound } from "./HitSound.js";
 import { Texture } from "./Texture.js";
 import { TimingPanel } from "./TimingPanel.js";
+import { MetadataPanel } from "./SidePanel.js";
 
 export class Beatmap {
     objectsController;
     static SAMPLE_SET = "Normal";
     static COLORS;
+    static HREF = null;
 
     static difficultyMultiplier = 1;
     static stats = {
@@ -65,6 +66,7 @@ export class Beatmap {
 
     static beatStepsList = [];
     static timingPointsList = [];
+    static kiaiList = [];
     static mergedPoints = [];
 
     static stackThreshold;
@@ -338,13 +340,21 @@ export class Beatmap {
         const source = getValue("Source");
         const tags = getValue("Tags");
 
-        document.querySelector(".meta-artist").textContent = artistUnicode;
-        document.querySelector(".meta-r-artist").textContent = artist;
-        document.querySelector(".meta-title").textContent = titleUnicode;
-        document.querySelector(".meta-r-title").textContent = title;
-        document.querySelector(".meta-diff").textContent = diff;
-        document.querySelector(".meta-source").textContent = source;
-        document.querySelector(".meta-tags").textContent = tags;
+        // document.querySelector(".meta-artist").textContent = artistUnicode;
+        // document.querySelector(".meta-r-artist").textContent = artist;
+        // document.querySelector(".meta-title").textContent = titleUnicode;
+        // document.querySelector(".meta-r-title").textContent = title;
+        // document.querySelector(".meta-diff").textContent = diff;
+        // document.querySelector(".meta-source").textContent = source;
+        // document.querySelector(".meta-tags").textContent = tags;
+
+        MetadataPanel.artist = artistUnicode;
+        MetadataPanel.romanized_artist = artist;
+        MetadataPanel.title = titleUnicode;
+        MetadataPanel.romanized_title = title;
+        MetadataPanel.difficulty_name = diff;
+        MetadataPanel.source = source;
+        MetadataPanel.tag = tags;
     }
 
     constructor(rawBeatmap, delay) {
@@ -536,8 +546,6 @@ export class Beatmap {
         Beatmap.COLORS = Skinning.DEFAULT_COLORS;
         Beatmap.COLORS = coloursList;
         // console.log(coloursList);
-
-        Texture.SLIDER_TEXTURE = newTexture();
 
         const breakPeriods = rawBeatmap
             .split("\r\n")

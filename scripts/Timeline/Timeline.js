@@ -2,7 +2,10 @@ import { TimelineDragWindow } from "./DragWindow.js";
 import { BeatLines } from "./BeatLines.js";
 import { binarySearch } from "../Utils.js";
 import { Game } from "../Game.js";
+import { Component } from "../WindowManager.js";
 import * as PIXI from "pixi.js";
+import { TimelineZoomer } from "./Zoomer.js";
+import { TimelineHitCircle } from "./HitCircle.js";
 
 export class Timeline {
     static obj;
@@ -16,28 +19,38 @@ export class Timeline {
     static LOOK_AHEAD = 300;
     static DRAW_LIST = [];
     static SHOW_GREENLINE = false;
+    static MASTER_CONTAINER;
+    static BASE_CONTAINER;
+    static ZOOMER;
 
-    static init() {
-        Timeline.WIDTH = parseInt(getComputedStyle(document.querySelector(".timeline")).width) * window.devicePixelRatio;
-        Timeline.HEIGHT = parseInt(getComputedStyle(document.querySelector(".timeline")).height) * window.devicePixelRatio;
+    static async init() {
+        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 * devicePixelRatio);
+        Timeline.MASTER_CONTAINER.color = 0x000000;
+        Timeline.MASTER_CONTAINER.alpha = 0.5;
+        Timeline.MASTER_CONTAINER.borderRadius = 10;
 
-        Timeline.APP = new PIXI.Application({
-            width: Timeline.WIDTH,
-            height: Timeline.HEIGHT,
-            antialias: true,
-            autoDensity: true,
-            backgroundAlpha: 0,
-        });
-        // Timeline.APP.renderer = Game.APP.renderer;
+        Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;
+        Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
+
+        Timeline.BASE_CONTAINER = new PIXI.Container();
+        Timeline.BASE_CONTAINER.x = 40;
+
+        Timeline.MASTER_CONTAINER.container.addChild(Timeline.BASE_CONTAINER);
 
         Timeline.hitArea = new TimelineDragWindow();
-        Timeline.APP.stage.addChild(Timeline.hitArea.obj);
+        Timeline.BASE_CONTAINER.addChild(Timeline.hitArea.obj);
+        // Timeline.APP.stage.addChild(Timeline.hitArea.obj);
 
         Timeline.obj = new PIXI.Container();
-        Timeline.APP.stage.addChild(Timeline.obj);
+        Timeline.BASE_CONTAINER.addChild(Timeline.obj);
+        // Timeline.APP.stage.addChild(Timeline.obj);
+
+        Timeline.ZOOMER = new TimelineZoomer();
+        await Timeline.ZOOMER.init();
+        Timeline.MASTER_CONTAINER.container.addChild(Timeline.ZOOMER.container);
 
         Timeline.centerLine = new PIXI.Graphics()
-            .lineStyle({
+            .setStrokeStyle({
                 width: 1,
                 color: 0xffffff,
                 alignment: 1,
@@ -45,30 +58,30 @@ export class Timeline {
             .moveTo(-1, 0)
             .lineTo(-1, 1)
             .moveTo(+1, 0)
-            .lineTo(+1, 1);
-        Timeline.APP.stage.addChild(Timeline.centerLine);
+            .lineTo(+1, 1)
+            .stroke();
+        Timeline.BASE_CONTAINER.addChild(Timeline.centerLine);
 
         Timeline.beatLines = new BeatLines();
-        Timeline.APP.stage.addChild(Timeline.beatLines.obj);
-
-        Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
-
-        document.querySelector(".timeline").appendChild(Timeline.APP.view);
-        // globalThis.__PIXI_APP__ = Timeline.APP;
+        Timeline.BASE_CONTAINER.addChild(Timeline.beatLines.obj);
     }
 
     static resize() {
-        let { width, height } = getComputedStyle(document.querySelector(".timeline"));
-        width = parseInt(width) * window.devicePixelRatio;
-        height = parseInt(height) * window.devicePixelRatio;
+        if (Game.EMIT_STACK.length === 0) return;
+        if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
+        Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+        Timeline.ZOOMER.draw();
 
-        if (Timeline.WIDTH === width && Timeline.HEIGHT === height) return;
+        if (innerWidth / innerHeight < 1) {
+            Timeline.MASTER_CONTAINER.borderRadius = 0;
+        } else {
+            Timeline.MASTER_CONTAINER.borderRadius = 10;
+        }
 
-        Timeline.WIDTH = width;
-        Timeline.HEIGHT = height;
+        if (Timeline.WIDTH === Timeline.MASTER_CONTAINER.w && Timeline.HEIGHT === Timeline.MASTER_CONTAINER.h) return;
 
-        Timeline.APP.renderer.resize(Timeline.WIDTH, Timeline.HEIGHT);
-        Timeline.APP.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;
+        Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
 
         Timeline.hitArea.resize();
     }

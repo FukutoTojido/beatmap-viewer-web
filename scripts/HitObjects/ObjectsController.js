@@ -11,6 +11,10 @@ import { Fixed, Clamp, binarySearch, binarySearchNearest } from "../Utils.js";
 import { ScoreParser } from "../ScoreParser.js";
 import { TimingPanel } from "../TimingPanel.js";
 import { HitSample } from "../Audio.js";
+import { MetadataPanel } from "../SidePanel.js";
+import { PlayContainer } from "../PlayButtons.js";
+import { BPM } from "../BPM.js";
+import * as TWEEN from "@tweenjs/tween.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -63,8 +67,6 @@ export class ObjectsController {
             Game.BEATMAP_FILE.audioNode.pause();
         }
 
-        this.lastTime = performance.now();
-
         if (Game.DID_MOVE && Game.CURRENT_X !== -1 && Game.CURRENT_Y !== -1) {
             Game.DRAGGING_END = Game.BEATMAP_FILE.audioNode.getCurrentTime();
             handleCanvasDrag(false, true);
@@ -74,9 +76,18 @@ export class ObjectsController {
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
         const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "mergedPoints", true);
 
-        ObjectsController.CURRENT_BPM = currentBPM;
+        if (JSON.stringify(ObjectsController.CURRENT_BPM) !== JSON.stringify(currentBPM)) {
+            BPM.BPM_TEXT.text = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+            ObjectsController.CURRENT_BPM = currentBPM;
+        }
+        // if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
+        //     document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
+
+        // if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
+        //     document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         if (JSON.stringify(currentSV) !== JSON.stringify(ObjectsController.CURRENT_SV)) {
+            if (ObjectsController.CURRENT_SV?.svMultiplier !== currentSV?.svMultiplier) BPM.SV_TEXT.text = `${currentSV.svMultiplier.toFixed(2)}x`;
             ObjectsController.CURRENT_SV = currentSV;
             TimingPanel.scrollTo(timestamp);
         }
@@ -90,22 +101,16 @@ export class ObjectsController {
         //     });
         // }
 
-        if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
-            document.querySelector(".timingContainer").classList.remove("kiai");
-        }
+        // if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
+        //     document.querySelector(".timingContainer").classList.remove("kiai");
+        // }
 
-        if (currentSV.isKiai && !document.querySelector(".timingContainer").classList.contains("kiai")) {
-            document.querySelector(".timingContainer").classList.add("kiai");
-            document.querySelector(".timingContainer").style.animationDuration = `${currentBPM.beatstep}ms`;
-            document.querySelector(".timingContainer").style.animationDelay =
-                currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
-        }
-
-        if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
-            document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
-
-        if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
-            document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
+        // if (currentSV.isKiai && !document.querySelector(".timingContainer").classList.contains("kiai")) {
+        //     document.querySelector(".timingContainer").classList.add("kiai");
+        //     document.querySelector(".timingContainer").style.animationDuration = `${currentBPM.beatstep}ms`;
+        //     document.querySelector(".timingContainer").style.animationDelay =
+        //         currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
+        // }
 
         const currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
@@ -172,10 +177,44 @@ export class ObjectsController {
                 .toReversed(),
         ]);
 
-        if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
-            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value * 0.7})`;
-        } else {
-            document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${document.querySelector("#dim").value})`;
+        if (
+            this.breakPeriods.some(
+                (period) =>
+                    period[0] < timestamp &&
+                    period[1] > timestamp &&
+                    (period[1] < ObjectsController.lastTimestamp || period[0] > ObjectsController.lastTimestamp)
+            )
+        ) {
+            const alpha = document.querySelector("#dim").value;
+
+            new TWEEN.Tween({
+                alpha,
+            })
+                .to({ alpha: alpha * 0.7 }, 1000)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .onUpdate((object) => {
+                    Game.MASTER_CONTAINER.alpha = object.alpha;
+                })
+                .start();
+        } else if (
+            this.breakPeriods.some(
+                (period) =>
+                    period[0] < ObjectsController.lastTimestamp  &&
+                    period[1] > ObjectsController.lastTimestamp  &&
+                    (period[1] < timestamp || period[0] > timestamp)
+            )
+        ) {
+            const alpha = document.querySelector("#dim").value;
+
+            new TWEEN.Tween({
+                alpha: alpha * 0.7,
+            })
+                .to({ alpha }, 1000)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .onUpdate((object) => {
+                    Game.MASTER_CONTAINER.alpha = object.alpha;
+                })
+                .start();
         }
 
         judgements.forEach((object) => {
@@ -225,6 +264,8 @@ export class ObjectsController {
         Game.appResize();
         Timeline.resize();
 
+        const deltaMS = performance.now() - this.lastRenderTime;
+        this.lastRenderTime = performance.now();
         Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
 
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
@@ -235,7 +276,12 @@ export class ObjectsController {
         }
 
         Timestamp.update(currentAudioTime ?? 0);
+        BPM.update(currentAudioTime ?? 0);
+        PlayContainer.update(currentAudioTime ?? 0);
         ProgressBar.update(currentAudioTime ?? 0);
         TimingPanel.update(currentAudioTime ?? 0);
+        MetadataPanel.update(currentAudioTime ?? 0);
+
+        Game.EMIT_STACK.pop();
     }
 }

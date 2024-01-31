@@ -90,7 +90,7 @@ export class ReverseArrow {
 
         this.hitCircle.draw(timestamp);
         this.hitCircle.number.obj.alpha = 0;
-        this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type !== "0" ? 0.9 : 0;
+        this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend && Game.SKINNING.type !== "0" ? 0.9 : 0;
 
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
@@ -107,6 +107,8 @@ export class ReverseArrow {
         this.obj.y = (y + this.baseSlider.stackHeight * currentStackOffset) * (Game.WIDTH / 512);
         this.obj.rotation = !Game.MODS.HR ? this.angle : Math.PI * 2 - this.angle;
         this.hitCircle.obj.rotation = !Game.MODS.HR ? -this.angle : -(Math.PI * 2 - this.angle);
+        this.hitCircle.obj.x = 0;
+        this.hitCircle.obj.y = 0;
 
         let pulseRate = this.calculatePulseAtTime(timestamp);
 
@@ -125,7 +127,7 @@ export class ReverseArrow {
         }
 
         if (timestamp > this.baseSlider.time && Game.MODS.HD)
-            this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type !== "0" ? this.baseSlider.opacity * 0.9 : 0;
+            this.hitCircle.obj.alpha = Game.SLIDER_APPEARANCE.sliderend && Game.SKINNING.type !== "0" ? this.baseSlider.opacity * 0.9 : 0;
 
         const fadeInTime = Math.min(300, this.baseSlider.sliderTime);
         if (this.idx !== 0) {

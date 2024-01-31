@@ -93,8 +93,9 @@ export class Slider {
     }
 
     drawSelected() {
-        this.selected.alpha = 1;
-        this.selected.tint = Object.values(d3.rgb(`#3197ff`)).map((val) => val / 255);
+        this.sliderGeometryContainer.selSliderContainer.alpha = 1;
+        this.sliderGeometryContainer.selSliderContainer.tint = Object.values(d3.rgb(`#3197ff`)).map((val) => val / 255);
+        this.sliderGeometryContainer.selSliderContainer.update();
 
         this.hitCircle.drawSelected();
 
@@ -102,15 +103,16 @@ export class Slider {
         const stackHeight = this.stackHeight;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
-        const x = this.sliderEndEvalPosition.x + stackHeight * currentStackOffset;
+        const x = this.angleList.at(-1).x + stackHeight * currentStackOffset;
         const y = !Game.MODS.HR
-            ? this.sliderEndEvalPosition.y + stackHeight * currentStackOffset
-            : 384 - this.sliderEndEvalPosition.y + stackHeight * currentStackOffset;
+            ? this.angleList.at(-1).y + stackHeight * currentStackOffset
+            : 384 - this.angleList.at(-1).y + stackHeight * currentStackOffset;
 
         this.selectedSliderEnd.x = x * Game.SCALE_RATE;
         this.selectedSliderEnd.y = y * Game.SCALE_RATE;
 
         this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
+
     }
 
     playHitsound(timestamp) {
@@ -196,9 +198,8 @@ export class Slider {
         if (Game.SLIDER_APPEARANCE.snaking) {
             if (timestamp < this.hitTime) {
                 this.SliderMesh.startt = 0;
-
                 this.SliderMesh.endt = Clamp(currentOpacity * 2, 0, 1);
-                if (this.hitTime > this.endTime) this.SliderMesh.endt = 1;
+                if (this.hitTime > this.endTime) this.SliderMesh.endT = 1;
             } else if (timestamp >= this.hitTime) {
                 if (this.repeat % 2 === 0) {
                     this.SliderMesh.startt = 0;
@@ -218,11 +219,14 @@ export class Slider {
         // Set slider color
         const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
         const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
-        this.SliderMesh.tintid = 0;
+        // this.SliderMesh.tintid = 0;
         this.SliderMesh.tint = Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255);
+        this.SliderMesh.update();
         // console.log(this.SliderMesh.tint);
 
-        this.nodesLine.clear().lineStyle(1, 0xffffff);
+        // this.SliderMesh.update();
+
+        this.nodesLine.clear().setStrokeStyle({ width: 2, color: 0xffffff });
         this.nodesGraphics.forEach((node, idx) => {
             let { x, y } = this.nodes[idx].position;
             if (Game.MODS.HR) y = 384 - y;
@@ -238,7 +242,7 @@ export class Slider {
                 return;
             }
 
-            this.nodesLine.lineTo(x, y);
+            this.nodesLine.lineTo(x, y).stroke();
         });
 
         if (this.isHover) this.nodesContainer.visible = true;
@@ -750,6 +754,7 @@ export class Slider {
 
         // let start = performance.now();
         this.angleList = this.getAngleList(originalArr);
+        // console.log(this.time, this.angleList);
         // let took = performance.now() - start;
         // if (took > 20) console.log(`Took: ${took} to create ${this.time} AngleList`);
 
@@ -829,15 +834,16 @@ export class Slider {
         // console.log(this.time, this.angleList);
 
         // start = performance.now();
+        // this.sliderGeometryContainer = {};
         this.sliderGeometryContainer = new SliderGeometryContainers(this.angleList, this);
-        this.reInitialize();
+        // this.reInitialize();
         // took = performance.now() - start;
         // if (took > 5) console.log(`Took: ${took}ms to create ${this.time} SliderMesh`);
         this.SliderMesh = this.sliderGeometryContainer.sliderContainer;
-        this.selected = this.sliderGeometryContainer.selSliderContainer;
+        this.selected = this.sliderGeometryContainer.selSliderContainer.container;
 
         this.SliderMeshContainer = new PIXI.Container();
-        this.SliderMeshContainer.addChild(this.SliderMesh);
+        this.SliderMeshContainer.addChild(this.SliderMesh.container);
 
         this.ball = new SliderBall(this);
 
@@ -849,7 +855,14 @@ export class Slider {
         this.revArrows.forEach((arrow) => SliderContainer.addChild(arrow.obj));
 
         this.nodesContainer = new PIXI.Container();
-        this.nodesLine = new PIXI.Graphics().lineStyle(1, 0xffffff).moveTo(this.nodes[0].position.x, this.nodes[0].position.y);
+
+        this.nodesLine = new PIXI.Graphics()
+            .setStrokeStyle({
+                width: 2,
+                color: 0xffffff,
+            })
+            .moveTo(this.nodes[0].position.x, this.nodes[0].position.y);
+        this.nodesContainer.addChild(this.nodesLine);
 
         this.nodesGraphics = this.nodes.map((node) => {
             const fillColor = node.type === "White Anchor" ? 0xffffff : 0xff0000;
@@ -859,21 +872,14 @@ export class Slider {
             this.nodesLine.lineTo(x, y);
 
             const graphic = new PIXI.Graphics()
-                .lineStyle({
-                    width: 1,
-                    color: 0x000000,
-                    alpha: 1,
-                    alignment: 0,
-                })
-                .beginFill(fillColor)
-                .drawRect(-4, -4, 8, 8)
-                .endFill();
+                .circle(0, 0, 5)
+                .fill(fillColor);
             this.nodesContainer.addChild(graphic);
 
             return graphic;
         });
 
-        this.nodesContainer.addChild(this.nodesLine);
+        this.nodesLine.stroke();
 
         this.selectedSliderEnd = new PIXI.Sprite(Texture.SELECTED.texture);
         this.selectedSliderEnd.anchor.set(0.5);

@@ -283,19 +283,17 @@ export class Skinning {
         await Database.addToObjStore(storeValue);
         const skinIdx = (await Database.getAllKeys()).at(-1);
 
-        ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"].forEach(
-            (element) => {
-                if (!base64s[element]) return;
+        for (const element of ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"]) {
+            if (!base64s[element]) return;
 
-                if (element === "DEFAULTS") {
-                    Texture.updateNumberTextures(base64s[element], skinIdx);
-                    return;
-                }
-
-                const { base64, isHD } = base64s[element];
-                Texture.updateTextureFor(element, base64, isHD, skinIdx);
+            if (element === "DEFAULTS") {
+                await Texture.updateNumberTextures(base64s[element], skinIdx);
+                return;
             }
-        );
+
+            const { base64, isHD } = base64s[element];
+            await Texture.updateTextureFor(element, base64, isHD, skinIdx);
+        }
 
         await Skinning.loadHitsounds(samples, skinIdx);
         await refreshSkinDB();

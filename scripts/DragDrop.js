@@ -2,11 +2,11 @@ import { Skinning } from "./Skinning.js";
 import { readZip } from "./InputBar.js";
 import { ScoreParser } from "./ScoreParser.js";
 
-document.querySelector("#playerContainer").addEventListener("dragover", function (e) {
+document.querySelector(".contentWrapper").addEventListener("dragover", function (e) {
     e.preventDefault();
 });
 
-document.querySelector("#playerContainer").addEventListener("drop", function (e) {
+document.querySelector(".contentWrapper").addEventListener("drop", function (e) {
     e.preventDefault();
     if (!e.dataTransfer.files.length) return;
 
