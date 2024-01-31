@@ -881,6 +881,8 @@ button:hover {
     background-color: rgba(0 0 0 / 0.5);
     /* border-radius: 20px; */
     display: none;
+
+    z-index: 1;
 }
 
 .selectorWrapper {
