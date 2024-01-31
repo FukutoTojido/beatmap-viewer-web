@@ -495,6 +495,7 @@ export class BeatmapFile {
 
                 if (e.key === "a" && e.ctrlKey) {
                     if (document.activeElement === document.querySelector("#jumpToTime")) return;
+                    if (document.activeElement === document.querySelector("#mapInput")) return;
                     e.preventDefault();
                     Game.SELECTED = this.beatmapRenderData.objectsController.objectsList
                         .filter((o) => !(o.obj instanceof Spinner))
