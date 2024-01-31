@@ -506,6 +506,7 @@ export class ScoreParser {
             Game.MODS.EZ = ScoreParser.MODS.includes("Easy");
             Game.MODS.DT = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
             Game.MODS.HT = ScoreParser.MODS.includes("HalfTime");
+            Beatmap.updateModdedStats();
 
             document.querySelector("#HD").checked = ScoreParser.MODS.includes("Hidden");
             document.querySelector("#HR").checked = ScoreParser.MODS.includes("HardRock");
