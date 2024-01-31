@@ -190,7 +190,7 @@ export class ObjectsController {
             new TWEEN.Tween({
                 alpha,
             })
-                .to({ alpha: alpha * 0.7 }, 500)
+                .to({ alpha: alpha * 0.7 }, 1000)
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
                     Game.MASTER_CONTAINER.alpha = object.alpha;
@@ -209,7 +209,7 @@ export class ObjectsController {
             new TWEEN.Tween({
                 alpha: alpha * 0.7,
             })
-                .to({ alpha }, 500)
+                .to({ alpha }, 1000)
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
                     Game.MASTER_CONTAINER.alpha = object.alpha;
@@ -266,7 +266,7 @@ export class ObjectsController {
 
         const deltaMS = performance.now() - this.lastRenderTime;
         this.lastRenderTime = performance.now();
-        Game.FPS.text = `${Math.round(1000 / deltaMS)}fps\n${deltaMS.toFixed(2)}ms`;
+        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
 
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
 

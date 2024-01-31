@@ -596,20 +596,20 @@ export class Game {
         HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;
         HitSample.masterGainNode.connect(Game.AUDIO_CTX.destination);
 
-        // Game.APP.ticker.add(() => {
-        //     TWEEN.update();
-        //     ObjectsController.render();
-        //     Game.DEVE_RATIO = devicePixelRatio;
-        // });
+        Game.APP.ticker.add(() => {
+            TWEEN.update();
+            ObjectsController.render();
+            Game.DEVE_RATIO = devicePixelRatio;
+        });
 
-        const update = () => {
-                TWEEN.update();
-                ObjectsController.render();
-                Game.DEVE_RATIO = devicePixelRatio;
+        // const update = () => {
+        //         TWEEN.update();
+        //         ObjectsController.render();
+        //         Game.DEVE_RATIO = devicePixelRatio;
 
-                requestAnimationFrame(() => update())
-        };
+        //         requestAnimationFrame(() => update())
+        // };
 
-        requestAnimationFrame(() => update());
+        // requestAnimationFrame(() => update());
     }
 }

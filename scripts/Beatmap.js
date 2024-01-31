@@ -66,6 +66,7 @@ export class Beatmap {
 
     static beatStepsList = [];
     static timingPointsList = [];
+    static kiaiList = [];
     static mergedPoints = [];
 
     static stackThreshold;

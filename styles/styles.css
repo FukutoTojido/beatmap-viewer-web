@@ -358,6 +358,24 @@ svg {
     opacity: 0.5;
 }
 
+.mapBG {
+    position: absolute;
+    top: 70px;
+    left: 0;
+
+    width: 100%;
+    height: calc(100% - 130px);
+
+    background-size: cover;
+    background-position: center;
+
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+
+    border-radius: 10px 10px 0 0;
+
+    display: none;
+}
+
 .contentWrapper {
     position: relative;
     width: 100%;
@@ -369,6 +387,7 @@ canvas {
     transform-origin: top left;
 
     user-select: none;
+    z-index: 1;
 }
 
 .thePlayer {
@@ -846,6 +865,8 @@ button:hover {
     text-align: center;
 
     opacity: 0;
+
+    z-index: 3;
 }
 
 .difficultySelector {
@@ -1012,6 +1033,7 @@ button:hover {
     background-color: black;
     opacity: 0;
     transition: ease-in-out 200ms;
+    z-index: 2;
 }
 
 #settingsPanel {
@@ -1033,6 +1055,8 @@ button:hover {
     gap: 10px;
 
     overflow: overlay;
+
+    z-index: 2;
 }
 
 .section {

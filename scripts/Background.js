@@ -19,22 +19,21 @@ export class Background {
         this.container.addChild(this.mask, this.sprite);
         this.container.mask = this.mask;
 
-        this._blob = null;
+        this._src = null;
     }
 
-    static get blob() {
-        return this.blob;
+    static get src() {
+        return this._src;
     }
 
-    static set blob(val) {
-        this._blob = val;
+    static set src(val) {
+        this._src = val;
         this.setBG();
     }
 
     static async setBG() {
-        const base64 = await imageToBase64(this.src);
-        // const texture = await PIXI.Assets.load(base64);
-        // console.log(texture);
+        // console.log(this.src);
+        // const texture = await PIXI.Assets.load(this.src);
     }
 
 }

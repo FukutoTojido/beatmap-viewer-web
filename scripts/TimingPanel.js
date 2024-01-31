@@ -149,28 +149,30 @@ class TimingPoint {
     resize() {
         this.changeColor();
 
-        this.indicator
-            .clear()
-            .roundRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio)
-            .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
+        if (Game.DEVE_RATIO !== devicePixelRatio) {
+            this.indicator
+                .clear()
+                .roundRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio)
+                .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
 
-        this.timestamp.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.timestamp.x = 10 * devicePixelRatio;
-        this.timestamp.y = 20 * devicePixelRatio;
+            this.timestamp.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.timestamp.x = 10 * devicePixelRatio;
+            this.timestamp.y = 20 * devicePixelRatio;
 
-        this.value.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.value.x = 120 * devicePixelRatio;
-        this.value.y = 20 * devicePixelRatio;
+            this.value.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.value.x = 120 * devicePixelRatio;
+            this.value.y = 20 * devicePixelRatio;
 
-        this.sample.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.sample.x = 210 * devicePixelRatio;
-        this.sample.y = 20 * devicePixelRatio;
+            this.sample.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.sample.x = 210 * devicePixelRatio;
+            this.sample.y = 20 * devicePixelRatio;
 
-        this.volume.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-        this.volume.x = 270 * devicePixelRatio;
-        this.volume.y = 20 * devicePixelRatio;
+            this.volume.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
+            this.volume.x = 270 * devicePixelRatio;
+            this.volume.y = 20 * devicePixelRatio;
 
-        this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
+            this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
+        }
     }
 
     update() {
@@ -400,7 +402,8 @@ export class TimingPanel {
         this.POINTS = [];
         this.SCROLLED = 0;
         Beatmap.timingPointsList.forEach((point, idx) => {
-            this.POINTS.push(new TimingPoint(point, idx));
+            const p = new TimingPoint(point, idx)
+            this.POINTS.push(p);
         });
     }
 

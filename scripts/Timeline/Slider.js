@@ -192,8 +192,8 @@ export class TimelineSlider {
             this.sliderTail.hitCircle.tint = 0xdedede;
         }
 
-        // this.sliderHead.hitCircle.tint = colors[idx % colors.length];
-        // this.sliderTail.hitCircle.tint = colors[idx % colors.length];
+        this.sliderHead.hitCircle.tint = colors[idx % colors.length];
+        this.sliderTail.hitCircle.tint = colors[idx % colors.length];
     }
 
     createArc(side, length) {

@@ -5,6 +5,8 @@ import { Game } from "./Game.js";
 import * as PIXI from "pixi.js";
 import { Component } from "./WindowManager.js";
 import { PlayContainer } from "./PlayButtons.js";
+import vertexSrc from "./Shaders/Progress/TimingPoint.vert?raw";
+import fragmentSrc from "./Shaders/Progress/TimingPoint.frag?raw";
 
 export class ProgressBar {
     static renderer;
@@ -109,7 +111,6 @@ export class ProgressBar {
     }
 
     static initTimingPoints() {
-        this.timeline.clear();
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
 
@@ -119,41 +120,49 @@ export class ProgressBar {
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
 
-        this.timeline.setStrokeStyle({
-            width: 1 * devicePixelRatio,
-            color: 0x42f560,
-            alpha: 0.6,
-        });
+        const positionsBuffer = [];
+        const colorBuffer = [];
 
-        Beatmap.timingPointsList
-            // .toSorted((a, b) => {
-            //     if (a.time > b.time) return 1;
-            //     if (a.time < b.time) return -1;
-            //     if (a.beatstep) return 1;
-            //     if (b.beatstep) return -1;
-            //     return 0;
-            // })
-            .forEach((point, idx, arr) => {
-                const x = (point.time / fullTime) * width;
-                const xNext = ((arr[idx + 1]?.time ?? Game.BEATMAP_FILE.audioNode.duration) / fullTime) * width;
-
-                this.timeline.moveTo(x, 0).lineTo(x, height).stroke();
-
-                if (!point.isKiai) return;
-
-                this.timeline.rect(x, height / 2, xNext - x, height).fill({ color: 0xf58d42, alpha: 0.4 });
-            });
-
-        this.timeline.setStrokeStyle({
-            width: 1 * devicePixelRatio,
-            color: 0xf5425a,
-            alpha: 0.6,
-        });
-
-        Beatmap.beatStepsList.forEach((point) => {
+        Beatmap.timingPointsList.forEach((point, idx) => {
             const x = (point.time / fullTime) * width;
-            this.timeline.moveTo(x, 0).lineTo(x, height).stroke();
+            const color = point.beatstep ? [0.96, 0.26, 0.35] : [0.26, 0.96, 0.38];
+
+            positionsBuffer.push(...[x, 0, x, height / 2]);
+            colorBuffer.push(...[...color, ...color]);
         });
+
+        const geometry = new PIXI.Geometry({
+            attributes: {
+                aPosition: positionsBuffer,
+                aColor: colorBuffer,
+            },
+            topology: "line-list"
+        });
+
+        this.timeline.geometry = geometry;
+    }
+
+    static reinitPoints() {
+        this.stage.removeChild(this.timeline);
+
+        this.timeline = new PIXI.Mesh({
+            geometry: new PIXI.Geometry({
+                attributes: {
+                    aPosition: [0, 0, 1, 0],
+                    aColor: [1, 0, 0, 1, 1, 1],
+                },
+                topology: "line-list",
+            }),
+            shader: PIXI.Shader.from({
+                gl: PIXI.GlProgram.from({
+                    vertex: vertexSrc,
+                    fragment: fragmentSrc,
+                }),
+            }),
+        });
+        this.timeline.x = 40 * devicePixelRatio;
+        this.timeline.y = 10 * devicePixelRatio;
+        this.stage.addChildAt(this.timeline, 0);
     }
 
     static init() {
@@ -166,7 +175,21 @@ export class ProgressBar {
 
         this.stage = this.MASTER_CONTAINER.container;
 
-        this.timeline = new PIXI.Graphics();
+        this.timeline = new PIXI.Mesh({
+            geometry: new PIXI.Geometry({
+                attributes: {
+                    aPosition: [0, 0, 1, 0],
+                    aColor: [1, 0, 0, 1, 1, 1],
+                },
+                topology: "line-list",
+            }),
+            shader: PIXI.Shader.from({
+                gl: PIXI.GlProgram.from({
+                    vertex: vertexSrc,
+                    fragment: fragmentSrc,
+                }),
+            }),
+        });
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
         this.stage.addChildAt(this.timeline, 0);
@@ -218,21 +241,16 @@ export class ProgressBar {
 
         this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
 
-        // let { width, height } = getComputedStyle(document.querySelector(".progressBarContainer"));
-
         const width = this.MASTER_CONTAINER.w;
         const height = this.MASTER_CONTAINER.h;
-
-        // if (width === 0) width = parseInt(getComputedStyle(document.querySelector("body")).width) * window.devicePixelRatio;
 
         if (this.WIDTH === width && this.HEIGHT === height) return;
 
         this.WIDTH = width;
         this.HEIGHT = height;
-        // this.renderer.resize(this.WIDTH, this.HEIGHT);
 
-        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
         this.restyle();
+        if (Game.DEVE_RATIO !== devicePixelRatio) this.reinitPoints();
         this.initTimingPoints();
 
         this.thumb.y = this.HEIGHT / 2;

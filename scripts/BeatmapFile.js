@@ -17,6 +17,7 @@ import ky from "ky";
 import md5 from "crypto-js/md5";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { Background } from "./Background.js";
+import { Spinner } from "./HitObjects/Spinner.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -323,13 +324,14 @@ export class BeatmapFile {
         const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
         if (backgroundFile) {
             const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
-            console.log(data);
+            const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
 
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);
             console.log("Background Loaded");
-            // document.querySelector("#background").src = `${this.backgroundBlobURL}`;
             Background.src = this.backgroundBlobURL;
+
+            // document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();

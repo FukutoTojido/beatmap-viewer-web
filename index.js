@@ -105,10 +105,10 @@ function setupDefaultStorage() {
     await Game.init();
 
     await loadLocalStorage();
+    await Texture.generateDefaultTextures();
+
     document.querySelector(".loading").style.opacity = 0;
     document.querySelector(".loading").style.display = "none";
-
-    await Texture.generateDefaultTextures();
 
     document.body.addEventListener("keydown", (e) => {
         switch (e.key) {
