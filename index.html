@@ -28,7 +28,7 @@
             const beatmapID = /[0-9]+/g.test(urlParams.get("b")) ? urlParams.get("b") : null;
             const timestamp = /[0-9]+/g.test(urlParams.get("t")) ? urlParams.get("t") : null;
 
-            document.location = `https://beatmap-viewer-web.vercel.app/${beatmapID ? `?b=${beatmapID}` : ""}${timestamp ? `&?t=${timestamp}` : ""}`;
+            document.location = `https://mobile.tryz.id.vn/${beatmapID ? `?b=${beatmapID}` : ""}${timestamp ? `&?t=${timestamp}` : ""}`;
         }
     </script>
 
