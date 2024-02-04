@@ -16,19 +16,23 @@
     <link rel="stylesheet" href="./styles/mobile.css">
 
     <script type="text/javascript">
-        if (navigator.userAgent.match(/Android/i) ||
-            navigator.userAgent.match(/webOS/i) ||
-            navigator.userAgent.match(/iPhone/i) ||
-            navigator.userAgent.match(/iPad/i) ||
-            navigator.userAgent.match(/iPod/i) ||
-            navigator.userAgent.match(/BlackBerry/i) ||
-            navigator.userAgent.match(/Windows Phone/i)
-        ) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const beatmapID = /[0-9]+/g.test(urlParams.get("b")) ? urlParams.get("b") : null;
-            const timestamp = /[0-9]+/g.test(urlParams.get("t")) ? urlParams.get("t") : null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const stayPC = urlParams.get("noredirect");
 
-            document.location = `https://mobile.tryz.id.vn/${beatmapID ? `?b=${beatmapID}` : ""}${timestamp ? `&?t=${timestamp}` : ""}`;
+        if (stayPC !== "true") {
+            if (navigator.userAgent.match(/Android/i) ||
+                navigator.userAgent.match(/webOS/i) ||
+                navigator.userAgent.match(/iPhone/i) ||
+                navigator.userAgent.match(/iPad/i) ||
+                navigator.userAgent.match(/iPod/i) ||
+                navigator.userAgent.match(/BlackBerry/i) ||
+                navigator.userAgent.match(/Windows Phone/i)
+            ) {
+                const beatmapID = /[0-9]+/g.test(urlParams.get("b")) ? urlParams.get("b") : null;
+                const timestamp = /[0-9]+/g.test(urlParams.get("t")) ? urlParams.get("t") : null;
+
+                document.location = `https://mobile.tryz.id.vn/${beatmapID ? `?b=${beatmapID}` : ""}${timestamp ? `&?t=${timestamp}` : ""}`;
+            }
         }
     </script>
 
