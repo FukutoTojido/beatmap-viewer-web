@@ -77,7 +77,7 @@ export class BeatmapFile {
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
             let blob;
-            if (selectedMirror !== "nerinyan") {
+            if (true || selectedMirror !== "nerinyan") {
                 const requestClient = axios.create({
                     baseURL: urls[selectedMirror] ?? customURL,
                 });
@@ -96,7 +96,6 @@ export class BeatmapFile {
                     prefixUrl: urls[selectedMirror] ?? customURL,
                     onDownloadProgress: (progressEvent) => {
                         document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-                        // console.log(progressEvent);
                     },
                     headers: {
                         "Access-Control-Allow-Origin": "*",

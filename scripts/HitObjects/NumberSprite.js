@@ -7,6 +7,9 @@ export class NumberSprite {
     obj;
 
     hitObject;
+    number = 0;
+
+    sprites = [];
 
     constructor(hitObject) {
         this.hitObject = hitObject;
@@ -14,20 +17,34 @@ export class NumberSprite {
     }
 
     draw(timestamp) {
-        const removedChildren = this.obj.removeChildren();
-        removedChildren.forEach((element) => element.destroy());
+        if (this.number !== this.hitObject.comboIdx) {
+            const removedChildren = this.obj.removeChildren();
+            removedChildren.forEach((element) => element.destroy());
+            this.sprites.length = 0;
+
+            this.number = this.hitObject.comboIdx ?? 0;
+            this.number.toString()
+            .split("")
+            .forEach((value, idx) => {
+                const sprite = new PIXI.Sprite();
+                sprite.anchor.set(0.5);
+
+                this.sprites.push(sprite);
+                this.obj.addChild(sprite);
+            })
+        }
 
         let prevSprite = null;
-        this.hitObject.comboIdx
+        this.number
             .toString()
             .split("")
             .forEach((value, idx) => {
                 const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
                 const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
 
-                const sprite = new PIXI.Sprite(textures.DEFAULTS[value].texture);
+                const sprite = this.sprites[idx];
+                sprite.texture = (textures.DEFAULTS[value].texture);
                 sprite.scale.set(textures.DEFAULTS[value].isHD ? 0.5 * 0.8 : 0.8);
-                sprite.anchor.set(0.5);
 
                 if (prevSprite) {
                     const overlapValue =
@@ -40,7 +57,6 @@ export class NumberSprite {
                 }
 
                 prevSprite = sprite;
-                this.obj.addChild(sprite);
             });
 
         this.obj.alpha = 1;
