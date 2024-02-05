@@ -95,7 +95,7 @@ export async function readZip(file) {
         const ele = createDifficultyElement({
             name: diffName,
             fileName: content.filename,
-            starRating: difficultyAttributes.starRating,
+            starRating: difficultyAttributes?.starRating ?? 0,
         });
 
         diffs.push(ele);

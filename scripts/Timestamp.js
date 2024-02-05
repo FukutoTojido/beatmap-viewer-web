@@ -140,8 +140,8 @@ export class Timestamp {
         }
 
         minutes.x = 0;
-        seconds.x = 24;
-        miliseconds.x = 48;
+        seconds.x = 24 * devicePixelRatio;
+        miliseconds.x = 48 * devicePixelRatio;
 
         timeContainer.addChild(minutes, seconds, miliseconds);
         timeContainer.x = 23;
@@ -157,13 +157,34 @@ export class Timestamp {
         this.MASTER_CONTAINER.masterContainer.on("click", () => {
             showPopup();
         });
-        
+
         this.MASTER_CONTAINER.masterContainer.on("tap", () => {
             showPopup();
         });
     }
 
     static rePosition() {
+        if (!this.MASTER_CONTAINER) return;
+
+        this.MASTER_CONTAINER.x = 0;
+        if (innerWidth / innerHeight < 1) {
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height;
+            this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
+            this.timeContainer.x = (this.MASTER_CONTAINER.w - this.timeContainer.width) / 2;
+        } else {
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
+            this.MASTER_CONTAINER.w = 110 * devicePixelRatio;
+            this.timeContainer.x = 23 * devicePixelRatio;
+        }
+        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+
+        this.WIDTH = 120 * devicePixelRatio;
+        this.HEIGHT = 60 * devicePixelRatio;
+
+        this.minutes.x = 0;
+        this.seconds.x = 24 * devicePixelRatio;
+        this.miliseconds.x = 48 * devicePixelRatio;
+
         this.colons.forEach((colon) => {
             colon.x = 16 * devicePixelRatio;
             colon.y = this.HEIGHT / 2 - 1 * devicePixelRatio;
@@ -190,29 +211,8 @@ export class Timestamp {
     }
 
     static forceUpdate(time) {
-        if (!this.MASTER_CONTAINER) return;
-
-        this.MASTER_CONTAINER.x = 0;
-        if (innerWidth / innerHeight < 1) {
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height;
-            this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
-            this.timeContainer.x = (this.MASTER_CONTAINER.w - this.timeContainer.width) / 2;
-        } else {
-            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.w = 110 * devicePixelRatio;
-            this.timeContainer.x = 23 * devicePixelRatio;
-        }
-        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
-
-        this.WIDTH = 120 * devicePixelRatio;
-        this.HEIGHT = 60 * devicePixelRatio;
-
         const currentDigits = parseTime(time);
-        const lastDigits = parseTime(ObjectsController.time);
-
-        this.minutes.x = 0;
-        this.seconds.x = 24 * devicePixelRatio;
-        this.miliseconds.x = 48 * devicePixelRatio;
+        const lastDigits = parseTime(ObjectsController.lastTimestamp ?? 0);
 
         currentDigits.miliseconds.forEach((val, idx) => {
             if (val === lastDigits.miliseconds[idx]) return;
@@ -234,7 +234,8 @@ export class Timestamp {
     }
 
     static update(time) {
-        if (Game.DEVE_RATIO !== devicePixelRatio) this.EMIT_CHANGE = true;
+        if (Game.DEVE_RATIO !== devicePixelRatio || Game.EMIT_STACK.length !== 0) this.EMIT_CHANGE = true;
+
         this.forceUpdate(time);
         this.EMIT_CHANGE = false;
         // this.renderer.render(this.stage);

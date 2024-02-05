@@ -10,6 +10,8 @@ import { Beatmap } from "../Beatmap";
 
 const DIVIDES = 64;
 
+PIXI.defaultFilterVert;
+
 class ShaderFilter {
     filter;
 
@@ -99,10 +101,24 @@ export class SliderBody {
 
     static RADIUS = 54.4 * (236 / 256);
 
-    constructor(angleList, curveGeometry, circleGeometry, slider, isSelected) {
+    constructor(angleList, curveGeometryObj, circleGeometry, slider, isSelected) {
         this.angleList = angleList;
         this.isSelected = isSelected;
         this.slider = slider;
+
+        this.bounds = {
+            minX: null,
+            minY: null,
+            maxX: null,
+            maxY: null,
+        };
+
+        curveGeometryObj.points.forEach((point) => {
+            if (!this.bounds.minX || point.x < this.bounds.minX) this.bounds.minX = point.x;
+            if (!this.bounds.minY || point.y < this.bounds.minY) this.bounds.minY = point.y;
+            if (!this.bounds.maxX || point.x > this.bounds.maxX) this.bounds.maxX = point.x;
+            if (!this.bounds.maxY || point.y > this.bounds.maxY) this.bounds.maxY = point.y;
+        });
 
         const gl = PIXI.GlProgram.from({
             vertex: vertexSrc,
@@ -143,7 +159,7 @@ export class SliderBody {
         // console.log(this.shader);
 
         this.bodyMesh = new PIXI.Mesh({
-            geometry: curveGeometry,
+            geometry: curveGeometryObj.geometry,
             shader: this.shader,
             roundPixels: true,
         });
@@ -164,9 +180,10 @@ export class SliderBody {
         this.filter = new ShaderFilter();
 
         this.container = new PIXI.Container();
-        this.container.x = -Game.OFFSET_X;
-        this.container.y = -Game.OFFSET_Y;
-        this.container.addChild(this.circleMesh, this.bodyMesh, this.graphics);
+        // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
+        // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
+
+        this.container.addChild(this.graphics, this.circleMesh, this.bodyMesh);
 
         this.container.filters = [this.filter.filter];
 
@@ -175,8 +192,8 @@ export class SliderBody {
 
     update() {
         if (Game.EMIT_STACK.length !== 0) {
-            this.container.x = -Game.OFFSET_X;
-            this.container.y = -Game.OFFSET_Y;
+            // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
+            // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
         }
 
         const SKIN_TYPE = parseInt(Game.SKINNING.type);
@@ -272,6 +289,7 @@ export class SliderBody {
         this.filter.filter.resources.customUniforms.uniforms.innerColor = innerColor;
         this.filter.filter.resources.customUniforms.uniforms.outerColor = outerColor;
         this.filter.filter.resources.customUniforms.uniforms.borderWidth = borderWidth;
+        // this.filter.filter.resources.customUniforms.uniforms.scaleRate = Game.SCALE_RATE;
     }
 
     get alpha() {
@@ -295,8 +313,10 @@ export class SliderBody {
 
         let vert = new Array();
         let index = new Array();
+        const vertUnserialized = new Array();
 
         vert.push(curve[0].x, curve[0].y, curve[0].t, 0.0); // first point on curve
+        vertUnserialized.push({ x: curve[0].x, y: curve[0].y, z: curve[0].t, t: 0.0 }); // first point on curve
 
         // add rectangles around each segment of curve
         for (let i = 1; i < curve.length; ++i) {
@@ -324,6 +344,12 @@ export class SliderBody {
             vert.push(x - ox, y - oy, t, 1.0);
             vert.push(x, y, t, 0.0);
 
+            vertUnserialized.push({ x: lx + ox, y: ly + oy, z: lt, t: 1.0 });
+            vertUnserialized.push({ x: lx - ox, y: ly - oy, z: lt, t: 1.0 });
+            vertUnserialized.push({ x: x + ox, y: y + oy, z: t, t: 1.0 });
+            vertUnserialized.push({ x: x - ox, y: y - oy, z: t, t: 1.0 });
+            vertUnserialized.push({ x: x, y: y, z: t, t: 0.0 });
+
             let n = 5 * i + 1;
             // indices for 4 triangles composing 2 rectangles
             index.push(n - 6, n - 5, n - 1, n - 5, n - 1, n - 3);
@@ -341,6 +367,12 @@ export class SliderBody {
             let last = p1;
             for (let i = 1; i < divs; ++i) {
                 vert.push(vert[4 * c] + radius * Math.cos(theta_1 + i * theta), vert[4 * c + 1] + radius * Math.sin(theta_1 + i * theta), t, 1.0);
+                vertUnserialized.push({
+                    x: vert[4 * c] + radius * Math.cos(theta_1 + i * theta),
+                    y: vert[4 * c + 1] + radius * Math.sin(theta_1 + i * theta),
+                    z: t,
+                    t: 1.0,
+                });
                 let newv = vert.length / 4 - 1;
                 index.push(c, last, newv);
                 last = newv;
@@ -368,13 +400,16 @@ export class SliderBody {
         addArc(0, 1, 2, curve[0].t);
         addArc(5 * curve.length - 5, 5 * curve.length - 6, 5 * curve.length - 7, curve.at(-1).t);
 
-        return new PIXI.Geometry({
-            attributes: {
-                position: vert,
-                isCirc: new Array(vert.length / 4).fill(0.0),
-            },
-            indexBuffer: index,
-        });
+        return {
+            geometry: new PIXI.Geometry({
+                attributes: {
+                    aPosition: vert,
+                    isCirc: new Array(vert.length / 4).fill(0.0),
+                },
+                indexBuffer: index,
+            }),
+            points: vertUnserialized,
+        };
     }
 
     static circleGeometry(radius) {
@@ -389,7 +424,7 @@ export class SliderBody {
         }
         return new PIXI.Geometry({
             attributes: {
-                position: vert,
+                aPosition: vert,
                 isCirc: new Array(vert.length / 4).fill(1.0),
             },
             indexBuffer: index,

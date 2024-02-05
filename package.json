@@ -10,6 +10,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "vite --port 8080 --mode development",
+        "dev-host": "vite --host --port 8080 --mode development",
         "build": "vite build"
     },
     "repository": "git+https://github.com/FukutoTojido/beatmap-viewer-how.git",

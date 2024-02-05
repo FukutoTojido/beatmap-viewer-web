@@ -77,34 +77,34 @@ export class BeatmapFile {
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
             let blob;
-            if (true || selectedMirror !== "nerinyan") {
-                const requestClient = axios.create({
-                    baseURL: urls[selectedMirror] ?? customURL,
-                });
+            // if (true || selectedMirror !== "nerinyan") {
+            const requestClient = axios.create({
+                baseURL: urls[selectedMirror] ?? customURL,
+            });
 
-                blob = (
-                    await requestClient.get(`${setId}`, {
-                        responseType: "blob",
-                        onDownloadProgress: (progressEvent) => {
-                            document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                            // console.log(progressEvent);
-                        },
-                    })
-                ).data;
-            } else {
-                const rawData = await ky.get(`${setId}/`, {
-                    prefixUrl: urls[selectedMirror] ?? customURL,
+            blob = (
+                await requestClient.get(`${setId}`, {
+                    responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                        // console.log(progressEvent);
                     },
-                    headers: {
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                    },
-                });
+                })
+            ).data;
+            // } else {
+            //     const rawData = await ky.get(`${setId}/`, {
+            //         prefixUrl: urls[selectedMirror] ?? customURL,
+            //         onDownloadProgress: (progressEvent) => {
+            //             document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+            //         },
+            //         headers: {
+            //             "Access-Control-Allow-Origin": "*",
+            //             "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+            //         },
+            //     });
 
-                blob = await rawData.blob();
-            }
+            //     blob = await rawData.blob();
+            // }
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
@@ -283,10 +283,10 @@ export class BeatmapFile {
         Game.STATS.AR = round(beatmapData.difficulty.approachRate);
         Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
         Game.STATS.HP = round(beatmapData.difficulty.drainRate);
-        Game.STATS.SR = round(difficultyAttributes.starRating);
-        Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes.starRating)).formatHex().slice(1), 16);
+        Game.STATS.SR = round(difficultyAttributes?.starRating ?? 0);
+        Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes?.starRating ?? 0)).formatHex().slice(1), 16);
 
-        if (difficultyAttributes.starRating >= 6.5)
+        if (difficultyAttributes?.starRating ?? 0 >= 6.5)
             Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
         else Game.STATS.SRSprite.style.fill = 0x000000;
 

@@ -39,7 +39,7 @@ export class ObjectsController {
     static CURRENT_SV;
 
     static requestID = null;
-    static lastTimestamp;
+    static lastTimestamp = 0;
     static lastRenderTime = 0;
 
     // static preempt = 0;
@@ -80,37 +80,12 @@ export class ObjectsController {
             BPM.BPM_TEXT.text = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
             ObjectsController.CURRENT_BPM = currentBPM;
         }
-        // if (document.querySelector(".BPM").textContent !== `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`)
-        //     document.querySelector(".BPM").textContent = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
-
-        // if (document.querySelector(".SV .multiplier").textContent !== `${currentSV.svMultiplier.toFixed(2)}x`)
-        //     document.querySelector(".SV .multiplier").textContent = `${currentSV.svMultiplier.toFixed(2)}x`;
 
         if (JSON.stringify(currentSV) !== JSON.stringify(ObjectsController.CURRENT_SV)) {
             if (ObjectsController.CURRENT_SV?.svMultiplier !== currentSV?.svMultiplier) BPM.SV_TEXT.text = `${currentSV.svMultiplier.toFixed(2)}x`;
             ObjectsController.CURRENT_SV = currentSV;
             TimingPanel.scrollTo(timestamp);
         }
-
-        // const highlightH = parseFloat(getComputedStyle(document.querySelector(".highlightPoint")).height);
-        // if (document.querySelector(".highlightPoint").style.transform != `translateY(${currentPoint * highlightH}px)`) {
-        //     document.querySelector(".highlightPoint").style.transform = `translateY(${currentPoint * highlightH}px)`;
-        //     document.querySelector(".highlightPoint").scrollIntoView({
-        //         behavior: "smooth",
-        //         block: "nearest",
-        //     });
-        // }
-
-        // if (!currentSV.isKiai && document.querySelector(".timingContainer").classList.contains("kiai")) {
-        //     document.querySelector(".timingContainer").classList.remove("kiai");
-        // }
-
-        // if (currentSV.isKiai && !document.querySelector(".timingContainer").classList.contains("kiai")) {
-        //     document.querySelector(".timingContainer").classList.add("kiai");
-        //     document.querySelector(".timingContainer").style.animationDuration = `${currentBPM.beatstep}ms`;
-        //     document.querySelector(".timingContainer").style.animationDelay =
-        //         currentBPM.time >= 0 ? `${currentBPM.time % currentBPM.beatstep}ms` : `${currentBPM.time + currentBPM.beatstep}ms`;
-        // }
 
         const currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
@@ -270,12 +245,13 @@ export class ObjectsController {
 
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
 
+        Timestamp.update(currentAudioTime ?? 0);
+        
         if (currentAudioTime && Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) {
             Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);
         }
 
-        Timestamp.update(currentAudioTime ?? 0);
         BPM.update(currentAudioTime ?? 0);
         PlayContainer.update(currentAudioTime ?? 0);
         ProgressBar.update(currentAudioTime ?? 0);
