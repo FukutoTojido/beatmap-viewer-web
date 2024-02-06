@@ -8,19 +8,75 @@ export class SliderEnd {
 
     hitCircle;
 
+    props = {
+        alpha: null,
+        x: null,
+        y: null,
+    };
+
     constructor(baseSlider) {
         const endPosition = baseSlider.realTrackPoints.at(-1);
         this.hitCircle = new HitCircle(endPosition.x, endPosition.y, baseSlider.endTime, null);
+        this.hitCircle.number.obj.alpha = 0;
 
         this.baseSlider = baseSlider;
         this.endPosition = endPosition;
     }
 
+    updatePosition() {
+        const stackHeight = this.baseSlider.stackHeight;
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
+
+        const x = this.endPosition.x + stackHeight * currentStackOffset;
+        const y = !Game.MODS.HR ? this.endPosition.y + stackHeight * currentStackOffset : 384 - this.endPosition.y + stackHeight * currentStackOffset;
+
+        if (this.props.x !== x) {
+            this.props.x = x;
+            this.hitCircle.obj.x = this.props.x * Game.SCALE_RATE;
+        }
+
+        if (this.props.y !== y) {
+            this.props.y = y;
+            this.hitCircle.obj.y = this.props.y * Game.SCALE_RATE;
+        }
+    }
+
+    getAlpha(timestamp) {
+        const currentPreempt = Beatmap.moddedStats.preempt;
+        const currentFadeIn = Beatmap.moddedStats.fadeIn;
+
+        const startTime = this.baseSlider.time - currentPreempt + currentPreempt / 3;
+
+        if (timestamp < this.baseSlider.endTime && !Game.SLIDER_APPEARANCE.snaking) {
+            return this.baseSlider.opacity;
+        }
+
+        if (timestamp < startTime) {
+            return 0;
+        }
+
+        if (timestamp >= startTime && timestamp < startTime + currentFadeIn) {
+            return (timestamp - startTime) / currentFadeIn * 0.9;
+        }
+
+        if (timestamp > startTime + currentFadeIn && Game.MODS.HD) {
+            return this.baseSlider.opacity * 0.9;
+        }
+
+        if (timestamp >= startTime + currentFadeIn && timestamp < this.baseSlider.endTime) {
+            return 0.9;
+        }
+    }
+
     draw(timestamp) {
         if (!Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type === "0") {
-            this.hitCircle.obj.alpha = 0;
+            if (this.props.alpha !== 0) {
+                this.props.alpha = 0;
+                this.hitCircle.obj.alpha = this.props.alpha;
+            }
+
             return;
-        } 
+        }
 
         this.hitCircle.colourHaxedIdx = this.baseSlider.colourHaxedIdx;
         this.hitCircle.colourIdx = this.baseSlider.colourIdx;
@@ -28,43 +84,12 @@ export class SliderEnd {
         this.hitCircle.draw(timestamp);
         this.hitCircle.number.obj.alpha = 0;
 
-        const stackHeight = this.baseSlider.stackHeight;
-        const currentStackOffset = Beatmap.moddedStats.stackOffset;
+        this.updatePosition();
 
-        const x = this.endPosition.x + stackHeight * currentStackOffset;
-        const y = !Game.MODS.HR ? this.endPosition.y + stackHeight * currentStackOffset : 384 - this.endPosition.y + stackHeight * currentStackOffset;
-
-        this.hitCircle.obj.x = x * Game.SCALE_RATE;
-        this.hitCircle.obj.y = y * Game.SCALE_RATE;
-
-        const currentPreempt = Beatmap.moddedStats.preempt;
-        const currentFadeIn = Beatmap.moddedStats.fadeIn;
-
-        const startTime = this.baseSlider.time - currentPreempt + currentPreempt / 3;
-
-        if ((timestamp < this.baseSlider.endTime && !Game.SLIDER_APPEARANCE.snaking)) {
-            this.hitCircle.obj.alpha = this.baseSlider.opacity;
-            return;
-        }
-
-        if (timestamp < startTime) {
-            this.hitCircle.obj.alpha = 0;
-            return;
-        }
-
-        if (timestamp >= startTime && timestamp < startTime + currentFadeIn) {
-            this.hitCircle.obj.alpha = (timestamp - startTime) / currentFadeIn;
-            return;
-        }
-
-        if (timestamp > startTime + currentFadeIn && Game.MODS.HD) {
-            this.hitCircle.obj.alpha = this.baseSlider.opacity * 0.9;
-            return;
-        }
-
-        if (timestamp >= startTime + currentFadeIn && timestamp < this.baseSlider.endTime) {
-            this.hitCircle.obj.alpha = 0.9;
-            return;
+        const alpha = this.getAlpha(timestamp);
+        if (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha) {
+            this.props.alpha = alpha;
+            this.hitCircle.obj.alpha = alpha;
         }
     }
 }

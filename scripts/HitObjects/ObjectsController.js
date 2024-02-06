@@ -115,42 +115,70 @@ export class ObjectsController {
                 drawList.push(this.objectsList[end]);
                 end++;
             }
+
+            drawList.reverse();
         }
+
+        this.filtered.forEach((object) => {
+            if (drawList.length > 0 && object.obj.time <= drawList.at(0).obj.time && object.obj.time >= drawList.at(-1).obj.time) return;
+            Game.CONTAINER.removeChild(object.obj.obj);
+            if (object.obj.approachCircleObj) Game.CONTAINER.removeChild(object.obj.approachCircleObj.obj);
+        });
+
+        drawList.forEach((object) => {
+            if (this.filtered.length <= 0) {
+                Game.CONTAINER.addChild(object.obj.obj);
+                if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
+                return;
+            }
+
+            if (object.obj.time > this.filtered.at(0).obj.time) {
+                Game.CONTAINER.addChildAt(object.obj.obj, 0);
+                if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
+                return;
+            }
+
+            if (object.obj.time < this.filtered.at(-1).obj.time) {
+                Game.CONTAINER.addChildAt(object.obj.obj, Game.CONTAINER.children.length);
+                if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
+                return;
+            }
+        });
 
         this.filtered = drawList;
 
-        const selected = [];
-        Game.SELECTED.forEach((time) => {
-            const objIndex = binarySearch(this.objectsList, time, (element, value) => {
-                if (element.obj.time === value) return 0;
-                if (element.obj.time < value) return -1;
-                if (element.obj.time > value) return 1;
-            });
+        // const selected = [];
+        // Game.SELECTED.forEach((time) => {
+        //     const objIndex = binarySearch(this.objectsList, time, (element, value) => {
+        //         if (element.obj.time === value) return 0;
+        //         if (element.obj.time < value) return -1;
+        //         if (element.obj.time > value) return 1;
+        //     });
 
-            if (objIndex === -1) return;
+        //     if (objIndex === -1) return;
 
-            const o = this.objectsList[objIndex];
-            selected.push(o);
-        });
+        //     const o = this.objectsList[objIndex];
+        //     selected.push(o);
+        // });
 
-        const judgements = this.judgementList.filter((judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp);
+        // const judgements = this.judgementList.filter((judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp);
 
-        Game.CONTAINER.removeChildren();
-        Game.addToContainer([
-            ...judgements,
-            ...this.filtered.map((o) => o.obj).toReversed(),
-            ...this.filtered
-                .map((o) => o.obj.approachCircleObj)
-                .filter((o) => o)
-                .toReversed(),
-            ...selected
-                .reduce((accm, o) => {
-                    if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
-                    accm.push({ obj: o.obj.selected });
-                    return accm;
-                }, [])
-                .toReversed(),
-        ]);
+        // Game.CONTAINER.removeChildren();
+        // Game.addToContainer([
+        //     ...judgements,
+        //     ...this.filtered.map((o) => o.obj).toReversed(),
+        //     ...this.filtered
+        //         .map((o) => o.obj.approachCircleObj)
+        //         .filter((o) => o)
+        //         .toReversed(),
+        //     ...selected
+        //         .reduce((accm, o) => {
+        //             if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
+        //             accm.push({ obj: o.obj.selected });
+        //             return accm;
+        //         }, [])
+        //         .toReversed(),
+        // ]);
 
         if (
             this.breakPeriods.some(
@@ -174,8 +202,8 @@ export class ObjectsController {
         } else if (
             this.breakPeriods.some(
                 (period) =>
-                    period[0] < ObjectsController.lastTimestamp  &&
-                    period[1] > ObjectsController.lastTimestamp  &&
+                    period[0] < ObjectsController.lastTimestamp &&
+                    period[1] > ObjectsController.lastTimestamp &&
                     (period[1] < timestamp || period[0] > timestamp)
             )
         ) {
@@ -192,12 +220,12 @@ export class ObjectsController {
                 .start();
         }
 
-        judgements.forEach((object) => {
-            object.draw(timestamp);
-        });
+        // judgements.forEach((object) => {
+        //     object.draw(timestamp);
+        // });
 
         this.filtered.forEach((object) => {
-            selected.forEach((o) => o.obj.drawSelected());
+            // selected.forEach((o) => o.obj.drawSelected());
             object.obj.draw(Math.max(timestamp, 0));
         });
 
@@ -237,16 +265,17 @@ export class ObjectsController {
 
     static render() {
         Game.appResize();
-        Timeline.resize();
+        // Timeline.resize();
 
         const deltaMS = performance.now() - this.lastRenderTime;
         this.lastRenderTime = performance.now();
-        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${Game.APP.ticker.deltaMS.toFixed(2)}ms`;
+
+        const start = performance.now();
 
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
 
         Timestamp.update(currentAudioTime ?? 0);
-        
+
         if (currentAudioTime && Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) {
             Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(currentAudioTime);
             Timeline.draw(currentAudioTime);
@@ -259,5 +288,8 @@ export class ObjectsController {
         MetadataPanel.update(currentAudioTime ?? 0);
 
         Game.EMIT_STACK.pop();
+
+        const end = performance.now();
+        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${(end - start).toFixed(2)}ms`;
     }
 }

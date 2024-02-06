@@ -27,10 +27,10 @@ class ShaderFilter {
 
             vec4 filterVertexPosition( void )
             {
-                vec2 position = aPosition;
-
-                position.x = position.x * 2.0 - 1.0;
-                position.y = position.y * 2.0 - 1.0;
+                vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+    
+                position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+                position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
             
                 return vec4(position, 0.0, 1.0);
             }
@@ -99,6 +99,8 @@ export class SliderBody {
     startt = 0.0;
     endt = 1.0;
 
+    scaleRate = 1;
+
     static RADIUS = 54.4 * (236 / 256);
 
     constructor(angleList, curveGeometryObj, circleGeometry, slider, isSelected) {
@@ -135,6 +137,8 @@ export class SliderBody {
                 entryPoint: "fsMain",
             },
         });
+        gpu.autoAssignGlobalUniforms = true;
+        gpu.autoAssignLocalUniforms = true;
 
         this.shader = PIXI.Shader.from({
             gl,
@@ -149,9 +153,16 @@ export class SliderBody {
                     dt: { value: 0, type: "f32" },
                     ot: { value: 1, type: "f32" },
                     inverse: { value: 0, type: "f32" },
+                    stackOffset: { value: 0, type: "f32" },
                     ballPosition: { value: [0, 0], type: "vec2<f32>" },
                     // Fragment Uniforms
                     circleBaseScale: { value: 1, type: "f32" },
+                    alpha: { value: 1.0, type: "f32" },
+                    bodyAlpha: { value: 1, type: "f32" },
+                    borderColor: { value: [1.0, 1.0, 1.0, 1.0], type: "vec4<f32>" },
+                    innerColor: { value: [0.0, 0.0, 0.0, 0.0], type: "vec4<f32>" },
+                    outerColor: { value: [0.0, 0.0, 0.0, 0.0], type: "vec4<f32>" },
+                    borderWidth: { value: 0.128, type: "f32" },
                 },
             },
         });
@@ -164,6 +175,7 @@ export class SliderBody {
             roundPixels: true,
         });
         this.bodyMesh.state.depthTest = true;
+        this.bodyMesh.scale.set(this.scaleRate);
 
         this.circleMesh = new PIXI.Mesh({
             geometry: circleGeometry,
@@ -171,6 +183,7 @@ export class SliderBody {
             roundPixels: true,
         });
         this.circleMesh.state.depthTest = true;
+        this.circleMesh.scale.set(this.scaleRate);
 
         this.graphics = new PIXI.Graphics()
             .rect(-Game.OFFSET_X, -Game.OFFSET_Y, Game.WRAPPER.w, Game.WRAPPER.h)
@@ -183,8 +196,7 @@ export class SliderBody {
         // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
         // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
 
-        this.container.addChild(this.graphics, this.circleMesh, this.bodyMesh);
-
+        this.container.addChild(this.circleMesh, this.bodyMesh);
         this.container.filters = [this.filter.filter];
 
         this.tint = [0.0, 0.0, 0.0, 1.0];
@@ -194,6 +206,12 @@ export class SliderBody {
         if (Game.EMIT_STACK.length !== 0) {
             // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
             // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
+        }
+
+        if (this.scaleRate !== Game.SCALE_RATE) {
+            this.scaleRate = Game.SCALE_RATE;
+            this.bodyMesh.scale.set(this.scaleRate);
+            this.circleMesh.scale.set(this.scaleRate);
         }
 
         const SKIN_TYPE = parseInt(Game.SKINNING.type);
@@ -258,6 +276,7 @@ export class SliderBody {
         this.shader.resources.customUniforms.uniforms.dy = transform.dy;
         this.shader.resources.customUniforms.uniforms.oy = transform.oy;
         this.shader.resources.customUniforms.uniforms.inverse = Game.MODS.HR ? 1 : 0;
+        this.shader.resources.customUniforms.uniforms.stackOffset = this.slider.stackHeight * currentStackOffset;
 
         if (this.startt == 0.0 && this.endt == 1.0) {
             this.shader.resources.customUniforms.uniforms.dt = 0;
@@ -284,12 +303,18 @@ export class SliderBody {
 
         this.shader.resources.customUniforms.uniforms.circleBaseScale = circleBaseScale;
 
+        // this.shader.resources.customUniforms.uniforms.bodyAlpha = bodyAlpha;
+        // this.shader.resources.customUniforms.uniforms.borderColor = borderColor;
+        // this.shader.resources.customUniforms.uniforms.innerColor = innerColor;
+        // this.shader.resources.customUniforms.uniforms.outerColor = outerColor;
+        // this.shader.resources.customUniforms.uniforms.borderWidth = borderWidth;
+
         this.filter.filter.resources.customUniforms.uniforms.bodyAlpha = bodyAlpha;
         this.filter.filter.resources.customUniforms.uniforms.borderColor = borderColor;
         this.filter.filter.resources.customUniforms.uniforms.innerColor = innerColor;
         this.filter.filter.resources.customUniforms.uniforms.outerColor = outerColor;
         this.filter.filter.resources.customUniforms.uniforms.borderWidth = borderWidth;
-        // this.filter.filter.resources.customUniforms.uniforms.scaleRate = Game.SCALE_RATE;
+        // this.shader.resources.customUniforms.uniforms.scaleRate = Game.SCALE_RATE;
     }
 
     get alpha() {
@@ -298,6 +323,7 @@ export class SliderBody {
 
     set alpha(val) {
         this.filter.alpha = val;
+        // this.shader.resources.customUniforms.uniforms.alpha = val;
         // this.shader.resources.customUniforms.uniforms.alpha = val;
     }
 

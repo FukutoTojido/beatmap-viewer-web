@@ -37,10 +37,10 @@ fn filterTextureCoord(
 fn vsMain(
     @location(0) aPosition: vec2<f32>
 ) -> VertexOutput {
-    var position: vec2<f32> = aPosition;
+    var position: vec2<f32> = aPosition * globalUniforms.uOutputFrame.zw + globalUniforms.uOutputFrame.xy;
 
-    position[0] = position[0] * 2 - 1;
-    position[1] = -(position[1] * 2 - 1);
+    position[0] = position[0] * (2 / globalUniforms.uOutputTexture.x) - 1;
+    position[1] = (position[1] * (2 * globalUniforms.uOutputTexture.z / globalUniforms.uOutputTexture.y) - globalUniforms.uOutputTexture.z);
 
     return VertexOutput(
         vec4<f32>(position, 0, 1),

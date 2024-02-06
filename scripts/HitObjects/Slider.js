@@ -65,6 +65,8 @@ export class Slider {
 
     hitSounds;
 
+    scaleRate = 1;
+
     binom(n, k) {
         if (k < 0 || k > n) return 0;
         if (k == 0 || k == n) return 1;
@@ -112,7 +114,6 @@ export class Slider {
         this.selectedSliderEnd.y = y * Game.SCALE_RATE;
 
         this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
-
     }
 
     playHitsound(timestamp) {
@@ -226,27 +227,32 @@ export class Slider {
 
         // this.SliderMesh.update();
 
-        this.nodesLine.clear().setStrokeStyle({ width: 2, color: 0xffffff });
-        this.nodesGraphics.forEach((node, idx) => {
-            let { x, y } = this.nodes[idx].position;
-            if (Game.MODS.HR) y = 384 - y;
+        if (this.scaleRate !== Game.SCALE_RATE) {
+            this.scaleRate = Game.SCALE_RATE;
+            
+            this.nodesLine.clear().setStrokeStyle({ width: 2, color: 0xffffff });
+            this.nodesGraphics.forEach((node, idx) => {
+                let { x, y } = this.nodes[idx].position;
+                if (Game.MODS.HR) y = 384 - y;
 
-            x = (parseInt(x) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
-            y = (parseInt(y) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
+                x = (parseInt(x) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
+                y = (parseInt(y) + this.stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
-            node.x = x;
-            node.y = y;
+                node.x = x;
+                node.y = y;
 
-            if (idx === 0) {
-                this.nodesLine.moveTo(x, y);
-                return;
-            }
+                if (idx === 0) {
+                    this.nodesLine.moveTo(x, y);
+                    return;
+                }
 
-            this.nodesLine.lineTo(x, y).stroke();
-        });
+                this.nodesLine.lineTo(x, y).stroke();
+            });
+        }
 
-        if (this.isHover) this.nodesContainer.visible = true;
-        else this.nodesContainer.visible = false;
+        if (this.isHover !== this.nodesContainer.visible) {
+            this.nodesContainer.visible = this.isHover;
+        }
     }
 
     draw(timestamp) {
@@ -871,9 +877,7 @@ export class Slider {
 
             this.nodesLine.lineTo(x, y);
 
-            const graphic = new PIXI.Graphics()
-                .circle(0, 0, 5)
-                .fill(fillColor);
+            const graphic = new PIXI.Graphics().circle(0, 0, 5).fill(fillColor);
             this.nodesContainer.addChild(graphic);
 
             return graphic;

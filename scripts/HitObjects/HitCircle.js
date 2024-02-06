@@ -45,6 +45,16 @@ export class HitCircle {
 
     hitSounds;
 
+    skinIdx = 0;
+    skinType = 0;
+    props = {
+        color: null,
+        opacity: null,
+        expand: null,
+        x: null,
+        y: null
+    };
+
     drawSelected() {
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
 
@@ -80,9 +90,13 @@ export class HitCircle {
         if (evaluation !== -1) this.hitSounds.play();
     }
 
-    draw(timestamp) {
-        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
-        const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[Skinning.SKIN_IDX];
+    handleSkinChange() {
+        if (this.skinIdx === Skinning.SKIN_IDX && this.skinType === Game.SKINNING.type) return;
+        this.skinIdx = Skinning.SKIN_IDX;
+        this.skinType = Game.SKINNING.type;
+
+        const skinType = Skinning.SKIN_ENUM[this.skinType];
+        const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[this.skinIdx];
 
         this.hitCircleSprite.texture = textures.HIT_CIRCLE.texture;
         this.hitCircleSprite.scale.set(textures.HIT_CIRCLE.isHD ? 0.5 : 1);
@@ -90,9 +104,41 @@ export class HitCircle {
         this.hitCircleOverlaySprite.texture = textures.HIT_CIRCLE_OVERLAY.texture;
         this.hitCircleOverlaySprite.scale.set(textures.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
-        // Calculate object radius on HR / EZ toggle
-        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (skinType === "ARGON" ? 0.95 : 1);
+        if (this.skinType !== "0") {
+            this.hitCircleSprite.alpha = 0.9;
+        } else {
+            this.hitCircleSprite.alpha = 1;
+        }
+    }
 
+    updateColor() {
+        // Untint HitCircle on hit when hit animation is disabled
+        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
+        let color = colors[idx % colors.length];
+
+        if (this.skinType === "1") {
+            color = parseInt(
+                d3
+                    .color(`#${color.toString(16).padStart(6, "0")}`)
+                    .darker()
+                    .hex()
+                    .slice(1),
+                16
+            );
+        }
+
+        if (!Game.SLIDER_APPEARANCE.hitAnim && timestamp > this.hitTime) {
+            color = 0xffffff;
+        }
+
+        if (this.props.color === color) return;
+
+        this.props.color = color;
+        this.hitCircleSprite.tint = this.props.color;
+    }
+
+    updateOpacity(timestamp) {
         // Calculate current timing stats
         const currentPreempt = Beatmap.moddedStats.preempt;
         const currentFadeIn = Beatmap.moddedStats.fadeIn;
@@ -117,6 +163,15 @@ export class HitCircle {
         this.opacity = currentOpacity;
 
         if (this.hitTime > this.killTime && timestamp > this.killTime) currentOpacity = 0;
+        if (currentOpacity === this.props.opacity) return;
+
+        this.props.opacity = currentOpacity;
+        this.obj.alpha = this.props.opacity;
+    }
+
+    updateExpand(timestamp) {
+        // Calculate object radius on HR / EZ toggle
+        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (this.skinIdx === 0 ? 0.95 : 1);
 
         // Calculate object expandation
         let currentExpand = 1;
@@ -125,50 +180,39 @@ export class HitCircle {
         }
         currentExpand = Math.max(currentExpand, 1);
 
-        // if (this.time === 254369)
-        // console.log(this.time, currentExpand);
+        const scale = currentExpand * circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2;
+        if (this.props.expand === scale) return;
 
+        this.props.expand = scale;
+        this.obj.scale.set(this.props.expand);
+    }
+
+    updatePosition() {
         // Calculate stack offset for this object
         const stackHeight = this.stackHeight;
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
-        // Untint HitCircle on hit when hit animation is disabled
-        if (Game.SLIDER_APPEARANCE.hitAnim || timestamp < this.hitTime) {
-            const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-            const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
-            const color = colors[idx % colors.length];
-
-            this.hitCircleSprite.tint = color;
-
-            if (Game.SKINNING.type === "1") {
-                this.hitCircleSprite.tint = parseInt(
-                    d3
-                        .color(`#${color.toString(16).padStart(6, "0")}`)
-                        .darker()
-                        .hex()
-                        .slice(1),
-                    16
-                );
-            }
-        } else {
-            this.hitCircleSprite.tint = 0xffffff;
-        }
-
-        // Set HitCircle alpha and scale
-        this.obj.alpha = currentOpacity;
-        this.obj.scale.set(currentExpand * circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2);
-
         // Set HitCircle position
         const x = this.originalX + stackHeight * currentStackOffset;
         const y = !Game.MODS.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
-        this.obj.x = x * Game.SCALE_RATE;
-        this.obj.y = y * Game.SCALE_RATE;
 
-        if (Game.SKINNING.type !== "0") {
-            this.hitCircleSprite.alpha = 0.9;
-        } else {
-            this.hitCircleSprite.alpha = 1;
+        if (this.props.x !== x || Game.EMIT_STACK.length !== 0) {
+            this.props.x = x;
+            this.obj.x = x * Game.SCALE_RATE;
         }
+
+        if (this.props.y !== y || Game.EMIT_STACK.length !== 0) {
+            this.props.y = y;
+            this.obj.y = y * Game.SCALE_RATE;
+        }
+    }
+
+    draw(timestamp) {
+        this.handleSkinChange();
+        this.updateColor();
+        this.updateOpacity(timestamp);
+        this.updateExpand(timestamp);
+        this.updatePosition();
 
         this.number.draw(timestamp);
         this.approachCircleObj.draw(timestamp);

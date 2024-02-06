@@ -7,6 +7,7 @@ import { Component } from "./WindowManager.js";
 import { PlayContainer } from "./PlayButtons.js";
 import vertexSrc from "./Shaders/Progress/TimingPoint.vert?raw";
 import fragmentSrc from "./Shaders/Progress/TimingPoint.frag?raw";
+import gpuSrc from "./Shaders/Progress/TimingPoint.wgsl?raw";
 
 export class ProgressBar {
     static renderer;
@@ -136,7 +137,7 @@ export class ProgressBar {
                 aPosition: positionsBuffer,
                 aColor: colorBuffer,
             },
-            topology: "line-list"
+            topology: "line-list",
         });
 
         this.timeline.geometry = geometry;
@@ -158,6 +159,16 @@ export class ProgressBar {
                     vertex: vertexSrc,
                     fragment: fragmentSrc,
                 }),
+                gpu: PIXI.GpuProgram.from({
+                    vertex: {
+                        source: gpuSrc,
+                        entryPoint: "vsMain",
+                    },
+                    fragment: {
+                        source: gpuSrc,
+                        entryPoint: "fsMain",
+                    },
+                }),
             }),
         });
         this.timeline.x = 40 * devicePixelRatio;
@@ -175,6 +186,19 @@ export class ProgressBar {
 
         this.stage = this.MASTER_CONTAINER.container;
 
+        const gpu = PIXI.GpuProgram.from({
+            vertex: {
+                source: gpuSrc,
+                entryPoint: "vsMain",
+            },
+            fragment: {
+                source: gpuSrc,
+                entryPoint: "fsMain",
+            },
+        });
+        gpu.autoAssignGlobalUniforms = true;
+        gpu.autoAssignLocalUniforms = true;
+
         this.timeline = new PIXI.Mesh({
             geometry: new PIXI.Geometry({
                 attributes: {
@@ -188,6 +212,7 @@ export class ProgressBar {
                     vertex: vertexSrc,
                     fragment: fragmentSrc,
                 }),
+                gpu
             }),
         });
         this.timeline.x = 40 * devicePixelRatio;

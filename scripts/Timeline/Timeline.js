@@ -121,17 +121,38 @@ export class Timeline {
                 drawList.push(objList[end]);
                 end++;
             }
+
+            drawList.reverse();
         }
+
         this.DRAW_LIST.forEach((o) => {
+            if (drawList.length > 0 && o.obj.time <= drawList.at(0).obj.time && o.obj.time >= drawList.at(-1).obj.time) return;
             o.timelineObject?.removeSelfFromContainer(Timeline.hitArea.obj);
         });
-        this.DRAW_LIST = drawList;
 
-        drawList.toReversed().forEach((o) => {
+        drawList.forEach((o) => {
             if (!o.timelineObject) return;
-            o.timelineObject.addSelfToContainer(Timeline.hitArea.obj);
-            o.timelineObject.draw(timestamp);
+
+            if (this.DRAW_LIST.length <= 0) {
+                Timeline.hitArea.obj.addChild(o.timelineObject.obj);
+                return;
+            }
+
+            if (o.obj.time > this.DRAW_LIST.at(0).obj.time) {
+                Timeline.hitArea.obj.addChildAt(o.timelineObject.obj, 0);
+                return;
+            }
+
+            if (o.obj.time < this.DRAW_LIST.at(-1).obj.time) {
+                Timeline.hitArea.obj.addChildAt(o.timelineObject.obj, Timeline.hitArea.obj.children.length);
+                return;
+            }
         });
+
+        this.DRAW_LIST = drawList;
+        this.DRAW_LIST.forEach((o) => {
+            o.timelineObject?.draw(timestamp);
+        })
     }
 
     static destruct() {

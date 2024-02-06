@@ -338,6 +338,7 @@ export class Game {
         container.x = Game.OFFSET_X;
         container.y = Game.OFFSET_Y;
         container.eventMode = "static";
+        container.sortableChildren = true;
 
         return container;
     }
@@ -408,7 +409,7 @@ export class Game {
         Game.APP = new PIXI.Application();
 
         await Game.APP.init({
-            antialias: true,
+            // antialias: true,
             autoDensity: true,
             backgroundAlpha: 0,
             resizeTo: document.querySelector(".contentWrapper"),
