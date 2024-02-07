@@ -196,7 +196,7 @@ export class SliderBody {
         // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
         // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
 
-        this.container.addChild(this.circleMesh, this.bodyMesh);
+        this.container.addChild(this.graphics, this.circleMesh, this.bodyMesh);
         this.container.filters = [this.filter.filter];
 
         this.tint = [0.0, 0.0, 0.0, 1.0];
