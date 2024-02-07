@@ -402,7 +402,7 @@ export class TimingPanel {
         this.POINTS = [];
         this.SCROLLED = 0;
         Beatmap.timingPointsList.forEach((point, idx) => {
-            const p = new TimingPoint(point, idx)
+            const p = new TimingPoint(point, idx);
             this.POINTS.push(p);
         });
     }
@@ -459,6 +459,10 @@ export class TimingPanel {
             .clear()
             .roundRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
             .fill({ color: 0xaaaaaa, alpha: this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1 });
+
+        if (Game.DEVE_RATIO !== devicePixelRatio) {
+            this.POINTS.forEach((point) => point.resize());
+        }
     }
 
     static resize() {
