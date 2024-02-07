@@ -303,7 +303,7 @@ export class BeatmapFile {
             .split("\r\n")
             .filter((line) => line.match(/0,0,"*.*"/g))
             .at(0)
-            ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._-~]+\.[a-zA-Z0-9]+"/g)[0]
+            ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~]+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
 
         console.log(audioFilename, backgroundFilename);
