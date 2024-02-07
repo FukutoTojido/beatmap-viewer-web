@@ -78,6 +78,8 @@ export class Timeline {
             Timeline.MASTER_CONTAINER.borderRadius = 10;
         }
 
+        Timeline.MASTER_CONTAINER.redraw();
+
         if (Timeline.WIDTH === Timeline.MASTER_CONTAINER.w && Timeline.HEIGHT === Timeline.MASTER_CONTAINER.h) return;
 
         Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;

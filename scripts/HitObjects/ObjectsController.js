@@ -265,7 +265,7 @@ export class ObjectsController {
 
     static render() {
         Game.appResize();
-        // Timeline.resize();
+        Timeline.resize();
 
         const deltaMS = performance.now() - this.lastRenderTime;
         this.lastRenderTime = performance.now();
