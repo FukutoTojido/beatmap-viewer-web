@@ -172,7 +172,7 @@ export class TitleArtist {
         if (innerWidth / innerHeight < 1) {
             const currentTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
             Game.STATS?.update();
-            Timestamp.forceUpdate(currentTime ?? 0);
+            Timestamp.rePosition();
             BPM.forceUpdate();
             PlayContainer.forceUpdate();
             ProgressBar.forceResize();
