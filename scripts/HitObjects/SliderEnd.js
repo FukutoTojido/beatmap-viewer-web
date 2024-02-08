@@ -87,7 +87,7 @@ export class SliderEnd {
         this.updatePosition();
 
         const alpha = this.getAlpha(timestamp);
-        if (alpha && (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha)) {
+        if (alpha !== undefined && (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha)) {
             this.props.alpha = alpha;
             this.hitCircle.obj.alpha = alpha;
         }
