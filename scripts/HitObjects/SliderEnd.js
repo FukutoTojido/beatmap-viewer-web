@@ -56,7 +56,7 @@ export class SliderEnd {
         }
 
         if (timestamp >= startTime && timestamp < startTime + currentFadeIn) {
-            return (timestamp - startTime) / currentFadeIn * 0.9;
+            return ((timestamp - startTime) / currentFadeIn) * 0.9;
         }
 
         if (timestamp > startTime + currentFadeIn && Game.MODS.HD) {
@@ -87,7 +87,7 @@ export class SliderEnd {
         this.updatePosition();
 
         const alpha = this.getAlpha(timestamp);
-        if (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha) {
+        if (alpha && (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha)) {
             this.props.alpha = alpha;
             this.hitCircle.obj.alpha = alpha;
         }
