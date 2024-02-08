@@ -123,9 +123,9 @@ export class Game {
             fontWeight: 500,
         };
 
-        const fpsSprite = new PIXI.Text({
+        const fpsSprite = new PIXI.BitmapText({
             text: `0fps\nInfinite ms`,
-            renderMode: "bitmap",
+            // renderMode: "bitmap",
             style: {
                 ...fpsStyle,
             },

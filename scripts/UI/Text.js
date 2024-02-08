@@ -6,7 +6,7 @@ export class Text {
 
         this._sprite = new PIXI.Text({
             text: this.text,
-            renderMode: renderMode ?? "canvas",
+            // renderMode: renderMode ?? "canvas",
             style: style,
         });
 
