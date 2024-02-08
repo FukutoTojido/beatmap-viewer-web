@@ -19,6 +19,8 @@ import { Background } from "./Background.js";
 import { closePopup } from "./Timestamp.js";
 
 export class Game {
+    static INIT = false;
+
     static APP;
     static WRAPPER;
     static MASTER_CONTAINER;
@@ -114,7 +116,7 @@ export class Game {
 
     static FPSInit() {
         const fpsStyle = {
-            fontFamily: "TorusBitmap15",
+            fontFamily: "Torus",
             align: "right",
             fontSize: 15,
             fill: "white",
@@ -416,6 +418,8 @@ export class Game {
             preference: "webgl",
         });
 
+        // console.log(Game.APP.renderer);
+
         Game.appSizeSetup();
         Game.gameInit();
     }
@@ -598,9 +602,10 @@ export class Game {
         HitSample.masterGainNode.connect(Game.AUDIO_CTX.destination);
 
         Game.APP.ticker.add(() => {
-            TWEEN.update();
-            ObjectsController.render();
-            Game.DEVE_RATIO = devicePixelRatio;
+            // console.log("tick");
+            // TWEEN.update();
+            // ObjectsController.render();
+            // Game.DEVE_RATIO = devicePixelRatio;
         });
 
         // const update = () => {
@@ -612,5 +617,7 @@ export class Game {
         // };
 
         // requestAnimationFrame(() => update());
+
+        Game.INIT = true;
     }
 }

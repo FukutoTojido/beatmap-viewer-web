@@ -60,6 +60,7 @@ class TimingPoint {
 
         this.timestamp = new PIXI.Text({
             text: timestamp,
+            renderMode: "canvas",
             style: {
                 fontFamily: "Torus",
                 fontWeight: 400,
@@ -76,6 +77,7 @@ class TimingPoint {
             text: `${(timingPoint.beatstep ? 60000 / timingPoint.beatstep : timingPoint.svMultiplier).toFixed(2)}${
                 timingPoint.beatstep ? " BPM" : "x"
             }`,
+            renderMode: "canvas",
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
@@ -97,6 +99,7 @@ class TimingPoint {
 
         this.sample = new PIXI.Text({
             text: `${HitSound.HIT_SAMPLES[timingPoint.sampleSet][0].toUpperCase()}${timingPoint.sampleIdx !== 0 ? ":C" + timingPoint.sampleIdx : ""}`,
+            renderMode: "canvas",
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
@@ -110,6 +113,7 @@ class TimingPoint {
 
         this.volume = new PIXI.Text({
             text: `${timingPoint.sampleVol}%`,
+            renderMode: "canvas",
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,

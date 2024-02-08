@@ -94,6 +94,8 @@ export class SliderBody {
         this.geometry = curveGeometry;
         this.circleGeometry = circleGeometry;
 
+        // console.log(curveGeometry);
+
         this.container = new SliderMeshContainer(this);
 
         this.tint = [0.0, 0.0, 0.0, 1.0];
@@ -293,9 +295,9 @@ export class SliderBody {
 
         return new PIXI.Geometry({
             attributes: {
-                aPosition: vert,
+                aPosition: new Float32Array(vert),
             },
-            indexBuffer: index,
+            indexBuffer: (index),
         });
     }
 
@@ -311,9 +313,9 @@ export class SliderBody {
         }
         return new PIXI.Geometry({
             attributes: {
-                aPosition: vert,
+                aPosition: new Float32Array(vert),
             },
-            indexBuffer: index,
+            indexBuffer: (index),
         });
     }
 

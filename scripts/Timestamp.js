@@ -73,7 +73,7 @@ export class Timestamp {
             text: type === "digit" ? `0` : ":",
             renderMode: "bitmap",
             style: {
-                fontFamily: "TorusBitmap16",
+                fontFamily: "Torus",
                 fontSize: 16 * devicePixelRatio,
                 align: "center",
                 fontWeight: 500,
