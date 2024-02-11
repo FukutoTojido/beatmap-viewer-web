@@ -24,6 +24,8 @@ PIXI.BitmapFont.install({
     chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
 });
 
+PIXI.UniformGroup
+
 function setupDefaultStorage() {
     const settingsTemplate = {
         mirror: {
