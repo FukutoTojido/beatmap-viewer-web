@@ -24,6 +24,18 @@ PIXI.BitmapFont.install({
     chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
 });
 
+PIXI.BitmapFont.install({
+    name: "Torus16",
+    style: {
+        fontSize: 16,
+        align: "center",
+        fill: "white",
+        fontFamily: "Torus",
+        fontWeight: 400,
+    },
+    chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
+});
+
 PIXI.UniformGroup
 
 function setupDefaultStorage() {
