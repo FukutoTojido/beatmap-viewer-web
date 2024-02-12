@@ -1,6 +1,6 @@
 precision mediump float;
 attribute vec4 aPosition;
-// attribute float isCirc;
+attribute float isCirc;
 
 out float dist;
 
@@ -19,10 +19,10 @@ void main() {
     float t = dt;
     float offset = ot;
 
-    // if (isCirc == 0.0) {
-    //     t = dt;
-    //     offset = ot;
-    // };
+    if (isCirc == 1.0) {
+        t = 0.0;
+        offset = 1.0;
+    };
 
     float distance_var = 0.0;
     if (aPosition[2] * t > offset) distance_var = 1.0;

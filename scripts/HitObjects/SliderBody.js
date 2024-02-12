@@ -296,8 +296,9 @@ export class SliderBody {
         return new PIXI.Geometry({
             attributes: {
                 aPosition: new Float32Array(vert),
+                isCirc: new Float32Array(new Array(vert.length / 4).fill(0.0)),
             },
-            indexBuffer: (index),
+            indexBuffer: index,
         });
     }
 
@@ -314,8 +315,9 @@ export class SliderBody {
         return new PIXI.Geometry({
             attributes: {
                 aPosition: new Float32Array(vert),
+                isCirc: new Float32Array(new Array(vert.length / 4).fill(1.0)),
             },
-            indexBuffer: (index),
+            indexBuffer: index,
         });
     }
 

@@ -415,7 +415,7 @@ export class Game {
             autoDensity: true,
             backgroundAlpha: 0,
             resizeTo: document.querySelector(".contentWrapper"),
-            preference: "webgl",
+            // preference: "webgl",
         });
 
         // console.log(Game.APP.renderer);

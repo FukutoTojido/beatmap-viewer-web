@@ -29,11 +29,17 @@ struct VertexOutput {
 @vertex
 fn vsMain(
     @location(0) aPosition: vec4<f32>,
+    @location(1) isCirc: f32,
 ) -> VertexOutput {
     var dist = aPosition[3];
 
     var t = customUniforms.dt;
     var offset = customUniforms.ot;
+
+    if (isCirc == 1.0) {
+        t = 0.0;
+        offset = 1.0;
+    } 
 
     var distance_var = 0.0;
     if (aPosition[2] * t > offset) {
@@ -48,11 +54,21 @@ fn vsMain(
         y = aPosition.y;
     }
 
+    var z: f32 = aPosition[3] + 2.0 * distance_var;
+
+    var offset_x = customUniforms.ox;
+    var offset_y = customUniforms.oy;
+
+    if (isCirc == 1.0) {
+        offset_x += customUniforms.ballPosition.x;
+        offset_y += customUniforms.ballPosition.y;
+    }
+
     return VertexOutput(
         vec4<f32>(
-            -1.0 + aPosition.x * customUniforms.dx + customUniforms.ox,
-            (y * customUniforms.dy + 1.0) + customUniforms.oy,
-            aPosition[3] + 2.0 * distance_var,
+            -1.0 + aPosition.x * customUniforms.dx + offset_x,
+            (y * customUniforms.dy + 1.0) + offset_y,
+            (z + 1.0) / 2.0,
             1.0
         ),
         dist
