@@ -12,33 +12,19 @@ import * as PIXI from "pixi.js";
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
 
-PIXI.BitmapFontManager.install(
-    "TorusBitmap15",
-    {
+PIXI.BitmapFont.install({
+    name: "Torus",
+    style: {
         fontSize: 15,
         align: "right",
         fill: "white",
         fontFamily: "Torus",
-        fontWeight: 500
+        fontWeight: 400,
     },
-    {
-        chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :"],
-    }
-);
+    chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
+});
 
-PIXI.BitmapFontManager.install(
-    "TorusBitmap16",
-    {
-        fontSize: 16,
-        align: "right",
-        fill: "white",
-        fontFamily: "Torus",
-        fontWeight: 500
-    },
-    {
-        chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :"],
-    }
-);
+PIXI.UniformGroup
 
 function setupDefaultStorage() {
     const settingsTemplate = {

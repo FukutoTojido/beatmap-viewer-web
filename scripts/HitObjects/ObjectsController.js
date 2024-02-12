@@ -14,6 +14,7 @@ import { HitSample } from "../Audio.js";
 import { MetadataPanel } from "../SidePanel.js";
 import { PlayContainer } from "../PlayButtons.js";
 import { BPM } from "../BPM.js";
+import { frameData } from "../FPSSystem.js";
 import * as TWEEN from "@tweenjs/tween.js";
 
 export class ObjectsController {
@@ -32,6 +33,7 @@ export class ObjectsController {
     tempH = Game.HEIGHT;
 
     filtered = [];
+    selected = [];
 
     _in = [];
 
@@ -147,19 +149,41 @@ export class ObjectsController {
 
         this.filtered = drawList;
 
-        // const selected = [];
-        // Game.SELECTED.forEach((time) => {
-        //     const objIndex = binarySearch(this.objectsList, time, (element, value) => {
-        //         if (element.obj.time === value) return 0;
-        //         if (element.obj.time < value) return -1;
-        //         if (element.obj.time > value) return 1;
-        //     });
+        const selected = [];
+        Game.SELECTED.forEach((time) => {
+            const objIndex = binarySearch(this.objectsList, time, (element, value) => {
+                if (element.obj.time === value) return 0;
+                if (element.obj.time < value) return -1;
+                if (element.obj.time > value) return 1;
+            });
 
-        //     if (objIndex === -1) return;
+            if (objIndex === -1) return;
 
-        //     const o = this.objectsList[objIndex];
-        //     selected.push(o);
-        // });
+            const o = this.objectsList[objIndex];
+            selected.push(o);
+        });
+
+        this.selected.forEach((object) => {
+            if (selected.includes(object)) return;
+            Game.CONTAINER.removeChild(object.obj.selected);
+
+            if (object.obj instanceof Slider) {
+                Game.CONTAINER.removeChild(object.obj.hitCircle.selected);
+                Game.CONTAINER.removeChild(object.obj.selectedSliderEnd);
+            }
+        });
+
+        selected.forEach((object) => {
+            if (this.selected.includes(object)) return;
+            Game.CONTAINER.addChild(object.obj.selected);
+
+            if (object.obj instanceof Slider) {
+                Game.CONTAINER.addChild(object.obj.hitCircle.selected);
+                Game.CONTAINER.addChild(object.obj.selectedSliderEnd);
+            }
+        });
+
+        this.selected = selected;
 
         // const judgements = this.judgementList.filter((judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp);
 
@@ -229,6 +253,10 @@ export class ObjectsController {
             object.obj.draw(Math.max(timestamp, 0));
         });
 
+        this.selected.forEach((object) => {
+            object.obj.drawSelected();
+        });
+
         if (ScoreParser.CURSOR_DATA) {
             let posInfoIndex = binarySearchNearest(ScoreParser.CURSOR_DATA.slice(0, -1), timestamp, (cursorData, timestamp) => {
                 if (cursorData.time < timestamp) return -1;
@@ -290,6 +318,6 @@ export class ObjectsController {
         Game.EMIT_STACK.pop();
 
         const end = performance.now();
-        Game.FPS.text = `${Math.round(Game.APP.ticker.FPS)}fps\n${(end - start).toFixed(2)}ms`;
+        Game.FPS.text = `${Math.round(frameData.fps)}fps\n${frameData.deltaMS.toFixed(2)}ms`;
     }
 }

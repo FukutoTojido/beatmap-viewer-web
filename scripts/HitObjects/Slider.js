@@ -67,6 +67,8 @@ export class Slider {
 
     scaleRate = 1;
 
+    isHR = false;
+
     binom(n, k) {
         if (k < 0 || k > n) return 0;
         if (k == 0 || k == n) return 1;
@@ -227,9 +229,10 @@ export class Slider {
 
         // this.SliderMesh.update();
 
-        if (this.scaleRate !== Game.SCALE_RATE) {
+        if (this.scaleRate !== Game.SCALE_RATE || this.isHR !== Game.MODS.HR) {
             this.scaleRate = Game.SCALE_RATE;
-            
+            this.isHR = Game.MODS.HR;
+
             this.nodesLine.clear().setStrokeStyle({ width: 2, color: 0xffffff });
             this.nodesGraphics.forEach((node, idx) => {
                 let { x, y } = this.nodes[idx].position;

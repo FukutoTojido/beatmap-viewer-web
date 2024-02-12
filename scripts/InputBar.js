@@ -143,6 +143,7 @@ export function submitMap(isDragAndDrop, beatmapID) {
 }
 
 document.querySelector("#submit").addEventListener("click", () => {
+    document.querySelector("#submit").blur();
     ScoreParser.reset();
     submitMap(false);
 });

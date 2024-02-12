@@ -158,7 +158,11 @@ export class Timeline {
     }
 
     static destruct() {
-        const removedChildren = Timeline.obj.removeChildren();
-        removedChildren.forEach((e) => e.destroy());
+        this.DRAW_LIST.forEach(o => {
+            o.timelineObject.removeSelfFromContainer(Timeline.hitArea.obj);
+            o.timelineObject.obj.destroy();
+        });
+
+        this.DRAW_LIST.length = 0;
     }
 }

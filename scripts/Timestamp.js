@@ -69,14 +69,14 @@ export class Timestamp {
     static EMIT_CHANGE = false;
 
     static createDigit(x = 0, type = "digit") {
-        const digit = new PIXI.Text({
+        const digit = new PIXI.BitmapText({
             text: type === "digit" ? `0` : ":",
-            renderMode: "bitmap",
+            // renderMode: "bitmap",
             style: {
-                fontFamily: "TorusBitmap16",
+                fontFamily: "Torus",
                 fontSize: 16 * devicePixelRatio,
                 align: "center",
-                fontWeight: 500,
+                fontWeight: 400,
             },
         });
 

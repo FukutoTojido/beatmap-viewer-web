@@ -7,83 +7,9 @@ import gpuFilter from "../Shaders/Alpha.wgsl?raw";
 import { Game } from "../Game";
 import { Skinning } from "../Skinning";
 import { Beatmap } from "../Beatmap";
+import { SliderMeshContainer } from "./SliderMeshContainer";
 
 const DIVIDES = 64;
-
-PIXI.defaultFilterVert;
-
-class ShaderFilter {
-    filter;
-
-    constructor() {
-        const gl = PIXI.GlProgram.from({
-            vertex: `
-            in vec2 aPosition;
-            out vec2 vTextureCoord;
-
-            uniform vec4 uInputSize;
-            uniform vec4 uOutputFrame;
-            uniform vec4 uOutputTexture;
-
-            vec4 filterVertexPosition( void )
-            {
-                vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-    
-                position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-                position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-            
-                return vec4(position, 0.0, 1.0);
-            }
-
-            vec2 filterTextureCoord( void )
-            {
-                return aPosition * (uOutputFrame.zw * uInputSize.zw);
-            }
-
-            void main(void)
-            {
-                gl_Position = filterVertexPosition();
-                vTextureCoord = filterTextureCoord();
-            }
-            `,
-            fragment: fragFilter,
-        });
-
-        const gpu = PIXI.GpuProgram.from({
-            vertex: {
-                source: gpuFilter,
-                entryPoint: "vsMain",
-            },
-            fragment: {
-                source: gpuFilter,
-                entryPoint: "fsMain",
-            },
-        });
-
-        this.filter = new PIXI.Filter({
-            glProgram: gl,
-            gpuProgram: gpu,
-            resources: {
-                customUniforms: {
-                    alpha: { value: 1.0, type: "f32" },
-                    bodyAlpha: { value: 1, type: "f32" },
-                    borderColor: { value: [1.0, 1.0, 1.0, 1.0], type: "vec4<f32>" },
-                    innerColor: { value: [0.0, 0.0, 0.0, 0.0], type: "vec4<f32>" },
-                    outerColor: { value: [0.0, 0.0, 0.0, 0.0], type: "vec4<f32>" },
-                    borderWidth: { value: 0.128, type: "f32" },
-                },
-            },
-        });
-    }
-
-    get alpha() {
-        return this.filter.resources.customUniforms.uniforms.alpha;
-    }
-
-    set alpha(val) {
-        this.filter.resources.customUniforms.uniforms.alpha = val;
-    }
-}
 
 export class SliderBody {
     container;
@@ -103,24 +29,22 @@ export class SliderBody {
 
     static RADIUS = 54.4 * (236 / 256);
 
-    constructor(angleList, curveGeometryObj, circleGeometry, slider, isSelected) {
+    transform = {
+        ox: 0,
+        oy: 0,
+        dx: 0,
+        dy: 0,
+    };
+
+    ballPosition = {
+        x: 0,
+        y: 0,
+    };
+
+    constructor(angleList, curveGeometry, circleGeometry, slider, isSelected) {
         this.angleList = angleList;
         this.isSelected = isSelected;
         this.slider = slider;
-
-        this.bounds = {
-            minX: null,
-            minY: null,
-            maxX: null,
-            maxY: null,
-        };
-
-        curveGeometryObj.points.forEach((point) => {
-            if (!this.bounds.minX || point.x < this.bounds.minX) this.bounds.minX = point.x;
-            if (!this.bounds.minY || point.y < this.bounds.minY) this.bounds.minY = point.y;
-            if (!this.bounds.maxX || point.x > this.bounds.maxX) this.bounds.maxX = point.x;
-            if (!this.bounds.maxY || point.y > this.bounds.maxY) this.bounds.maxY = point.y;
-        });
 
         const gl = PIXI.GlProgram.from({
             vertex: vertexSrc,
@@ -167,53 +91,17 @@ export class SliderBody {
             },
         });
 
-        // console.log(this.shader);
+        this.geometry = curveGeometry;
+        this.circleGeometry = circleGeometry;
 
-        this.bodyMesh = new PIXI.Mesh({
-            geometry: curveGeometryObj.geometry,
-            shader: this.shader,
-            roundPixels: true,
-        });
-        this.bodyMesh.state.depthTest = true;
-        this.bodyMesh.scale.set(this.scaleRate);
+        // console.log(curveGeometry);
 
-        this.circleMesh = new PIXI.Mesh({
-            geometry: circleGeometry,
-            shader: this.shader,
-            roundPixels: true,
-        });
-        this.circleMesh.state.depthTest = true;
-        this.circleMesh.scale.set(this.scaleRate);
-
-        this.graphics = new PIXI.Graphics()
-            .rect(-Game.OFFSET_X, -Game.OFFSET_Y, Game.WRAPPER.w, Game.WRAPPER.h)
-            .fill({ color: "black", alpha: 0.001 });
-
-        // this.filter = new PIXI.AlphaFilter({ alpha: 1 });
-        this.filter = new ShaderFilter();
-
-        this.container = new PIXI.Container();
-        // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
-        // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
-
-        this.container.addChild(this.graphics, this.circleMesh, this.bodyMesh);
-        this.container.filters = [this.filter.filter];
+        this.container = new SliderMeshContainer(this);
 
         this.tint = [0.0, 0.0, 0.0, 1.0];
     }
 
     update() {
-        if (Game.EMIT_STACK.length !== 0) {
-            // this.container.x = -Game.WIDTH * 10 / 8 * 0.031;
-            // this.container.y = -Game.HEIGHT * 10 / 8 * 0.04;
-        }
-
-        if (this.scaleRate !== Game.SCALE_RATE) {
-            this.scaleRate = Game.SCALE_RATE;
-            this.bodyMesh.scale.set(this.scaleRate);
-            this.circleMesh.scale.set(this.scaleRate);
-        }
-
         const SKIN_TYPE = parseInt(Game.SKINNING.type);
         const IS_SELECTED = this.isSelected;
 
@@ -265,11 +153,11 @@ export class SliderBody {
         const transform = {
             dx: dx,
             ox: (2 * (Game.MASTER_CONTAINER.x + Game.OFFSET_X)) / Game.APP.renderer.width + offsetX,
-            // ox: 0,
             dy: dy,
             oy: (-2 * (Game.MASTER_CONTAINER.y + Game.OFFSET_Y + Game.WRAPPER.y)) / Game.APP.renderer.height + offsetY,
-            // oy: 0
         };
+
+        this.transform = transform;
 
         this.shader.resources.customUniforms.uniforms.dx = transform.dx;
         this.shader.resources.customUniforms.uniforms.ox = transform.ox;
@@ -279,42 +167,23 @@ export class SliderBody {
         this.shader.resources.customUniforms.uniforms.stackOffset = this.slider.stackHeight * currentStackOffset;
 
         if (this.startt == 0.0 && this.endt == 1.0) {
-            this.shader.resources.customUniforms.uniforms.dt = 0;
-            this.shader.resources.customUniforms.uniforms.ot = 1;
-
             const point = SliderBody.getPointAtT(this.angleList, this.endt);
-            this.shader.resources.customUniforms.uniforms.ballPosition[0] = point.x;
-            this.shader.resources.customUniforms.uniforms.ballPosition[1] = point.y;
+            this.ballPosition = point;
         } else if (this.startt == 0.0) {
-            this.shader.resources.customUniforms.uniforms.dt = 1;
-            this.shader.resources.customUniforms.uniforms.ot = this.endt;
-
             const point = SliderBody.getPointAtT(this.angleList, this.endt);
-            this.shader.resources.customUniforms.uniforms.ballPosition[0] = point.x;
-            this.shader.resources.customUniforms.uniforms.ballPosition[1] = point.y;
+            this.ballPosition = point;
         } else if (this.endt == 1.0) {
-            this.shader.resources.customUniforms.uniforms.dt = -1;
-            this.shader.resources.customUniforms.uniforms.ot = -this.startt;
-
             const point = SliderBody.getPointAtT(this.angleList, this.startt);
-            this.shader.resources.customUniforms.uniforms.ballPosition[0] = point.x;
-            this.shader.resources.customUniforms.uniforms.ballPosition[1] = point.y;
+            this.ballPosition = point;
         }
 
         this.shader.resources.customUniforms.uniforms.circleBaseScale = circleBaseScale;
 
-        // this.shader.resources.customUniforms.uniforms.bodyAlpha = bodyAlpha;
-        // this.shader.resources.customUniforms.uniforms.borderColor = borderColor;
-        // this.shader.resources.customUniforms.uniforms.innerColor = innerColor;
-        // this.shader.resources.customUniforms.uniforms.outerColor = outerColor;
-        // this.shader.resources.customUniforms.uniforms.borderWidth = borderWidth;
-
-        this.filter.filter.resources.customUniforms.uniforms.bodyAlpha = bodyAlpha;
-        this.filter.filter.resources.customUniforms.uniforms.borderColor = borderColor;
-        this.filter.filter.resources.customUniforms.uniforms.innerColor = innerColor;
-        this.filter.filter.resources.customUniforms.uniforms.outerColor = outerColor;
-        this.filter.filter.resources.customUniforms.uniforms.borderWidth = borderWidth;
-        // this.shader.resources.customUniforms.uniforms.scaleRate = Game.SCALE_RATE;
+        this.shader.resources.customUniforms.uniforms.bodyAlpha = bodyAlpha;
+        this.shader.resources.customUniforms.uniforms.borderColor = borderColor;
+        this.shader.resources.customUniforms.uniforms.innerColor = innerColor;
+        this.shader.resources.customUniforms.uniforms.outerColor = outerColor;
+        this.shader.resources.customUniforms.uniforms.borderWidth = borderWidth;
     }
 
     get alpha() {
@@ -322,9 +191,7 @@ export class SliderBody {
     }
 
     set alpha(val) {
-        this.filter.alpha = val;
-        // this.shader.resources.customUniforms.uniforms.alpha = val;
-        // this.shader.resources.customUniforms.uniforms.alpha = val;
+        this.shader.resources.customUniforms.uniforms.alpha = val;
     }
 
     static curveGeometry(curve0, radius) {
@@ -426,16 +293,13 @@ export class SliderBody {
         addArc(0, 1, 2, curve[0].t);
         addArc(5 * curve.length - 5, 5 * curve.length - 6, 5 * curve.length - 7, curve.at(-1).t);
 
-        return {
-            geometry: new PIXI.Geometry({
-                attributes: {
-                    aPosition: vert,
-                    isCirc: new Array(vert.length / 4).fill(0.0),
-                },
-                indexBuffer: index,
-            }),
-            points: vertUnserialized,
-        };
+        return new PIXI.Geometry({
+            attributes: {
+                aPosition: new Float32Array(vert),
+                isCirc: new Float32Array(new Array(vert.length / 4).fill(0.0)),
+            },
+            indexBuffer: index,
+        });
     }
 
     static circleGeometry(radius) {
@@ -450,8 +314,8 @@ export class SliderBody {
         }
         return new PIXI.Geometry({
             attributes: {
-                aPosition: vert,
-                isCirc: new Array(vert.length / 4).fill(1.0),
+                aPosition: new Float32Array(vert),
+                isCirc: new Float32Array(new Array(vert.length / 4).fill(1.0)),
             },
             indexBuffer: index,
         });
