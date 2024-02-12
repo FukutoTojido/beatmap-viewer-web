@@ -44,6 +44,8 @@ export class ObjectsController {
     static lastTimestamp = 0;
     static lastRenderTime = 0;
 
+    static sumMS = 0;
+
     // static preempt = 0;
 
     compare(a, b) {
@@ -298,8 +300,6 @@ export class ObjectsController {
         const deltaMS = performance.now() - this.lastRenderTime;
         this.lastRenderTime = performance.now();
 
-        const start = performance.now();
-
         const currentAudioTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
 
         Timestamp.update(currentAudioTime ?? 0);
@@ -317,7 +317,10 @@ export class ObjectsController {
 
         Game.EMIT_STACK.pop();
 
-        const end = performance.now();
+        ObjectsController.sumMS += frameData.deltaMS;
+        if (ObjectsController.sumMS < 8) return;
+
+        ObjectsController.sumMS = 0;
         Game.FPS.text = `${Math.round(frameData.fps)}fps\n${frameData.deltaMS.toFixed(2)}ms`;
     }
 }
