@@ -419,6 +419,8 @@ export class Game {
         });
 
         // console.log(Game.APP.renderer);
+        if (Game.APP.renderer.gl) console.log("USING WEBGL 2");
+        if (Game.APP.renderer.gpu) console.log("USING WEBGPU");
 
         Game.appSizeSetup();
         Game.gameInit();
