@@ -49,6 +49,14 @@ document.body.addEventListener("change", (e) => {
         currentLocalStorage.mirror.val = target.value;
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
+
+    if (["webgpu", "webgl", "auto"].includes(target.value)) {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.renderer.val = target.value;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        location.reload();
+    }
 });
 
 export function setCustomMirror(input) {

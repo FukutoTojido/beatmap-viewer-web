@@ -154,6 +154,24 @@
             <div class="description">change the way the beatmap player behaves</div>
         </div>
         <div class="section">
+            <div class="title">renderer</div>
+            <div class="description">changing this will trigger a page reload</div>
+            <div class="list">
+                <div class="radioSel">
+                    <input type="radio" name="renderer" id="webgpu" value="webgpu">
+                    <label for="webgpu">WebGPU</label>
+                </div>
+                <div class="radioSel">
+                    <input type="radio" name="renderer" id="webgl" value="webgl">
+                    <label for="webgl">WebGL 2</label>
+                </div>
+                <div class="radioSel">
+                    <input type="radio" name="renderer" id="auto" value="auto" checked>
+                    <label for="auto">Auto</label>
+                </div>
+            </div>
+        </div>
+        <div class="section">
             <div class="title">beatmap provider</div>
             <div class="list">
                 <div class="radioSel">

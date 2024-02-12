@@ -410,13 +410,20 @@ export class Game {
         // App initialize
         Game.APP = new PIXI.Application();
 
-        await Game.APP.init({
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        const preferred = currentLocalStorage.renderer.val;
+
+        const initOptions = {
             // antialias: true,
             autoDensity: true,
             backgroundAlpha: 0,
             resizeTo: document.querySelector(".contentWrapper"),
-            // preference: "webgl",
-        });
+        };
+
+        if (preferred === "webgl") initOptions.preference = "webgl";
+        if (preferred === "webgpu") initOptions.preference = "webgpu";
+
+        await Game.APP.init(initOptions);
 
         // console.log(Game.APP.renderer);
         if (Game.APP.renderer.gl) console.log("USING WEBGL 2");

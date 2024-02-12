@@ -28,6 +28,9 @@ PIXI.UniformGroup
 
 function setupDefaultStorage() {
     const settingsTemplate = {
+        renderer: {
+            val: "auto"
+        },
         mirror: {
             val: "nerinyan",
             custom: "",
@@ -89,8 +92,8 @@ function setupDefaultStorage() {
 
     // Init
     await Game.init();
-
     await loadLocalStorage();
+
     await Texture.generateDefaultTextures();
 
     document.querySelector(".loading").style.opacity = 0;

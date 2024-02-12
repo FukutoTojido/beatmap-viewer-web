@@ -131,6 +131,10 @@ export async function loadLocalStorage() {
             ele.checked = ele.value === currentLocalStorage.mirror.val;
         });
 
+        [...document.querySelectorAll('[name="renderer"]')].forEach((ele) => {
+            ele.checked = ele.value === currentLocalStorage.renderer.val;
+        });
+
         Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
         Skinning.changeSkin();
 
