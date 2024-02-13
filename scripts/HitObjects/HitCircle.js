@@ -111,7 +111,7 @@ export class HitCircle {
         }
     }
 
-    updateColor() {
+    updateColor(timestamp) {
         // Untint HitCircle on hit when hit animation is disabled
         const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
         const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.colourIdx : this.colourHaxedIdx;
@@ -209,7 +209,7 @@ export class HitCircle {
 
     draw(timestamp) {
         this.handleSkinChange();
-        this.updateColor();
+        this.updateColor(timestamp);
         this.updateOpacity(timestamp);
         this.updateExpand(timestamp);
         this.updatePosition();
