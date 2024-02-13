@@ -29,6 +29,12 @@
     src: url(../fonts/TorusThin.otf);
 }
 
+@font-face {
+    font-family: Nicolatte;
+    font-weight: 600;
+    src: url(../fonts/NICOLATTE.ttf);
+}
+
 :root {
     --primary-1: #171a1f;
     --primary-2: #2e3440;

@@ -116,11 +116,12 @@ export class Game {
 
     static FPSInit() {
         const fpsStyle = {
-            fontFamily: "Torus",
+            fontFamily: "Nicolatte",
             align: "right",
             fontSize: 15,
             fill: "white",
-            fontWeight: 500,
+            fontWeight: 600,
+            letterSpacing: 1,
         };
 
         const fpsSprite = new PIXI.BitmapText({

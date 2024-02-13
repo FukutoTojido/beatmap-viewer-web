@@ -39,7 +39,19 @@ export class FPSSystem {
     prerender() {
         // console.log("prerender");
         this._renderStart = performance.now();
-        frameData.fps = 1000 / (this._renderStart - this._lastFrame);
+        const fps = 1000 / (this._renderStart - this._lastFrame);
+        this._fpsQueue.push(fps);
+
+        while (this._fpsQueue.length > 100) {
+            this._fpsQueue.shift();
+        }
+
+        frameData.fps =
+            this._fpsQueue.reduce((accm, curr, idx) => {
+                return accm + curr * ((idx + 1) / this._fpsQueue.length);
+            }, 0) /
+            ((1 / this._fpsQueue.length + 1) * (this._fpsQueue.length / 2));
+
         this._lastFrame = this._renderStart;
 
         if (!Game.INIT) return;
@@ -51,7 +63,18 @@ export class FPSSystem {
 
     postrender() {
         // console.log("postrender");
-        frameData.deltaMS = performance.now() - this._renderStart;
+        const deltaMS = performance.now() - this._renderStart;
+        this._msQueue.push(deltaMS);
+
+        while (this._msQueue.length > 100) {
+            this._msQueue.shift();
+        }
+
+        frameData.deltaMS =
+            this._msQueue.reduce((accm, curr, idx) => {
+                return accm + curr * ((idx + 1) / this._msQueue.length);
+            }, 0) /
+            ((1 / this._msQueue.length + 1) * (this._msQueue.length / 2));
     }
 }
 

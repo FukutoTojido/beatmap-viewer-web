@@ -36,6 +36,19 @@ PIXI.BitmapFont.install({
     chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
 });
 
+PIXI.BitmapFont.install({
+    name: "Nicolatte",
+    style: {
+        fontSize: 15,
+        align: "right",
+        fill: "white",
+        fontFamily: "Nicolatte",
+        fontWeight: 600,
+        letterSpacing: 5
+    },
+    chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
+});
+
 PIXI.UniformGroup
 
 function setupDefaultStorage() {

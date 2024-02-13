@@ -317,10 +317,10 @@ export class ObjectsController {
 
         Game.EMIT_STACK.pop();
 
-        ObjectsController.sumMS += frameData.deltaMS;
-        if (ObjectsController.sumMS < 8) return;
+        // ObjectsController.sumMS += frameData.deltaMS;
+        // if (ObjectsController.sumMS < 4) return;
 
-        ObjectsController.sumMS = 0;
+        // ObjectsController.sumMS = 0;
         Game.FPS.text = `${Math.round(frameData.fps)}fps\n${frameData.deltaMS.toFixed(2)}ms`;
     }
 }
