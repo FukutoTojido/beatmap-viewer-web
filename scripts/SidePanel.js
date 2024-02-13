@@ -19,9 +19,9 @@ export function toggleMetadataPanel() {
 
     if (!Game.SHOW_METADATA) {
         result = {
-            game: innerWidth < innerHeight ? 0 : 400 * devicePixelRatio,
+            game: innerWidth < innerHeight ? 0 : 400,
             timing: 0,
-            metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400,
+            metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400 * devicePixelRatio,
         };
 
         document.querySelector(".mapBG").style.width = `calc(100% - 410px)`;

@@ -2,6 +2,7 @@ import { Skinning } from "./Skinning.js";
 import { Game } from "./Game.js";
 import { BeatmapFile } from "./BeatmapFile.js";
 import { urlParams } from "./GlobalVariables.js";
+import { PlayContainer } from "./PlayButtons.js";
 
 export class PAudio {
     buf;
@@ -66,6 +67,7 @@ export class PAudio {
                     this.pause();
                     // playingFlag = false;
                     this.seekTo(0);
+                    PlayContainer.playButton.sprite.texture = PlayContainer.playButton.texture;
                 }
             };
 

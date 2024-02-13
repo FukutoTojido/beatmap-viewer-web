@@ -439,6 +439,8 @@ export class TimingPanel {
             this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
         }
 
+        this.MASTER_CONTAINER.redraw();
+
         // }
 
         if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;

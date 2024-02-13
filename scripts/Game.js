@@ -434,7 +434,11 @@ export class Game {
     }
 
     static gameSizeSetup() {
-        Game.WRAPPER.y = 70 * devicePixelRatio;
+        if (innerWidth / innerHeight < 1) {
+            Game.WRAPPER.y = 50 * devicePixelRatio;
+        } else {
+            Game.WRAPPER.y = 70 * devicePixelRatio;
+        }
 
         if (innerWidth / innerHeight < 1) {
             if (Game.WRAPPER.w !== Game.APP.renderer.width) {

@@ -143,7 +143,7 @@ export class ObjectsController {
             }
 
             if (object.obj.time < this.filtered.at(-1).obj.time) {
-                Game.CONTAINER.addChildAt(object.obj.obj, Game.CONTAINER.children.length);
+                Game.CONTAINER.addChild(object.obj.obj);
                 if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
                 return;
             }

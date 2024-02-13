@@ -33,7 +33,7 @@ export class Timeline {
         Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
 
         Timeline.BASE_CONTAINER = new PIXI.Container();
-        Timeline.BASE_CONTAINER.x = 40;
+        Timeline.BASE_CONTAINER.x = 40 * devicePixelRatio;
 
         Timeline.MASTER_CONTAINER.container.addChild(Timeline.BASE_CONTAINER);
 
@@ -69,7 +69,14 @@ export class Timeline {
     static resize() {
         if (Game.EMIT_STACK.length === 0) return;
         if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
-        Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+
+        if (innerWidth / innerHeight < 1) {
+            Timeline.MASTER_CONTAINER.h = 40 * devicePixelRatio;
+        } else {
+            Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+        }
+
+        Timeline.BASE_CONTAINER.x = 40 * devicePixelRatio;
         Timeline.ZOOMER.draw();
 
         if (innerWidth / innerHeight < 1) {
@@ -146,7 +153,7 @@ export class Timeline {
             }
 
             if (o.obj.time < this.DRAW_LIST.at(-1).obj.time) {
-                Timeline.hitArea.obj.addChildAt(o.timelineObject.obj, Timeline.hitArea.obj.children.length);
+                Timeline.hitArea.obj.addChild(o.timelineObject.obj);
                 return;
             }
         });
@@ -154,11 +161,11 @@ export class Timeline {
         this.DRAW_LIST = drawList;
         this.DRAW_LIST.forEach((o) => {
             o.timelineObject?.draw(timestamp);
-        })
+        });
     }
 
     static destruct() {
-        this.DRAW_LIST.forEach(o => {
+        this.DRAW_LIST.forEach((o) => {
             o.timelineObject.removeSelfFromContainer(Timeline.hitArea.obj);
             o.timelineObject.obj.destroy();
         });

@@ -103,25 +103,25 @@ export class PlayContainer {
         this.flex = new FlexBox();
 
         this.playButton = new Button();
-        await this.playButton.init(60, 0, "static/play.png", "static/pause.png");
+        await this.playButton.init(120, 0, "static/play.svg", "static/pause.svg");
         this.playButton.onclick = () => playToggle();
 
         this.prevButton = new Button();
-        await this.prevButton.init(0, 0, "static/prev.png");
+        await this.prevButton.init(60, 0, "static/step-back.svg");
         this.prevButton.onclick = () => go(null, false);
 
         this.nextButton = new Button();
-        await this.nextButton.init(120, 0, "static/next.png");
+        await this.nextButton.init(180, 0, "static/step-forward.svg");
         this.nextButton.onclick = () => go(null, true);
 
         this.infoButton = new Button();
-        await this.infoButton.init(180, 0, "static/info.png");
+        await this.infoButton.init(0, 0, "static/info.svg");
         this.infoButton.onclick = () => toggleMetadataPanel();
 
+        this.flex.addChild(this.infoButton.container);
         this.flex.addChild(this.prevButton.container);
         this.flex.addChild(this.playButton.container);
         this.flex.addChild(this.nextButton.container);
-        this.flex.addChild(this.infoButton.container);
 
         this.MASTER_CONTAINER.addChild(this.flex.container);
 

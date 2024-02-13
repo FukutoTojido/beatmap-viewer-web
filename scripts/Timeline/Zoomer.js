@@ -89,10 +89,10 @@ export class TimelineZoomer {
         this.container.addChild(this.graphics);
 
         this.zoomIn = new Button();
-        await this.zoomIn.init(0, 0, 40, Timeline.MASTER_CONTAINER.h / 2, "static/plus.png");
+        await this.zoomIn.init(0, 0, 40, Timeline.MASTER_CONTAINER.h / 2, "static/plus2.svg");
 
         this.zoomOut = new Button();
-        await this.zoomOut.init(0, Timeline.MASTER_CONTAINER.h / 2, 40, Timeline.MASTER_CONTAINER.h / 2, "static/minus.png");
+        await this.zoomOut.init(0, Timeline.MASTER_CONTAINER.h / 2, 40, Timeline.MASTER_CONTAINER.h / 2, "static/minus.svg");
 
         this.container.addChild(this.zoomIn.container);
         this.container.addChild(this.zoomOut.container);
