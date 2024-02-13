@@ -281,14 +281,15 @@ export class Skinning {
         };
 
         await Database.addToObjStore(storeValue);
+
         const skinIdx = (await Database.getAllKeys()).at(-1);
 
         for (const element of ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"]) {
-            if (!base64s[element]) return;
+            if (!base64s[element]) continue;
 
             if (element === "DEFAULTS") {
                 await Texture.updateNumberTextures(base64s[element], skinIdx);
-                return;
+                continue;
             }
 
             const { base64, isHD } = base64s[element];
