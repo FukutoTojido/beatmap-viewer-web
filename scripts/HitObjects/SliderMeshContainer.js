@@ -185,21 +185,21 @@ export class SliderMeshContainer extends PIXI.RenderContainer {
             body.shader.resources.customUniforms.uniforms.ot = 1;
             this.draw(renderer, body.geometry, body.shader, state);
         } else if (body.endt === 1.0) {
+            this.drawGPUCircle(renderer, body, state);
+
             if (body.startt !== 1.0) {
                 body.shader.resources.customUniforms.uniforms.dt = -1;
                 body.shader.resources.customUniforms.uniforms.ot = -body.startt;
                 this.draw(renderer, body.geometry, body.shader, state);
             }
-
-            this.drawGPUCircle(renderer, body, state);
         } else if (body.startt == 0.0) {
+            this.drawGPUCircle(renderer, body, state);
+
             if (body.endt != 0.0) {
                 body.shader.resources.customUniforms.uniforms.dt = 1;
                 body.shader.resources.customUniforms.uniforms.ot = body.endt;
                 this.draw(renderer, body.geometry, body.shader, state);
             }
-
-            this.drawGPUCircle(renderer, body, state);
         } else {
             console.error("Can't snake both end of a slider!");
         }

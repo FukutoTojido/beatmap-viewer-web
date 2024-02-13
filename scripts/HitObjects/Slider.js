@@ -202,7 +202,7 @@ export class Slider {
             if (timestamp < this.hitTime) {
                 this.SliderMesh.startt = 0;
                 this.SliderMesh.endt = Clamp(currentOpacity * 2, 0, 1);
-                if (this.hitTime > this.endTime) this.SliderMesh.endT = 1;
+                if (this.hitTime > this.endTime) this.SliderMesh.endt = 1;
             } else if (timestamp >= this.hitTime) {
                 if (this.repeat % 2 === 0) {
                     this.SliderMesh.startt = 0;

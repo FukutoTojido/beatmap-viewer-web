@@ -1388,7 +1388,7 @@ a:visited {
     flex-wrap: wrap;
     gap: 10px;
 
-    background-color: var(--primary-3);
+    background-color: var(--primary-2);
     border-radius: 10px;
 
     transition: ease-in-out 100ms;

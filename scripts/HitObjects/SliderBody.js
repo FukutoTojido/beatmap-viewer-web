@@ -167,7 +167,7 @@ export class SliderBody {
         this.shader.resources.customUniforms.uniforms.stackOffset = this.slider.stackHeight * currentStackOffset;
 
         if (this.startt == 0.0 && this.endt == 1.0) {
-            const point = SliderBody.getPointAtT(this.angleList, this.endt);
+            const point = SliderBody.getPointAtT(this.angleList, this.startt);
             this.ballPosition = point;
         } else if (this.startt == 0.0) {
             const point = SliderBody.getPointAtT(this.angleList, this.endt);
