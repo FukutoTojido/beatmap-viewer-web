@@ -2,8 +2,9 @@ export class Notification {
     timeout;   
     dialog;
     button;
+    autoTimeout = true;
 
-    constructor(message) {
+    constructor(message, autoTimeout) {
         const dialog = document.createElement("dialog");
         dialog.classList.add("noti");
 
@@ -30,6 +31,9 @@ export class Notification {
         
         this.dialog = dialog;
         this.button = button;
+
+        if (autoTimeout === undefined) return;
+        this.autoTimeout = autoTimeout;
     }
 
     notify() {
@@ -51,7 +55,7 @@ export class Notification {
             };
         };
 
-        this.timeout = setTimeout(close, 2000);
+        this.timeout = setTimeout(this.autoTimeout ? close : () => {}, 2000);
 
         this.button.addEventListener("click", () => {
             clearTimeout(this.timeout);

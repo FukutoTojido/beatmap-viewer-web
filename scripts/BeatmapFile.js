@@ -37,6 +37,7 @@ export class BeatmapFile {
     diff;
     md5Map;
     isLoaded = false;
+    hasOgg = false;
 
     static CURRENT_MAPID;
 
@@ -316,6 +317,10 @@ export class BeatmapFile {
             throw "This map has no audio file";
         }
 
+        if (audioFilename.split(".").at(-1) === "ogg") {
+            this.hasOgg = true;
+        }
+
         const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
         // console.log("Audio Blob Generated");
         this.audioBlobURL = URL.createObjectURL(audioBlob);
@@ -357,6 +362,10 @@ export class BeatmapFile {
         const hitsoundArrayBuffer = [];
         document.querySelector("#loadingText").innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
         for (const file of hitsoundFiles) {
+            if (file.filename.split(".").at(-1) === "ogg") {
+                this.hasOgg = true;
+            }
+
             const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
             const fileBlob = await file.getData(writer);
             // console.log(`Hitsound ${file.filename} Blob Generated`);
@@ -450,6 +459,11 @@ export class BeatmapFile {
             }
 
             Game.appResize();
+
+            if (this.hasOgg) {
+                new Notification("This beatmap contains .ogg audio file. This can lead to that audio file being unplayable on iOS devices", false).notify();
+                this.hasOgg = false;
+            }
 
             document.onkeydown = (e) => {
                 e = e || window.event;
@@ -593,7 +607,7 @@ export class BeatmapFile {
             // (new Notification(`Finished map setup`)).notify();
         } catch (err) {
             // alert(err);
-            new Notification(err).notify();
+            new Notification(err, false).notify();
             console.error(err);
 
             document.querySelector(".loading").style.opacity = 0;
