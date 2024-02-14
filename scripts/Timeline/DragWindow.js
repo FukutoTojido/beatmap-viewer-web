@@ -63,9 +63,12 @@ export class TimelineDragWindow {
         this.obj.eventMode = "static";
 
         this.graphics = new PIXI.Graphics().rect(0, 0, Timeline.WIDTH, Timeline.HEIGHT).fill({ color: 0xffffff, alpha: 0.01} );
+        this.graphics.zIndex = -1;
         // this.obj.interactive = true;
 
         this.dragWindow = new PIXI.Graphics().rect(0, 0, 0, 0);
+        this.dragWindow.zIndex = -1;
+
         this.obj.addChild(this.graphics, this.dragWindow);
 
         this.obj.on("mousedown", (e) => {
