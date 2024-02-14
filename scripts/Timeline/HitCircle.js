@@ -50,7 +50,7 @@ export class TimelineHitCircle {
         const handleClickEvent = (e) => {
             const { x, y } = this.obj.toLocal(e.global);
             if (Game.SELECTED.includes(this.hitObject.time)) return;
-            if (Math.abs(x) > Timeline.HEIGHT / 2 / 2) return;
+            if (Math.abs(x) > Timeline.HEIGHT) return;
 
             if (!e.ctrlKey) Game.SELECTED = [];
             if (!Game.SELECTED.includes(this.hitObject.time)) Game.SELECTED.push(this.hitObject.time);
