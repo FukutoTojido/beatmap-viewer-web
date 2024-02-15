@@ -169,6 +169,9 @@ export class ScoreParser {
                           };
 
                 const obj = new Judgement(judgementTime, ScoreParser.MODS.includes("ScoreV2") ? val.valV2 : val.val, currentObj.stackHeight, pos);
+                currentObj.judgement = obj;
+                currentObj.judgementContainer.removeChildren();
+                currentObj.judgementContainer.addChild(obj.obj);
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.judgementList.push(obj);
             }
 

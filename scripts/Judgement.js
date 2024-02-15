@@ -40,13 +40,16 @@ export class Judgement {
         this.pos = pos;
         this.stackHeight = stackHeight;
 
-        const text = new PIXI.Text(`${Judgement.judge[val].text}`, {
-            fontFamily: "Torus",
-            fontSize: 10,
-            fontWeight: 500,
-            fill: Judgement.judge[val].color,
-            align: "center",
-            letterSpacing: 4,
+        const text = new PIXI.Text({
+            text: `${Judgement.judge[val].text}`,
+            style: {
+                fontFamily: "Torus",
+                fontSize: 10,
+                fontWeight: 500,
+                fill: Judgement.judge[val].color,
+                align: "center",
+                letterSpacing: 4,
+            },
         });
         text.anchor.set(0.5);
 
@@ -56,15 +59,15 @@ export class Judgement {
         this.obj = judgementContainer;
         this.text = text;
 
-        const currentStackOffset = Beatmap.moddedStats.stackOffset;
+        // const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
-        const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-        const y = !Game.MODS.HR
-            ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
-            : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+        // const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+        // const y = !Game.MODS.HR
+        //     ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
+        //     : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
 
-        this.obj.x = x;
-        this.obj.y = y;
+        // this.obj.x = x;
+        // this.obj.y = y;
         this.obj.alpha = 0;
     }
 
@@ -72,15 +75,15 @@ export class Judgement {
         // if (this.val === 300)
         //     return;
 
-        const currentStackOffset = Beatmap.moddedStats.stackOffset;
+        // const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
-        const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
-        const y = !Game.MODS.HR
-            ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
-            : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+        // const x = ((this.pos.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+        // const y = !Game.MODS.HR
+        //     ? ((this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
+        //     : ((384 - this.pos.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
 
-        this.obj.x = x;
-        this.obj.y = y;
+        // if (this.obj.x !== x) this.obj.x = x;
+        // if (this.obj.y !== y) this.obj.y = y;
 
         if (timestamp < this.time || timestamp >= this.time + Judgement.ANIM_DURATION) {
             this.obj.alpha = 0;

@@ -17,6 +17,9 @@ export class Spinner {
     colourIdx = -1;
     colourHaxedIdx = -1;
 
+    judgementContainer;
+    judgement;
+
     playHitsound(timestamp) {
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
         if (timestamp < this.endTime || ObjectsController.lastTimestamp >= this.endTime) return;
@@ -282,6 +285,9 @@ export class Spinner {
             .circle(0, 0, 5)
             .stroke();
 
+        this.judgementContainer = new PIXI.Container();
+
+        container.addChild(this.judgementContainer);
         container.addChild(approachCircleContainer);
         container.addChild(spinner);
         container.x = (256 * Game.WIDTH) / 512;

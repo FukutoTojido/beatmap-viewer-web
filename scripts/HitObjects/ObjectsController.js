@@ -95,7 +95,7 @@ export class ObjectsController {
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
         const compareFunc = (element, value) => {
-            if ((Game.SLIDER_APPEARANCE.hitAnim ? element.obj.killTime : Math.max(element.obj.killTime + 800, element.obj.killTime)) < value)
+            if (element.obj.killTime + 800 < value)
                 return -1;
             if (element.obj.time - currentPreempt > value) return 1;
             return 0;

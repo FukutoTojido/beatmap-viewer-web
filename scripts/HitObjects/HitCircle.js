@@ -52,8 +52,11 @@ export class HitCircle {
         opacity: null,
         expand: null,
         x: null,
-        y: null
+        y: null,
     };
+
+    judgementContainer;
+    judgement;
 
     drawSelected() {
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
@@ -166,7 +169,7 @@ export class HitCircle {
         if (currentOpacity === this.props.opacity) return;
 
         this.props.opacity = currentOpacity;
-        this.obj.alpha = this.props.opacity;
+        this.hitCircleContainer.alpha = this.props.opacity;
     }
 
     updateExpand(timestamp) {
@@ -184,7 +187,7 @@ export class HitCircle {
         if (this.props.expand === scale) return;
 
         this.props.expand = scale;
-        this.obj.scale.set(this.props.expand);
+        this.hitCircleContainer.scale.set(this.props.expand);
     }
 
     updatePosition() {
@@ -207,12 +210,18 @@ export class HitCircle {
         }
     }
 
+    updateJudgement(timestamp) {
+        if (!this.judgement) return;
+        this.judgement.draw(timestamp);
+    }
+
     draw(timestamp) {
         this.handleSkinChange();
         this.updateColor(timestamp);
         this.updateOpacity(timestamp);
         this.updateExpand(timestamp);
         this.updatePosition();
+        this.updateJudgement(timestamp);
 
         this.number.draw(timestamp);
         this.approachCircleObj.draw(timestamp);
@@ -311,17 +320,24 @@ export class HitCircle {
         this.hitCircleSprite = hitCircleSprite;
 
         this.number = new NumberSprite(this);
+        this.judgementContainer = new PIXI.Container();
 
         const hitCircleContainer = new PIXI.Container();
         hitCircleContainer.addChild(hitCircleSprite);
         hitCircleContainer.addChild(hitCircleOverlaySprite);
         hitCircleContainer.addChild(this.number.obj);
-        hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;
-        hitCircleContainer.y = (this.originalY * Game.WIDTH) / 512;
+
+        this.hitCircleContainer = hitCircleContainer;
+        // hitCircleContainer.x = (this.originalX * Game.WIDTH) / 512;
+        // hitCircleContainer.y = (this.originalY * Game.WIDTH) / 512;
+
+        const container = new PIXI.Container();
+        container.addChild(this.judgementContainer);
+        container.addChild(this.hitCircleContainer);
 
         this.approachCircleObj = new ApproachCircle(this);
 
-        this.obj = hitCircleContainer;
+        this.obj = container;
 
         this.hitSounds = hitSounds;
     }

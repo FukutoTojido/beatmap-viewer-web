@@ -69,6 +69,9 @@ export class Slider {
 
     isHR = false;
 
+    judgementContainer;
+    judgement;
+
     binom(n, k) {
         if (k < 0 || k > n) return 0;
         if (k == 0 || k == n) return 1;
@@ -258,6 +261,22 @@ export class Slider {
         }
     }
 
+    updateJudgement(timestamp) {
+        if (!this.judgement) return;
+        this.judgement.draw(timestamp);
+        const endPosition = this.realTrackPoints.at(-1);
+
+        const currentStackOffset = Beatmap.moddedStats.stackOffset;
+
+        const x = ((endPosition.x + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+        const y = !Game.MODS.HR
+            ? ((endPosition.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512
+            : ((384 - endPosition.y + this.stackHeight * currentStackOffset) * Game.WIDTH) / 512;
+
+        this.judgement.obj.x = x;
+        this.judgement.obj.y = y;
+    }
+
     draw(timestamp) {
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
@@ -265,6 +284,7 @@ export class Slider {
         this.revArrows.forEach((arrow) => arrow.draw(timestamp));
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
+        this.updateJudgement(timestamp);
 
         if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
@@ -856,7 +876,10 @@ export class Slider {
 
         this.ball = new SliderBall(this);
 
+        this.judgementContainer = new PIXI.Container();
+
         const SliderContainer = new PIXI.Container();
+        SliderContainer.addChild(this.judgementContainer);
         SliderContainer.addChild(this.SliderMeshContainer);
 
         this.ticks.forEach((tick) => SliderContainer.addChild(tick.obj));
