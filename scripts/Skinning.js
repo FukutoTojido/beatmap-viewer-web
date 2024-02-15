@@ -97,7 +97,10 @@ export class Skinning {
         const blob = await entry.getData(new zip.BlobWriter("text/plain"));
         const text = await blob.text();
 
-        const lines = text.split("\n").map(line => line.trim()).filter(line => !/^(\/\/|\#|\;).*/g.test(line));
+        const lines = text
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((line) => !/^(\/\/|\#|\;).*/g.test(line));
 
         const name = lines
             .find((line) => line.includes("Name: "))
@@ -288,7 +291,15 @@ export class Skinning {
 
         const skinIdx = (await Database.getAllKeys()).at(-1);
 
-        for (const element of ["HIT_CIRCLE", "HIT_CIRCLE_OVERLAY", "SLIDER_B", "REVERSE_ARROW", "DEFAULTS", "SLIDER_FOLLOW_CIRCLE", "APPROACH_CIRCLE"]) {
+        for (const element of [
+            "HIT_CIRCLE",
+            "HIT_CIRCLE_OVERLAY",
+            "SLIDER_B",
+            "REVERSE_ARROW",
+            "DEFAULTS",
+            "SLIDER_FOLLOW_CIRCLE",
+            "APPROACH_CIRCLE",
+        ]) {
             if (!base64s[element]) continue;
 
             if (element === "DEFAULTS") {
@@ -309,6 +320,8 @@ export class Skinning {
 
         zipReader.close();
 
-        (new Notification(`${storeValue.ini.NAME} imported`)).notify();
+        new Notification({
+            message: `${storeValue.ini.NAME} imported`,
+        }).notify();
     }
 }

@@ -1559,6 +1559,14 @@ a:visited {
     font-weight: 400;
 }
 
+.noti.warning {
+    background-color: rgb(134, 56, 25);
+}
+
+.noti.error {
+    background-color: rgb(224, 73, 73);
+}
+
 .animationIn {
     display: flex;
     animation: slideUp ease-in-out 200ms;

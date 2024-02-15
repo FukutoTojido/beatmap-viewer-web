@@ -285,7 +285,13 @@ export class BeatmapFile {
         Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
         Game.STATS.HP = round(beatmapData.difficulty.drainRate);
         Game.STATS.SR = round(difficultyAttributes?.starRating ?? 0);
-        Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes?.starRating ?? 0)).formatHex().slice(1), 16);
+        Game.STATS.srContainer.color = parseInt(
+            d3
+                .color(getDiffColor(difficultyAttributes?.starRating ?? 0))
+                .formatHex()
+                .slice(1),
+            16
+        );
 
         if ((difficultyAttributes?.starRating ?? 0) >= 6.5)
             Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
@@ -461,7 +467,11 @@ export class BeatmapFile {
             Game.appResize();
 
             if (this.hasOgg) {
-                new Notification("This beatmap contains .ogg audio file. This can lead to that audio file being unplayable on iOS devices", false).notify();
+                new Notification({
+                    message: "This beatmap contains .ogg files, which are not supported on iOS devices.",
+                    autoTimeout: false,
+                    type: "warning"
+                }).notify();
                 this.hasOgg = false;
             }
 
@@ -504,7 +514,9 @@ export class BeatmapFile {
                             `${currentMinute}:${currentSeconds}:${currentMiliseconds} (${objs.map((o) => o.obj.comboIdx).join(",")}) - `
                         );
 
-                        new Notification("Object(s) timestamp copied").notify();
+                        new Notification({
+                            message: "Object(s) timestamp copied",
+                        }).notify();
                     }
                 }
 
@@ -571,7 +583,9 @@ export class BeatmapFile {
                 }
 
                 setBeatsnapDivisor(document.querySelector("#beat"));
-                new Notification(`Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`).notify();
+                new Notification({
+                    message: `Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`,
+                }).notify();
 
                 // console.log("Scrolled");
             };
@@ -607,7 +621,11 @@ export class BeatmapFile {
             // (new Notification(`Finished map setup`)).notify();
         } catch (err) {
             // alert(err);
-            new Notification(err, false).notify();
+            new Notification({
+                message: err,
+                autoTimeout: false,
+                type: "error"
+            }).notify();
             console.error(err);
 
             document.querySelector(".loading").style.opacity = 0;

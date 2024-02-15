@@ -1,15 +1,21 @@
+const typeEnum = {
+    "message": "/static/info.svg",
+    "warning": "/static/alert-triangle.svg",
+    "error": "/static/badge-alert.svg",
+}
+
 export class Notification {
     timeout;   
     dialog;
     button;
     autoTimeout = true;
 
-    constructor(message, autoTimeout) {
+    constructor({ message, autoTimeout = true, type = "message"}) {
         const dialog = document.createElement("dialog");
-        dialog.classList.add("noti");
+        dialog.classList.add("noti", type);
 
         const img = document.createElement("img");
-        img.src = "https://img.icons8.com/material-rounded/24/ffffff/info.png";
+        img.src = typeEnum[type];
         img.width = 24;
         img.height = 24;
 

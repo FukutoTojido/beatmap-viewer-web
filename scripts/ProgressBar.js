@@ -76,7 +76,9 @@ export function copyUrlToClipboard() {
     const mapId = Beatmap.CURRENT_MAPID || "";
     navigator.clipboard.writeText(`${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-how"}?b=${mapId}&t=${currentTimestamp}`);
 
-    new Notification("Current preview timestamp copied").notify();
+    new Notification({
+        message: "Current preview timestamp copied",
+    }).notify();
 }
 document.querySelector("#previewURL").onclick = copyUrlToClipboard;
 
