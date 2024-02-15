@@ -77,6 +77,7 @@ export class HitCircle {
         if (!this.hitSounds) return;
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
         if (timestamp < this.hitTime || ObjectsController.lastTimestamp >= this.hitTime) return;
+        if (this.judgement && this.judgement.val === 0) return;
 
         if (!ScoreParser.REPLAY_DATA) {
             this.hitSounds.play();
