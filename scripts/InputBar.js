@@ -1,4 +1,3 @@
-
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { BeatmapFile } from "./BeatmapFile.js";
 import { Skinning } from "./Skinning.js";
@@ -111,10 +110,21 @@ export async function readZip(file) {
     zipReader.close();
 }
 
+async function readCustom(url) {
+        const blob = await BeatmapFile.downloadCustom(url);
+        readZip(blob);
+}
+
 export function submitMap(isDragAndDrop, beatmapID) {
     window.cancelAnimationFrame(ObjectsController.requestID);
-    
+
     const inputValue = beatmapID ?? document.querySelector("#mapInput").value.trim();
+
+    // if (/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(inputValue)) {
+    //     readCustom(inputValue);
+    //     return;
+    // }
+
     if (!isDragAndDrop && !/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
         document.querySelector("#mapInput").value = "";
         alert("This is not a valid URL or Beatmap ID");
@@ -135,7 +145,7 @@ export function submitMap(isDragAndDrop, beatmapID) {
     const origin = window.location.origin;
 
     if (!isDragAndDrop) window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${bID}`);
-    
+
     Game.BEATMAP_FILE = undefined;
     Game.BEATMAP_FILE = new BeatmapFile(bID ?? -1, isDragAndDrop);
 

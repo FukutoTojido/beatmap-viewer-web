@@ -8,6 +8,7 @@ import { toggleTimingPanel } from "./scripts/BPM.js";
 import { openMenu } from "./scripts/Settings.js";
 import { toggleMetadataPanel } from "./scripts/SidePanel.js";
 import * as PIXI from "pixi.js";
+import { readZip } from "./scripts/InputBar.js";
 
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
@@ -180,4 +181,12 @@ function setupDefaultStorage() {
         Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));
         document.querySelector("#mapInput").value = urlParams.get("b");
     }
+
+    // if (urlParams.get("customUrl") && /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig.test(urlParams.get("customUrl"))) {
+    //     const url = decodeURIComponent(urlParams.get("customUrl"));
+    //     console.log(url);
+    //     const blob = await BeatmapFile.downloadCustom(url);
+
+    //     readZip(blob);
+    // }
 })();

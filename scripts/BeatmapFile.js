@@ -63,6 +63,29 @@ export class BeatmapFile {
         return res;
     }
 
+    static async downloadCustom(url) {
+        try {
+            const requestClient = axios.create();
+            const blob = (
+                await requestClient.get(url, {
+                    responseType: "blob",
+                    onDownloadProgress: (progressEvent) => {
+                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                    },
+                    headers: {
+                        // "Access-Control-Allow-Origin": "*",
+                        // "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                    },
+                })
+            ).data;
+
+            return blob;
+        } catch (e) {
+            console.error(e);
+            throw "Cannot download map from this URL";
+        }
+    }
+
     async downloadOsz(setId) {
         try {
             const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -470,7 +493,7 @@ export class BeatmapFile {
                 new Notification({
                     message: "This beatmap contains .ogg files, which are not supported on iOS devices.",
                     autoTimeout: false,
-                    type: "warning"
+                    type: "warning",
                 }).notify();
                 this.hasOgg = false;
             }
@@ -624,7 +647,7 @@ export class BeatmapFile {
             new Notification({
                 message: err,
                 autoTimeout: false,
-                type: "error"
+                type: "error",
             }).notify();
             console.error(err);
 

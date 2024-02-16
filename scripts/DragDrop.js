@@ -13,9 +13,8 @@ document.querySelector(".contentWrapper").addEventListener("drop", function (e) 
     const file = e.dataTransfer.files[0];
     if (!["osz", "osr", "osk"].includes(file.name.split(".").at(-1))) return;
 
-    ScoreParser.reset();
-
     if (file.name.split(".").at(-1) === "osr") {
+        ScoreParser.reset();
         const parser = new ScoreParser(file);
         parser.getReplayData();
         return;
@@ -25,6 +24,8 @@ document.querySelector(".contentWrapper").addEventListener("drop", function (e) 
         Skinning.import(file);
         return;
     }
+
+    ScoreParser.reset();
 
     document.querySelector("#close").disabled = true;
     readZip(file);
