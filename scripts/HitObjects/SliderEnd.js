@@ -89,7 +89,7 @@ export class SliderEnd {
         const alpha = this.getAlpha(timestamp);
         if (alpha !== undefined && (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha)) {
             this.props.alpha = alpha;
-            this.hitCircle.obj.alpha = alpha;
+            this.hitCircle.hitCircleContainer.alpha = alpha;
         }
     }
 }
