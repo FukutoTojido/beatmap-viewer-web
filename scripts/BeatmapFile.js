@@ -64,17 +64,23 @@ export class BeatmapFile {
     }
 
     static async downloadCustom(url) {
+        document.querySelector(".loading").style.display = "";
+        document.querySelector(".loading").style.opacity = 1;
+
         try {
             const requestClient = axios.create();
             const blob = (
-                await requestClient.get(url, {
+                await requestClient.get("https://tryz.vercel.app/api/custom", {
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
                     },
-                    headers: {
-                        // "Access-Control-Allow-Origin": "*",
-                        // "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                    // headers: {
+                    //     "Access-Control-Allow-Origin": "*",
+                    //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                    // },
+                    params: {
+                        url,
                     },
                 })
             ).data;
@@ -83,6 +89,9 @@ export class BeatmapFile {
         } catch (e) {
             console.error(e);
             throw "Cannot download map from this URL";
+        } finally {
+            document.querySelector(".loading").style.opacity = 0;
+            document.querySelector(".loading").style.display = "none";
         }
     }
 
@@ -101,34 +110,38 @@ export class BeatmapFile {
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
             let blob;
-            // if (true || selectedMirror !== "nerinyan") {
-            const requestClient = axios.create({
-                baseURL: urls[selectedMirror] ?? customURL,
-            });
+            if (selectedMirror !== "nerinyan") {
+                const requestClient = axios.create({
+                    baseURL: urls[selectedMirror] ?? customURL,
+                });
 
-            blob = (
-                await requestClient.get(`${setId}`, {
-                    responseType: "blob",
+                blob = (
+                    await requestClient.get(`${setId}`, {
+                        responseType: "blob",
+                        onDownloadProgress: (progressEvent) => {
+                            document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                            // console.log(progressEvent);
+                        },
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                        },
+                    })
+                ).data;
+            } else {
+                const rawData = await ky.get(`${setId}/`, {
+                    prefixUrl: urls[selectedMirror] ?? customURL,
                     onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                        // console.log(progressEvent);
+                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
                     },
-                })
-            ).data;
-            // } else {
-            //     const rawData = await ky.get(`${setId}/`, {
-            //         prefixUrl: urls[selectedMirror] ?? customURL,
-            //         onDownloadProgress: (progressEvent) => {
-            //             document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-            //         },
-            //         headers: {
-            //             "Access-Control-Allow-Origin": "*",
-            //             "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-            //         },
-            //     });
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                    },
+                });
 
-            //     blob = await rawData.blob();
-            // }
+                blob = await rawData.blob();
+            }
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 

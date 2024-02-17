@@ -112,6 +112,7 @@ export async function readZip(file) {
 
 async function readCustom(url) {
         const blob = await BeatmapFile.downloadCustom(url);
+        // console.log(blob);
         readZip(blob);
 }
 
@@ -120,10 +121,11 @@ export function submitMap(isDragAndDrop, beatmapID) {
 
     const inputValue = beatmapID ?? document.querySelector("#mapInput").value.trim();
 
-    // if (/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(inputValue)) {
-    //     readCustom(inputValue);
-    //     return;
-    // }
+    if (!isDragAndDrop && /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(inputValue)) {
+        readCustom(inputValue);
+        // console.log("callin")
+        return;
+    }
 
     if (!isDragAndDrop && !/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
         document.querySelector("#mapInput").value = "";

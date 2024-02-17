@@ -182,11 +182,11 @@ function setupDefaultStorage() {
         document.querySelector("#mapInput").value = urlParams.get("b");
     }
 
-    // if (urlParams.get("customUrl") && /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig.test(urlParams.get("customUrl"))) {
-    //     const url = decodeURIComponent(urlParams.get("customUrl"));
-    //     console.log(url);
-    //     const blob = await BeatmapFile.downloadCustom(url);
+    if (urlParams.get("customUrl") && /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig.test(urlParams.get("customUrl"))) {
+        const url = decodeURIComponent(urlParams.get("customUrl"));
+        console.log(url);
+        const blob = await BeatmapFile.downloadCustom(url);
 
-    //     readZip(blob);
-    // }
+        readZip(blob);
+    }
 })();
