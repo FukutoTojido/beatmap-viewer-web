@@ -61,6 +61,7 @@ export class Slider {
     comboIdx = 1;
 
     isHover = false;
+    isVisible = false;
     opacity = 0;
 
     hitSounds;
@@ -256,8 +257,8 @@ export class Slider {
             });
         }
 
-        if (this.isHover !== this.nodesContainer.visible) {
-            this.nodesContainer.visible = this.isHover;
+        if ((this.isHover && this.isVisible) !== this.nodesContainer.visible) {
+            this.nodesContainer.visible = (this.isHover && this.isVisible);
         }
     }
 
@@ -278,6 +279,8 @@ export class Slider {
     }
 
     draw(timestamp) {
+        this.isVisible = timestamp >= this.startTime && timestamp < this.killTime; 
+
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
         this.sliderEnd.draw(timestamp);
