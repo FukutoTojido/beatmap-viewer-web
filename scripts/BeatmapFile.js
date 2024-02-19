@@ -116,7 +116,7 @@ export class BeatmapFile {
                 });
 
                 blob = (
-                    await requestClient.get(`${setId}`, {
+                    await requestClient.get(`${setId}/`, {
                         responseType: "blob",
                         onDownloadProgress: (progressEvent) => {
                             document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
@@ -134,10 +134,10 @@ export class BeatmapFile {
                     onDownloadProgress: (progressEvent) => {
                         document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
                     },
-                    headers: {
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                    },
+                    // headers: {
+                    //     "Access-Control-Allow-Origin": "*",
+                    //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                    // },
                 });
 
                 blob = await rawData.blob();
