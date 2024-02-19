@@ -122,10 +122,10 @@ export class BeatmapFile {
                             document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
                             // console.log(progressEvent);
                         },
-                        headers: {
-                            "Access-Control-Allow-Origin": "*",
-                            "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                        },
+                        // headers: {
+                        //     "Access-Control-Allow-Origin": "*",
+                        //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                        // },
                     })
                 ).data;
             } else {
