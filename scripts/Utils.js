@@ -144,6 +144,7 @@ export async function loadLocalStorage() {
         document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
         // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
         Game.MASTER_CONTAINER.alpha = currentLocalStorage.background.dim;
+        Game.ALPHA = currentLocalStorage.background.dim;
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;
         document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;

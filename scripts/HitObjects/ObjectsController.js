@@ -206,6 +206,12 @@ export class ObjectsController {
         //         .toReversed(),
         // ]);
 
+        if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
+            Game.MASTER_CONTAINER.alpha = Game.ALPHA * 0.7;
+        } else {
+            Game.MASTER_CONTAINER.alpha = Game.ALPHA;
+        }
+
         if (
             this.breakPeriods.some(
                 (period) =>
@@ -214,7 +220,7 @@ export class ObjectsController {
                     (period[1] < ObjectsController.lastTimestamp || period[0] > ObjectsController.lastTimestamp)
             )
         ) {
-            const alpha = document.querySelector("#dim").value;
+            const alpha = Game.ALPHA;
 
             new TWEEN.Tween({
                 alpha,
@@ -233,7 +239,7 @@ export class ObjectsController {
                     (period[1] < timestamp || period[0] > timestamp)
             )
         ) {
-            const alpha = document.querySelector("#dim").value;
+            const alpha = Game.ALPHA;
 
             new TWEEN.Tween({
                 alpha: alpha * 0.7,

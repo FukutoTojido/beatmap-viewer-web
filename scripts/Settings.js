@@ -72,6 +72,7 @@ export function setBackgroundDim(slider) {
     // console.log(slider.value);
     // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
     Game.MASTER_CONTAINER.alpha = slider.value;
+    Game.ALPHA = slider.value;
     document.querySelector("#bgDimVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));

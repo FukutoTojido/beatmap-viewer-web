@@ -94,6 +94,8 @@ export class Game {
     static DEVE_RATIO = devicePixelRatio;
     static EMIT_STACK = [];
 
+    static ALPHA = 1;
+
     // Add certain objects from container
     static addToContainer(objectsList) {
         objectsList.forEach((o) => {
