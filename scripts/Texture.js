@@ -12,6 +12,7 @@ export class Texture {
         REVERSE_ARROW: null,
         SLIDER_FOLLOW_CIRCLE: null,
         APPROACH_CIRCLE: null,
+        GLOW: null
     };
     static LEGACY = {
         DEFAULTS: null,
@@ -133,6 +134,11 @@ export class Texture {
         return graphic;
     }
 
+    static createGlow() {
+        const graphic = new PIXI.Graphics().circle(0, 0, 59).fill(0xffffff);
+        return graphic;
+    }
+
     static async createTexture(type) {
         let graphics = null;
 
@@ -154,6 +160,8 @@ export class Texture {
             case "SLIDER_FOLLOW_CIRCLE":
                 graphics = Texture.createSliderFollowCircle();
                 break;
+            case "GLOW":
+                graphics = Texture.createGlow();
         }
 
         if (!graphics) return null;
@@ -236,6 +244,10 @@ export class Texture {
                 texture: await PIXI.Assets.load(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
                 isHD: true,
             });
+        }
+        Texture.ARGON.GLOW = {
+            texture: await Texture.createTexture("GLOW"),
+            isHD: false
         }
 
         await Texture.updateTextureFor("HIT_CIRCLE");

@@ -5,7 +5,7 @@ import { Texture } from "../Texture.js";
 import { ProgressBar } from "../Progress.js";
 import { ApproachCircle } from "./ApproachCircle.js";
 import { NumberSprite } from "./NumberSprite.js";
-import { Clamp, Fixed, Dist, Add, FlipHR, binarySearch } from "../Utils.js";
+import { Clamp, Fixed, Dist, Add, FlipHR, binarySearch, easeOutElastic, easeOutElasticHalf, easeOutQuint } from "../Utils.js";
 import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
@@ -50,6 +50,8 @@ export class HitCircle {
     props = {
         color: null,
         opacity: null,
+        glowOpacity: null,
+        blendMode: null,
         expand: null,
         x: null,
         y: null,
@@ -57,6 +59,8 @@ export class HitCircle {
 
     judgementContainer;
     judgement;
+
+    isHit = false;
 
     drawSelected() {
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
@@ -132,6 +136,17 @@ export class HitCircle {
             );
         }
 
+        if (this.skinType === "0" && timestamp > this.hitTime) {
+            color = parseInt(
+                d3
+                    .color(`#${color.toString(16).padStart(6, "0")}`)
+                    .brighter(1.0)
+                    .hex()
+                    .slice(1),
+                16
+            );
+        }
+
         if (!Game.SLIDER_APPEARANCE.hitAnim && timestamp > this.hitTime) {
             color = 0xffffff;
         }
@@ -154,7 +169,11 @@ export class HitCircle {
             if (timestamp < this.hitTime) {
                 currentOpacity = (timestamp - (this.time - currentPreempt)) / currentFadeIn;
             } else {
-                currentOpacity = 1 - (timestamp - this.hitTime) / fadeOutTime;
+                if (this.skinType !== "0" || (this.skinType === "0" && !Game.SLIDER_APPEARANCE.hitAnim)) {
+                    currentOpacity = 1 - (timestamp - this.hitTime) / fadeOutTime;
+                } else {
+                    currentOpacity = 1 - easeOutQuint((timestamp - this.hitTime) / 800);
+                }
             }
         } else {
             if (timestamp < this.time - currentPreempt + currentFadeIn) {
@@ -179,10 +198,17 @@ export class HitCircle {
 
         // Calculate object expandation
         let currentExpand = 1;
-        if (Game.SLIDER_APPEARANCE.hitAnim && timestamp > this.hitTime) {
-            currentExpand = 0.5 * Clamp((timestamp - this.hitTime) / 240, 0, 1) + 1;
+
+        if (this.skinType !== "0") {
+            if (Game.SLIDER_APPEARANCE.hitAnim && timestamp > this.hitTime) {
+                currentExpand = 0.5 * Clamp((timestamp - this.hitTime) / 240, 0, 1) + 1;
+            }
+            currentExpand = Math.max(currentExpand, 1);
+        } else {
+            if (Game.SLIDER_APPEARANCE.hitAnim && timestamp > this.hitTime) {
+                currentExpand = 1 - 0.2 * easeOutElasticHalf(Clamp((timestamp - this.hitTime) / 400, 0, 1));
+            }
         }
-        currentExpand = Math.max(currentExpand, 1);
 
         const scale = currentExpand * circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2;
         if (this.props.expand === scale) return;
@@ -216,8 +242,53 @@ export class HitCircle {
         this.judgement.draw(timestamp);
     }
 
+    updateSprite(timestamp) {
+        let opacity = 1;
+        if (timestamp > this.hitTime && this.skinType === "0" && Game.SLIDER_APPEARANCE.hitAnim) {
+            opacity = 1 - Clamp((timestamp - this.hitTime) / 400, 0, 1);
+        }
+
+        if (this.props.glowOpacity !== opacity) {
+            this.props.glowOpacity = opacity;
+            this.hitCircleSprite.alpha = this.props.glowOpacity;
+        }
+
+        if (this.skinType !== "0") {
+            let blendMode = this.props.blendMode;
+            blendMode = "normal";
+
+            if (this.props.blendMode !== blendMode) {
+                this.props.blendMode = blendMode;
+                this.hitCircleSprite.blendMode = this.props.blendMode;
+            }
+
+            return;
+        }
+
+        if (this.isHit === timestamp > this.hitTime) return;
+        this.isHit = timestamp > this.hitTime;
+
+        let blendMode = this.props.blendMode;
+
+        if (!this.isHit) {
+            this.hitCircleSprite.texture = Texture.ARGON.HIT_CIRCLE.texture;
+            blendMode = "normal";
+        }
+
+        if (this.isHit) {
+            this.hitCircleSprite.texture = Texture.ARGON.GLOW.texture;
+            blendMode = "add";
+        }
+
+        if (this.props.blendMode !== blendMode) {
+            this.props.blendMode = blendMode;
+            this.hitCircleSprite.blendMode = this.props.blendMode;
+        }
+    }
+
     draw(timestamp) {
         this.handleSkinChange();
+        this.updateSprite(timestamp);
         this.updateColor(timestamp);
         this.updateOpacity(timestamp);
         this.updateExpand(timestamp);

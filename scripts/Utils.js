@@ -513,3 +513,11 @@ export const easeOutElastic = (x) => {
 
     return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
 };
+export const easeOutElasticHalf = (x) => {
+    const c4 = (2 * Math.PI) / 3;
+
+    let ret = x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+
+    if (x > 0.2 && ret < 1) return 1;
+    return ret;
+};
