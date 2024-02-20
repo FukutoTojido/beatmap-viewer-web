@@ -51,6 +51,7 @@ export class HitCircle {
         color: null,
         opacity: null,
         glowOpacity: null,
+        glowScale: null,
         blendMode: null,
         expand: null,
         x: null,
@@ -244,6 +245,7 @@ export class HitCircle {
 
     updateSprite(timestamp) {
         let opacity = 1;
+        let scale = 1;
         if (timestamp > this.hitTime && this.skinType === "0" && Game.SLIDER_APPEARANCE.hitAnim) {
             opacity = 1 - Clamp((timestamp - this.hitTime) / 400, 0, 1);
         }
@@ -262,7 +264,26 @@ export class HitCircle {
                 this.hitCircleSprite.blendMode = this.props.blendMode;
             }
 
+            if (this.props.glowScale !== scale) {
+                const skinType = Skinning.SKIN_ENUM[this.skinType];
+                const textures = skinType !== "CUSTOM" ? Texture[skinType] : Texture.CUSTOM[this.skinIdx];
+
+                this.props.glowScale = scale;
+                this.hitCircleSprite.scale.set(this.props.glowScale * (textures.HIT_CIRCLE.isHD ? 0.5 : 1));
+            }
+
             return;
+        }
+
+        if (timestamp <= this.hitTime) {
+            scale = 1;
+        } else {
+            scale = 1 - 0.1 * easeOutElasticHalf(Clamp((timestamp - this.hitTime) / 400, 0, 1));
+        }
+
+        if (this.props.glowScale !== scale) {
+            this.props.glowScale = scale;
+            this.hitCircleSprite.scale.set(this.props.glowScale);
         }
 
         if (this.isHit === timestamp > this.hitTime) return;
