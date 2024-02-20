@@ -3,6 +3,7 @@ import { Game } from "./Game.js";
 import { BeatmapFile } from "./BeatmapFile.js";
 import { urlParams } from "./GlobalVariables.js";
 import { PlayContainer } from "./PlayButtons.js";
+import { ObjectsController } from "./HitObjects/ObjectsController.js";
 
 export class PAudio {
     buf;
@@ -164,6 +165,7 @@ export class HitSample {
         this.audioObj.forEach((hs) => {
             const src = Game.AUDIO_CTX.createBufferSource();
             const gainNode = Game.AUDIO_CTX.createGain();
+            this.gainNode = gainNode;
 
             gainNode.gain.value = this.vol;
 
@@ -197,6 +199,10 @@ export class HitSample {
     }
 
     playLoop(higherThanStart, lowerThanEnd, timeLeft) {
+        if (this.gainNode) {
+            this.gainNode.gain.value = ObjectsController.CURRENT_SV.sampleVol / 100;
+        }
+
         if (higherThanStart && lowerThanEnd && !this.isPlaying && Game.BEATMAP_FILE.audioNode.isPlaying) {
             clearTimeout(this.currentTimeout);
             this.play(true);
