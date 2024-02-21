@@ -74,6 +74,7 @@ function setupDefaultStorage() {
             master: 1,
             music: 0.5,
             hs: 0.2,
+            disableBMHS: false,
         },
         skinning: {
             type: "0",
@@ -84,6 +85,8 @@ function setupDefaultStorage() {
             sliderend: true,
             hitAnim: true,
             ignoreSkin: false,
+            showGrid: true,
+            disablePerfect: false
         },
         timeline: {
             zoomRate: 200,
@@ -112,6 +115,7 @@ function setupDefaultStorage() {
     Game.MASTER_VOL = JSON.parse(localStorage.getItem("settings")).volume.master;
     Game.MUSIC_VOL = JSON.parse(localStorage.getItem("settings")).volume.music;
     Game.HS_VOL = JSON.parse(localStorage.getItem("settings")).volume.hs;
+    Game.DISABLE_BMHS = JSON.parse(localStorage.getItem("settings")).volume.disableBMHS;
     Game.SLIDER_APPEARANCE = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
     Game.SKINNING = JSON.parse(localStorage.getItem("settings")).skinning;
     Game.MAPPING = JSON.parse(localStorage.getItem("settings")).mapping;

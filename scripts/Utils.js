@@ -165,10 +165,12 @@ export async function loadLocalStorage() {
         document.querySelector("#softoffsetVal").innerHTML = `${parseInt(currentLocalStorage.mapping.offset)}ms`;
         // hsVol = currentLocalStorage.volume.hs;
 
+        document.querySelector(`#disableBMHS`).checked = currentLocalStorage.volume.disableBMHS;
+
         document.querySelector("#showGreenLine").checked = currentLocalStorage.mapping.showGreenLine;
 
         Object.keys(currentLocalStorage.sliderAppearance).forEach((k) => {
-            if (["snaking", "sliderend", "hitAnim", "ignoreSkin"].includes(k)) {
+            if (["snaking", "sliderend", "hitAnim", "ignoreSkin", "showGrid", "disablePerfect"].includes(k)) {
                 document.querySelector(`#${k}`).checked = currentLocalStorage.sliderAppearance[k];
             }
         });
