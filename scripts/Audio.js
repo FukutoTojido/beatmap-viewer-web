@@ -18,6 +18,8 @@ export class PAudio {
 
     static SOFT_OFFSET = 0;
 
+    _dur = 0;
+
     async createBufferNode(buf) {
         // console.log(buf);
         this.buf = await Game.AUDIO_CTX.decodeAudioData(buf);
@@ -41,7 +43,7 @@ export class PAudio {
     seekTo(time) {
         if (time !== 0 && !time) return;
 
-        if (this.buf === undefined || time > this.buf.duration * 1000) return;
+        if (time > this.duration) return;
 
         const originalIsPlaying = this.isPlaying;
         if (this.isPlaying) this.pause();
@@ -51,71 +53,74 @@ export class PAudio {
     }
 
     play(time) {
-        if (!this.isPlaying && this.gainNode) {
+        if (!this.isPlaying) {
             this.isPlaying = true;
 
-            this.src = Game.AUDIO_CTX.createBufferSource();
+            // this.src = Game.AUDIO_CTX.createBufferSource();
 
-            this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * (Game.PLAYBACK_RATE !== 1 ? 3 : 1);
+            // this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * (Game.PLAYBACK_RATE !== 1 ? 3 : 1);
 
-            this.src.buffer = this.buf;
-            this.src.playbackRate.value = Game.PLAYBACK_RATE;
-            this.src.onended = () => {
-                const tempCurrentTime = this.getCurrentTime();
+            // this.src.buffer = this.buf;
+            // this.src.playbackRate.value = Game.PLAYBACK_RATE;
+            // this.src.onended = () => {
+            //     const tempCurrentTime = this.getCurrentTime();
 
-                if (tempCurrentTime >= this.buf.duration * 1000) {
-                    console.log("Ended");
-                    this.pause();
-                    // playingFlag = false;
-                    this.seekTo(0);
-                    PlayContainer.playButton.sprite.texture = PlayContainer.playButton.texture;
-                }
-            };
+            //     if (tempCurrentTime >= this.buf.duration * 1000) {
+            //         console.log("Ended");
+            //         this.pause();
+            //         // playingFlag = false;
+            //         this.seekTo(0);
+            //         PlayContainer.playButton.sprite.texture = PlayContainer.playButton.texture;
+            //     }
+            // };
 
-            let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
-            pitchFactorParam.value = 1 / Game.PLAYBACK_RATE;
+            // let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
+            // pitchFactorParam.value = 1 / Game.PLAYBACK_RATE;
 
-            if (Game.PLAYBACK_RATE !== 1) {
-                this.src.connect(this.phazeNode);
-                this.phazeNode.connect(this.gainNode);
-            } else {
-                this.src.connect(this.gainNode);
-            }
+            // if (Game.PLAYBACK_RATE !== 1) {
+            //     this.src.connect(this.phazeNode);
+            //     this.phazeNode.connect(this.gainNode);
+            // } else {
+            //     this.src.connect(this.gainNode);
+            // }
 
-            this.gainNode.connect(Game.AUDIO_CTX.destination);
+            // this.gainNode.connect(Game.AUDIO_CTX.destination);
 
-            this.startTime = Game.AUDIO_CTX.currentTime * 1000;
+            // this.startTime = Game.AUDIO_CTX.currentTime * 1000;
             this.absStartTime = performance.now();
-            this.src.start(
-                Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
-                this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
-            );
+            // this.src.start(
+            //     Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
+            //     this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
+            // );
 
             // document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
+            // console.log("started");
         }
     }
 
     pause() {
         if (this.isPlaying) {
-            this.src.stop();
-            this.src.disconnect();
-            this.phazeNode.disconnect();
-            this.gainNode.disconnect();
+            // this.src.stop();
+            // this.src.disconnect();
+            // this.phazeNode.disconnect();
+            // this.gainNode.disconnect();
             // this.currentTime += (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) * Game.PLAYBACK_RATE;
             this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
             this.isPlaying = false;
             // document.querySelector("#playButton").style.backgroundImage = "";
+
+            // console.log("stopped");
         }
     }
 
     getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
-        if (performance.now() - this.absStartTime - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) > 20) {
-            this.pause();
-            this.play();
+        // if (performance.now() - this.absStartTime - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) > 20) {
+        //     this.pause();
+        //     this.play();
 
-            console.log("Shifted");
-        }
+        //     console.log("Shifted");
+        // }
 
         return this.currentTime + (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
 
@@ -124,7 +129,12 @@ export class PAudio {
     }
 
     get duration() {
-        return this.buf?.duration * 1000 ?? 0;
+        if (this.buf) return this.duration * 1000;
+        return this._dur * 1000;
+    }
+
+    set duration(val) {
+        this._dur = val;
     }
 }
 

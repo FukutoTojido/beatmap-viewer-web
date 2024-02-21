@@ -212,7 +212,7 @@ export class ProgressBar {
                     vertex: vertexSrc,
                     fragment: fragmentSrc,
                 }),
-                gpu
+                gpu,
             }),
         });
         this.timeline.x = 40 * devicePixelRatio;
@@ -332,9 +332,7 @@ export class ProgressBar {
     static update(time) {
         this.resize();
 
-        if (Game.BEATMAP_FILE?.audioNode?.buf) {
-            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
-        }
+        this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.duration)) * (this.WIDTH - 80 * window.devicePixelRatio);
 
         // this.renderer.render(this.stage);
     }

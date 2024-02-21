@@ -641,6 +641,8 @@ export class Beatmap {
                 };
             })
             .filter((o) => o);
+
+        Game.BEATMAP_FILE.audioNode.duration = (parsedHitObjects.at(-1).obj.killTime + 1000) / 1000;
         console.log(`Took: ${performance.now() - start}ms to finish objects construction.`);
 
         start = performance.now();

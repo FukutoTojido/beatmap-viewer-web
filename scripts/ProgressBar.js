@@ -7,12 +7,12 @@ import { PlayContainer } from "./PlayButtons.js";
 
 export function setAudioTime(value) {
     if (!Game.BEATMAP_FILE?.audioNode) return;
-    Game.BEATMAP_FILE.audioNode.seekTo(value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
+    Game.BEATMAP_FILE.audioNode.seekTo(value * Game.BEATMAP_FILE.audioNode.duration);
 }
 
 export function playToggle(ele) {
     ele?.blur();
-    if (!Game.BEATMAP_FILE?.audioNode?.gainNode || !Game.BEATMAP_FILE?.audioNode?.buf) return;
+    // if (!Game.BEATMAP_FILE?.audioNode?.gainNode || !Game.BEATMAP_FILE?.audioNode?.buf) return;
 
     if (!Game.BEATMAP_FILE.audioNode.isPlaying) {
         // document.querySelector("#playButton").style.backgroundImage = "";
@@ -58,7 +58,7 @@ export function go(precise, isForward) {
     const relativePosition = current - currentBeatstep.time;
     const relativeTickPassed = Math.round(relativePosition / step);
 
-    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
+    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.duration * 1000);
 
     // const tween = new Tween({ time: current }).easing(TWEEN.Easing.Sinusoidal.Out).to({ time: goTo }, 100).onUpdate((obj) => {
     //     Game.BEATMAP_FILE.audioNode.seekTo(obj.time);
