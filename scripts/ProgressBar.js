@@ -43,7 +43,7 @@ export function parseTime(timestamp) {
 }
 
 export function go(precise, isForward) {
-    if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.audioNode.isLoaded) return;
+    if (!Game.BEATMAP_FILE) return;
     let step = 1;
     let side = isForward ? 1 : -1;
     let currentBeatstep;
