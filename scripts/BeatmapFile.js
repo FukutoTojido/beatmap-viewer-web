@@ -381,21 +381,23 @@ export class BeatmapFile {
         //     const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
 
         //     // console.log("Background Blob Generated");
-        //     this.backgroundBlobURL = URL.createObjectURL(data);
+        this.backgroundBlobURL = `https://assets.ppy.sh/beatmaps/${setId}/covers/raw.jpg`;
         //     console.log("Background Loaded");
         //     Background.src = this.backgroundBlobURL;
 
-        //     document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
-        //     document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+        document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+        document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
-        //     const bg = new Image();
-        //     bg.src = this.backgroundBlobURL;
+        // const bg = new Image();
+        // bg.src = this.backgroundBlobURL;
+        // // bg.setAttribute("crossorigin", "")
+        // // bg.crossOrigin = "Anonymous";
 
-        //     if (bg.complete) {
-        //         loadColorPalette(bg);
-        //     } else {
-        //         bg.addEventListener("load", () => loadColorPalette(bg));
-        //     }
+        // if (bg.complete) {
+        //     loadColorPalette(bg);
+        // } else {
+        //     bg.addEventListener("load", () => loadColorPalette(bg));
+        // }
         // }
 
         // const hitsoundFiles = allEntries.filter((file) => {
