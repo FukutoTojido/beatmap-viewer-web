@@ -516,6 +516,8 @@ export class BeatmapFile {
                 document.querySelector("#DT").checked = false;
                 document.querySelector("#EZ").checked = false;
                 document.querySelector("#HT").checked = false;
+
+                calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             }
 
             Game.appResize();
