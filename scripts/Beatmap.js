@@ -130,6 +130,8 @@ export class Beatmap {
         const svPrecise = Beatmap.findNearestTimingPoint(time, "timingPointsList", true);
         const svStart = Beatmap.findNearestTimingPoint(time, "timingPointsList");
 
+        console.log(time, svPrecise, svStart);
+
         const { beatstep: beatStep } = Beatmap.findNearestTimingPoint(time, "beatStepsList", true);
         const slides = parseInt(params[6]);
         const length = parseFloat(params[7]);
@@ -223,6 +225,7 @@ export class Beatmap {
         });
 
         while (foundIndex > 0 && Beatmap[type][foundIndex].time > time + compensate) foundIndex--;
+        while (foundIndex + 1 < Beatmap[type].length && Beatmap[type][foundIndex + 1].time <= time + compensate) foundIndex++;
 
         if (Beatmap[type][foundIndex].time > time + compensate) return 0;
         return foundIndex;
