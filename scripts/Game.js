@@ -72,6 +72,7 @@ export class Game {
     static MASTER_VOL;
     static MUSIC_VOL;
     static HS_VOL;
+    static DISABLE_BMHS;
 
     static DIFF_FILE_NAME = "";
     static DROP_BLOB = null;
@@ -192,6 +193,12 @@ export class Game {
 
         // grid.interactive = true;
         grid.eventMode = "static";
+
+        if (Game.SLIDER_APPEARANCE.showGrid) {
+            grid.alpha = 1;
+        } else {
+            grid.alpha = 0.01;
+        }
 
         const clickControl = (e) => {
             if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.isLoaded) return;

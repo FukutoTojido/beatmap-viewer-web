@@ -130,7 +130,7 @@ export class Beatmap {
         const svPrecise = Beatmap.findNearestTimingPoint(time, "timingPointsList", true);
         const svStart = Beatmap.findNearestTimingPoint(time, "timingPointsList");
 
-        console.log(time, svPrecise, svStart);
+        // console.log(time, svPrecise, svStart);
 
         const { beatstep: beatStep } = Beatmap.findNearestTimingPoint(time, "beatStepsList", true);
         const slides = parseInt(params[6]);

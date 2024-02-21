@@ -9,6 +9,8 @@ export class Judgement {
     stackHeight;
     time;
 
+    disablePerfect = null;
+
     static FADE_OUT_DURATION = 100;
     static ANIM_DURATION = 800;
 
@@ -84,6 +86,17 @@ export class Judgement {
 
         // if (this.obj.x !== x) this.obj.x = x;
         // if (this.obj.y !== y) this.obj.y = y;
+
+        if (this.val === 300 && this.disablePerfect !== Game.SLIDER_APPEARANCE.disablePerfect) {
+            this.disablePerfect = Game.SLIDER_APPEARANCE.disablePerfect;
+
+            if (this.disablePerfect) {
+                this.obj.visible = false;
+                return;
+            }
+
+            this.obj.visible = true;
+        }
 
         if (timestamp < this.time || timestamp >= this.time + Judgement.ANIM_DURATION) {
             this.obj.alpha = 0;

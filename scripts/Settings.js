@@ -201,10 +201,27 @@ export function handleCheckBox(checkbox) {
     const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
     const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
 
-    if (["snaking", "sliderend", "hitAnim", "ignoreSkin"].includes(checkbox.name)) {
+    if (["snaking", "sliderend", "hitAnim", "ignoreSkin", "showGrid", "disablePerfect"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.sliderAppearance[checkbox.name] = Game.SLIDER_APPEARANCE[checkbox.name];
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        if (document.querySelector(`#showGrid`).checked) {
+            Game.GRID.alpha = 1;
+        } else {
+            Game.GRID.alpha = 0.01;
+        }
+
+        return;
+    }
+
+    if (checkbox.name === "disableBMHS") {
+        Game.DISABLE_BMHS = !Game.DISABLE_BMHS;
+
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.volume.disableBMHS = Game.DISABLE_BMHS;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
         return;
     }
 

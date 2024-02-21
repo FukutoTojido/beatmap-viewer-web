@@ -169,7 +169,7 @@ export class HitSample {
 
             gainNode.gain.value = this.vol;
 
-            if (HitSample.SAMPLES.MAP[hs]) {
+            if (HitSample.SAMPLES.MAP[hs] && !Game.DISABLE_BMHS) {
                 src.buffer = HitSample.SAMPLES.MAP[hs];
             } else {
                 const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
