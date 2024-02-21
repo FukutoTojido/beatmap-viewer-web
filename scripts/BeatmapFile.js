@@ -110,34 +110,34 @@ export class BeatmapFile {
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
             let blob;
-            if (false && selectedMirror !== "nerinyan") {
+            if (true || selectedMirror !== "nerinyan") {
                 const requestClient = axios.create({
                     baseURL: urls[selectedMirror] ?? customURL,
                 });
 
-                try {
-                    blob = (
-                        await requestClient.get(`${setId}`, {
-                            responseType: "blob",
-                            onDownloadProgress: (progressEvent) => {
-                                document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                                // console.log(progressEvent);
-                            },
-                            // headers: {
-                            //     "Access-Control-Allow-Origin": "*",
-                            //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                            // },
-                        })
-                    ).data;
-                } catch (e) {
-                    console.log(e);
-                }
+                const arrayBuffer = (
+                    await requestClient.get(`${setId}`, {
+                        responseType: "arraybuffer",
+                        onDownloadProgress: (progressEvent) => {
+                            document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                            // console.log(progressEvent);
+                        },
+                        // headers: {
+                        //     "Access-Control-Allow-Origin": "*",
+                        //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                        // },
+                    })
+                ).data;
+
+                blob = new Blob([arrayBuffer]);
+                // console.log(blob);
             } else {
                 const rawData = await ky.get(`${setId}/`, {
                     prefixUrl: urls[selectedMirror] ?? customURL,
                     onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                        // document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
                     },
+                    timeout: false,
                     // headers: {
                     //     "Access-Control-Allow-Origin": "*",
                     //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
@@ -146,8 +146,6 @@ export class BeatmapFile {
 
                 blob = await rawData.blob();
             }
-
-            // console.log(blob);
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
