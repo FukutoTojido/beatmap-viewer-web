@@ -381,7 +381,11 @@ export class HitCircle {
         if (delta >= Beatmap.hitWindows.GREAT && delta < Beatmap.hitWindows.OK) val = 100;
         if (delta >= Beatmap.hitWindows.OK && delta < Beatmap.hitWindows.MEH) val = 50;
 
-        if (val !== 0) this.hitTime = currentInput.time;
+        if (val !== 0) {
+            this.hitTime = currentInput.time;
+            this.endTime = this.hitTime;
+            this.killTime = this.endTime + 240;
+        }
 
         return { val, valV2: val, delta: currentInput.time - this.time, inputTime: currentInput.time };
     }
