@@ -505,6 +505,12 @@ export class BeatmapFile {
                 document.querySelector("#EZ").disabled = false;
                 document.querySelector("#HT").disabled = false;
 
+                Game.MODS.HR = false;
+                Game.MODS.DT = false;
+                Game.MODS.HD = false;
+                Game.MODS.EZ = false;
+                Game.MODS.HT = false;
+
                 document.querySelector("#HD").checked = false;
                 document.querySelector("#HR").checked = false;
                 document.querySelector("#DT").checked = false;
