@@ -25,6 +25,7 @@ export class Slider {
     realTrackPoints;
     sliderParts;
     sliderEndEvalPosition;
+    sliderEndVisualPosition;
 
     sliderLength;
     svMultiplier;
@@ -114,13 +115,12 @@ export class Slider {
         this.hitCircle.drawSelected();
 
         const circleBaseScale = Beatmap.moddedStats.radius / 54.4;
-        const stackHeight = this.stackHeight;
+        const endPosition = this.sliderEndVisualPosition;
+
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
-        const x = this.angleList.at(-1).x + stackHeight * currentStackOffset;
-        const y = !Game.MODS.HR
-            ? this.angleList.at(-1).y + stackHeight * currentStackOffset
-            : 384 - this.angleList.at(-1).y + stackHeight * currentStackOffset;
+        const x = endPosition.x + this.stackHeight * currentStackOffset;
+        const y = !Game.MODS.HR ? endPosition.y + this.stackHeight * currentStackOffset : 384 - endPosition.y + this.stackHeight * currentStackOffset;
 
         this.selectedSliderEnd.x = x * Game.SCALE_RATE;
         this.selectedSliderEnd.y = y * Game.SCALE_RATE;
@@ -809,6 +809,7 @@ export class Slider {
 
         // let start = performance.now();
         this.angleList = this.getAngleList(originalArr);
+        this.sliderEndVisualPosition = structuredClone(this.angleList.at(-1));
 
         // console.log(this.time, this.svMultiplier, this.baseSV, this.beatStep, this.angleList);
         if (this.angleList.length === 0 || this.sliderTicksCount > 1_000_000) {
@@ -922,8 +923,8 @@ export class Slider {
 
         this.judgementContainer = new PIXI.Container();
 
-        SliderContainer.addChild(this.judgementContainer);
         SliderContainer.addChild(this.SliderMeshContainer);
+        SliderContainer.addChild(this.judgementContainer);
 
         this.ticks.forEach((tick) => SliderContainer.addChild(tick.obj));
         SliderContainer.addChild(this.sliderEnd.hitCircle.obj);
