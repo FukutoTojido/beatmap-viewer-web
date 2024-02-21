@@ -104,30 +104,34 @@ export class BeatmapFile {
             const urls = {
                 nerinyan: "https://api.nerinyan.moe/d/",
                 sayobot: "https://dl.sayobot.cn/beatmaps/download/novideo/",
-                chimu: "https://chimu.moe/d/",
+                chimu: "https://api.chimu.moe/v1/download/",
             };
 
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
             let blob;
-            if (selectedMirror !== "nerinyan") {
+            if (false && selectedMirror !== "nerinyan") {
                 const requestClient = axios.create({
                     baseURL: urls[selectedMirror] ?? customURL,
                 });
 
-                blob = (
-                    await requestClient.get(`${setId}/`, {
-                        responseType: "blob",
-                        onDownloadProgress: (progressEvent) => {
-                            document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                            // console.log(progressEvent);
-                        },
-                        // headers: {
-                        //     "Access-Control-Allow-Origin": "*",
-                        //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                        // },
-                    })
-                ).data;
+                try {
+                    blob = (
+                        await requestClient.get(`${setId}`, {
+                            responseType: "blob",
+                            onDownloadProgress: (progressEvent) => {
+                                document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
+                                // console.log(progressEvent);
+                            },
+                            // headers: {
+                            //     "Access-Control-Allow-Origin": "*",
+                            //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
+                            // },
+                        })
+                    ).data;
+                } catch (e) {
+                    console.log(e);
+                }
             } else {
                 const rawData = await ky.get(`${setId}/`, {
                     prefixUrl: urls[selectedMirror] ?? customURL,
@@ -142,6 +146,8 @@ export class BeatmapFile {
 
                 blob = await rawData.blob();
             }
+
+            // console.log(blob);
 
             // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
 
@@ -444,6 +450,10 @@ export class BeatmapFile {
 
     async constructMap() {
         try {
+            if (this.mapId === "2087153") {
+                throw "This beatmap should not be loaded under any circumstances. Please provide a different beatmap.";
+            }
+
             const removedChildren = Game.CONTAINER.removeChildren();
             removedChildren.forEach((ele) => ele.destroy());
 

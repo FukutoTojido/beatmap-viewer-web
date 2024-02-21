@@ -322,6 +322,7 @@ export class SliderBody {
     }
 
     static getPointAtT(list, t) {
+        if (isNaN(t)) t = 0;
         if (t <= 0) return list.at(0);
         if (t >= 1) return list.at(-1);
 
@@ -330,6 +331,8 @@ export class SliderBody {
         const rawIdx = t * (list.length - 1);
 
         const lerpValue = rawIdx % startIdx;
+
+        // console.log(t, startIdx, endIdx)
 
         const x = list[startIdx].x + lerpValue * (list[endIdx].x - list[startIdx].x);
         const y = list[startIdx].y + lerpValue * (list[endIdx].y - list[startIdx].y);

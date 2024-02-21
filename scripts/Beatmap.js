@@ -16,12 +16,15 @@ import { HitSound } from "./HitSound.js";
 import { Texture } from "./Texture.js";
 import { TimingPanel } from "./TimingPanel.js";
 import { MetadataPanel } from "./SidePanel.js";
+import { Notification } from "./Notification.js";
 
 export class Beatmap {
     objectsController;
     static SAMPLE_SET = "Normal";
     static COLORS;
     static HREF = null;
+
+    static hasILLEGAL = false;
 
     static difficultyMultiplier = 1;
     static stats = {
@@ -124,9 +127,10 @@ export class Beatmap {
     static constructSlider(params, timingPoints, beatSteps, initialSliderVelocity) {
         const hitSoundIdx = parseInt(params[4]);
         const time = parseInt(params[2]);
+        const svPrecise = Beatmap.findNearestTimingPoint(time, "timingPointsList", true);
         const svStart = Beatmap.findNearestTimingPoint(time, "timingPointsList");
 
-        const { beatstep: beatStep } = Beatmap.findNearestTimingPoint(time, "beatStepsList");
+        const { beatstep: beatStep } = Beatmap.findNearestTimingPoint(time, "beatStepsList", true);
         const slides = parseInt(params[6]);
         const length = parseFloat(params[7]);
         const endTime = time + ((slides * length) / svStart.svMultiplier / initialSliderVelocity) * beatStep;
@@ -174,7 +178,7 @@ export class Beatmap {
             `${x}:${y}|${anchors}`,
             sliderType,
             length,
-            svStart.svMultiplier,
+            svPrecise.svMultiplier,
             initialSliderVelocity,
             beatStep,
             time,
@@ -358,6 +362,8 @@ export class Beatmap {
     }
 
     constructor(rawBeatmap, delay) {
+        Beatmap.hasILLEGAL = false;
+
         Beatmap.COLORS = Skinning.DEFAULT_COLORS;
         Beatmap.loadMetadata(rawBeatmap.split("\r\n"));
         // Get Approach Rate
@@ -649,7 +655,7 @@ export class Beatmap {
             let n = i;
             let currentObj = this.objectsController.objectsList[i];
 
-            if (currentObj.obj.stackHeight != 0) continue;
+            if (currentObj.obj.stackHeight != 0 || currentObj.obj.ILLEGAL) continue;
 
             if (currentObj.obj instanceof HitCircle) {
                 while (--n >= 0) {
@@ -748,6 +754,14 @@ export class Beatmap {
                 38) *
                 5
         );
+
+        if (Beatmap.hasILLEGAL) {
+            new Notification({
+                message: "This beatmap contains illegal hitobjects. Therefore, Timeline will be disabled for this map",
+                type: "warning",
+                autoTimeout: false
+            }).notify();
+        }
     }
 
     calculateDistance(vec1, vec2) {

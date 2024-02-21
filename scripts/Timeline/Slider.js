@@ -30,6 +30,7 @@ export class TimelineSlider {
         // this.obj.interactive = true;
         this.obj.eventMode = "static";
 
+        
         this.x = 0;
         this.radius = 30.0 * (118 / 128);
         this.hitObject = hitObject;
@@ -135,6 +136,8 @@ export class TimelineSlider {
     }
 
     draw(timestamp) {
+        if (this.hitObject.ILLEGAL) return;
+
         const time = this.hitObject.time;
         const delta = timestamp - time;
 

@@ -15,7 +15,11 @@ import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as PIXI from "pixi.js";
 
+const _32_BIT_LIMIT = 2147483647;
+
 export class Slider {
+    ILLEGAL = false;
+
     originalArr = [];
     angleList = [];
     realTrackPoints;
@@ -101,6 +105,8 @@ export class Slider {
     }
 
     drawSelected() {
+        if (this.ILLEGAL) return;
+
         this.sliderGeometryContainer.selSliderContainer.alpha = 1;
         this.sliderGeometryContainer.selSliderContainer.tint = Object.values(d3.rgb(`#3197ff`)).map((val) => val / 255);
         this.sliderGeometryContainer.selSliderContainer.update();
@@ -258,7 +264,7 @@ export class Slider {
         }
 
         if ((this.isHover && this.isVisible) !== this.nodesContainer.visible) {
-            this.nodesContainer.visible = (this.isHover && this.isVisible);
+            this.nodesContainer.visible = this.isHover && this.isVisible;
         }
     }
 
@@ -279,7 +285,9 @@ export class Slider {
     }
 
     draw(timestamp) {
-        this.isVisible = timestamp >= this.startTime && timestamp < this.killTime; 
+        if (this.ILLEGAL) return;
+
+        this.isVisible = timestamp >= this.startTime && timestamp < this.killTime;
 
         this.drawBorder(timestamp);
         this.hitCircle.draw(timestamp);
@@ -339,7 +347,7 @@ export class Slider {
 
     generatePointsList(controlPointsList) {
         let pointsList = [];
-        for (let i = 0; i < 1; i += Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY)) {
+        for (let i = 0; i <= 1; i += Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY)) {
             pointsList.push(this.bezier(i, controlPointsList));
         }
 
@@ -492,9 +500,10 @@ export class Slider {
             .reduce((prev, curr) => prev.concat(curr), [])
             .filter((s) => s);
         const sliderLen = calculatedAngleLength.reduce((prev, curr) => prev + curr.length, 0);
-        const limit = Math.floor((this.sliderLength / sliderLen) * (calculatedAngle.length - 1));
+        let limit = Math.max(Math.floor((this.sliderLength / sliderLen) * (calculatedAngle.length - 1)), 1);
 
         const sliced = calculatedAngle.slice(0, limit);
+        // console.log(calculatedAngle, limit, this.sliderLength, sliderLen);
 
         // console.log(this.time, calculatedAngle.length, sliced.at(-1));
 
@@ -529,9 +538,12 @@ export class Slider {
         if (time <= this.time) return this.realTrackPoints.at(0);
         if (time >= this.endTime) return this.realTrackPoints.at(-1);
 
-        const startIdx = Math.floor(((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1));
-        const endIdx = Math.ceil(((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1));
-        const rawIdx = ((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1);
+        let _t = ((time - this.time) / (this.endTime - this.time)) * (this.realTrackPoints.length - 1);
+        if (isNaN(_t)) _t = 0;
+
+        const startIdx = Math.floor(_t);
+        const endIdx = Math.ceil(_t);
+        const rawIdx = _t;
 
         const lerpValue = rawIdx % startIdx;
 
@@ -551,6 +563,7 @@ export class Slider {
     getSliderPart() {
         const baseTicksList = [];
         const endTime = this.endTime;
+
         for (let i = 0; i < this.sliderTicksCount / this.repeat; i++) {
             baseTicksList.push(
                 this.angleList[Math.round((((i + 1) * this.beatStep) / this.sliderTime / Beatmap.stats.sliderTickRate) * (this.angleList.length - 1))]
@@ -784,8 +797,29 @@ export class Slider {
 
         this.hitSounds = hitSounds;
 
+        const SliderContainer = new PIXI.Container();
+        this.obj = SliderContainer;
+
+        if (sliderLength < 0) {
+            this.ILLEGAL = true;
+            Beatmap.hasILLEGAL = true;
+
+            return;
+        }
+
         // let start = performance.now();
         this.angleList = this.getAngleList(originalArr);
+
+        // console.log(this.time, this.svMultiplier, this.baseSV, this.beatStep, this.angleList);
+        if (this.angleList.length === 0 || this.sliderTicksCount > 1_000_000) {
+            this.ILLEGAL = true;
+            Beatmap.hasILLEGAL = true;
+
+            if (this.angleList.length === 0) {
+                this.angleList.push(this.originalArr[0]);
+            }
+            return;
+        }
         // console.log(this.time, this.angleList);
         // let took = performance.now() - start;
         // if (took > 20) console.log(`Took: ${took} to create ${this.time} AngleList`);
@@ -828,13 +862,20 @@ export class Slider {
 
         this.sliderEnd = new SliderEnd(this);
 
+        // console.log(time, this.angleList)
+
+        if (this.repeat > 1 && this.angleList.length < 2) {
+            Beatmap.hasILLEGAL = true;
+            this.ILLEGAL = true;
+        }
+
         if (this.repeat > 1) {
-            const deltaXE = this.angleList.at(-1).x - this.angleList.at(-2).x;
-            const deltaYE = this.angleList.at(-1).y - this.angleList.at(-2).y;
+            const deltaXE = this.angleList.length === 1 ? 1 : this.angleList.at(-1).x - this.angleList.at(-2).x;
+            const deltaYE = this.angleList.length === 1 ? 1 : this.angleList.at(-1).y - this.angleList.at(-2).y;
             const tanE = Math.abs(deltaYE / deltaXE);
 
-            const deltaXS = this.angleList[0].x - this.angleList[1].x;
-            const deltaYS = this.angleList[0].y - this.angleList[1].y;
+            const deltaXS = this.angleList.length === 1 ? 1 : this.angleList[0].x - this.angleList[1].x;
+            const deltaYS = this.angleList.length === 1 ? 1 : this.angleList[0].y - this.angleList[1].y;
             const tanS = Math.abs(deltaYS / deltaXS);
 
             let angleE = deltaXE >= 0 ? (Math.atan(tanE) * 180) / Math.PI : 180 - (Math.atan(tanE) * 180) / Math.PI;
@@ -881,7 +922,6 @@ export class Slider {
 
         this.judgementContainer = new PIXI.Container();
 
-        const SliderContainer = new PIXI.Container();
         SliderContainer.addChild(this.judgementContainer);
         SliderContainer.addChild(this.SliderMeshContainer);
 
@@ -920,8 +960,6 @@ export class Slider {
         SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);
         SliderContainer.addChild(this.nodesContainer);
-
-        this.obj = SliderContainer;
         // this.obj.alpha = 0.0;
     }
 

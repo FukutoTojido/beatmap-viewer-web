@@ -95,8 +95,7 @@ export class ObjectsController {
         const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
 
         const compareFunc = (element, value) => {
-            if (element.obj.killTime + 800 < value)
-                return -1;
+            if (element.obj.killTime + 800 < value) return -1;
             if (element.obj.time - currentPreempt > value) return 1;
             return 0;
         };
@@ -124,7 +123,12 @@ export class ObjectsController {
         }
 
         this.filtered.forEach((object) => {
-            if (drawList.length > 0 && object.obj.time <= drawList.at(0).obj.time && object.obj.time >= drawList.at(-1).obj.time) return;
+            if (drawList.length > 0) {
+                const firstObj = drawList.at(-1);
+                const lastObj = drawList.at(0);
+
+                if (object.obj.time <= lastObj.obj.time && object.obj.time >= firstObj.obj.time) return;
+            }
             Game.CONTAINER.removeChild(object.obj.obj);
             if (object.obj.approachCircleObj) Game.CONTAINER.removeChild(object.obj.approachCircleObj.obj);
         });
@@ -312,7 +316,8 @@ export class ObjectsController {
 
         if (currentAudioTime && Game.BEATMAP_FILE?.beatmapRenderData?.objectsController) {
             Game.BEATMAP_FILE.beatmapRenderData.objectsController.draw(currentAudioTime);
-            Timeline.draw(currentAudioTime);
+
+            if (!Beatmap.hasILLEGAL) Timeline.draw(currentAudioTime);
         }
 
         BPM.update(currentAudioTime ?? 0);
