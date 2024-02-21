@@ -191,59 +191,59 @@ export class BeatmapFile {
         if (setId && !this.isFromFile) Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${setId}#osu/${this.mapId}`;
         else Beatmap.HREF = null;
 
-        const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
-        const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
-        const zipReader = new zip.ZipReader(mapFileBlobReader);
-        const allEntries = await zipReader.getEntries();
+        // const mapFileBlob = !this.isFromFile ? await this.downloadOsz(setId) : Game.DROP_BLOB;
+        // const mapFileBlobReader = new zip.BlobReader(mapFileBlob);
+        // const zipReader = new zip.ZipReader(mapFileBlobReader);
+        // const allEntries = await zipReader.getEntries();
 
         if (!this.isFromFile) {
             await this.getOsuFile();
-            const diffList = document.querySelector(".difficultyList");
-            diffList.innerHTML = "";
-            // document.querySelector(".difficultySelector").style.display = "block";
+            // const diffList = document.querySelector(".difficultyList");
+            // diffList.innerHTML = "";
+            // // document.querySelector(".difficultySelector").style.display = "block";
 
-            const diffs = [];
+            // const diffs = [];
 
-            for (const content of allEntries) {
-                if (content.filename.split(".").at(-1) !== "osu") continue;
-                const blob = await content.getData(new zip.BlobWriter("text/plain"));
-                const rawFile = await blob.text();
+            // for (const content of allEntries) {
+            //     if (content.filename.split(".").at(-1) !== "osu") continue;
+            //     const blob = await content.getData(new zip.BlobWriter("text/plain"));
+            //     const rawFile = await blob.text();
 
-                const mode = rawFile
-                    .split("\r\n")
-                    .filter((line) => /Mode:\s[0-9]+/g.test(line))
-                    .at(0)
-                    ?.replace("Mode: ", "");
-                if (parseInt(mode) !== 0) continue;
+            //     const mode = rawFile
+            //         .split("\r\n")
+            //         .filter((line) => /Mode:\s[0-9]+/g.test(line))
+            //         .at(0)
+            //         ?.replace("Mode: ", "");
+            //     if (parseInt(mode) !== 0) continue;
 
-                const builderOptions = {
-                    addStacking: true,
-                    mods: [],
-                };
-                const blueprintData = osuPerformance.parseBlueprint(rawFile);
-                const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
-                const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
+            //     const builderOptions = {
+            //         addStacking: true,
+            //         mods: [],
+            //     };
+            //     const blueprintData = osuPerformance.parseBlueprint(rawFile);
+            //     const beatmapData = osuPerformance.buildBeatmap(blueprintData, builderOptions);
+            //     const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
-                const diffName = rawFile
-                    .split("\r\n")
-                    .filter((line) => /Version:.+/g.test(line))
-                    .at(0)
-                    ?.replace("Version:", "");
+            //     const diffName = rawFile
+            //         .split("\r\n")
+            //         .filter((line) => /Version:.+/g.test(line))
+            //         .at(0)
+            //         ?.replace("Version:", "");
 
-                const ele = createDifficultyElement({
-                    name: diffName,
-                    fileName: content.filename,
-                    starRating: difficultyAttributes.starRating,
-                });
+            //     const ele = createDifficultyElement({
+            //         name: diffName,
+            //         fileName: content.filename,
+            //         starRating: difficultyAttributes.starRating,
+            //     });
 
-                diffs.push(ele);
-            }
+            //     diffs.push(ele);
+            // }
 
-            diffs.sort((a, b) => {
-                return -a.starRating + b.starRating;
-            });
+            // diffs.sort((a, b) => {
+            //     return -a.starRating + b.starRating;
+            // });
 
-            for (const obj of diffs) diffList.appendChild(obj.ele);
+            // for (const obj of diffs) diffList.appendChild(obj.ele);
         } else {
             const map = allEntries.filter((e) => e.filename === Game.DIFF_FILE_NAME).at(0);
             const blob = await map.getData(new zip.BlobWriter("text/plain"));
@@ -358,81 +358,81 @@ export class BeatmapFile {
         console.log(audioFilename, backgroundFilename);
         // console.log(allEntries);
 
-        document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
-        const audioFile = allEntries.filter((e) => e.filename === audioFilename).at(0);
+        // document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
+        // const audioFile = allEntries.filter((e) => e.filename === audioFilename).at(0);
 
-        if (!audioFile) {
-            throw "This map has no audio file";
-        }
+        // if (!audioFile) {
+        //     throw "This map has no audio file";
+        // }
 
-        if (audioFilename.split(".").at(-1) === "ogg") {
-            this.hasOgg = true;
-        }
+        // if (audioFilename.split(".").at(-1) === "ogg") {
+        //     this.hasOgg = true;
+        // }
 
-        const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
-        // console.log("Audio Blob Generated");
-        this.audioBlobURL = URL.createObjectURL(audioBlob);
-        const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
-        console.log("Audio Loaded");
+        // const audioBlob = await audioFile.getData(new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`));
+        // // console.log("Audio Blob Generated");
+        // this.audioBlobURL = URL.createObjectURL(audioBlob);
+        // const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
+        // console.log("Audio Loaded");
 
-        const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
-        if (backgroundFile) {
-            const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
-            const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
+        // const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
+        // if (backgroundFile) {
+        //     const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
+        //     const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
 
-            // console.log("Background Blob Generated");
-            this.backgroundBlobURL = URL.createObjectURL(data);
-            console.log("Background Loaded");
-            Background.src = this.backgroundBlobURL;
+        //     // console.log("Background Blob Generated");
+        //     this.backgroundBlobURL = URL.createObjectURL(data);
+        //     console.log("Background Loaded");
+        //     Background.src = this.backgroundBlobURL;
 
-            document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
-            document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
+        //     document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+        //     document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
-            const bg = new Image();
-            bg.src = this.backgroundBlobURL;
+        //     const bg = new Image();
+        //     bg.src = this.backgroundBlobURL;
 
-            if (bg.complete) {
-                loadColorPalette(bg);
-            } else {
-                bg.addEventListener("load", () => loadColorPalette(bg));
-            }
-        }
+        //     if (bg.complete) {
+        //         loadColorPalette(bg);
+        //     } else {
+        //         bg.addEventListener("load", () => loadColorPalette(bg));
+        //     }
+        // }
 
-        const hitsoundFiles = allEntries.filter((file) => {
-            // console.log(file.filename);
-            return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(
-                file.filename
-            );
-        });
+        // const hitsoundFiles = allEntries.filter((file) => {
+        //     // console.log(file.filename);
+        //     return /(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/.test(
+        //         file.filename
+        //     );
+        // });
 
         // console.log(hitsoundFiles);
 
-        const hitsoundArrayBuffer = [];
-        document.querySelector("#loadingText").innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
-        for (const file of hitsoundFiles) {
-            if (file.filename.split(".").at(-1) === "ogg") {
-                this.hasOgg = true;
-            }
+        // const hitsoundArrayBuffer = [];
+        // document.querySelector("#loadingText").innerHTML = `Setting up Hitsounds<br>Might take long if there are many hitsound files`;
+        // for (const file of hitsoundFiles) {
+        //     if (file.filename.split(".").at(-1) === "ogg") {
+        //         this.hasOgg = true;
+        //     }
 
-            const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
-            const fileBlob = await file.getData(writer);
-            // console.log(`Hitsound ${file.filename} Blob Generated`);
-            const fileArrayBuffer = await this.readBlobAsBuffer(fileBlob);
-            // console.log(`Hitsound ${file.filename} ArrayBuffer Generated`);
+        //     const writer = new zip.BlobWriter(`audio/${file.filename.split(".").at(-1)}`);
+        //     const fileBlob = await file.getData(writer);
+        //     // console.log(`Hitsound ${file.filename} Blob Generated`);
+        //     const fileArrayBuffer = await this.readBlobAsBuffer(fileBlob);
+        //     // console.log(`Hitsound ${file.filename} ArrayBuffer Generated`);
 
-            hitsoundArrayBuffer.push({
-                filename: file.filename,
-                buf: fileArrayBuffer,
-            });
-        }
+        //     hitsoundArrayBuffer.push({
+        //         filename: file.filename,
+        //         buf: fileArrayBuffer,
+        //     });
+        // }
 
-        this.hitsoundList = hitsoundArrayBuffer;
-        console.log("Hitsound Loaded");
+        // this.hitsoundList = hitsoundArrayBuffer;
+        // console.log("Hitsound Loaded");
 
-        zipReader.close();
+        // zipReader.close();
         document.querySelector("#loadingText").innerHTML = `Setting up HitObjects`;
         console.log("Get .osz completed");
-        return audioArrayBuffer;
+        // return audioArrayBuffer;
     }
 
     async loadHitsounds() {
@@ -462,16 +462,16 @@ export class BeatmapFile {
             Beatmap.CURRENT_MAPID = this.mapId;
             document.querySelector(".loading").style.display = "";
             document.querySelector(".loading").style.opacity = 1;
-            const audioArrayBuffer = await this.getOsz();
+            await this.getOsz();
             this.audioNode = new PAudio();
             await this.loadHitsounds();
-
-            document.querySelector("#loadingText").textContent = `Setting up Audio`;
-            await this.audioNode.createBufferNode(audioArrayBuffer);
 
             document.querySelector("#loadingText").textContent = `Setting up HitObjects`;
             this.md5Map = md5(this.osuFile).toString();
             this.beatmapRenderData = new Beatmap(this.osuFile, 0);
+
+            document.querySelector("#loadingText").textContent = `Setting up Audio`;
+            // await this.audioNode.createBufferNode(audioArrayBuffer);
 
             document.querySelector(".loading").style.opacity = 0;
             document.querySelector(".loading").style.display = "none";

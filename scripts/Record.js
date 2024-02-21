@@ -30,7 +30,7 @@ document.querySelector("#record")?.addEventListener("click", () => {
     console.log("Record started! Please wait");
 
     const callDraw = (time) => {
-        if (time > Game.BEATMAP_FILE.audioNode.buf.duration * 1000) {
+        if (time > Game.BEATMAP_FILE.audioNode.duration * 1000) {
             mediaRecorder.stop();
             return;
         }
