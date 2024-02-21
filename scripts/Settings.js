@@ -102,7 +102,7 @@ export function setMasterVolume(slider) {
 
     if (Game.BEATMAP_FILE === undefined) return;
 
-    Game.BEATMAP_FILE.audioNode.gainNode.gain.value = Game.MASTER_VOL * Game.MUSIC_VOL;
+    // Game.BEATMAP_FILE.audioNode.gainNode.gain.value = Game.MASTER_VOL * Game.MUSIC_VOL;
     HitSample.masterGainNode.gain.value = Game.MASTER_VOL * Game.HS_VOL;
 }
 document.querySelector("#master").oninput = () => setMasterVolume(document.querySelector("#master"));
@@ -117,7 +117,7 @@ export function setAudioVolume(slider) {
 
     if (Game.BEATMAP_FILE === undefined) return;
 
-    Game.BEATMAP_FILE.audioNode.gainNode.gain.value = Game.MASTER_VOL * Game.MUSIC_VOL;
+    // Game.BEATMAP_FILE.audioNode.gainNode.gain.value = Game.MASTER_VOL * Game.MUSIC_VOL;
 }
 document.querySelector("#music").oninput = () => setAudioVolume(document.querySelector("#music"));
 
