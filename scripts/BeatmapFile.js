@@ -503,11 +503,25 @@ export class BeatmapFile {
                 document.querySelector("#EZ").disabled = false;
                 document.querySelector("#HT").disabled = false;
 
+                Game.MODS.HR = false;
+                Game.MODS.DT = false;
+                Game.MODS.HD = false;
+                Game.MODS.EZ = false;
+                Game.MODS.HT = false;
+
+                const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
+                const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
+
+                Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
+                Beatmap.updateModdedStats();
+
                 document.querySelector("#HD").checked = false;
                 document.querySelector("#HR").checked = false;
                 document.querySelector("#DT").checked = false;
                 document.querySelector("#EZ").checked = false;
                 document.querySelector("#HT").checked = false;
+
+                calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             }
 
             Game.appResize();
