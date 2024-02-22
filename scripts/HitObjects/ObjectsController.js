@@ -170,7 +170,7 @@ export class ObjectsController {
         });
 
         this.selected.forEach((object) => {
-            if (selected.includes(object)) return;
+            if (selected.includes(object) || object.obj instanceof Spinner) return;
             Game.CONTAINER.removeChild(object.obj.selected);
 
             if (object.obj instanceof Slider) {
@@ -180,7 +180,7 @@ export class ObjectsController {
         });
 
         selected.forEach((object) => {
-            if (this.selected.includes(object)) return;
+            if (this.selected.includes(object) || object.obj instanceof Spinner) return;
             Game.CONTAINER.addChild(object.obj.selected);
 
             if (object.obj instanceof Slider) {
@@ -266,6 +266,7 @@ export class ObjectsController {
         });
 
         this.selected.forEach((object) => {
+            if (object.obj instanceof Spinner) return;
             object.obj.drawSelected();
         });
 
