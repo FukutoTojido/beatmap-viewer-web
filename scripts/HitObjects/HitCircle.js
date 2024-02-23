@@ -224,17 +224,17 @@ export class HitCircle {
         const currentStackOffset = Beatmap.moddedStats.stackOffset;
 
         // Set HitCircle position
-        const x = this.originalX + stackHeight * currentStackOffset;
-        const y = !Game.MODS.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset;
+        const x = (this.originalX + stackHeight * currentStackOffset) * Game.SCALE_RATE;
+        const y = (!Game.MODS.HR ? this.originalY + stackHeight * currentStackOffset : 384 - this.originalY + stackHeight * currentStackOffset) * Game.SCALE_RATE;
 
-        if (this.props.x !== x || Game.EMIT_STACK.length !== 0) {
+        if (this.props.x !== x) {
             this.props.x = x;
-            this.obj.x = x * Game.SCALE_RATE;
+            this.obj.x = x;
         }
 
-        if (this.props.y !== y || Game.EMIT_STACK.length !== 0) {
+        if (this.props.y !== y) {
             this.props.y = y;
-            this.obj.y = y * Game.SCALE_RATE;
+            this.obj.y = y;
         }
     }
 
