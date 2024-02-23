@@ -184,10 +184,10 @@ export function calculateCurrentSR(modsFlag) {
     Game.STATS.AR = round(beatmapData.difficulty.approachRate);
     Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
     Game.STATS.HP = round(beatmapData.difficulty.drainRate);
-    Game.STATS.SR = round(difficultyAttributes.starRating);
-    Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes.starRating)).formatHex().slice(1), 16);
+    Game.STATS.SR = round(difficultyAttributes?.starRating ?? 0.0);
+    Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes?.starRating ?? 0.0)).formatHex().slice(1), 16);
 
-    if (difficultyAttributes.starRating >= 6.5) Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
+    if ((difficultyAttributes?.starRating ?? 0.0) >= 6.5) Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
     else Game.STATS.SRSprite.style.fill = 0x000000;
 
     Game.STATS.update();
