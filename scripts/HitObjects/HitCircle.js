@@ -255,7 +255,7 @@ export class HitCircle {
             this.hitCircleSprite.alpha = this.props.glowOpacity;
         }
 
-        if (this.skinType !== "0") {
+        if (this.skinType !== "0" || !Game.SLIDER_APPEARANCE.hitAnim) {
             let blendMode = this.props.blendMode;
             blendMode = "normal";
 
