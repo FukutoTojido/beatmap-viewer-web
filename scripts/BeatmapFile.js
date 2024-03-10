@@ -497,9 +497,9 @@ export class BeatmapFile {
             } else {
                 const raw = urlParams.get("m") && /[A-Z]+/g.test(urlParams.get("m")) ? urlParams.get("m").match(/.{2}/g) : [];
                 const mods = raw.reduce((arr, mod) => {
-                    if (!["HD", "HR", "DT", "HT", "EZ"].includes(mod)) return arr;
+                    if (!["HD", "HR", "DT", "HT", "EZ"].includes(mod.toUpperCase())) return arr;
                     return [...arr, mod];
-                }, []);
+                }, []).map(e => e.toUpperCase());
 
                 document.querySelector("#HD").disabled = false;
                 document.querySelector("#HR").disabled = false;
