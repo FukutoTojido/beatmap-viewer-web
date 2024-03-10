@@ -495,11 +495,13 @@ export class BeatmapFile {
 
                 calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             } else {
-                const raw = urlParams.get("m") && /[A-Z]+/g.test(urlParams.get("m")) ? urlParams.get("m").match(/.{2}/g) : [];
-                const mods = raw.reduce((arr, mod) => {
-                    if (!["HD", "HR", "DT", "HT", "EZ"].includes(mod.toUpperCase())) return arr;
-                    return [...arr, mod];
-                }, []).map(e => e.toUpperCase());
+                const raw = urlParams.get("m") && /[A-Za-z]+/g.test(urlParams.get("m")) ? urlParams.get("m").match(/.{2}/g) : [];
+                const mods = raw
+                    .reduce((arr, mod) => {
+                        if (!["HD", "HR", "DT", "HT", "EZ"].includes(mod.toUpperCase())) return arr;
+                        return [...arr, mod.toUpperCase()];
+                    }, [])
+                    .map((e) => e.toUpperCase());
 
                 document.querySelector("#HD").disabled = false;
                 document.querySelector("#HR").disabled = false;
