@@ -734,10 +734,10 @@ export class Beatmap {
                     }
                 }
             }
-
-            Beatmap.updateStats();
-            Beatmap.updateModdedStats();
         }
+        
+        Beatmap.updateStats();
+        Beatmap.updateModdedStats();
 
         this.objectsController.slidersList.forEach((o) => {
             o.obj.hitCircle.stackHeight = o.obj.stackHeight;
@@ -762,7 +762,7 @@ export class Beatmap {
             new Notification({
                 message: "This beatmap contains illegal hitobjects. Therefore, Timeline will be disabled for this map",
                 type: "warning",
-                autoTimeout: false
+                autoTimeout: false,
             }).notify();
         }
     }

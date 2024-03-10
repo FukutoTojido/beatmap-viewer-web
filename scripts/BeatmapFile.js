@@ -495,17 +495,23 @@ export class BeatmapFile {
 
                 calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             } else {
+                const raw = urlParams.get("m") && /[A-Z]+/g.test(urlParams.get("m")) ? urlParams.get("m").match(/.{2}/g) : [];
+                const mods = raw.reduce((arr, mod) => {
+                    if (!["HD", "HR", "DT", "HT", "EZ"].includes(mod)) return arr;
+                    return [...arr, mod];
+                }, []);
+
                 document.querySelector("#HD").disabled = false;
                 document.querySelector("#HR").disabled = false;
                 document.querySelector("#DT").disabled = false;
                 document.querySelector("#EZ").disabled = false;
                 document.querySelector("#HT").disabled = false;
 
-                Game.MODS.HR = false;
-                Game.MODS.DT = false;
-                Game.MODS.HD = false;
-                Game.MODS.EZ = false;
-                Game.MODS.HT = false;
+                Game.MODS.HR = mods.includes("HR");
+                Game.MODS.DT = mods.includes("DT");
+                Game.MODS.HD = mods.includes("HD");
+                Game.MODS.EZ = mods.includes("EZ");
+                Game.MODS.HT = mods.includes("HT");
 
                 const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
                 const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
@@ -513,11 +519,11 @@ export class BeatmapFile {
                 Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
                 Beatmap.updateModdedStats();
 
-                document.querySelector("#HD").checked = false;
-                document.querySelector("#HR").checked = false;
-                document.querySelector("#DT").checked = false;
-                document.querySelector("#EZ").checked = false;
-                document.querySelector("#HT").checked = false;
+                document.querySelector("#HD").checked = mods.includes("HD");
+                document.querySelector("#HR").checked = mods.includes("HR");
+                document.querySelector("#DT").checked = mods.includes("DT");
+                document.querySelector("#EZ").checked = mods.includes("EZ");
+                document.querySelector("#HT").checked = mods.includes("HT");
 
                 calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             }

@@ -45,17 +45,17 @@ PIXI.BitmapFont.install({
         fill: "white",
         fontFamily: "Nicolatte",
         fontWeight: 600,
-        letterSpacing: 5
+        letterSpacing: 5,
     },
     chars: [["a", "z"], ["A", "Z"], ["0", "9"], ". :\n"],
 });
 
-PIXI.UniformGroup
+PIXI.UniformGroup;
 
 function setupDefaultStorage() {
     const settingsTemplate = {
         renderer: {
-            val: "auto"
+            val: "auto",
         },
         mirror: {
             val: "nerinyan",
@@ -86,7 +86,7 @@ function setupDefaultStorage() {
             hitAnim: true,
             ignoreSkin: false,
             showGrid: true,
-            disablePerfect: false
+            disablePerfect: false,
         },
         timeline: {
             zoomRate: 200,
@@ -186,7 +186,10 @@ function setupDefaultStorage() {
         document.querySelector("#mapInput").value = urlParams.get("b");
     }
 
-    if (urlParams.get("customUrl") && /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig.test(urlParams.get("customUrl"))) {
+    if (
+        urlParams.get("customUrl") &&
+        /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(urlParams.get("customUrl"))
+    ) {
         const url = decodeURIComponent(urlParams.get("customUrl"));
         console.log(url);
         const blob = await BeatmapFile.downloadCustom(url);
