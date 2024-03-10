@@ -198,8 +198,32 @@ export function handleCheckBox(checkbox) {
     Game.SLIDER_APPEARANCE[checkbox.name] = !Game.SLIDER_APPEARANCE[checkbox.name];
     Game.MAPPING[checkbox.name] = !Game.MAPPING[checkbox.name];
 
-    const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
-    const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
+    if (Game.MODS.DT && Game.MODS.NC) {
+        if (checkbox.name === "NC") {
+            Game.MODS.DT = false;
+            document.querySelector("#DT").checked = false;
+        }
+
+        if (checkbox.name === "DT") {
+            Game.MODS.NC = false;
+            document.querySelector("#NC").checked = false;
+        }
+    }
+
+    if (Game.MODS.HT && Game.MODS.DC) {
+        if (checkbox.name === "DC") {
+            Game.MODS.HT = false;
+            document.querySelector("#HT").checked = false;
+        }
+
+        if (checkbox.name === "HT") {
+            Game.MODS.DC = false;
+            document.querySelector("#DC").checked = false;
+        }
+    }
+
+    const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
+    const HTMultiplier = !Game.MODS.HT && !Game.MODS.DC ? 1 : 0.75;
 
     if (["snaking", "sliderend", "hitAnim", "ignoreSkin", "showGrid", "disablePerfect"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -246,7 +270,7 @@ export function handleCheckBox(checkbox) {
 
     if (originalIsPlaying) Game.BEATMAP_FILE.audioNode.play();
 
-    calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
+    calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT || Game.MODS.NC, Game.MODS.HT || Game.MODS.DC]);
 }
 [...document.querySelectorAll("input[type=checkbox]")].forEach((ele) => {
     ele.onclick = () => handleCheckBox(ele);

@@ -490,15 +490,17 @@ export class BeatmapFile {
                 document.querySelector("#HD").disabled = true;
                 document.querySelector("#HR").disabled = true;
                 document.querySelector("#DT").disabled = true;
+                document.querySelector("#NC").disabled = true;
                 document.querySelector("#EZ").disabled = true;
                 document.querySelector("#HT").disabled = true;
+                document.querySelector("#DC").disabled = false;
 
                 calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             } else {
                 const raw = urlParams.get("m") && /[A-Za-z]+/g.test(urlParams.get("m")) ? urlParams.get("m").match(/.{2}/g) : [];
                 const mods = raw
                     .reduce((arr, mod) => {
-                        if (!["HD", "HR", "DT", "HT", "EZ"].includes(mod.toUpperCase())) return arr;
+                        if (!["HD", "HR", "DT", "HT", "EZ", "DC", "NC"].includes(mod.toUpperCase())) return arr;
                         return [...arr, mod.toUpperCase()];
                     }, [])
                     .map((e) => e.toUpperCase());
@@ -506,28 +508,34 @@ export class BeatmapFile {
                 document.querySelector("#HD").disabled = false;
                 document.querySelector("#HR").disabled = false;
                 document.querySelector("#DT").disabled = false;
+                document.querySelector("#NC").disabled = false;
                 document.querySelector("#EZ").disabled = false;
                 document.querySelector("#HT").disabled = false;
+                document.querySelector("#DC").disabled = false;
 
                 Game.MODS.HR = mods.includes("HR");
-                Game.MODS.DT = mods.includes("DT");
+                Game.MODS.DT = mods.includes("NC") ? false : mods.includes("DT");
+                Game.MODS.NC = mods.includes("NC");
                 Game.MODS.HD = mods.includes("HD");
                 Game.MODS.EZ = mods.includes("EZ");
-                Game.MODS.HT = mods.includes("HT");
+                Game.MODS.HT = mods.includes("DC") ? false : mods.includes("HT");
+                Game.MODS.DC = mods.includes("DC");
 
-                const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
-                const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
+                const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
+                const HTMultiplier = !Game.MODS.HT && !Game.MODS.DC ? 1 : 0.75;
 
                 Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
                 Beatmap.updateModdedStats();
 
-                document.querySelector("#HD").checked = mods.includes("HD");
-                document.querySelector("#HR").checked = mods.includes("HR");
-                document.querySelector("#DT").checked = mods.includes("DT");
-                document.querySelector("#EZ").checked = mods.includes("EZ");
-                document.querySelector("#HT").checked = mods.includes("HT");
+                document.querySelector("#HD").checked = Game.MODS.HD;
+                document.querySelector("#HR").checked = Game.MODS.HR;
+                document.querySelector("#DT").checked = Game.MODS.DT;
+                document.querySelector("#NC").checked = Game.MODS.NC;
+                document.querySelector("#EZ").checked = Game.MODS.EZ;
+                document.querySelector("#HT").checked = Game.MODS.HT;
+                document.querySelector("#DC").checked = Game.MODS.DC;
 
-                calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
+                calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT || Game.MODS.NC, Game.MODS.HT || Game.MODS.DC]);
             }
 
             Game.appResize();

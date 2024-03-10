@@ -56,7 +56,7 @@ export class PAudio {
 
             this.src = Game.AUDIO_CTX.createBufferSource();
 
-            this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * (Game.PLAYBACK_RATE !== 1 ? 3 : 1);
+            this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * (Game.PLAYBACK_RATE !== 1 && (Game.MODS.DT || Game.MODS.HT) ? 3 : 1);
 
             this.src.buffer = this.buf;
             this.src.playbackRate.value = Game.PLAYBACK_RATE;
@@ -75,7 +75,7 @@ export class PAudio {
             let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
             pitchFactorParam.value = 1 / Game.PLAYBACK_RATE;
 
-            if (Game.PLAYBACK_RATE !== 1) {
+            if (Game.PLAYBACK_RATE !== 1 && (Game.MODS.DT || Game.MODS.HT)) {
                 this.src.connect(this.phazeNode);
                 this.phazeNode.connect(this.gainNode);
             } else {

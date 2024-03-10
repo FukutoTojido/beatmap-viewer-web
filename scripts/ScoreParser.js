@@ -507,15 +507,17 @@ export class ScoreParser {
             Game.MODS.HD = ScoreParser.MODS.includes("Hidden");
             Game.MODS.HR = ScoreParser.MODS.includes("HardRock");
             Game.MODS.EZ = ScoreParser.MODS.includes("Easy");
-            Game.MODS.DT = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
+            Game.MODS.DT = ScoreParser.MODS.includes("Nightcore") ? false : ScoreParser.MODS.includes("DoubleTime");
+            Game.MODS.NC = ScoreParser.MODS.includes("Nightcore");
             Game.MODS.HT = ScoreParser.MODS.includes("HalfTime");
             Beatmap.updateModdedStats();
 
-            document.querySelector("#HD").checked = ScoreParser.MODS.includes("Hidden");
-            document.querySelector("#HR").checked = ScoreParser.MODS.includes("HardRock");
-            document.querySelector("#EZ").checked = ScoreParser.MODS.includes("Easy");
-            document.querySelector("#DT").checked = ScoreParser.MODS.includes("DoubleTime") || ScoreParser.MODS.includes("Nightcore");
-            document.querySelector("#HT").checked = ScoreParser.MODS.includes("HalfTime");
+            document.querySelector("#HD").checked = Game.MODS.HD;
+            document.querySelector("#HR").checked = Game.MODS.HR;
+            document.querySelector("#EZ").checked = Game.MODS.EZ;
+            document.querySelector("#DT").checked = Game.MODS.DT;
+            document.querySelector("#NC").checked = Game.MODS.NC;
+            document.querySelector("#HT").checked = Game.MODS.HT;
 
             // [
             //     "NoFail",
@@ -544,7 +546,7 @@ export class ScoreParser {
             //     document.querySelector(".modsList").appendChild(div);
             // });
 
-            const DTMultiplier = !Game.MODS.DT ? 1 : 1.5;
+            const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
             const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
             Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
 
@@ -577,10 +579,12 @@ export class ScoreParser {
             document.querySelector("#HD").disabled = true;
             document.querySelector("#HR").disabled = true;
             document.querySelector("#DT").disabled = true;
+            document.querySelector("#NC").disabled = true;
             document.querySelector("#EZ").disabled = true;
             document.querySelector("#HT").disabled = true;
+            document.querySelector("#DC").disabled = true;
 
-            calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
+            calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT || Game.MODS.NC, Game.MODS.HT || Game.MODS.DC]);
             // console.log(ScoreParser.REPLAY_DATA, ScoreParser.CURSOR_DATA, ScoreParser.MODS);
             console.log(ScoreParser.calculateScore());
         } catch (error) {
