@@ -181,8 +181,8 @@ export function calculateCurrentSR(modsFlag) {
     // else document.querySelector("#SR").style.color = "black";
 
     Game.STATS.CS = round(beatmapData.difficulty.circleSize);
-    Game.STATS.AR = round(beatmapData.difficulty.approachRate);
-    Game.STATS.OD = round(beatmapData.difficulty.overallDifficulty);
+    Game.STATS.AR = round(difficultyAttributes.approachRate);
+    Game.STATS.OD = round(difficultyAttributes.overallDifficulty);
     Game.STATS.HP = round(beatmapData.difficulty.drainRate);
     Game.STATS.SR = round(difficultyAttributes?.starRating ?? 0.0);
     Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes?.starRating ?? 0.0)).formatHex().slice(1), 16);

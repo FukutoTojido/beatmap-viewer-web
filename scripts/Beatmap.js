@@ -61,6 +61,15 @@ export class Beatmap {
         return mid;
     }
 
+    static reverseDifficultyRange(val, min, mid, max) {
+        const case_1 = (val - mid) * 5 / (max - mid) + 5;
+        const case_2 = 5 - ((mid - val) * 5 / (mid - min));
+
+        if (case_1 > 5 && case_2 > 5) return case_1;
+        if (case_2 < 5 && case_1 < 5) return case_2;
+        return 5;
+    }
+
     static hitWindows = {
         GREAT: 80,
         OK: 140,
@@ -83,6 +92,29 @@ export class Beatmap {
         const approachRate = Math.min(Beatmap.stats.approachRate * HRMul * EZMul, 10);
         const HPDrainRate = Math.min(Beatmap.stats.HPDrainRate * HRMul * EZMul, 10);
         const overallDifficulty = Math.min(Beatmap.stats.overallDifficulty * HRMul * EZMul, 10);
+
+        // Don't look at this
+        // if (Game.PLAYBACK_RATE !== 1) {
+        //     const newPreempt = Beatmap.difficultyRange(approachRate, 1800, 1200, 450) / Game.PLAYBACK_RATE;
+        //     const newHitWindow = Beatmap.difficultyRange(approachRate, 79.5, 49.5, 19.5) / Game.PLAYBACK_RATE;
+
+        //     const ratedAR = Beatmap.reverseDifficultyRange(newPreempt, 1800, 1200, 450);
+        //     const ratedOD = Beatmap.reverseDifficultyRange(newHitWindow, 79.5, 49.5, 19.5);
+
+        //     Beatmap.moddedStats = {
+        //         ...Beatmap.stats,
+        //         circleSize,
+        //         approachRate: ratedAR,
+        //         HPDrainRate,
+        //         overallDifficulty: ratedOD,
+        //         preempt: Beatmap.difficultyRange(approachRate, 1800, 1200, 450),
+        //         fadeIn: Beatmap.difficultyRange(approachRate, 1200, 800, 300),
+        //         radius: 54.4 - 4.48 * circleSize,
+        //         stackOffset: (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2,
+        //     };
+
+        //     return;
+        // }
 
         Beatmap.moddedStats = {
             ...Beatmap.stats,
