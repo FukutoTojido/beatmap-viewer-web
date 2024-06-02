@@ -85,15 +85,18 @@ export class ProgressBar {
         this.container.eventMode = "static";
 
         this.container.on("mousedown", (e) => {
+            Game.IS_SEEKING = true;
             this.handleMouseDown(e);
         });
         this.container.on("mousemove", (e) => {
             this.handleMouseMove(e);
         });
         this.container.on("mouseup", (e) => {
+            Game.IS_SEEKING = false;
             this.handleMouseUp(e);
         });
         this.container.on("mouseleave", (e) => {
+            Game.IS_SEEKING = false;
             if (!this.IS_DRAGGING) return;
             this.handleMouseUp(e);
         });

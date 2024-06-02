@@ -160,6 +160,8 @@ export class HitSample {
     }
 
     play(isLoop) {
+        if (Game.IS_SEEKING) return;
+        
         this.srcs = [];
 
         this.audioObj.forEach((hs) => {

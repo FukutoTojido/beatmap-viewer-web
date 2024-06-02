@@ -95,6 +95,8 @@ export class Game {
     static DEVE_RATIO = devicePixelRatio;
     static EMIT_STACK = [];
 
+
+    static IS_SEEKING = false;
     static ALPHA = 1;
 
     // Add certain objects from container
