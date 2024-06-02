@@ -376,7 +376,9 @@ export class BeatmapFile {
         const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
         if (backgroundFile) {
             const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
-            const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
+            // const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
+
+            // console.log(data);
 
             // console.log("Background Blob Generated");
             this.backgroundBlobURL = URL.createObjectURL(data);

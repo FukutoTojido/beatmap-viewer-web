@@ -388,6 +388,7 @@ export class Game {
 
         Game.INFO.update();
         Game.STATS.update();
+        Background.updateSize();
     }
 
     static appSizeSetup() {

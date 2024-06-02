@@ -12,6 +12,7 @@ import axios from "axios";
 import { PlayContainer } from "./PlayButtons.js";
 import { BPM } from "./BPM.js";
 import { MetadataPanel } from "./SidePanel.js";
+import { Background } from "./Background.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
@@ -143,7 +144,8 @@ export async function loadLocalStorage() {
         document.querySelector("#dim").value = currentLocalStorage.background.dim;
         document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
         // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
-        Game.MASTER_CONTAINER.alpha = currentLocalStorage.background.dim;
+        // Game.MASTER_CONTAINER.alpha = currentLocalStorage.background.dim;
+        Background.changeOpacity(currentLocalStorage.background.dim)
         Game.ALPHA = currentLocalStorage.background.dim;
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;

@@ -6,6 +6,7 @@ import { HitSample, PAudio } from "./Audio.js";
 import { Game } from "./Game.js";
 import osuPerformance from "../lib/osujs.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { Background } from "./Background.js";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {
@@ -71,7 +72,7 @@ document.querySelector("#custom-mirror").onblur = () => setCustomMirror(document
 export function setBackgroundDim(slider) {
     // console.log(slider.value);
     // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${slider.value})`;
-    Game.MASTER_CONTAINER.alpha = slider.value;
+    Background.changeOpacity(slider.value);
     Game.ALPHA = slider.value;
     document.querySelector("#bgDimVal").innerHTML = `${parseInt(slider.value * 100)}%`;
 
@@ -83,8 +84,10 @@ document.querySelector("#dim").oninput = () => setBackgroundDim(document.querySe
 
 export function setBackgroundBlur(slider) {
     // console.log(slider.value);
-    document.querySelector(".mapBG").style.filter = `blur(${slider.value}px)`;
-    document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}px`;
+    // document.querySelector(".mapBG").style.filter = `blur(${slider.value}px)`;
+    document.querySelector("#bgBlurVal").innerHTML = `${parseInt((slider.value / 20) * 100)}%`;
+    Background.changeStrength(slider.value);
+
     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
     currentLocalStorage.background.blur = slider.value;
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));

@@ -16,6 +16,7 @@ import { PlayContainer } from "../PlayButtons.js";
 import { BPM } from "../BPM.js";
 import { frameData } from "../FPSSystem.js";
 import * as TWEEN from "@tweenjs/tween.js";
+import { Background } from "../Background.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -211,9 +212,9 @@ export class ObjectsController {
         // ]);
 
         if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
-            Game.MASTER_CONTAINER.alpha = Game.ALPHA * 0.7;
+            Background.changeOpacity(Game.ALPHA * 0.7);
         } else {
-            Game.MASTER_CONTAINER.alpha = Game.ALPHA;
+            Background.changeOpacity(Game.ALPHA);
         }
 
         if (
@@ -232,7 +233,7 @@ export class ObjectsController {
                 .to({ alpha: alpha * 0.7 }, 1000)
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
-                    Game.MASTER_CONTAINER.alpha = object.alpha;
+                    Background.changeOpacity(object.alpha);
                 })
                 .start();
         } else if (
@@ -251,7 +252,7 @@ export class ObjectsController {
                 .to({ alpha }, 1000)
                 .easing(TWEEN.Easing.Cubic.Out)
                 .onUpdate((object) => {
-                    Game.MASTER_CONTAINER.alpha = object.alpha;
+                    Background.changeOpacity(object.alpha);
                 })
                 .start();
         }
