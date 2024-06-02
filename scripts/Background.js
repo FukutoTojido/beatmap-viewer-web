@@ -52,7 +52,11 @@ export class Background {
     }
 
     static changeOpacity(val) {
-        this.mask.clear().rect(0, 0, this.w, this.h).fill({
+        const wRatio = Game.MASTER_CONTAINER.w / this.w;
+        const hRatio = Game.MASTER_CONTAINER.h / this.h;
+        const ratio = Math.max(wRatio, hRatio);
+        
+        this.mask.clear().rect(0, 0, this.w * ratio, this.h * ratio).fill({
             color: 0x000000,
             alpha: val,
         });
@@ -78,7 +82,7 @@ export class Background {
         this.container.x = (Game.MASTER_CONTAINER.w - this.w * ratio) / 2;
         this.container.y = (Game.MASTER_CONTAINER.h - this.h * ratio) / 2;
 
-        this.mask.clear().rect(0, 0, this.w, this.h).fill({ color: 0x000000, alpha: Game.ALPHA });
+        this.mask.clear().rect(0, 0, this.w * ratio, this.h * ratio).fill({ color: 0x000000, alpha: Game.ALPHA });
     }
 
     static updateSize() {
