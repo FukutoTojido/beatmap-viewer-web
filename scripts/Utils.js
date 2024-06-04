@@ -9,7 +9,7 @@ import { HitSample } from "./Audio.js";
 import { Database } from "./Database.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import axios from "axios";
-import { PlayContainer } from "./PlayButtons.js";
+import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 import { BPM } from "./BPM.js";
 import { MetadataPanel } from "./SidePanel.js";
 import { Background } from "./Background.js";
@@ -281,6 +281,7 @@ export const loadColorPalette = (bg) => {
         PlayContainer.prevButton.color = Game.COLOR_PALETTES.primary2;
         PlayContainer.nextButton.color = Game.COLOR_PALETTES.primary2;
         PlayContainer.infoButton.color = Game.COLOR_PALETTES.primary2;
+        FullscreenButton.obj.color = Game.COLOR_PALETTES.primary1;
         ProgressBar.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
         MetadataPanel.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         MetadataPanel.container.color = Game.COLOR_PALETTES.primary1;
