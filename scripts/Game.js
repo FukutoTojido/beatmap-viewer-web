@@ -123,9 +123,11 @@ export class Game {
         return cursor;
     }
 
-    static FPSInit() {
+    static async FPSInit() {
+        await PIXI.Assets.load({ src: "/static/NICOLATTE.ttf", loadParser: "loadWebFont" });
+
         const fpsStyle = {
-            fontFamily: "Nicolatte",
+            fontFamily: "Nicolatte Regular",
             align: "right",
             fontSize: 15,
             fill: "white",
@@ -143,7 +145,7 @@ export class Game {
 
         fpsSprite.anchor.set(1, 1);
         fpsSprite.x = Game.APP.canvas.width - 10;
-        fpsSprite.y = Game.APP.canvas.height - 20;
+        fpsSprite.y = Game.APP.canvas.height - 10;
 
         return fpsSprite;
     }
@@ -389,7 +391,7 @@ export class Game {
 
         // Reposition FPS
         Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
-        Game.FPS.y = Game.MASTER_CONTAINER.h - 20;
+        Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
         Game.FPS.style.fontSize = 15 * devicePixelRatio;
 
         Game.INFO.update();
@@ -605,7 +607,7 @@ export class Game {
         Game.CONTAINER = Game.containerInit();
         Game.GRID = Game.gridInit();
         Game.DRAG_WINDOW = Game.dragWindowInit();
-        Game.FPS = Game.FPSInit();
+        Game.FPS = await Game.FPSInit();
         Game.CURSOR = await Game.CursorInit();
         Game.INFO = new TitleArtist("", "", "", "");
         Game.STATS = new Stats();
