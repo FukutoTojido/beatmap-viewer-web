@@ -24,7 +24,7 @@ export class Timeline {
     static ZOOMER;
 
     static async init() {
-        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 * devicePixelRatio);
+        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, Game.IS_FULLSCREEN ? 0 : 60 * devicePixelRatio);
         Timeline.MASTER_CONTAINER.color = 0x000000;
         Timeline.MASTER_CONTAINER.alpha = 0.5;
         Timeline.MASTER_CONTAINER.borderRadius = 10;
@@ -67,7 +67,7 @@ export class Timeline {
     }
 
     static resize() {
-        if (Game.EMIT_STACK.length === 0) return;
+        if (Game.IS_FULLSCREEN && Game.EMIT_STACK.length === 0) return;
         if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
 
         if (innerWidth / innerHeight < 1) {
@@ -75,6 +75,8 @@ export class Timeline {
         } else {
             Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
         }
+
+        if (Game.IS_FULLSCREEN) Timeline.MASTER_CONTAINER.h = 0;
 
         Timeline.BASE_CONTAINER.x = 40 * devicePixelRatio;
         Timeline.ZOOMER.draw();
@@ -96,6 +98,7 @@ export class Timeline {
     }
 
     static draw(timestamp) {
+        if (Game.IS_FULLSCREEN) return;
         if (!Game.BEATMAP_FILE?.beatmapRenderData?.objectsController.objectsList) return;
         Timeline.beatLines.draw(timestamp);
         Timeline.hitArea.draw(timestamp);

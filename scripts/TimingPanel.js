@@ -434,9 +434,12 @@ export class TimingPanel {
             if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
 
             this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0;
             this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
+
+            if (Game.IS_FULLSCREEN) this.MASTER_CONTAINER.borderRadius = 0;
+            else this.MASTER_CONTAINER.borderRadius = 10;
         }
 
         this.MASTER_CONTAINER.redraw();

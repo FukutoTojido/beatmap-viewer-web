@@ -110,6 +110,11 @@ function setupDefaultStorage() {
 }
 
 (async () => {
+    if (urlParams.get("fullscreen")) {
+        document.body.style.padding = 0;
+        document.querySelector("#inputContainer").style.display = "none";
+    }
+    
     setupDefaultStorage();
 
     Game.MASTER_VOL = JSON.parse(localStorage.getItem("settings")).volume.master;

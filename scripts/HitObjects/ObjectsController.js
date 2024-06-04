@@ -12,7 +12,7 @@ import { ScoreParser } from "../ScoreParser.js";
 import { TimingPanel } from "../TimingPanel.js";
 import { HitSample } from "../Audio.js";
 import { MetadataPanel } from "../SidePanel.js";
-import { PlayContainer } from "../PlayButtons.js";
+import { FullscreenButton, PlayContainer } from "../PlayButtons.js";
 import { BPM } from "../BPM.js";
 import { frameData } from "../FPSSystem.js";
 import * as TWEEN from "@tweenjs/tween.js";
@@ -325,6 +325,7 @@ export class ObjectsController {
         BPM.update(currentAudioTime ?? 0);
         PlayContainer.update(currentAudioTime ?? 0);
         ProgressBar.update(currentAudioTime ?? 0);
+        FullscreenButton.redraw();
         TimingPanel.update(currentAudioTime ?? 0);
         MetadataPanel.update(currentAudioTime ?? 0);
 

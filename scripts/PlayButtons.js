@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Component } from "./WindowManager";
 import { Game } from "./Game";
-import { go, playToggle } from "./ProgressBar";
+import { fullscreenToggle, go, playToggle } from "./ProgressBar";
 import { toggleMetadataPanel } from "./SidePanel";
 import { Container } from "./UI/Container";
 import { FlexBox } from "./UI/FlexBox";
@@ -152,7 +152,43 @@ export class PlayContainer {
     }
 
     static update() {
+        if (Game.IS_FULLSCREEN) {
+            this.MASTER_CONTAINER.container.visible = Game.IS_HOVERING_PROGRESS;
+        } else {
+            this.MASTER_CONTAINER.container.visible = true;
+        }
+
         if (Game.EMIT_STACK.length === 0) return;
         this.forceUpdate();
+    }
+}
+
+export class FullscreenButton {
+    static async init() {
+        this.obj = new Button();
+        await this.obj.init(Game.MASTER_CONTAINER.w - 60, 0, "static/maximize.svg", "static/minimize.svg");
+        this.obj.onclick = () => fullscreenToggle();
+        this.obj.container.label = "Fullscreen Button"
+    }
+
+    static redraw() {
+        if (Game.IS_FULLSCREEN) {
+            this.obj.container.visible = Game.IS_HOVERING_PROGRESS;
+        } else {
+            this.obj.container.visible = true;
+        }
+
+        if (Game.EMIT_STACK.length === 0) return;
+        if (!this.obj) return;
+
+        this.obj.x = Game.MASTER_CONTAINER.w - 60;
+
+        if (innerWidth / innerHeight < 1) {
+            this.obj.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height
+        } else {
+            this.obj.y = Game.WRAPPER.h - 60 * devicePixelRatio;
+        }
+
+        this.obj.redraw();
     }
 }

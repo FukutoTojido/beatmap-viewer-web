@@ -234,6 +234,12 @@ export class Timestamp {
     }
 
     static update(time) {
+        if (Game.IS_FULLSCREEN) {
+            this.MASTER_CONTAINER.masterContainer.visible = Game.IS_HOVERING_PROGRESS;
+        } else {
+            this.MASTER_CONTAINER.masterContainer.visible = true;
+        }
+        
         if (Game.DEVE_RATIO !== devicePixelRatio || Game.EMIT_STACK.length !== 0) this.EMIT_CHANGE = true;
 
         this.forceUpdate(time);
