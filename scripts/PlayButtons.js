@@ -166,9 +166,9 @@ export class PlayContainer {
 export class FullscreenButton {
     static async init() {
         this.obj = new Button();
-        await this.obj.init(Game.MASTER_CONTAINER.w - 60, 0, "static/maximize.svg", "static/minimize.svg");
+        await this.obj.init(Game.MASTER_CONTAINER.w - 60, Game.WRAPPER.h - 60 * devicePixelRatio, "static/maximize.svg", "static/minimize.svg");
         this.obj.onclick = () => fullscreenToggle();
-        this.obj.container.label = "Fullscreen Button"
+        this.obj.container.label = "Fullscreen Button";
     }
 
     static redraw() {
@@ -184,7 +184,7 @@ export class FullscreenButton {
         this.obj.x = Game.MASTER_CONTAINER.w - 60;
 
         if (innerWidth / innerHeight < 1) {
-            this.obj.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height
+            this.obj.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
         } else {
             this.obj.y = Game.WRAPPER.h - 60 * devicePixelRatio;
         }
