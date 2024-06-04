@@ -264,7 +264,7 @@ export class ProgressBar {
         } else {
             this.MASTER_CONTAINER.x = (110 + 360 + 60) * devicePixelRatio;
             this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
+            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - (110 + 360 + 60 + 60) * devicePixelRatio;
         }
 
         this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
@@ -288,6 +288,12 @@ export class ProgressBar {
     }
 
     static resize() {
+        if (Game.IS_FULLSCREEN) {
+            this.MASTER_CONTAINER.masterContainer.visible = Game.IS_HOVERING_PROGRESS;
+        } else {
+            this.MASTER_CONTAINER.masterContainer.visible = true;
+        }
+        
         if (Game.EMIT_STACK.length === 0) return;
         this.forceResize();
     }

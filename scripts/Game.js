@@ -10,13 +10,16 @@ import { TimingPanel } from "./TimingPanel.js";
 import { Component } from "./WindowManager.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import * as PIXI from "pixi.js";
-import { PlayContainer } from "./PlayButtons.js";
+import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 import { BPM, toggleTimingPanel } from "./BPM.js";
 import { MetadataPanel, toggleMetadataPanel } from "./SidePanel.js";
 import { TitleArtist } from "./TitleArtist.js";
 import { Stats } from "./Stats.js";
 import { Background } from "./Background.js";
 import { closePopup } from "./Timestamp.js";
+import { urlParams } from "./GlobalVariables.js";
+
+const isFullscreen = urlParams.get("fullscreen") ? true : false;
 
 export class Game {
     static INIT = false;
@@ -95,9 +98,10 @@ export class Game {
     static DEVE_RATIO = devicePixelRatio;
     static EMIT_STACK = [];
 
-
     static IS_SEEKING = false;
     static ALPHA = 1;
+    static IS_FULLSCREEN = isFullscreen;
+    static IS_HOVERING_PROGRESS = false;
 
     // Add certain objects from container
     static addToContainer(objectsList) {
@@ -139,7 +143,7 @@ export class Game {
 
         fpsSprite.anchor.set(1, 1);
         fpsSprite.x = Game.APP.canvas.width - 10;
-        fpsSprite.y = Game.APP.canvas.height - 10;
+        fpsSprite.y = Game.APP.canvas.height - 20;
 
         return fpsSprite;
     }
@@ -358,7 +362,7 @@ export class Game {
     }
 
     static appResize() {
-        if (innerWidth / innerHeight < 1) {
+        if (innerWidth / innerHeight < 1 || Game.IS_FULLSCREEN) {
             Game.WRAPPER.borderRadius = 0;
         } else {
             Game.WRAPPER.borderRadius = 10;
@@ -385,7 +389,7 @@ export class Game {
 
         // Reposition FPS
         Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
-        Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
+        Game.FPS.y = Game.MASTER_CONTAINER.h - 20;
         Game.FPS.style.fontSize = 15 * devicePixelRatio;
 
         Game.INFO.update();
@@ -447,10 +451,14 @@ export class Game {
     }
 
     static gameSizeSetup() {
-        if (innerWidth / innerHeight < 1) {
-            Game.WRAPPER.y = 50 * devicePixelRatio;
+        if (Game.IS_FULLSCREEN) {
+            Game.WRAPPER.y = 0;
         } else {
-            Game.WRAPPER.y = 70 * devicePixelRatio;
+            if (innerWidth / innerHeight < 1) {
+                Game.WRAPPER.y = 50 * devicePixelRatio;
+            } else {
+                Game.WRAPPER.y = 70 * devicePixelRatio;
+            }
         }
 
         if (innerWidth / innerHeight < 1) {
@@ -467,8 +475,8 @@ export class Game {
             }
         }
 
-        if (Game.WRAPPER.h !== Game.APP.renderer.height - 70 * devicePixelRatio) {
-            Game.WRAPPER.h = Game.APP.renderer.height - 70 * devicePixelRatio;
+        if (Game.WRAPPER.h !== Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio)) {
+            Game.WRAPPER.h = Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio);
             this.EMIT_STACK.push(true);
             // console.log("Stack Added! 3");
         }
@@ -486,10 +494,18 @@ export class Game {
                 // console.log("Stack Added! 5");
             }
         } else {
-            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 60 * devicePixelRatio) {
-                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
-                this.EMIT_STACK.push(true);
-                // console.log("Stack Added! 6");
+            if (Game.IS_FULLSCREEN) {
+                if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h) {
+                    Game.MASTER_CONTAINER.h = Game.WRAPPER.h;
+                    this.EMIT_STACK.push(true);
+                    // console.log("Stack Added! 6");
+                }
+            } else {
+                if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 60 * devicePixelRatio) {
+                    Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
+                    this.EMIT_STACK.push(true);
+                    // console.log("Stack Added! 6");
+                }
             }
         }
 
@@ -520,7 +536,12 @@ export class Game {
     }
 
     static gameInit() {
-        Game.WRAPPER = new Component(0, 70 * devicePixelRatio, Game.APP.renderer.width, Game.APP.renderer.height - 70);
+        Game.WRAPPER = new Component(
+            0,
+            Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio,
+            Game.APP.renderer.width,
+            Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 70)
+        );
         Game.WRAPPER.color = 0x000000;
         Game.WRAPPER.alpha = 0.01;
         Game.WRAPPER.borderRadius = 10;
@@ -543,6 +564,11 @@ export class Game {
         Game.WRAPPER.masterContainer.on("touchend", (e) => {
             Game.START_DRAG_Y = 0;
             Game.IS_DRAGSCROLL = false;
+        });
+
+        Game.WRAPPER.masterContainer.on("mousemove", (e) => {
+            const { y } = e.global;
+            Game.IS_HOVERING_PROGRESS = y - Game.WRAPPER.y >= Game.WRAPPER.h - 60 * devicePixelRatio;
         });
 
         const hidePopup = (e) => {
@@ -609,6 +635,9 @@ export class Game {
 
         ProgressBar.init();
         Game.WRAPPER.container.addChild(ProgressBar.MASTER_CONTAINER.masterContainer);
+
+        await FullscreenButton.init();
+        Game.WRAPPER.container.addChild(FullscreenButton.obj.container);
 
         await Timeline.init();
         Game.APP.stage.addChild(Timeline.MASTER_CONTAINER.masterContainer);

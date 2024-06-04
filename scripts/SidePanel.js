@@ -257,9 +257,9 @@ export class MetadataPanel {
             if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
 
             this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = 70 * devicePixelRatio;
+            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0;
             this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - 70 * devicePixelRatio - this.SIZE_Y * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
         }
 
         if (
@@ -270,6 +270,9 @@ export class MetadataPanel {
 
         this.WIDTH = this.MASTER_CONTAINER.w;
         this.HEIGHT = this.MASTER_CONTAINER.h;
+
+        if (Game.IS_FULLSCREEN) this.MASTER_CONTAINER.borderRadius = 0;
+        else this.MASTER_CONTAINER.borderRadius = 10;
     }
 
     static forceUpdate() {

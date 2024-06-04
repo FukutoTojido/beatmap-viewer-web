@@ -3,11 +3,26 @@ import { Clamp } from "./Utils.js";
 import { Notification } from "./Notification.js";
 import { Game } from "./Game.js";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
-import { PlayContainer } from "./PlayButtons.js";
+import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 
 export function setAudioTime(value) {
     if (!Game.BEATMAP_FILE?.audioNode) return;
     Game.BEATMAP_FILE.audioNode.seekTo(value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
+}
+
+export function fullscreenToggle() {
+    if (!Game.IS_FULLSCREEN) {
+        FullscreenButton.obj.sprite.texture = FullscreenButton.obj.altTexture;
+        document.body.style.padding = 0;
+        document.querySelector("#inputContainer").style.display = "none";
+    } else {
+        FullscreenButton.obj.sprite.texture = FullscreenButton.obj.texture;
+        document.body.style.padding = "";
+        document.querySelector("#inputContainer").style.display = "";
+    }
+
+    Game.IS_FULLSCREEN = !Game.IS_FULLSCREEN;
+    Game.EMIT_STACK.push(true);
 }
 
 export function playToggle(ele) {
