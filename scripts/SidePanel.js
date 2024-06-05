@@ -155,22 +155,26 @@ export class MetadataPanel {
 
             const currentTimestamp = performance.now();
             this.TOUCH_VELOCITY = this.TOUCH_VELOCITY * Clamp(1 - (currentTimestamp - this.TOUCH_LAST_TIMESTAMP) / 200, 0, 1);
-    
+
             const predicted = this.TOUCH_VELOCITY * 300;
             const startScroll = this.SCROLLED;
-            
+
             let previousScroll = 0;
             this.TOUCH_TWEEN = new TWEEN.Tween({ predicted: 0 }, false)
                 .to({ predicted: predicted }, 300)
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .onUpdate((object) => {
                     this.SCROLLED = Clamp(startScroll - object.predicted, 0, heightDiff);
-                    this.EMIT_CHANGE = true;
-    
-                    if (startScroll - object.predicted > heightDiff || startScroll - object.predicted < 0) {
+                    this.flex.y = -this.SCROLLED;
+
+                    if (
+                        (startScroll - object.predicted > heightDiff || startScroll - object.predicted < 0) &&
+                        startScroll > 0 &&
+                        startScroll < heightDiff
+                    ) {
                         window.scrollBy(0, -(object.predicted - previousScroll));
                     }
-    
+
                     previousScroll = object.predicted;
                 })
                 .start();
