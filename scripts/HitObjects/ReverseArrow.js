@@ -62,9 +62,10 @@ export class ReverseArrow {
         return pulseRate;
     }
 
-    playHitsound(timestamp) {
+    playHitsound(timestamp, lastTimestamp) {
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
-        if (timestamp < this.time || ObjectsController.lastTimestamp >= this.time) return;
+        if (!timestamp || !lastTimestamp) return;
+        if (timestamp < this.time || lastTimestamp >= this.time) return;
 
         if (!ScoreParser.REPLAY_DATA) {
             this.baseSlider.hitSounds.sliderReverse[this.idx].play();
@@ -83,7 +84,7 @@ export class ReverseArrow {
     }
 
     draw(timestamp) {
-        this.playHitsound(timestamp);
+        // this.playHitsound(timestamp);
 
         this.hitCircle.colourHaxedIdx = this.baseSlider.colourHaxedIdx;
         this.hitCircle.colourIdx = this.baseSlider.colourIdx;

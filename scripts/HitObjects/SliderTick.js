@@ -64,10 +64,11 @@ export class SliderTick {
         this.hitSound = new HitSample([`${sampleSet}-slidertick${sampleIdx}`], sampleVol / 100);
     }
 
-    playHitsound(timestamp) {
+    playHitsound(timestamp, lastTimestamp) {
         if (!this.hitSound) return;
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
-        if (timestamp < this.info.time || ObjectsController.lastTimestamp >= this.info.time) return;
+        if (!timestamp || !lastTimestamp) return;
+        if (timestamp < this.info.time || lastTimestamp >= this.info.time) return;
 
         if (!ScoreParser.REPLAY_DATA) {
             this.hitSound.play();
@@ -85,7 +86,7 @@ export class SliderTick {
     }
 
     draw(timestamp) {
-        this.playHitsound(timestamp);
+        // this.playHitsound(timestamp);
 
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
 

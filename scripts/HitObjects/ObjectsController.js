@@ -94,6 +94,10 @@ export class ObjectsController {
         if (ProgressBar.IS_DRAGGING) return;
         this.filtered.forEach((object) => {
             this.objectsList[object.idx].obj.playHitsound(timestamp, lastTimestamp);
+            if (this.objectsList[object.idx].obj instanceof Slider) {
+                this.objectsList[object.idx].obj.ticks.forEach(tick => tick.playHitsound(timestamp, lastTimestamp));
+                this.objectsList[object.idx].obj.revArrows.forEach(arrow => arrow.playHitsound(timestamp, lastTimestamp));
+            }
         });
     }
 
