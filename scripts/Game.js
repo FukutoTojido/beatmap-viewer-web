@@ -19,7 +19,7 @@ import { Background } from "./Background.js";
 import { closePopup } from "./Timestamp.js";
 import { urlParams } from "./GlobalVariables.js";
 
-const isFullscreen = urlParams.get("fullscreen") ? true : false;
+const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
 export class Game {
     static INIT = false;

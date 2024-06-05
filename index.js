@@ -10,6 +10,8 @@ import { toggleMetadataPanel } from "./scripts/SidePanel.js";
 import * as PIXI from "pixi.js";
 import { readZip } from "./scripts/InputBar.js";
 
+import WorkerTest from "./scripts/Workers/Worker.js?worker";
+
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
 
@@ -110,7 +112,7 @@ function setupDefaultStorage() {
 }
 
 (async () => {
-    if (urlParams.get("fullscreen")) {
+    if (urlParams.get("fullscreen") === "true") {
         document.body.style.padding = 0;
         document.querySelector("#inputContainer").style.display = "none";
     }

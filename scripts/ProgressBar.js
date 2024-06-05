@@ -23,6 +23,10 @@ export function fullscreenToggle() {
 
     Game.IS_FULLSCREEN = !Game.IS_FULLSCREEN;
     Game.EMIT_STACK.push(true);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("fullscreen", Game.IS_FULLSCREEN.toString());
+    history.replaceState({ fullscreen: Game.IS_FULLSCREEN }, document.title, `${url.pathname}${url.search}`);
 }
 
 export function playToggle(ele) {
