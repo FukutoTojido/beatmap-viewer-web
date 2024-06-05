@@ -91,9 +91,11 @@ export const handleCanvasDrag = (e, calledFromDraw) => {
     }
 };
 
-export const checkCollide = (x, y, o) => {
+export const checkCollide = (x, y, objMeta) => {
     let currentHitCircleSize = Beatmap.moddedStats.radius * (236 / 256);
     const drawOffset = currentHitCircleSize;
+
+    const o = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objMeta.idx];
 
     if (o.obj instanceof HitCircle) {
         const positionX = o.obj.originalX + Beatmap.moddedStats.stackOffset * o.obj.stackHeight;

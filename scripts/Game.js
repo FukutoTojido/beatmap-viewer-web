@@ -224,7 +224,9 @@ export class Game {
             x /= Game.SCALE_RATE;
             y /= Game.SCALE_RATE;
 
-            const selectedObjList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered.filter((o) => checkCollide(x, y, o));
+            const selectedObjList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered
+                .filter((o) => checkCollide(x, y, o))
+                .map((objMeta) => Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objMeta.idx]);
 
             const selectedObj = selectedObjList.length
                 ? selectedObjList.reduce((prev, curr) => {
