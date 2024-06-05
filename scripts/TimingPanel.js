@@ -346,13 +346,25 @@ export class TimingPanel {
     static handleTouchUp(e) {
         this.IS_TOUCHING = false;
 
+        const currentTimestamp = performance.now();
+        this.TOUCH_VELOCITY = this.TOUCH_VELOCITY * Clamp(1 - (currentTimestamp - this.TOUCH_LAST_TIMESTAMP) / 200, 0, 1);
+
         const predicted = this.TOUCH_VELOCITY * 300;
-        this.TOUCH_TWEEN = new TWEEN.Tween({ predicted: this.SCROLLED }, false)
-            .to({ predicted: Clamp(this.SCROLLED - predicted, 0, this.MAX_HEIGHT - this.HEIGHT) }, 300)
+        const startScroll = this.SCROLLED;
+        
+        let previousScroll = 0;
+        this.TOUCH_TWEEN = new TWEEN.Tween({ predicted: 0 }, false)
+            .to({ predicted: predicted }, 300)
             .easing(TWEEN.Easing.Quadratic.Out)
             .onUpdate((object) => {
-                this.SCROLLED = object.predicted;
+                this.SCROLLED = Clamp(startScroll - object.predicted, 0, this.MAX_HEIGHT - this.HEIGHT);
                 this.EMIT_CHANGE = true;
+
+                if (startScroll - object.predicted > this.MAX_HEIGHT - this.HEIGHT || startScroll - object.predicted < 0) {
+                    window.scrollBy(0, -(object.predicted - previousScroll));
+                }
+
+                previousScroll = object.predicted;
             })
             .start();
 

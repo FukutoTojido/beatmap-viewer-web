@@ -7,6 +7,7 @@ import { Container } from "./UI/Container";
 import { FlexBox } from "./UI/FlexBox";
 import { Text } from "./UI/Text";
 import * as PIXI from "pixi.js";
+import { Clamp } from "./Utils";
 
 export function toggleMetadataPanel() {
     MetadataPanel.ON_ANIM = true;
@@ -32,7 +33,7 @@ export function toggleMetadataPanel() {
             game: 0,
             timing: 0,
             metadata: 0,
-        }
+        };
         document.querySelector(".mapBG").style.width = ``;
     }
 
@@ -102,6 +103,15 @@ export class MetadataPanel {
     static container;
 
     static ON_ANIM = false;
+    static SCROLL_RATE = 0;
+
+    static IS_TOUCHING = false;
+    static START_Y_TOUCH = -1;
+    static TOUCH_VELOCITY = 0;
+    static TOUCH_LAST_TIMESTAMP = 0;
+    static TOUCH_TWEEN = null;
+
+    static SCROLLED = 0;
 
     static init() {
         this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
@@ -110,21 +120,76 @@ export class MetadataPanel {
         this.MASTER_CONTAINER.alpha = 1;
         this.MASTER_CONTAINER.borderRadius = 10;
         this.MASTER_CONTAINER.masterContainer.on("touchstart", (e) => {
-            Game.START_DRAG_Y = e.global.y;
-            Game.IS_DRAGSCROLL = true;
+            this.IS_TOUCHING = true;
+            this.START_Y_TOUCH = e.global.y;
+            this.TOUCH_LAST_TIMESTAMP = performance.now();
+
+            if (this.TOUCH_TWEEN) this.TOUCH_TWEEN.stop();
         });
 
         this.MASTER_CONTAINER.masterContainer.on("touchmove", (e) => {
-            if (!Game.IS_DRAGSCROLL) return;
+            if (!this.IS_TOUCHING) return;
 
-            const delta = e.global.y - Game.START_DRAG_Y;
-            window.scrollBy(0, -delta / devicePixelRatio);
-            Game.START_DRAG_Y = e.global.y;
+            const heightDiff = Math.max(0, this.flex.height - this.container.height + this.container.paddingY * devicePixelRatio);
+            const deltaY = e.global.y - this.START_Y_TOUCH;
+
+            this.START_Y_TOUCH = e.global.y;
+
+            if (this.SCROLLED - deltaY > heightDiff || this.SCROLLED - deltaY < 0) {
+                window.scrollBy(0, -deltaY / devicePixelRatio);
+            }
+
+            this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, heightDiff);
+            this.flex.y = -this.SCROLLED;
+
+            const deltaT = performance.now() - this.TOUCH_LAST_TIMESTAMP;
+
+            if (deltaT !== 0) this.TOUCH_VELOCITY = deltaY / deltaT;
+
+            this.TOUCH_LAST_TIMESTAMP = performance.now();
         });
 
         this.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {
-            Game.START_DRAG_Y = 0;
-            Game.IS_DRAGSCROLL = false;
+            this.IS_TOUCHING = false;
+            const heightDiff = Math.max(0, this.flex.height - this.container.height + this.container.paddingY * devicePixelRatio);
+
+            const currentTimestamp = performance.now();
+            this.TOUCH_VELOCITY = this.TOUCH_VELOCITY * Clamp(1 - (currentTimestamp - this.TOUCH_LAST_TIMESTAMP) / 200, 0, 1);
+    
+            const predicted = this.TOUCH_VELOCITY * 300;
+            const startScroll = this.SCROLLED;
+            
+            let previousScroll = 0;
+            this.TOUCH_TWEEN = new TWEEN.Tween({ predicted: 0 }, false)
+                .to({ predicted: predicted }, 300)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate((object) => {
+                    this.SCROLLED = Clamp(startScroll - object.predicted, 0, heightDiff);
+                    this.EMIT_CHANGE = true;
+    
+                    if (startScroll - object.predicted > heightDiff || startScroll - object.predicted < 0) {
+                        window.scrollBy(0, -(object.predicted - previousScroll));
+                    }
+    
+                    previousScroll = object.predicted;
+                })
+                .start();
+
+            this.TOUCH_TWEEN.onComplete = () => {
+                TWEEN.remove(this.TOUCH_TWEEN);
+                this.TOUCH_TWEEN = null;
+            };
+
+            this.TOUCH_TWEEN.onStop = () => {
+                TWEEN.remove(this.TOUCH_TWEEN);
+                this.TOUCH_TWEEN = null;
+            };
+
+            TWEEN.add(this.TOUCH_TWEEN);
+
+            this.START_Y_TOUCH = -1;
+            this.TOUCH_VELOCITY = 0;
+            this.TOUCH_LAST_TIMESTAMP = 0;
         });
 
         this.WIDTH = this.MASTER_CONTAINER.w;
