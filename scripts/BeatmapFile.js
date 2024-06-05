@@ -457,6 +457,10 @@ export class BeatmapFile {
             const removedChildren = Game.CONTAINER.removeChildren();
             removedChildren.forEach((ele) => ele.destroy());
 
+            Game.WORKER.postMessage({
+                type: "clear"
+            })
+
             Timeline.destruct();
 
             Beatmap.CURRENT_MAPID = this.mapId;

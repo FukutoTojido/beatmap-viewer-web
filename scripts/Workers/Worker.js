@@ -162,6 +162,15 @@ onmessage = (event) => {
         Timer.approachRate = approachRate;
         Timer.playbackRate = playbackRate;
     }
+
+    if (event.data.type === "clear") {
+        Timer.objects = [];
+        Timer.filtered = [];
+        
+        Timer.isPlaying = false;
+        Timer.currentTime = 1;
+        Timer.lastTime = 0;
+    }
 };
 
 setInterval(() => Timer.loop(), 0);
