@@ -128,14 +128,16 @@ export class Slider {
         this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
     }
 
-    playHitsound(timestamp) {
+    playHitsound(timestamp, lastTimestamp) {
+        if (!timestamp || !lastTimestamp) return;
+
         if (this.hitSounds.defaultSet.hitSoundIdx !== 0)
             this.hitSounds.sliderWhistle.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
         this.hitSounds.sliderSlide.playLoop(timestamp >= this.hitTime, timestamp <= this.endTime, this.endTime - timestamp);
 
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
 
-        if (timestamp >= this.hitTime && ObjectsController.lastTimestamp < this.hitTime) {
+        if (timestamp >= this.hitTime && lastTimestamp < this.hitTime) {
             if (!ScoreParser.REPLAY_DATA) {
                 this.hitSounds.sliderHead.play();
                 return;
@@ -153,7 +155,7 @@ export class Slider {
             return;
         }
 
-        if (timestamp >= this.endTime && ObjectsController.lastTimestamp < this.endTime) {
+        if (timestamp >= this.endTime && lastTimestamp < this.endTime) {
             if (!ScoreParser.REPLAY_DATA) {
                 this.hitSounds.sliderTail.play();
                 return;
@@ -297,7 +299,7 @@ export class Slider {
         this.ball.draw(timestamp);
         this.updateJudgement(timestamp);
 
-        if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
+        // if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
     reInitialize() {

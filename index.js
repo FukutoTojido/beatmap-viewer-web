@@ -10,8 +10,6 @@ import { toggleMetadataPanel } from "./scripts/SidePanel.js";
 import * as PIXI from "pixi.js";
 import { readZip } from "./scripts/InputBar.js";
 
-import WorkerTest from "./scripts/Workers/Worker.js?worker";
-
 document.querySelector(".loading").style.opacity = 1;
 document.querySelector("#loadingText").textContent = `Initializing`;
 

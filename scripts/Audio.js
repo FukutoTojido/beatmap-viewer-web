@@ -46,12 +46,19 @@ export class PAudio {
         const originalIsPlaying = this.isPlaying;
         if (this.isPlaying) this.pause();
         this.currentTime = time;
+        Game.WORKER.postMessage({
+            type: "seek",
+            time,
+        })
         // console.log(this.currentTime);
         if (originalIsPlaying) this.play();
     }
 
     play(time) {
         if (!this.isPlaying && this.gainNode) {
+            Game.WORKER.postMessage({
+                type: "start"
+            })
             this.isPlaying = true;
 
             this.src = Game.AUDIO_CTX.createBufferSource();
@@ -97,6 +104,9 @@ export class PAudio {
 
     pause() {
         if (this.isPlaying) {
+            Game.WORKER.postMessage({
+                type: "stop"
+            })
             this.src.stop();
             this.src.disconnect();
             this.phazeNode.disconnect();

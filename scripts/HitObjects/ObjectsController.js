@@ -17,6 +17,7 @@ import { BPM } from "../BPM.js";
 import { frameData } from "../FPSSystem.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Background } from "../Background.js";
+import { Recorder } from "../Record.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -35,6 +36,10 @@ export class ObjectsController {
 
     filtered = [];
     selected = [];
+
+    addTop = [];
+    addBack = [];
+    removed = [];
 
     _in = [];
 
@@ -67,6 +72,31 @@ export class ObjectsController {
         this.breakPeriods = breakPeriods;
     }
 
+    updateOrder() {
+        this.removed.forEach((object) => {
+            Game.CONTAINER.removeChild(this.objectsList[object.idx].obj.obj);
+            if (this.objectsList[object.idx].obj.approachCircleObj)
+                Game.CONTAINER.removeChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+        });
+
+        this.addBack.forEach((object) => {
+            Game.CONTAINER.addChildAt(this.objectsList[object.idx].obj.obj, 0);
+            if (this.objectsList[object.idx].obj.approachCircleObj) Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+        });
+
+        this.addTop.forEach((object) => {
+            Game.CONTAINER.addChild(this.objectsList[object.idx].obj.obj);
+            if (this.objectsList[object.idx].obj.approachCircleObj) Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+        });
+    }
+
+    playHitsounds(timestamp, lastTimestamp) {
+        if (ProgressBar.IS_DRAGGING) return;
+        this.filtered.forEach((object) => {
+            this.objectsList[object.idx].obj.playHitsound(timestamp, lastTimestamp);
+        });
+    }
+
     draw(timestamp, staticDraw) {
         if (timestamp > Game.BEATMAP_FILE.audioNode.duration) {
             Game.BEATMAP_FILE.audioNode.pause();
@@ -91,70 +121,6 @@ export class ObjectsController {
             ObjectsController.CURRENT_SV = currentSV;
             TimingPanel.scrollTo(timestamp);
         }
-
-        const currentAR = Clamp(Beatmap.stats.approachRate * (Game.MODS.HR ? 1.4 : 1) * (Game.MODS.EZ ? 0.5 : 1), 0, 10);
-        const currentPreempt = Beatmap.difficultyRange(currentAR, 1800, 1200, 450);
-
-        const compareFunc = (element, value) => {
-            if (element.obj.killTime + 800 < value) return -1;
-            if (element.obj.time - currentPreempt > value) return 1;
-            return 0;
-        };
-
-        const drawList = [];
-        const foundIndex = binarySearch(this.objectsList, timestamp, compareFunc);
-        if (foundIndex !== -1) {
-            let start = foundIndex - 1;
-            let end = foundIndex + 1;
-
-            while (start >= 0 && compareFunc(this.objectsList[start], timestamp) === 0) {
-                drawList.push(this.objectsList[start]);
-                start--;
-            }
-
-            drawList.reverse();
-            drawList.push(this.objectsList[foundIndex]);
-
-            while (end <= this.objectsList.length - 1 && compareFunc(this.objectsList[end], timestamp) === 0) {
-                drawList.push(this.objectsList[end]);
-                end++;
-            }
-
-            drawList.reverse();
-        }
-
-        this.filtered.forEach((object) => {
-            if (drawList.length > 0) {
-                const firstObj = drawList.at(-1);
-                const lastObj = drawList.at(0);
-
-                if (object.obj.time <= lastObj.obj.time && object.obj.time >= firstObj.obj.time) return;
-            }
-            Game.CONTAINER.removeChild(object.obj.obj);
-            if (object.obj.approachCircleObj) Game.CONTAINER.removeChild(object.obj.approachCircleObj.obj);
-        });
-
-        drawList.forEach((object) => {
-            if (this.filtered.length <= 0) {
-                Game.CONTAINER.addChild(object.obj.obj);
-                if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
-                return;
-            }
-
-            if (object.obj.time > this.filtered.at(0).obj.time) {
-                Game.CONTAINER.addChildAt(object.obj.obj, 0);
-                if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
-                return;
-            }
-
-            if (object.obj.time < this.filtered.at(-1).obj.time) {
-                Game.CONTAINER.addChild(object.obj.obj);
-                if (object.obj.approachCircleObj) Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
-                return;
-            }
-        });
-
-        this.filtered = drawList;
 
         const selected = [];
         Game.SELECTED.forEach((time) => {
@@ -191,25 +157,6 @@ export class ObjectsController {
         });
 
         this.selected = selected;
-
-        // const judgements = this.judgementList.filter((judgement) => judgement.time - 200 < timestamp && judgement.time + 1800 + 200 > timestamp);
-
-        // Game.CONTAINER.removeChildren();
-        // Game.addToContainer([
-        //     ...judgements,
-        //     ...this.filtered.map((o) => o.obj).toReversed(),
-        //     ...this.filtered
-        //         .map((o) => o.obj.approachCircleObj)
-        //         .filter((o) => o)
-        //         .toReversed(),
-        //     ...selected
-        //         .reduce((accm, o) => {
-        //             if (o.obj instanceof Slider) accm.push({ obj: o.obj.hitCircle.selected }, { obj: o.obj.selectedSliderEnd });
-        //             accm.push({ obj: o.obj.selected });
-        //             return accm;
-        //         }, [])
-        //         .toReversed(),
-        // ]);
 
         if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
             Background.changeOpacity(Game.ALPHA * 0.7);
@@ -263,7 +210,7 @@ export class ObjectsController {
 
         this.filtered.forEach((object) => {
             // selected.forEach((o) => o.obj.drawSelected());
-            object.obj.draw(Math.max(timestamp, 0));
+            this.objectsList[object.idx].obj.draw(Math.max(timestamp, 0));
         });
 
         this.selected.forEach((object) => {
@@ -336,5 +283,9 @@ export class ObjectsController {
 
         // ObjectsController.sumMS = 0;
         Game.FPS.text = `${Math.round(frameData.fps)}fps\n${frameData.deltaMS.toFixed(2)}ms`;
+
+        // if (Recorder.IS_RECORDING && Recorder.VIDEO_STREAM) {
+        //     Recorder.VIDEO_STREAM.getVideoTracks()[0].requestFrame();
+        // }
     }
 }

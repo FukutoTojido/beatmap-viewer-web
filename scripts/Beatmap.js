@@ -62,8 +62,8 @@ export class Beatmap {
     }
 
     static reverseDifficultyRange(val, min, mid, max) {
-        const case_1 = (val - mid) * 5 / (max - mid) + 5;
-        const case_2 = 5 - ((mid - val) * 5 / (mid - min));
+        const case_1 = ((val - mid) * 5) / (max - mid) + 5;
+        const case_2 = 5 - ((mid - val) * 5) / (mid - min);
 
         if (case_1 > 5 && case_2 > 5) return case_1;
         if (case_2 < 5 && case_1 < 5) return case_2;
@@ -92,6 +92,13 @@ export class Beatmap {
         const approachRate = Math.min(Beatmap.stats.approachRate * HRMul * EZMul, 10);
         const HPDrainRate = Math.min(Beatmap.stats.HPDrainRate * HRMul * EZMul, 10);
         const overallDifficulty = Math.min(Beatmap.stats.overallDifficulty * HRMul * EZMul, 10);
+
+        Game.WORKER.postMessage({
+            type: "updateStats",
+            mods: Game.MODS,
+            playbackRate: Game.PLAYBACK_RATE,
+            approachRate
+        })
 
         // Don't look at this
         // if (Game.PLAYBACK_RATE !== 1) {
@@ -677,6 +684,22 @@ export class Beatmap {
 
         start = performance.now();
         this.objectsController = new ObjectsController(parsedHitObjects, coloursList, breakPeriods);
+        // console.log(Game.WORKER)
+
+        Game.WORKER.postMessage({
+            type: "objects",
+            objects: parsedHitObjects
+                .map((obj, idx) => {
+                    return {
+                        idx,
+                        time: obj.obj.time,
+                        endTime: obj.obj.endTime,
+                        startTime: obj.obj.startTime,
+                        killTime: obj.obj.killTime,
+                    };
+                })
+        });
+
         console.log(`Took: ${performance.now() - start}ms to finish objectsController construction.`);
 
         // Ported from Lazer
@@ -767,7 +790,7 @@ export class Beatmap {
                 }
             }
         }
-        
+
         Beatmap.updateStats();
         Beatmap.updateModdedStats();
 

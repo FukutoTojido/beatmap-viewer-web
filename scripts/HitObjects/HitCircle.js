@@ -78,10 +78,11 @@ export class HitCircle {
         this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
     }
 
-    playHitsound(timestamp) {
+    playHitsound(timestamp, lastTimestamp) {
         if (!this.hitSounds) return;
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
-        if (timestamp < this.hitTime || ObjectsController.lastTimestamp >= this.hitTime) return;
+        if (!timestamp || !lastTimestamp) return;
+        if (timestamp < this.hitTime || lastTimestamp >= this.hitTime) return;
         if (this.judgement && this.judgement.val === 0) return;
 
         if (!ScoreParser.REPLAY_DATA) {
@@ -319,7 +320,7 @@ export class HitCircle {
         this.number.draw(timestamp);
         this.approachCircleObj.draw(timestamp);
 
-        if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
+        // if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
     eval(inputIdx) {

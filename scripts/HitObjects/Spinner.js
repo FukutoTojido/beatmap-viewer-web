@@ -20,9 +20,10 @@ export class Spinner {
     judgementContainer;
     judgement;
 
-    playHitsound(timestamp) {
+    playHitsound(timestamp, lastTimestamp) {
         if (!Game.BEATMAP_FILE.audioNode.isPlaying) return;
-        if (timestamp < this.endTime || ObjectsController.lastTimestamp >= this.endTime) return;
+        if (!timestamp || !lastTimestamp) return;
+        if (timestamp < this.endTime || lastTimestamp >= this.endTime) return;
 
         if (!ScoreParser.REPLAY_DATA) {
             this.hitSounds.play();

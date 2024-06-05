@@ -19,6 +19,8 @@ import { Background } from "./Background.js";
 import { closePopup } from "./Timestamp.js";
 import { urlParams } from "./GlobalVariables.js";
 
+import WorkerTest from "./Workers/Worker.js?worker";
+
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
 export class Game {
@@ -102,6 +104,8 @@ export class Game {
     static ALPHA = 1;
     static IS_FULLSCREEN = isFullscreen;
     static IS_HOVERING_PROGRESS = false;
+
+    static WORKER = new WorkerTest();
 
     // Add certain objects from container
     static addToContainer(objectsList) {
@@ -350,7 +354,7 @@ export class Game {
         let timer;
         Game.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {
             if (!Game.IS_FULLSCREEN) return;
-            
+
             if (!Game.IS_HOVERING_PROGRESS) {
                 Game.IS_HOVERING_PROGRESS = true;
                 timer = setTimeout(() => {
@@ -362,7 +366,7 @@ export class Game {
 
             clearTimeout(timer);
             Game.IS_HOVERING_PROGRESS = false;
-        })
+        });
 
         return grid;
     }
@@ -693,5 +697,18 @@ export class Game {
         // requestAnimationFrame(() => update());
 
         Game.INIT = true;
+        Game.WORKER.onmessage = (event) => {
+            const { objects, currentTime, lastTime } = event.data;
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.addTop = objects.addTop;
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered = objects.filtered;
+
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();
+            Game.BEATMAP_FILE.beatmapRenderData.objectsController.playHitsounds(currentTime, lastTime);
+
+            // if (!objects.current) return;
+            // Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objects.current.idx].obj.playHitsound(currentTime);
+        };
     }
 }
