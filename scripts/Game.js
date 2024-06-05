@@ -339,9 +339,9 @@ export class Game {
             }
 
             const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
-            const inRender = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered.filter(
-                (o) => o.obj instanceof Slider && checkCollide(x, y, o)
-            );
+            const inRender = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered
+                .filter((o) => Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[o.idx].obj instanceof Slider && checkCollide(x, y, o))
+                .map((objMeta) => Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objMeta.idx]);
             const selectedSlider = inRender.reduce((selected, current) => {
                 if (Math.abs(current.obj.time - currentTime) < Math.abs(selected.obj.time - currentTime)) return current;
 
