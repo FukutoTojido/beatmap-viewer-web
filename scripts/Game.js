@@ -347,6 +347,23 @@ export class Game {
             if (selectedSlider) selectedSlider.obj.isHover = true;
         });
 
+        let timer;
+        Game.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {
+            if (!Game.IS_FULLSCREEN) return;
+            
+            if (!Game.IS_HOVERING_PROGRESS) {
+                Game.IS_HOVERING_PROGRESS = true;
+                timer = setTimeout(() => {
+                    Game.IS_HOVERING_PROGRESS = false;
+                }, 5000);
+
+                return;
+            }
+
+            clearTimeout(timer);
+            Game.IS_HOVERING_PROGRESS = false;
+        })
+
         return grid;
     }
 
