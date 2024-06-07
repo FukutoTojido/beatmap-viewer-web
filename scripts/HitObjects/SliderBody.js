@@ -166,16 +166,8 @@ export class SliderBody {
         this.shader.resources.customUniforms.uniforms.inverse = Game.MODS.HR ? 1 : 0;
         this.shader.resources.customUniforms.uniforms.stackOffset = this.slider.stackHeight * currentStackOffset;
 
-        if (this.startt == 0.0 && this.endt == 1.0) {
-            const point = SliderBody.getPointAtT(this.angleList, this.startt);
-            this.ballPosition = point;
-        } else if (this.startt == 0.0) {
-            const point = SliderBody.getPointAtT(this.angleList, this.endt);
-            this.ballPosition = point;
-        } else if (this.endt == 1.0) {
-            const point = SliderBody.getPointAtT(this.angleList, this.startt);
-            this.ballPosition = point;
-        }
+        const point = SliderBody.getPointAtT(this.angleList, this.startt, this.endt);
+        this.ballPosition = point;
 
         this.shader.resources.customUniforms.uniforms.circleBaseScale = circleBaseScale;
 
@@ -321,7 +313,16 @@ export class SliderBody {
         });
     }
 
-    static getPointAtT(list, t) {
+    static getPointAtT(list, startt, endt) {
+        let t = 0;
+        if (startt == 0.0 && endt == 1.0) {
+            t = startt;
+        } else if (startt == 0.0) {
+            t = endt;
+        } else if (endt == 1.0) {
+            t = startt;
+        }
+
         if (isNaN(t)) t = 0;
         if (t <= 0) return list.at(0);
         if (t >= 1) return list.at(-1);

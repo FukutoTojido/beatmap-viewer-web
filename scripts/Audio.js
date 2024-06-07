@@ -49,7 +49,7 @@ export class PAudio {
         Game.WORKER.postMessage({
             type: "seek",
             time,
-        })
+        });
         // console.log(this.currentTime);
         if (originalIsPlaying) this.play();
     }
@@ -57,8 +57,8 @@ export class PAudio {
     play(time) {
         if (!this.isPlaying && this.gainNode) {
             Game.WORKER.postMessage({
-                type: "start"
-            })
+                type: "start",
+            });
             this.isPlaying = true;
 
             this.src = Game.AUDIO_CTX.createBufferSource();
@@ -105,8 +105,8 @@ export class PAudio {
     pause() {
         if (this.isPlaying) {
             Game.WORKER.postMessage({
-                type: "stop"
-            })
+                type: "stop",
+            });
             this.src.stop();
             this.src.disconnect();
             this.phazeNode.disconnect();
@@ -120,11 +120,13 @@ export class PAudio {
 
     getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
-        if (performance.now() - this.absStartTime - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) > 20) {
+        const offset = performance.now() - this.absStartTime - (Game.AUDIO_CTX.currentTime * 1000 - this.startTime);
+
+        if (offset > 20) {
             this.pause();
             this.play();
 
-            console.log("Shifted");
+            console.log(`Shifted ${offset}`);
         }
 
         return this.currentTime + (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
@@ -171,7 +173,7 @@ export class HitSample {
 
     play(isLoop) {
         if (Game.IS_SEEKING) return;
-        
+
         this.srcs = [];
 
         this.audioObj.forEach((hs) => {

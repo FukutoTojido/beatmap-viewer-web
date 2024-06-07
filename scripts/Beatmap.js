@@ -93,13 +93,6 @@ export class Beatmap {
         const HPDrainRate = Math.min(Beatmap.stats.HPDrainRate * HRMul * EZMul, 10);
         const overallDifficulty = Math.min(Beatmap.stats.overallDifficulty * HRMul * EZMul, 10);
 
-        Game.WORKER.postMessage({
-            type: "updateStats",
-            mods: Game.MODS,
-            playbackRate: Game.PLAYBACK_RATE,
-            approachRate
-        })
-
         // Don't look at this
         // if (Game.PLAYBACK_RATE !== 1) {
         //     const newPreempt = Beatmap.difficultyRange(approachRate, 1800, 1200, 450) / Game.PLAYBACK_RATE;
@@ -122,6 +115,22 @@ export class Beatmap {
 
         //     return;
         // }
+
+        Game.WORKER.postMessage({
+            type: "updateStats",
+            mods: Game.MODS,
+            playbackRate: Game.PLAYBACK_RATE,
+            moddedStats: {
+                circleSize,
+                approachRate,
+                HPDrainRate,
+                overallDifficulty,
+                preempt: Beatmap.difficultyRange(approachRate, 1800, 1200, 450),
+                fadeIn: Beatmap.difficultyRange(approachRate, 1200, 800, 300),
+                radius: 54.4 - 4.48 * circleSize,
+                stackOffset: (-6.4 * (1 - (0.7 * (circleSize - 5)) / 5)) / 2,
+            },
+        });
 
         Beatmap.moddedStats = {
             ...Beatmap.stats,
@@ -686,20 +695,6 @@ export class Beatmap {
         this.objectsController = new ObjectsController(parsedHitObjects, coloursList, breakPeriods);
         // console.log(Game.WORKER)
 
-        Game.WORKER.postMessage({
-            type: "objects",
-            objects: parsedHitObjects
-                .map((obj, idx) => {
-                    return {
-                        idx,
-                        time: obj.obj.time,
-                        endTime: obj.obj.endTime,
-                        startTime: obj.obj.startTime,
-                        killTime: obj.obj.killTime,
-                    };
-                })
-        });
-
         console.log(`Took: ${performance.now() - start}ms to finish objectsController construction.`);
 
         // Ported from Lazer
@@ -796,6 +791,19 @@ export class Beatmap {
 
         this.objectsController.slidersList.forEach((o) => {
             o.obj.hitCircle.stackHeight = o.obj.stackHeight;
+        });
+
+        Game.WORKER.postMessage({
+            type: "objects",
+            objects: parsedHitObjects.map((obj, idx) => {
+                return {
+                    idx,
+                    time: obj.obj.time,
+                    endTime: obj.obj.endTime,
+                    startTime: obj.obj.startTime,
+                    killTime: obj.obj.killTime,
+                };
+            }),
         });
 
         const drainTime =

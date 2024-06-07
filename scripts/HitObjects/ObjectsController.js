@@ -286,7 +286,7 @@ export class ObjectsController {
         // if (ObjectsController.sumMS < 4) return;
 
         // ObjectsController.sumMS = 0;
-        Game.FPS.text = `${Math.round(frameData.fps)}fps\n${frameData.deltaMS.toFixed(2)}ms`;
+        Game.FPS.text = `${Math.round(frameData.fps)}fps\nDraw: ${frameData.deltaMS.toFixed(2)}ms\nWorker: ${Game.WORKER_DELTA_MS.toFixed(2)}ms`;
 
         // if (Recorder.IS_RECORDING && Recorder.VIDEO_STREAM) {
         //     Recorder.VIDEO_STREAM.getVideoTracks()[0].requestFrame();

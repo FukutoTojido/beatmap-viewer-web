@@ -2,12 +2,6 @@ function Clamp(val, from, to) {
     return Math.max(Math.min(val, to), from);
 }
 
-function difficultyRange(val, min, mid, max) {
-    if (val > 5) return mid + ((max - mid) * (val - 5)) / 5;
-    if (val < 5) return mid - ((mid - min) * (5 - val)) / 5;
-    return mid;
-}
-
 function binarySearch(list, value, compareFunc) {
     let start = 0;
     let end = list.length - 1;
@@ -40,11 +34,28 @@ class Timer {
     static objects = [];
     static filtered = [];
 
-    static approachRate = 5;
+    static moddedStats = {
+        approachRate: 5,
+        circleSize: 5,
+        HPDrainRate: 5,
+        overallDifficulty: 5,
+        stackLeniency: 7,
+        circleDiameter: (2 * (54.4 - 4.48 * 5) * 236) / 256,
+        preempt: 1200,
+        fadeIn: 800,
+        sliderTickRate: 1,
+        radius: 54.4 - 4.48 * 5,
+        stackOffset: (-6.4 * (1 - (0.7 * (5 - 5)) / 5)) / 2,
+    };
+
     static mods = {
         HR: false,
         EZ: false,
     };
+
+    static _renderStart = 0;
+
+    static _msQueue = [];
 
     static getCurrentTime() {
         if (!this.isPlaying) return this.currentTime;
@@ -53,8 +64,7 @@ class Timer {
 
     static getObjects() {
         const currentTime = this.getCurrentTime();
-        const currentAR = Clamp(this.approachRate * (this.mods.HR ? 1.4 : 1) * (this.mods.EZ ? 0.5 : 1), 0, 10);
-        const currentPreempt = difficultyRange(currentAR, 1800, 1200, 450);
+        const currentPreempt = this.moddedStats.preempt;
 
         const compareFunc = (element, value) => {
             if (element.killTime + 800 < value) return -1;
@@ -118,21 +128,43 @@ class Timer {
     }
 
     static loop() {
-        if (this.objects.length === 0) return;
-        const objs = this.getObjects();
-        const currentTime = this.getCurrentTime();
+        this._renderStart = performance.now();
+
+        if (this.objects.length > 0) {
+            const objs = this.getObjects();
+            const currentTime = this.getCurrentTime();
+
+            postMessage({
+                type: "updateOrder",
+                objects: {
+                    ...objs,
+                    // current
+                },
+                currentTime,
+                lastTime: this.lastTime,
+            });
+
+            this.lastTime = currentTime;
+        }
+
+        const deltaMs = performance.now() - this._renderStart;
+        this._msQueue.push(deltaMs);
+
+        if (this._msQueue.length > 100) this._msQueue.slice(-100);
 
         postMessage({
-            objects: {
-                ...objs,
-                // current
-            },
-            currentTime,
-            lastTime: this.lastTime
+            type: "updateMs",
+            deltaMs:
+                this._msQueue.reduce((accm, curr, idx) => {
+                    return accm + curr * ((idx + 1) / this._msQueue.length);
+                }, 0) /
+                ((1 / this._msQueue.length + 1) * (this._msQueue.length / 2)),
         });
-
-        this.lastTime = currentTime;
     }
+}
+
+class Slider {
+    
 }
 
 onmessage = (event) => {
@@ -157,16 +189,16 @@ onmessage = (event) => {
     }
 
     if (event.data.type === "updateStats") {
-        const { mods, approachRate, playbackRate } = event.data;
+        const { mods, moddedStats, playbackRate } = event.data;
         Timer.mods = mods;
-        Timer.approachRate = approachRate;
+        Timer.moddedStats = moddedStats;
         Timer.playbackRate = playbackRate;
     }
 
     if (event.data.type === "clear") {
         Timer.objects = [];
         Timer.filtered = [];
-        
+
         Timer.isPlaying = false;
         Timer.currentTime = 1;
         Timer.lastTime = 0;

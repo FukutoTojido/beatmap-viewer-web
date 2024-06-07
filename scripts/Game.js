@@ -105,6 +105,8 @@ export class Game {
     static IS_FULLSCREEN = isFullscreen;
     static IS_HOVERING_PROGRESS = false;
 
+    static WORKER_DELTA_MS = 0;
+
     static WORKER = new WorkerTest();
 
     // Add certain objects from container
@@ -700,14 +702,24 @@ export class Game {
 
         Game.INIT = true;
         Game.WORKER.onmessage = (event) => {
-            const { objects, currentTime, lastTime } = event.data;
-            Game.BEATMAP_FILE.beatmapRenderData.objectsController.addTop = objects.addTop;
-            Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;
-            Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
-            Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered = objects.filtered;
+            if (event.data.type === "updateMs") {
+                const { deltaMs } = event.data;
+                Game.WORKER_DELTA_MS = deltaMs;
+                return;
+            }
 
-            Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();
-            Game.BEATMAP_FILE.beatmapRenderData.objectsController.playHitsounds(currentTime, lastTime);
+            if (event.data.type === "updateOrder") {
+                const { objects, currentTime, lastTime } = event.data;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.addTop = objects.addTop;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered = objects.filtered;
+    
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.playHitsounds(currentTime, lastTime);
+                return;
+            }
+
 
             // if (!objects.current) return;
             // Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objects.current.idx].obj.playHitsound(currentTime);
