@@ -38,6 +38,7 @@ export class BeatmapFile {
     md5Map;
     isLoaded = false;
     hasOgg = false;
+    hasVideo = false;
 
     static CURRENT_MAPID;
 
@@ -421,6 +422,10 @@ export class BeatmapFile {
             console.log(videoOffset);
         }
 
+        if (videoFile) {
+            this.hasVideo = true;
+        }
+
         Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC");
 
         const hitsoundFiles = allEntries.filter((file) => {
@@ -579,6 +584,15 @@ export class BeatmapFile {
                     type: "warning",
                 }).notify();
                 this.hasOgg = false;
+            }
+
+            if (this.hasVideo) {
+                new Notification({
+                    message: "This beatmap contains video, which is not supported on iOS devices.",
+                    autoTimeout: false,
+                    type: "warning",
+                }).notify();
+                this.hasVideo = false;
             }
 
             document.onkeydown = (e) => {
