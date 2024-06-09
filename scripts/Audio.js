@@ -99,7 +99,7 @@ export class PAudio {
                 Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
                 this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
-            Background.playVideo();
+            Background.playVideo(this.currentTime);
 
             // document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
         }
@@ -114,9 +114,9 @@ export class PAudio {
             this.src.disconnect();
             this.phazeNode.disconnect();
             this.gainNode.disconnect();
-            Background.pauseVideo();
             // this.currentTime += (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) * Game.PLAYBACK_RATE;
             this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
+            Background.pauseVideo(this.currentTime);
             this.isPlaying = false;
             // document.querySelector("#playButton").style.backgroundImage = "";
         }

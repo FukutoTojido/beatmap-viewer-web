@@ -134,22 +134,22 @@ export class Background {
         this.changeStrength(currentLocalStorage.background.blur);
     }
 
-    static playVideo() {
+    static playVideo(timestamp) {
         if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
 
-        const startTime = Math.max(ObjectsController.lastTimestamp - Background.offset, 0);
+        const startTime = Math.max(timestamp - Background.offset, 0);
         this.videoHTML.currentTime = startTime / 1000;
         this.videoHTML.playbackRate = Game.PLAYBACK_RATE;
 
         this.videoHTML.play();
     }
 
-    static pauseVideo() {
+    static pauseVideo(timestamp) {
         if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
 
         this.videoHTML.pause();
 
-        const endTime = Math.max(ObjectsController.lastTimestamp - Background.offset, 0);
+        const endTime = Math.max(timestamp - Background.offset, 0);
         this.videoHTML.currentTime = endTime / 1000;
     }
 
