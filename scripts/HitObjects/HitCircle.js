@@ -196,7 +196,7 @@ export class HitCircle {
 
     updateExpand(timestamp) {
         // Calculate object radius on HR / EZ toggle
-        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (this.skinIdx === 0 ? 0.95 : 1);
+        const circleBaseScale = (Beatmap.moddedStats.radius / 54.4) * (this.skinType === "0" ? 0.95 : 1);
 
         // Calculate object expandation
         let currentExpand = 1;

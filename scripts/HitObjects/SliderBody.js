@@ -331,7 +331,7 @@ export class SliderBody {
         const endIdx = Math.ceil(t * (list.length - 1));
         const rawIdx = t * (list.length - 1);
 
-        const lerpValue = rawIdx % startIdx;
+        const lerpValue = (rawIdx - startIdx) / (endIdx - startIdx);
 
         // console.log(t, startIdx, endIdx)
 

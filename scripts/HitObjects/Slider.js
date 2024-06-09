@@ -547,7 +547,7 @@ export class Slider {
         const endIdx = Math.ceil(_t);
         const rawIdx = _t;
 
-        const lerpValue = rawIdx % startIdx;
+        const lerpValue = (rawIdx - startIdx) / (endIdx - startIdx);
 
         const x = this.realTrackPoints[startIdx].x + lerpValue * (this.realTrackPoints[endIdx].x - this.realTrackPoints[startIdx].x);
         const y = this.realTrackPoints[startIdx].y + lerpValue * (this.realTrackPoints[endIdx].y - this.realTrackPoints[startIdx].y);
