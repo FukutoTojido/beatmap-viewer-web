@@ -1,6 +1,7 @@
 import { HitCircle } from "./HitCircle";
 import { Game } from "../Game";
 import { Beatmap } from "../Beatmap";
+import { Skinning } from "../Skinning";
 
 export class SliderEnd {
     baseSlider;
@@ -69,10 +70,11 @@ export class SliderEnd {
     }
 
     draw(timestamp) {
-        if (!Game.SLIDER_APPEARANCE.sliderend || Game.SKINNING.type === "0") {
+        if (!Game.SLIDER_APPEARANCE.sliderend || Skinning.SKIN_ENUM[Game.SKINNING.type] === "ARGON") {
             if (this.props.alpha !== 0) {
                 this.props.alpha = 0;
-                this.hitCircle.obj.alpha = this.props.alpha;
+                this.hitCircle.props.alpha = 0;
+                this.hitCircle.obj.alpha = 0;
             }
 
             return;
@@ -89,6 +91,7 @@ export class SliderEnd {
         const alpha = this.getAlpha(timestamp);
         if (alpha !== undefined && (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha)) {
             this.props.alpha = alpha;
+            this.hitCircle.props.alpha = alpha;
             this.hitCircle.hitCircleContainer.alpha = alpha;
         }
     }

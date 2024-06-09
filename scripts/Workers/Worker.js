@@ -54,12 +54,12 @@ class Timer {
     };
 
     static _renderStart = 0;
-
+    static _lastRenderTime = 0;
     static _msQueue = [];
 
     static getCurrentTime() {
-        if (!this.isPlaying) return this.currentTime;
-        return this.currentTime + (performance.now() - this.absStartTime) * Timer.playbackRate;
+        if (!this.isPlaying) return this.currentTime + (Timer.mods.DT ? -40 : 0);
+        return this.currentTime + (performance.now() - this.absStartTime) * Timer.playbackRate + (Timer.mods.DT ? -40 : 0);
     }
 
     static getObjects() {
@@ -129,10 +129,12 @@ class Timer {
 
     static loop() {
         this._renderStart = performance.now();
+        const deltaMs = this._renderStart - this._lastRenderTime;
+        this._msQueue.push(deltaMs);
 
         if (this.objects.length > 0) {
             const objs = this.getObjects();
-            const currentTime = this.getCurrentTime();
+            const currentTime = this.getCurrentTime() ;
 
             postMessage({
                 type: "updateOrder",
@@ -147,9 +149,6 @@ class Timer {
             this.lastTime = currentTime;
         }
 
-        const deltaMs = performance.now() - this._renderStart;
-        this._msQueue.push(deltaMs);
-
         if (this._msQueue.length > 100) this._msQueue.slice(-100);
 
         postMessage({
@@ -160,6 +159,8 @@ class Timer {
                 }, 0) /
                 ((1 / this._msQueue.length + 1) * (this._msQueue.length / 2)),
         });
+
+        this._lastRenderTime = this._renderStart;
     }
 }
 
