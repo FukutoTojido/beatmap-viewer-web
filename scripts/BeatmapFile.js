@@ -363,7 +363,7 @@ export class BeatmapFile {
             .split("\r\n")
             .filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
             .at(0)
-            .split(",")
+            ?.split(",")
             .at(1) ?? 0);
 
         console.log(audioFilename, backgroundFilename, videoFilename ?? "");
