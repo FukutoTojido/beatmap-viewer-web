@@ -161,10 +161,12 @@ export class Background {
         if (!this.videoSrc) return;
 
         console.log(mode);
+        this.videoHTML.pause();
 
         if (mode === "VIDEO") {
             this.sprite.texture = this.videoTexture;
             this.manuallyUpdateSize();
+            this.videoHTML.play();
             return;
         }
 
