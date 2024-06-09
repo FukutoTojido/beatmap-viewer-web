@@ -152,6 +152,8 @@ export async function loadLocalStorage() {
         document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
         document.querySelector(".mapBG").style.filter = `blur(${currentLocalStorage.background.blur}px)`;
 
+        document.querySelector("#video").checked = currentLocalStorage.background.video;
+
         document.querySelector("#master").value = currentLocalStorage.volume.master;
         document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;
         // masterVol = currentLocalStorage.volume.master;

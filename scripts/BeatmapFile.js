@@ -352,6 +352,12 @@ export class BeatmapFile {
             .at(0)
             ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
+        const videoFilename = this.osuFile
+            .split("\r\n")
+            .filter((line) => line.match(/Video,[0-9]+,"*.*"/g))
+            .at(0)
+            ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+"/g)[0]
+            .replaceAll('"', "");
 
         console.log(audioFilename, backgroundFilename);
         // console.log(allEntries);
@@ -385,7 +391,7 @@ export class BeatmapFile {
             console.log("Background Loaded");
             Background.src = this.backgroundBlobURL;
 
-            document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
+            // document.querySelector(".mapBG").style.backgroundImage = `url(${this.backgroundBlobURL})`;
             document.body.style.backgroundImage = `url(${this.backgroundBlobURL})`;
 
             const bg = new Image();
@@ -397,6 +403,16 @@ export class BeatmapFile {
                 bg.addEventListener("load", () => loadColorPalette(bg));
             }
         }
+
+        const videoFile = allEntries.filter((e) => e.filename === videoFilename).at(0);
+        if (videoFile) {
+            const data = await videoFile.getData(new zip.BlobWriter(`video/${videoFilename.split(".").at(-1)}`));
+            this.videoBlobURL = URL.createObjectURL(data);
+            console.log("Video Loaded");
+            Background.videoSrc = this.videoBlobURL;
+        }
+
+        Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC");
 
         const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);
@@ -458,10 +474,11 @@ export class BeatmapFile {
             removedChildren.forEach((ele) => ele.destroy());
 
             Game.WORKER.postMessage({
-                type: "clear"
-            })
+                type: "clear",
+            });
 
             Timeline.destruct();
+            Background.reset();
 
             Beatmap.CURRENT_MAPID = this.mapId;
             document.querySelector(".loading").style.display = "";

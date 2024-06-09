@@ -4,6 +4,7 @@ import { BeatmapFile } from "./BeatmapFile.js";
 import { urlParams } from "./GlobalVariables.js";
 import { PlayContainer } from "./PlayButtons.js";
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
+import { Background } from "./Background.js";
 
 export class PAudio {
     buf;
@@ -50,6 +51,7 @@ export class PAudio {
             type: "seek",
             time,
         });
+        Background.seekTo(time);
         // console.log(this.currentTime);
         if (originalIsPlaying) this.play();
     }
@@ -97,6 +99,7 @@ export class PAudio {
                 Game.AUDIO_CTX.currentTime - (PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
                 this.currentTime / 1000 + (PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0)
             );
+            Background.playVideo();
 
             // document.querySelector("#playButton").style.backgroundImage = "url(/static/pause.png)";
         }
@@ -111,6 +114,7 @@ export class PAudio {
             this.src.disconnect();
             this.phazeNode.disconnect();
             this.gainNode.disconnect();
+            Background.pauseVideo();
             // this.currentTime += (Game.AUDIO_CTX.currentTime * 1000 - this.startTime) * Game.PLAYBACK_RATE;
             this.currentTime += (performance.now() - this.absStartTime) * Game.PLAYBACK_RATE;
             this.isPlaying = false;

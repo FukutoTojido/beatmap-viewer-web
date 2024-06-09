@@ -69,6 +69,7 @@ function setupDefaultStorage() {
         background: {
             dim: 0.8,
             blur: 0,
+            video: false
         },
         volume: {
             master: 1,
@@ -117,13 +118,15 @@ function setupDefaultStorage() {
     
     setupDefaultStorage();
 
-    Game.MASTER_VOL = JSON.parse(localStorage.getItem("settings")).volume.master;
-    Game.MUSIC_VOL = JSON.parse(localStorage.getItem("settings")).volume.music;
-    Game.HS_VOL = JSON.parse(localStorage.getItem("settings")).volume.hs;
-    Game.DISABLE_BMHS = JSON.parse(localStorage.getItem("settings")).volume.disableBMHS;
-    Game.SLIDER_APPEARANCE = JSON.parse(localStorage.getItem("settings")).sliderAppearance;
-    Game.SKINNING = JSON.parse(localStorage.getItem("settings")).skinning;
-    Game.MAPPING = JSON.parse(localStorage.getItem("settings")).mapping;
+    const baseSettings = JSON.parse(localStorage.getItem("settings"));
+    Game.MASTER_VOL = baseSettings.volume.master;
+    Game.MUSIC_VOL = baseSettings.volume.music;
+    Game.HS_VOL = baseSettings.volume.hs;
+    Game.DISABLE_BMHS = baseSettings.volume.disableBMHS;
+    Game.SLIDER_APPEARANCE = baseSettings.sliderAppearance;
+    Game.SKINNING = baseSettings.skinning;
+    Game.MAPPING = baseSettings.mapping;
+    Game.IS_VIDEO = baseSettings.background.video;
 
     // Init
     await Game.init();

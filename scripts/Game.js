@@ -106,6 +106,7 @@ export class Game {
     static IS_HOVERING_PROGRESS = false;
 
     static WORKER_DELTA_MS = 0;
+    static IS_VIDEO = false;
 
     static WORKER = new WorkerTest();
 

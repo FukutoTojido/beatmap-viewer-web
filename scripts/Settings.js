@@ -252,6 +252,18 @@ export function handleCheckBox(checkbox) {
         return;
     }
 
+    if (checkbox.name === "video") {
+        Game.IS_VIDEO = !Game.IS_VIDEO;
+
+        Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC")
+
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.background.video = Game.IS_VIDEO;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        return;
+    }
+
     if (["showGreenLine"].includes(checkbox.name)) {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.mapping[checkbox.name] = Game.MAPPING[checkbox.name];
