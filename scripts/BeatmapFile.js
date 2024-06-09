@@ -415,6 +415,7 @@ export class BeatmapFile {
         if (videoFile) {
             const data = await videoFile.getData(new zip.BlobWriter(`video/${videoFilename.split(".").at(-1)}`));
             this.videoBlobURL = URL.createObjectURL(data);
+            console.log(this.videoBlobURL);
             console.log("Video Loaded");
             Background.videoSrc = this.videoBlobURL;
             Background.offset = videoOffset;

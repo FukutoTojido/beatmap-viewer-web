@@ -154,6 +154,7 @@ export class Background {
     }
 
     static seekTo(timestamp) {
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
         this.videoHTML.currentTime = Math.max(timestamp - Background.offset, 0) / 1000;
     }
 
