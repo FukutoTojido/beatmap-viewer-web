@@ -135,7 +135,7 @@ export class Background {
     }
 
     static playVideo() {
-        if (!this.videoHTML || !this.videoSrc) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
 
         const startTime = Math.max(ObjectsController.lastTimestamp - Background.offset, 0);
         this.videoHTML.currentTime = startTime / 1000;
@@ -145,7 +145,7 @@ export class Background {
     }
 
     static pauseVideo() {
-        if (!this.videoHTML || !this.videoSrc) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
 
         this.videoHTML.pause();
 
@@ -161,12 +161,10 @@ export class Background {
         if (!this.videoSrc) return;
 
         console.log(mode);
-        this.videoHTML.pause();
 
         if (mode === "VIDEO") {
             this.sprite.texture = this.videoTexture;
             this.manuallyUpdateSize();
-            this.videoHTML.play();
             return;
         }
 

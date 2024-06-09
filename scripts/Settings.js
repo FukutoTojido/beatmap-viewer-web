@@ -188,9 +188,16 @@ export function calculateCurrentSR(modsFlag) {
     Game.STATS.OD = round(difficultyAttributes.overallDifficulty);
     Game.STATS.HP = round(beatmapData.difficulty.drainRate);
     Game.STATS.SR = round(difficultyAttributes?.starRating ?? 0.0);
-    Game.STATS.srContainer.color = parseInt(d3.color(getDiffColor(difficultyAttributes?.starRating ?? 0.0)).formatHex().slice(1), 16);
+    Game.STATS.srContainer.color = parseInt(
+        d3
+            .color(getDiffColor(difficultyAttributes?.starRating ?? 0.0))
+            .formatHex()
+            .slice(1),
+        16
+    );
 
-    if ((difficultyAttributes?.starRating ?? 0.0) >= 6.5) Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
+    if ((difficultyAttributes?.starRating ?? 0.0) >= 6.5)
+        Game.STATS.SRSprite.style.fill = parseInt(d3.color("hsl(45, 100%, 70%)").formatHex().slice(1), 16);
     else Game.STATS.SRSprite.style.fill = 0x000000;
 
     Game.STATS.update();
@@ -253,13 +260,18 @@ export function handleCheckBox(checkbox) {
     }
 
     if (checkbox.name === "video") {
+        const originalIsPlaying = Game.BEATMAP_FILE.audioNode.isPlaying;
+        if (Game.BEATMAP_FILE.audioNode.isPlaying) Game.BEATMAP_FILE.audioNode.pause();
+
         Game.IS_VIDEO = !Game.IS_VIDEO;
 
-        Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC")
+        Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC");
 
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.background.video = Game.IS_VIDEO;
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        if (originalIsPlaying) Game.BEATMAP_FILE.audioNode.play();
 
         return;
     }
