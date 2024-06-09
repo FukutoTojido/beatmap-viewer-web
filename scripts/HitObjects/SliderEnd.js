@@ -73,7 +73,6 @@ export class SliderEnd {
         if (!Game.SLIDER_APPEARANCE.sliderend || Skinning.SKIN_ENUM[Game.SKINNING.type] === "ARGON") {
             if (this.props.alpha !== 0) {
                 this.props.alpha = 0;
-                this.hitCircle.props.alpha = 0;
                 this.hitCircle.obj.alpha = 0;
             }
 
@@ -91,7 +90,6 @@ export class SliderEnd {
         const alpha = this.getAlpha(timestamp);
         if (alpha !== undefined && (this.props.alpha !== alpha || this.hitCircle.props.alpha !== alpha)) {
             this.props.alpha = alpha;
-            this.hitCircle.props.alpha = alpha;
             this.hitCircle.hitCircleContainer.alpha = alpha;
         }
     }
