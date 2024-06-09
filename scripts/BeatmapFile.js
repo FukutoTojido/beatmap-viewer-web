@@ -360,7 +360,7 @@ export class BeatmapFile {
             .replaceAll('"', "");
         const videoOffset = parseInt(this.osuFile
             .split("\r\n")
-            .filter((line) => line.match(/Video,[0-9]+,"*.*"/g))
+            .filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
             .at(0)
             .split(",")
             .at(1) ?? 0);
