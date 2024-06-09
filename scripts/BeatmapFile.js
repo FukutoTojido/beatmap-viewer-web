@@ -354,7 +354,7 @@ export class BeatmapFile {
             .replaceAll('"', "");
         const videoFilename = this.osuFile
             .split("\r\n")
-            .filter((line) => line.match(/Video,[0-9]+,"*.*"/g))
+            .filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
             .at(0)
             ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
