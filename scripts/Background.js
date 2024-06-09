@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Game } from "./Game";
 import { imageToBase64 } from "./Utils";
+import { ObjectsController } from "./HitObjects/ObjectsController";
 
 export class Background {
     container;
@@ -13,6 +14,7 @@ export class Background {
 
     texture;
     videoTexture;
+    offset = 0;
 
     w = 1;
     h = 1;
@@ -49,6 +51,8 @@ export class Background {
 
         this.texture = undefined;
         this.videoTexture = undefined;
+
+        this.offset = 0;
     }
 
     static get src() {
@@ -133,8 +137,9 @@ export class Background {
     static playVideo() {
         if (!this.videoHTML || !this.videoSrc) return;
 
-        const startTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
+        const startTime = Math.max(ObjectsController.lastTimestamp - Background.offset, 0);
         this.videoHTML.currentTime = startTime / 1000;
+        this.videoHTML.playbackRate = Game.PLAYBACK_RATE;
 
         this.videoHTML.play();
     }
@@ -144,12 +149,12 @@ export class Background {
 
         this.videoHTML.pause();
 
-        const endTime = Game.BEATMAP_FILE?.audioNode?.getCurrentTime();
+        const endTime = Math.max(ObjectsController.lastTimestamp - Background.offset, 0);
         this.videoHTML.currentTime = endTime / 1000;
     }
 
     static seekTo(timestamp) {
-        this.videoHTML.currentTime = timestamp / 1000;
+        this.videoHTML.currentTime = Math.max(timestamp - Background.offset, 0) / 1000;
     }
 
     static switch(mode) {
@@ -179,7 +184,7 @@ export class Background {
 
         this.videoHTML = texture.source.resource;
 
-        console.log(this.videoHTML);
+        // console.log(this.videoHTML);
         this.videoHTML.autoplay = false;
         this.videoHTML.currentTime = 0;
         this.videoHTML.pause();

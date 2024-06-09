@@ -358,8 +358,14 @@ export class BeatmapFile {
             .at(0)
             ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
+        const videoOffset = parseInt(this.osuFile
+            .split("\r\n")
+            .filter((line) => line.match(/Video,[0-9]+,"*.*"/g))
+            .at(0)
+            .split(",")
+            .at(1) ?? 0);
 
-        console.log(audioFilename, backgroundFilename);
+        console.log(audioFilename, backgroundFilename, videoFilename ?? "");
         // console.log(allEntries);
 
         document.querySelector("#loadingText").innerHTML = `Setting up Audio<br>Might take long if the audio file is large`;
@@ -410,6 +416,9 @@ export class BeatmapFile {
             this.videoBlobURL = URL.createObjectURL(data);
             console.log("Video Loaded");
             Background.videoSrc = this.videoBlobURL;
+            Background.offset = videoOffset;
+
+            console.log(videoOffset);
         }
 
         Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC");
