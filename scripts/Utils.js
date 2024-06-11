@@ -13,6 +13,7 @@ import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 import { BPM } from "./BPM.js";
 import { MetadataPanel } from "./SidePanel.js";
 import { Background } from "./Background.js";
+import { Storyboard } from "./Storyboard.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);
@@ -153,6 +154,9 @@ export async function loadLocalStorage() {
         document.querySelector(".mapBG").style.filter = `blur(${currentLocalStorage.background.blur}px)`;
 
         document.querySelector("#video").checked = currentLocalStorage.background.video;
+        document.querySelector("#storyboard").checked = currentLocalStorage.background.storyboard;
+        Game.IS_STORYBOARD = currentLocalStorage.background.storyboard;
+        Storyboard.container.visible = Game.IS_STORYBOARD;
 
         document.querySelector("#master").value = currentLocalStorage.volume.master;
         document.querySelector("#masterVal").innerHTML = `${parseInt(currentLocalStorage.volume.master * 100)}%`;
@@ -520,11 +524,8 @@ export const easeOutElastic = (x) => {
 
     return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
 };
-export const easeOutElasticHalf = (x) => {
-    const c4 = (2 * Math.PI) / 3;
 
-    let ret = x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+// https://github.com/Damnae/storybrew/blob/master/common/Animations/EasingFunctions.cs
+export const easeOutElasticHalf = (x) => Math.pow(2, -10 * x) * Math.sin((0.5 * x - 0.075) * (2 * Math.PI) / .3) + 1;
+export const easeOutElasticQuart = (x) => Math.pow(2, -10 * x) * Math.sin((0.25 * x - 0.075) * (2 * Math.PI) / .3) + 1;
 
-    if (x > 0.2 && ret < 1) return 1;
-    return ret;
-};

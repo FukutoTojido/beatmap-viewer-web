@@ -20,6 +20,7 @@ import { Background } from "./Background.js";
 import { Spinner } from "./HitObjects/Spinner.js";
 import { toggleMetadataPanel } from "./SidePanel.js";
 import { toggleTimingPanel } from "./BPM.js";
+import { Storyboard } from "./Storyboard.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -388,6 +389,7 @@ export class BeatmapFile {
 
         const backgroundFile = allEntries.filter((e) => e.filename === backgroundFilename).at(0);
         if (backgroundFile) {
+            document.querySelector("#loadingText").innerHTML = `Setting up Background`;
             const data = await backgroundFile.getData(new zip.BlobWriter(`image/${backgroundFilename.split(".").at(-1)}`));
             // const base64 = await backgroundFile.getData(new zip.Data64URIWriter(`image/${backgroundFilename.split(".").at(-1)}`));
 
@@ -413,6 +415,7 @@ export class BeatmapFile {
 
         const videoFile = allEntries.filter((e) => e.filename === videoFilename).at(0);
         if (videoFile) {
+            document.querySelector("#loadingText").innerHTML = `Setting up Background Video`;
             const data = await videoFile.getData(new zip.BlobWriter(`video/${videoFilename.split(".").at(-1)}`));
             this.videoBlobURL = URL.createObjectURL(data);
             console.log(this.videoBlobURL);
@@ -428,6 +431,15 @@ export class BeatmapFile {
         }
 
         Background.switch(Game.IS_VIDEO ? "VIDEO" : "STATIC");
+
+        const osbFile = allEntries.find((e) => e.filename.split(".").at(-1) === "osb");
+        if (osbFile) {
+            document.querySelector("#loadingText").innerHTML = `Setting up Storyboard`;
+            const blob = await osbFile.getData(new zip.BlobWriter("text/plain"));
+            const osbContent = await blob.text();
+
+            await Storyboard.parse(`${this.osuFile}\r\n${osbContent}`, allEntries, backgroundFilename);
+        }
 
         const hitsoundFiles = allEntries.filter((file) => {
             // console.log(file.filename);

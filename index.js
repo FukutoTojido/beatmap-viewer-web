@@ -69,7 +69,8 @@ function setupDefaultStorage() {
         background: {
             dim: 0.8,
             blur: 0,
-            video: false
+            video: false,
+            storyboard: false
         },
         volume: {
             master: 1,

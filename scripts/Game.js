@@ -20,6 +20,7 @@ import { closePopup } from "./Timestamp.js";
 import { urlParams } from "./GlobalVariables.js";
 
 import WorkerTest from "./Workers/Worker.js?worker";
+import { Storyboard } from "./Storyboard.js";
 
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
@@ -42,6 +43,9 @@ export class Game {
     static OFFSET_Y;
 
     static SCALE_RATE = 1;
+    static SB_SCALE_RATE = 1;
+    static SB_OFFSET_X = 0;
+    static SB_OFFSET_Y = 0;
 
     static IS_CLICKED = false;
     static IS_DRAGGING = false;
@@ -107,6 +111,7 @@ export class Game {
 
     static WORKER_DELTA_MS = 0;
     static IS_VIDEO = false;
+    static IS_STORYBOARD = false;
 
     static WORKER = new WorkerTest();
 
@@ -343,7 +348,9 @@ export class Game {
 
             const currentTime = Game.BEATMAP_FILE.audioNode.getCurrentTime();
             const inRender = Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered
-                .filter((o) => Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[o.idx].obj instanceof Slider && checkCollide(x, y, o))
+                .filter(
+                    (o) => Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[o.idx].obj instanceof Slider && checkCollide(x, y, o)
+                )
                 .map((objMeta) => Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objMeta.idx]);
             const selectedSlider = inRender.reduce((selected, current) => {
                 if (Math.abs(current.obj.time - currentTime) < Math.abs(selected.obj.time - currentTime)) return current;
@@ -561,6 +568,11 @@ export class Game {
 
         // ...
         Game.SCALE_RATE = Game.WIDTH / 512;
+        Game.SB_SCALE_RATE = Game.MASTER_CONTAINER.h / 480;
+        Game.SB_OFFSET_X = -((Game.MASTER_CONTAINER.h * 4) / 3 - Game.MASTER_CONTAINER.w) / 2;
+        Game.SB_OFFSET_Y = 0;
+        // Game.SB_OFFSET_X = 0;
+        // Game.SB_OFFSET_Y = 0;
     }
 
     static gameInit() {
@@ -644,6 +656,10 @@ export class Game {
         Game.MASTER_CONTAINER.container.addChild(Game.FPS);
         Game.MASTER_CONTAINER.container.addChild(Game.CURSOR.obj);
 
+        Storyboard.init();
+        Background.container.addChild(Storyboard.container);
+        Background.container.addChild(Background.mask);
+
         Game.WRAPPER.container.addChild(Background.container);
 
         Game.APP.stage.addChild(Game.WRAPPER.masterContainer);
@@ -715,12 +731,11 @@ export class Game {
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered = objects.filtered;
-    
+
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.playHitsounds(currentTime, lastTime);
                 return;
             }
-
 
             // if (!objects.current) return;
             // Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList[objects.current.idx].obj.playHitsound(currentTime);

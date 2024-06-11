@@ -18,6 +18,7 @@ import { frameData } from "../FPSSystem.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Background } from "../Background.js";
 import { Recorder } from "../Record.js";
+import { Storyboard } from "../Storyboard.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -279,6 +280,7 @@ export class ObjectsController {
         FullscreenButton.redraw();
         TimingPanel.update(currentAudioTime ?? 0);
         MetadataPanel.update(currentAudioTime ?? 0);
+        Storyboard.draw(currentAudioTime ?? 0);
 
         Game.EMIT_STACK.pop();
 

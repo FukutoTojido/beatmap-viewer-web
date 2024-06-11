@@ -7,6 +7,7 @@ import { Game } from "./Game.js";
 import osuPerformance from "../lib/osujs.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { Background } from "./Background.js";
+import { Storyboard } from "./Storyboard.js";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {
@@ -274,6 +275,26 @@ export function handleCheckBox(checkbox) {
         if (originalIsPlaying) Game.BEATMAP_FILE.audioNode.play();
 
         return;
+    }
+
+    if (checkbox.name === "storyboard") {
+        const originalIsPlaying = Game.BEATMAP_FILE.audioNode.isPlaying;
+        if (Game.BEATMAP_FILE.audioNode.isPlaying) Game.BEATMAP_FILE.audioNode.pause();
+
+        Game.IS_STORYBOARD = !Game.IS_STORYBOARD;
+        Storyboard.container.visible = Game.IS_STORYBOARD;
+
+        if (Storyboard.BLACK_BG && Game.IS_STORYBOARD) {
+            Background.sprite.tint = 0x000000;
+        } else {
+            Background.sprite.tint = 0xFFFFFF;
+        }
+
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.background.storyboard = Game.IS_STORYBOARD;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        if (originalIsPlaying) Game.BEATMAP_FILE.audioNode.play();
     }
 
     if (["showGreenLine"].includes(checkbox.name)) {

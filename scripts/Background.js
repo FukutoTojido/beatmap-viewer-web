@@ -31,7 +31,7 @@ export class Background {
         });
         this.filter.blur = 0;
 
-        this.sprite.filters = [this.filter];
+        this.container.filters = [this.filter];
 
         // this.mask.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h);
         this.mask.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h).fill(0x000000);
@@ -108,8 +108,8 @@ export class Background {
 
         this.sprite.scale.set(ratio);
 
-        this.container.x = (Game.MASTER_CONTAINER.w - this.w * ratio) / 2;
-        this.container.y = (Game.MASTER_CONTAINER.h - this.h * ratio) / 2;
+        this.sprite.x = (Game.MASTER_CONTAINER.w - this.w * ratio) / 2;
+        this.sprite.y = (Game.MASTER_CONTAINER.h - this.h * ratio) / 2;
 
         this.mask
             .clear()
@@ -135,7 +135,7 @@ export class Background {
     }
 
     static playVideo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
 
         const startTime = Math.max(timestamp - Background.offset, 0);
         this.videoHTML.currentTime = startTime / 1000;
@@ -145,7 +145,7 @@ export class Background {
     }
 
     static pauseVideo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
 
         this.videoHTML.pause();
 
@@ -154,7 +154,7 @@ export class Background {
     }
 
     static seekTo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
         this.videoHTML.currentTime = Math.max(timestamp - Background.offset, 0) / 1000;
     }
 
@@ -190,7 +190,7 @@ export class Background {
         this.videoHTML.currentTime = 0;
         this.videoHTML.pause();
 
-        if (!Game.IS_VIDEO) return;
+        if (!Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
         this.sprite.texture = texture;
         this.manuallyUpdateSize();
     }
