@@ -5,6 +5,7 @@ import { urlParams } from "./GlobalVariables.js";
 import { PlayContainer } from "./PlayButtons.js";
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { Background } from "./Background.js";
+import { Storyboard } from "./Storyboard/Storyboard.js";
 
 export class PAudio {
     buf;
@@ -51,6 +52,10 @@ export class PAudio {
             type: "seek",
             time,
         });
+        Storyboard.WORKER.postMessage({
+            type: "seek",
+            time,
+        });
         Background.seekTo(time);
         // console.log(this.currentTime);
         if (originalIsPlaying) this.play();
@@ -59,6 +64,9 @@ export class PAudio {
     play(time) {
         if (!this.isPlaying && this.gainNode) {
             Game.WORKER.postMessage({
+                type: "start",
+            });
+            Storyboard.WORKER.postMessage({
                 type: "start",
             });
             this.isPlaying = true;
@@ -108,6 +116,9 @@ export class PAudio {
     pause() {
         if (this.isPlaying) {
             Game.WORKER.postMessage({
+                type: "stop",
+            });
+            Storyboard.WORKER.postMessage({
                 type: "stop",
             });
             this.src.stop();

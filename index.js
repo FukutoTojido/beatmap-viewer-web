@@ -55,7 +55,7 @@ PIXI.UniformGroup;
 function setupDefaultStorage() {
     const settingsTemplate = {
         renderer: {
-            val: "auto",
+            val: "webgl",
         },
         mirror: {
             val: "nerinyan",

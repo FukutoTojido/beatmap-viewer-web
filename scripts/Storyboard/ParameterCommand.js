@@ -24,6 +24,14 @@ export class ParameterCommand {
                     object.props.blendMode = "add";
                     break;
                 }
+                case "H": {
+                    object.props.flipW = true;
+                    break;
+                }
+                case "V": {
+                    object.props.flipH = true;
+                    break;
+                }
             }
 
             return;
@@ -41,6 +49,14 @@ export class ParameterCommand {
                     object.props.blendMode = "add";
                     break;
                 }
+                case "H": {
+                    object.props.flipW = true;
+                    break;
+                }
+                case "V": {
+                    object.props.flipH = true;
+                    break;
+                }
             }
 
             return;
@@ -55,6 +71,14 @@ export class ParameterCommand {
                     object.props.blendMode = "add";
                     break;
                 }
+                case "H": {
+                    object.props.flipW = true;
+                    break;
+                }
+                case "V": {
+                    object.props.flipH = true;
+                    break;
+                }
             }
             return;
         }
@@ -66,6 +90,14 @@ export class ParameterCommand {
             case "A": {
                 // sprite.blendMode = "add";
                 object.props.blendMode = "add";
+                break;
+            }
+            case "H": {
+                object.props.flipW = true;
+                break;
+            }
+            case "V": {
+                object.props.flipH = true;
                 break;
             }
         }

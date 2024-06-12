@@ -438,7 +438,7 @@ export class BeatmapFile {
             const blob = await osbFile.getData(new zip.BlobWriter("text/plain"));
             const osbContent = await blob.text();
 
-            await Storyboard.parse(`${this.osuFile}\r\n${osbContent}`, allEntries, backgroundFilename);
+            await Storyboard.parse(osbContent, this.osuFile, allEntries, backgroundFilename);
         }
 
         const hitsoundFiles = allEntries.filter((file) => {
@@ -506,6 +506,7 @@ export class BeatmapFile {
 
             Timeline.destruct();
             Background.reset();
+            Storyboard.reset();
 
             Beatmap.CURRENT_MAPID = this.mapId;
             document.querySelector(".loading").style.display = "";

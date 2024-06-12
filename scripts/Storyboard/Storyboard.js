@@ -8,6 +8,7 @@ import { RotateCommand } from "./RotateCommand";
 import { ColourCommand } from "./ColourCommand";
 import { ParameterCommand } from "./ParameterCommand";
 import { LoopCommand } from "./LoopCommand";
+import MyWorker from "../Workers/StoryboardWorker.js?worker";
 
 export const EASINGS = {
     0: "linear",
@@ -70,6 +71,7 @@ export class StoryboardSprite {
     raw;
     commands = [];
     isInRender = false;
+    isOsu = false;
 
     props = {
         posX: 0,
@@ -80,10 +82,13 @@ export class StoryboardSprite {
         tint: 0xffffff,
         rotation: 0,
         blendMode: "normal",
+        flipH: false,
+        flipW: false,
     };
 
-    constructor(raw) {
+    constructor(raw, isOsu) {
         this.raw = raw;
+        this.isOsu = isOsu;
         this.sprite = new PIXI.Sprite();
         this.sprite.visible = false;
 
@@ -109,7 +114,7 @@ export class StoryboardSprite {
         let [, easing, startTime, endTime, ...params] = line.split(",");
         if (endTime === "") endTime = startTime;
 
-        if (object?.texturepath === Storyboard.backgroundFilename && startTime === "0" && params.at(0) === "0") {
+        if (object?.texturepath === Storyboard.backgroundFilename && params.at(0) === "0") {
             Storyboard.BLACK_BG = true;
 
             if (Game.IS_STORYBOARD) Background.sprite.tint = 0x000000;
@@ -266,26 +271,19 @@ export class StoryboardSprite {
         this.layer = layer;
         this.origin = origin;
         this.texturepath = texturepath.slice(1, -1).replaceAll("\\", "/");
-        this.base_x = x;
-        this.base_y = y;
+        this.base_x = parseFloat(x);
+        this.base_y = parseFloat(y);
 
-        this.props.posX = x;
-        this.props.posY = y;
+        this.props.posX = this.base_x;
+        this.props.posY = this.base_y;
         this.sprite.anchor.set(...ANCHOR[this.origin]);
         this.sprite.label = `${this.texturepath} ${this.layer}`;
+        this.sprite.zIndex = LAYER[this.layer];
     }
 
-    async loadTexture(allEntries) {
-        try {
-            const file = allEntries.find((entry) => entry.filename.toLowerCase() === this.texturepath.toLowerCase());
-            const data = await file.getData(new zip.BlobWriter(`image/${this.texturepath.split(".").at(-1)}`));
-            this.textureBlobURL = URL.createObjectURL(data);
-
-            this.texture = await PIXI.Assets.load({ src: this.textureBlobURL, loadParser: "loadTextures" });
-            this.sprite.texture = this.texture;
-        } catch {
-            console.log(this.texturepath, allEntries);
-        }
+    loadTexture() {
+        this.texture = Storyboard.TEXTURES[this.texturepath];
+        this.sprite.texture = this.texture;
     }
 
     parse(raw) {
@@ -328,18 +326,6 @@ export class StoryboardSprite {
             parameter,
             loop,
         };
-
-        // osbContent.split("\r\n").forEach((line) => {
-        //     // if (Storyboard.REGEX.SPRITE.test(line)) console.log(line);
-        //     // if (Storyboard.REGEX.FADE.test(line)) Storyboard.fadeParse(line);
-        //     // if (Storyboard.REGEX.MOVE.test(line)) Storyboard.moveParse(line);
-        //     // if (Storyboard.REGEX.MOVE_X.test(line)) Storyboard.moveX(line);
-        //     // if (Storyboard.REGEX.MOVE_Y.test(line)) Storyboard.moveY(line);
-        //     // if (Storyboard.REGEX.SCALE.test(line)) Storyboard.scaleParse(line);
-        //     // if (Storyboard.REGEX.ROTATE.test(line)) Storyboard.rotateParse(line);
-        //     // if (Storyboard.REGEX.COLOUR.test(line)) Storyboard.colourParse(line);
-        //     // if (Storyboard.REGEX.PARAMETER.test(line)) Storyboard.parameterParse(line);
-        // });
     }
 
     draw(timestamp) {
@@ -373,10 +359,62 @@ export class StoryboardSprite {
         this.sprite.x = this.props.posX * Game.SB_SCALE_RATE;
         this.sprite.y = this.props.posY * Game.SB_SCALE_RATE;
         this.sprite.alpha = this.props.alpha;
-        this.sprite.scale.set(this.props.scaleX * Game.SB_SCALE_RATE, this.props.scaleY * Game.SB_SCALE_RATE);
+        this.sprite.scale.set(
+            this.props.scaleX * Game.SB_SCALE_RATE * (this.props.flipW ? -1 : 1),
+            this.props.scaleY * Game.SB_SCALE_RATE * (this.props.flipH ? -1 : 1)
+        );
         this.sprite.rotation = this.props.rotation;
         this.sprite.tint = this.props.tint;
         this.sprite.blendMode = this.props.blendMode;
+    }
+}
+
+export class StoryboardAnimatedSprite extends StoryboardSprite {
+    currentFrame = 0;
+
+    constructor(raw, isOsu) {
+        super(raw, isOsu);
+    }
+
+    getSpriteInfo() {
+        const [infoLine] = this.raw.split("\r\n");
+        const [, layer, origin, texturepath, x, y, frameCount, frameDelay, loopType] = infoLine.split(",");
+
+        this.layer = layer;
+        this.origin = origin;
+        this.texturepath = texturepath.slice(1, -1).replaceAll("\\", "/");
+        this.base_x = parseFloat(x);
+        this.base_y = parseFloat(y);
+        this.frameCount = parseInt(frameCount);
+        this.frameDelay = parseFloat(frameDelay);
+        this.loopType = loopType;
+
+        this.props.posX = this.base_x;
+        this.props.posY = this.base_y;
+        this.sprite.anchor.set(...ANCHOR[this.origin]);
+        this.sprite.label = `${this.texturepath} ${this.layer}`;
+        this.sprite.zIndex = LAYER[this.layer];
+    }
+
+    loadTexture() {
+        this.texture = Storyboard.TEXTURES[`${this.texturepath.split(".").slice(0, -1).join(".")}0.${this.texturepath.split(".").at(-1)}`];
+        this.sprite.texture = this.texture;
+    }
+
+    draw(timestamp) {
+        super.draw(timestamp);
+        if (timestamp < this.startTime) return;
+
+        const step = Math.floor((timestamp - this.startTime) / this.frameDelay);
+        if (this.loopType === "LoopOnce" && this.currentFrame >= this.frameCount - 1) return;
+
+        const frame = step % this.frameCount;
+        // console.log(`${this.texturepath.split(".").slice(0, -1).join(".")}${frame}.png`, frame, step);
+        if (frame !== this.currentFrame) {
+            this.currentFrame = frame;
+            this.sprite.texture =
+                Storyboard.TEXTURES[`${this.texturepath.split(".").slice(0, -1).join(".")}${frame}.${this.texturepath.split(".").at(-1)}`];
+        }
     }
 }
 
@@ -385,30 +423,39 @@ export class Storyboard {
     static sprites = [];
     static backgroundFilename = "";
     static BLACK_BG = false;
+    static TEXTURES = {};
+
+    static WORKER = new MyWorker();
+
+    static filtered = [];
 
     static REGEX = {
-        FADE: /(_| )F,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        MOVE: /(_| )M,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        MOVE_X: /(_| )MX,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        MOVE_Y: /(_| )MY,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        SCALE: /(_| )S,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        VECTOR: /(_| )V,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        ROTATE: /(_| )R,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
-        COLOUR: /(_| )C,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?)+/g,
+        FADE: /(_| )F,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        MOVE: /(_| )M,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        MOVE_X: /(_| )MX,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        MOVE_Y: /(_| )MY,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        SCALE: /(_| )S,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        VECTOR: /(_| )V,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        ROTATE: /(_| )R,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
+        COLOUR: /(_| )C,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,-?[0-9]+(\.[0-9]+)?(E(\+|-)[0-9]+)?)+/g,
         PARAMETER: /(_| )P,[0-9]{1,2},-?[0-9]+(\.[0-9]+)?,(-?[0-9]+(\.[0-9]+)?)?(,(H|V|A))+/g,
         LOOP: /(_| )L,-?[0-9]+(\.[0-9]+)?,[0-9]+/g,
         SPRITE: /Sprite,(0|1|2|3|Background|Foreground|Pass|Fail),([0-9]|Top(Left|Right|Centre)|Centre(Left|Right)?|Bottom(Left|Right|Centre)|Custom),"((?:\w+\\?)*\\)?[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+",-?[0-9]+(\.[0-9]+)?,-?[0-9]+(\.[0-9]+)?/g,
+        ANIMATION:
+            /Animation,(0|1|2|3|Background|Foreground|Pass|Fail),([0-9]|Top(Left|Right|Centre)|Centre(Left|Right)?|Bottom(Left|Right|Centre)|Custom),"((?:\w+\\?)*\\)?[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+",-?[0-9]+(\.[0-9]+)?,-?[0-9]+(\.[0-9]+)?,-?[0-9]+(\.[0-9]+)?,-?[0-9]+(\.[0-9]+)?,(LoopOnce|LoopForever)/g,
+        VARIABLE: /^\$[0-9A-Za-z]+=.+/gm,
     };
 
     static init() {
         this.container = new PIXI.Container();
         this.container.label = "Storyboard";
+        this.container.eventMode = "none";
 
         this.mask = new PIXI.Graphics();
         this.mask.label = "MASK";
         this.mask
             .clear()
-            .rect(Game.MASTER_CONTAINER.h * (4 / 3 - 16 / 9) / 2, 0, (Game.MASTER_CONTAINER.h * 16) / 9, Game.MASTER_CONTAINER.h)
+            .rect((Game.MASTER_CONTAINER.h * (4 / 3 - 16 / 9)) / 2, 0, (Game.MASTER_CONTAINER.h * 16) / 9, Game.MASTER_CONTAINER.h)
             .fill(0xffffff);
 
         this.container.mask = this.mask;
@@ -420,29 +467,145 @@ export class Storyboard {
         );
         this.REGEX.LOOP_BLOCK = new RegExp(`${Storyboard.REGEX.LOOP.source}((\\r)?\\n(_| )(${Storyboard.REGEX.COMMAND_REGEX.source}))+`, "gm");
         this.REGEX.SPRITE_BLOCK = new RegExp(
-            `${Storyboard.REGEX.SPRITE.source}((\\r)?\\n(${Storyboard.REGEX.COMMAND_REGEX.source}|${this.REGEX.LOOP_BLOCK.source}))+`,
+            `(${Storyboard.REGEX.SPRITE.source}|${Storyboard.REGEX.ANIMATION.source})((\\r)?\\n(${Storyboard.REGEX.COMMAND_REGEX.source}|${this.REGEX.LOOP_BLOCK.source}))+`,
             "gm"
         );
+        this.REGEX.FORBIDDEN = new RegExp(`((Sprite|Animation),.*?)(?=(\r)?\n((Sprite|Animation),.*?))`, "gm");
+
+        
+        // this.WORKER.onmessage = (event) => {
+        //     const { type } = event.data;
+        //     switch (type) {
+        //         case "updateOrder": {
+        //             const { filtered, add, removed } = event.data.objects;
+        //             this.filtered = filtered;
+
+        //             removed.forEach((object) => Storyboard.sprites[object.idx].sprite.visible = false);
+        //             // addTop.forEach((object) => Storyboard.container.addChild(Storyboard.sprites[object.idx].sprite));
+        //             // addBack.reverse().forEach((object) => Storyboard.container.addChildAt(Storyboard.sprites[object.idx].sprite, 0));
+        //             // this.filtered.forEach((object) => Storyboard.container.addChild(Storyboard.sprites[object.idx].sprite));
+        //             // add.forEach((object) => Storyboard.sprites[object.idx].sprite.visible = true);
+
+        //             break;
+        //         }
+        //     }
+        // };
+
         // this.REGEX.SPRITE_BLOCK = new RegExp(`${Storyboard.REGEX.SPRITE.source}((\\r)?\\n(${Storyboard.REGEX.FADE.source}))+`, "gm");
     }
 
-    static async parse(osbContent, allEntries, backgroundFilename) {
-        const blocks = osbContent.match(this.REGEX.SPRITE_BLOCK) ?? [];
-        Storyboard.backgroundFilename = backgroundFilename;
-        Storyboard.sprites = blocks.map((line) => new StoryboardSprite(line));
-        Storyboard.sprites = Storyboard.sprites.toSorted((a, b) => {
-            // if (LAYER[a.layer] === LAYER[b.layer]) {
-            //     return a.startTime - b.startTime;
-            // }
-
-            return LAYER[a.layer] - LAYER[b.layer];
+    static load(content, isOsu) {
+        const variablesRaw = content.match(this.REGEX.VARIABLE) ?? [];
+        const variables = variablesRaw.map((variable) => {
+            const [key, ...rest] = variable.split("=");
+            return {
+                key,
+                value: rest.join(""),
+            };
         });
-        for (const sprite of Storyboard.sprites) {
-            await sprite.loadTexture(allEntries);
-            Storyboard.container.addChild(sprite.sprite);
+
+        const parsed = variables.reduce((accm, curr) => accm.replaceAll(curr.key, curr.value), content);
+
+        const illegals = parsed.match(this.REGEX.FORBIDDEN) ?? [];
+        if (illegals.length > 0) {
+            Storyboard.BLACK_BG = true;
+            if (Game.IS_STORYBOARD) Background.sprite.tint = 0x000000;
+        }
+        const clean = illegals.reduce((accm, curr) => accm.replaceAll(curr, ""), parsed);
+
+        const blocks = clean.match(this.REGEX.SPRITE_BLOCK) ?? [];
+        return blocks.map((line) => {
+            const test = line.split(",").at(0) === "Sprite";
+            if (test) return new StoryboardSprite(line, isOsu ?? false);
+            return new StoryboardAnimatedSprite(line, isOsu ?? false);
+        });
+    }
+
+    static async parse(osbContent, osuOsbContent, allEntries, backgroundFilename) {
+        Storyboard.backgroundFilename = backgroundFilename;
+
+        const osbSprites = Storyboard.load(osbContent);
+        const osuSprites = Storyboard.load(osuOsbContent, true);
+        Storyboard.sprites = [...osuSprites, ...osbSprites];
+
+        // Storyboard.sprites = Storyboard.sprites.toSorted((a, b) => {
+        //     if (a.startTime === b.startTime) {
+        //         if (a.isOsu && !b.isOsu) return 1;
+        //         if (!a.isOsu && b.isOsu) return -1;
+        //         return 0;
+        //     }
+
+        //     return a.startTime - b.startTime;
+        // });
+
+        // console.log(Storyboard.sprites);
+
+        const texturePaths = Storyboard.sprites.reduce(
+            (accm, curr) =>
+                curr instanceof StoryboardAnimatedSprite
+                    ? [
+                          ...accm,
+                          ...Array(curr.frameCount)
+                              .fill(true)
+                              .map((_, idx) => {
+                                  return `${curr.texturepath.split(".").slice(0, -1).join(".")}${idx}.${curr.texturepath.split(".").at(-1)}`;
+                              }),
+                      ]
+                    : [...accm, curr.texturepath],
+            []
+        );
+        // console.log(texturePaths.join("\n"));
+
+        for (const texturepath of texturePaths) {
+            if (Storyboard.TEXTURES[texturepath]) continue;
+
+            const file = allEntries.find((entry) => entry.filename.toLowerCase() === texturepath.toLowerCase());
+
+            if (!file) {
+                Storyboard.TEXTURES[texturepath] = new PIXI.Texture();
+                continue;
+            }
+
+            const data = await file.getData(new zip.BlobWriter(`image/${texturepath.split(".").at(-1)}`));
+            const url = URL.createObjectURL(data);
+
+            const texture = await PIXI.Assets.load({ src: url, loadParser: "loadTextures" });
+
+            Storyboard.TEXTURES[texturepath] = texture;
         }
 
-        console.log(Storyboard.sprites);
+        for (const sprite of Storyboard.sprites) {
+            sprite.loadTexture();
+            Storyboard.container.addChild(sprite.sprite);
+
+            // if (sprite.texturepath === "sb/our_boy/whale.png") console.log(sprite);
+        }
+
+        // this.WORKER.postMessage({
+        //     type: "objects",
+        //     objects: Storyboard.sprites.map((sprite, idx) => {
+        //         return {
+        //             startTime: sprite.startTime,
+        //             endTime: sprite.endTime,
+        //             texturepath: sprite.texturepath,
+        //             idx,
+        //             isOsu: sprite.isOsu,
+        //         };
+        //     }),
+        // });
+
+        // console.log(Storyboard.sprites);
+    }
+
+    static reset() {
+        Storyboard.rawOsb;
+        Storyboard.sprites = [];
+        Storyboard.backgroundFilename = "";
+        Storyboard.BLACK_BG = false;
+        Storyboard.TEXTURES = {};
+        Storyboard.WORKER.postMessage({
+            type: "clear",
+        });
     }
 
     static draw(timestamp) {
@@ -452,12 +615,13 @@ export class Storyboard {
 
             this.mask
                 .clear()
-                .rect(Game.MASTER_CONTAINER.h * (4 / 3 - 16 / 9) / 2, 0, (Game.MASTER_CONTAINER.h * 16) / 9, Game.MASTER_CONTAINER.h)
+                .rect((Game.MASTER_CONTAINER.h * (4 / 3 - 16 / 9)) / 2, 0, (Game.MASTER_CONTAINER.h * 16) / 9, Game.MASTER_CONTAINER.h)
                 .fill(0xffffff);
         }
 
         if (!Game.IS_STORYBOARD) return;
 
         Storyboard.sprites.forEach((sprite) => sprite.draw(timestamp));
+        // Storyboard.filtered.forEach((spriteInfo) => Storyboard.sprites[spriteInfo.idx].draw(timestamp));
     }
 }
