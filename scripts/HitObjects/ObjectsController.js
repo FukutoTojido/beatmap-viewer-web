@@ -18,7 +18,7 @@ import { frameData } from "../FPSSystem.js";
 import * as TWEEN from "@tweenjs/tween.js";
 import { Background } from "../Background.js";
 import { Recorder } from "../Record.js";
-import { Storyboard } from "../Storyboard.js";
+import { Storyboard } from "../Storyboard/Storyboard.js";
 
 export class ObjectsController {
     hitCirclesList;

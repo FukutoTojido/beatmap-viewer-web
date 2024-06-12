@@ -7,7 +7,7 @@ import { Game } from "./Game.js";
 import osuPerformance from "../lib/osujs.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { Background } from "./Background.js";
-import { Storyboard } from "./Storyboard.js";
+import { Storyboard } from "./Storyboard/Storyboard.js";
 
 // OPEN/CLOSE SETTINGS
 export function openMenu() {

@@ -13,7 +13,7 @@ import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 import { BPM } from "./BPM.js";
 import { MetadataPanel } from "./SidePanel.js";
 import { Background } from "./Background.js";
-import { Storyboard } from "./Storyboard.js";
+import { Storyboard } from "./Storyboard/Storyboard.js";
 
 export async function removeSkin() {
     await Database.removeFromObjStore(this.parentElement.dataset.customIndex);

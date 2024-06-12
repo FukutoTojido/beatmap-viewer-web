@@ -20,7 +20,7 @@ import { closePopup } from "./Timestamp.js";
 import { urlParams } from "./GlobalVariables.js";
 
 import WorkerTest from "./Workers/Worker.js?worker";
-import { Storyboard } from "./Storyboard.js";
+import { Storyboard } from "./Storyboard/Storyboard.js";
 
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 

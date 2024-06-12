@@ -20,7 +20,7 @@ import { Background } from "./Background.js";
 import { Spinner } from "./HitObjects/Spinner.js";
 import { toggleMetadataPanel } from "./SidePanel.js";
 import { toggleTimingPanel } from "./BPM.js";
-import { Storyboard } from "./Storyboard.js";
+import { Storyboard } from "./Storyboard/Storyboard.js";
 
 export class BeatmapFile {
     isFromFile = false;
