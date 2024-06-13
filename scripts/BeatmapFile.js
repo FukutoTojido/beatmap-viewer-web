@@ -230,10 +230,12 @@ export class BeatmapFile {
                     .at(0)
                     ?.replace("Version:", "");
 
+                console.log(osuPerformance.calculateDifficultyAttributes(beatmapData, true));
+
                 const ele = createDifficultyElement({
                     name: diffName,
                     fileName: content.filename,
-                    starRating: difficultyAttributes.starRating,
+                    starRating: difficultyAttributes?.starRating ?? 0,
                 });
 
                 diffs.push(ele);
