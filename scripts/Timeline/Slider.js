@@ -7,9 +7,9 @@ import { Skinning } from "../Skinning.js";
 import { Game } from "../Game.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as PIXI from "pixi.js";
-import gpuShader from "../Shaders/Timeline/SliderBody.wgsl?raw"
-import glVertexShader from "../Shaders/Timeline/SliderBody.vert?raw"
-import glFragmentShader from "../Shaders/Timeline/SliderBody.frag?raw"
+import gpuShader from "../Shaders/Timeline/SliderBody.wgsl?raw";
+import glVertexShader from "../Shaders/Timeline/SliderBody.vert?raw";
+import glFragmentShader from "../Shaders/Timeline/SliderBody.frag?raw";
 
 export class TimelineSlider {
     obj;
@@ -30,7 +30,6 @@ export class TimelineSlider {
         // this.obj.interactive = true;
         this.obj.eventMode = "static";
 
-        
         this.x = 0;
         this.radius = 30.0 * (118 / 128);
         this.hitObject = hitObject;
@@ -47,21 +46,21 @@ export class TimelineSlider {
         const gpu = PIXI.GpuProgram.from({
             vertex: {
                 source: gpuShader,
-                entryPoint: "vsMain"
+                entryPoint: "vsMain",
             },
             fragment: {
                 source: gpuShader,
-                entryPoint: "fsMain"
-            }
-        })
+                entryPoint: "fsMain",
+            },
+        });
         gpu.autoAssignGlobalUniforms = true;
         gpu.autoAssignLocalUniforms = true;
 
         const gl = PIXI.GlProgram.from({
             name: "timeline-shader",
             vertex: glVertexShader,
-            fragment: glFragmentShader
-        })
+            fragment: glFragmentShader,
+        });
 
         const shader = PIXI.Shader.from({
             gl,
@@ -70,15 +69,15 @@ export class TimelineSlider {
                 customUniforms: {
                     tint: {
                         value: [0.0, 0.0, 0.0, 1.0],
-                        type: "vec4<f32>"
+                        type: "vec4<f32>",
                     },
                     selected: {
                         value: 0,
-                        type: "f32"
-                    }
-                }
-            }
-        })
+                        type: "f32",
+                    },
+                },
+            },
+        });
 
         const meshHead = new PIXI.Mesh({ geometry: headGeometry, shader: shader });
         const meshBody = new PIXI.Mesh({ geometry: bodyGeometry, shader: shader });
@@ -111,20 +110,27 @@ export class TimelineSlider {
 
         const handleClickEvent = (e) => {
             const { x, y } = this.obj.toLocal(e.global);
-            if (Game.SELECTED.includes(this.hitObject.time)) return;
+            if (Game.SELECTED.includes(this.hitObject.time)) return false;
 
             if (x < this.headPosition - (Timeline.HEIGHT - 20) / 2 || x > this.headPosition + this.length * this.ratio + Timeline.HEIGHT / 1.5 / 2)
-                return;
+                return false;
 
             if (!e.ctrlKey) Game.SELECTED = [];
             if (!Game.SELECTED.includes(this.hitObject.time)) Game.SELECTED.push(this.hitObject.time);
 
             Timeline.hitArea.isObjectSelecting = true;
+            return true;
             // console.log(this.obj.x, this.obj.y, x, y);
         };
 
         this.obj.on("mousedown", handleClickEvent);
         this.obj.on("touchstart", handleClickEvent);
+        this.obj.on("mouseenter", (e) => {
+            this.hitObject.isHover = true;
+        });
+        this.obj.on("mouseleave", (e) => {
+            this.hitObject.isHover = false;
+        });
     }
 
     addSelfToContainer(container) {
@@ -223,9 +229,9 @@ export class TimelineSlider {
 
         const geometry = new PIXI.Geometry({
             attributes: {
-                position:  indices,
+                position: indices,
                 dist: dist,
-            }
+            },
         });
         return geometry;
     }
@@ -264,7 +270,7 @@ export class TimelineSlider {
             attributes: {
                 position: indices,
                 dist: dist,
-            }
+            },
         });
         return geometry;
     }
