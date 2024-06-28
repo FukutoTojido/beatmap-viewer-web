@@ -150,7 +150,7 @@ export async function loadLocalStorage() {
         Game.ALPHA = currentLocalStorage.background.dim;
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;
-        document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}px`;
+        document.querySelector("#bgBlurVal").innerHTML = `${parseInt((currentLocalStorage.background.blur / 20) * 100)}%`;
         document.querySelector(".mapBG").style.filter = `blur(${currentLocalStorage.background.blur}px)`;
 
         document.querySelector("#video").checked = currentLocalStorage.background.video;
