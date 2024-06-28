@@ -362,12 +362,14 @@ export class BeatmapFile {
             .at(0)
             ?.match(/"[;\+\/\\\!\(\)\[\]\{\}\&\%\#a-zA-Z0-9\s\._\-\~\@']+\.[a-zA-Z0-9]+"/g)[0]
             .replaceAll('"', "");
-        const videoOffset = parseInt(this.osuFile
-            .split("\r\n")
-            .filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
-            .at(0)
-            ?.split(",")
-            .at(1) ?? 0);
+        const videoOffset = parseInt(
+            this.osuFile
+                .split("\r\n")
+                .filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
+                .at(0)
+                ?.split(",")
+                .at(1) ?? 0
+        );
 
         console.log(audioFilename, backgroundFilename, videoFilename ?? "");
         // console.log(allEntries);
@@ -688,6 +690,7 @@ export class BeatmapFile {
             };
 
             if (urlParams.get("b") === Beatmap.CURRENT_MAPID && urlParams.get("t") && /[0-9]+/g.test(urlParams.get("t"))) {
+                Game.BEATMAP_FILE?.audioNode?.seekTo(parseInt(urlParams.get("t")));
                 // updateTime(parseInt(urlParams.get("t")));
                 // this.beatmapRenderData.objectsController.draw(parseInt(urlParams.get("t")), true);
             } else {

@@ -41,6 +41,7 @@ export class PAudio {
     }
 
     seekTo(time) {
+        console.log(time);
         if (time !== 0 && !time) return;
 
         if (this.buf === undefined || time > this.buf.duration * 1000) return;
@@ -81,6 +82,7 @@ export class PAudio {
                 const tempCurrentTime = this.getCurrentTime();
 
                 if (tempCurrentTime >= this.buf.duration * 1000) {
+                    // console.log("Yes!", tempCurrentTime);
                     console.log("Ended");
                     this.pause();
                     // playingFlag = false;
