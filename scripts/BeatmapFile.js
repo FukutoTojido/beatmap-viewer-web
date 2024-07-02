@@ -104,52 +104,17 @@ export class BeatmapFile {
             const customURL = document.querySelector("#custom-mirror").value;
 
             const urls = {
-                nerinyan: "https://api.nerinyan.moe/d/",
-                sayobot: "https://dl.sayobot.cn/beatmaps/download/novideo/",
-                chimu: "https://api.chimu.moe/v1/download/",
+                nerinyan: "https://api.nerinyan.moe/d/$setId",
+                sayobot: "https://dl.sayobot.cn/beatmaps/download/$setId",
+                chimu: "https://catboy.best/d/$setId",
             };
 
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
-            let blob;
-            if (true || selectedMirror !== "nerinyan") {
-                const requestClient = axios.create({
-                    baseURL: urls[selectedMirror] ?? customURL,
-                });
+            const url = (urls[selectedMirror] ?? customURL).replace("$setId", setId);
+            const response = await axios.get(url, { responseType: "blob", headers: { Accept: "application/x-osu-beatmap-archive" } });
 
-                const arrayBuffer = (
-                    await requestClient.get(`${setId}`, {
-                        responseType: "arraybuffer",
-                        onDownloadProgress: (progressEvent) => {
-                            document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.progress * 100).toFixed(2)}%`;
-                            // console.log(progressEvent);
-                        },
-                        // headers: {
-                        //     "Access-Control-Allow-Origin": "*",
-                        //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                        // },
-                    })
-                ).data;
-
-                blob = new Blob([arrayBuffer]);
-                // console.log(blob);
-            } else {
-                const rawData = await ky.get(`${setId}/`, {
-                    prefixUrl: urls[selectedMirror] ?? customURL,
-                    onDownloadProgress: (progressEvent) => {
-                        // document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-                    },
-                    timeout: false,
-                    // headers: {
-                    //     "Access-Control-Allow-Origin": "*",
-                    //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
-                    // },
-                });
-
-                blob = await rawData.blob();
-            }
-
-            // console.log(rawData, blob, `${urls[selectedMirror] ?? customURL}${setId}`);
+            const blob = response.data;
 
             Game.DROP_BLOB = blob;
             return blob;
@@ -230,7 +195,7 @@ export class BeatmapFile {
                     .at(0)
                     ?.replace("Version:", "");
 
-                console.log(osuPerformance.calculateDifficultyAttributes(beatmapData, true));
+                // console.log(osuPerformance.calculateDifficultyAttributes(beatmapData, true));
 
                 const ele = createDifficultyElement({
                     name: diffName,

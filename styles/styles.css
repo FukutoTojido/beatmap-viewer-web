@@ -1323,8 +1323,23 @@ input[type="checkbox"]:disabled:hover {
     transition: ease-in-out 100ms;
 }
 
+.radioSelCustom {
+    flex-direction: column;
+    align-items: start;
+
+    flex: 1;
+}
+
 .radioSel label {
     flex: 1;
+}
+
+.radioSel label:has(#custom-mirror) {
+    width: 100%;
+}
+
+#custom-mirror {
+    width: 100%;
 }
 
 .radioSel input[type="radio"] {
