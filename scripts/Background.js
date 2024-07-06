@@ -135,7 +135,7 @@ export class Background {
     }
 
     static playVideo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || Game.IS_STORYBOARD) return;
 
         const startTime = Math.max(timestamp - Background.offset, 0);
         this.videoHTML.currentTime = startTime / 1000;
