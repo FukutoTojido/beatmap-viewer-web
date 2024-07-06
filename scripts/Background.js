@@ -135,7 +135,7 @@ export class Background {
     }
 
     static playVideo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || Game.IS_STORYBOARD) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
 
         const startTime = Math.max(timestamp - Background.offset, 0);
         this.videoHTML.currentTime = startTime / 1000;
@@ -145,7 +145,7 @@ export class Background {
     }
 
     static pauseVideo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || Game.IS_STORYBOARD) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
 
         this.videoHTML.pause();
 
@@ -154,7 +154,7 @@ export class Background {
     }
 
     static seekTo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || Game.IS_STORYBOARD) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO) return;
         this.videoHTML.currentTime = Math.max(timestamp - Background.offset, 0) / 1000;
     }
 
@@ -190,7 +190,7 @@ export class Background {
         this.videoHTML.currentTime = 0;
         this.videoHTML.pause();
 
-        if (!Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
+        if (!Game.IS_VIDEO) return;
         this.sprite.texture = texture;
         this.manuallyUpdateSize();
     }
