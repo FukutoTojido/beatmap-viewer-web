@@ -145,7 +145,7 @@ export class Background {
     }
 
     static pauseVideo(timestamp) {
-        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || !Game.IS_STORYBOARD) return;
+        if (!this.videoHTML || !this.videoSrc || !Game.IS_VIDEO || Game.IS_STORYBOARD) return;
 
         this.videoHTML.pause();
 
