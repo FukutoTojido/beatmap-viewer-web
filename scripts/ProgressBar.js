@@ -26,7 +26,7 @@ export function fullscreenToggle() {
 
     const url = new URL(window.location.href);
     url.searchParams.set("fullscreen", Game.IS_FULLSCREEN.toString());
-    history.replaceState({ fullscreen: Game.IS_FULLSCREEN }, document.title, `${url.pathname}${url.search}`);
+    history.replaceState({ fullscreen: Game.IS_FULLSCREEN }, document.title, `${url.pathname}${url.search}${window.location.hash}`);
 }
 
 export function playToggle(ele) {

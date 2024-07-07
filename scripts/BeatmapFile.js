@@ -257,10 +257,12 @@ export class BeatmapFile {
             document.title = `${artistUnicode} - ${titleUnicode} [${version}] | JoSu!`;
 
             if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
-                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}`);
+                const searchTrim = window.location.search.replaceAll("?", "").replaceAll(/b=[0-9]+/g, "");
+                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}&${searchTrim}${window.location.hash}`);
                 Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
             } else {
-                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/`);
+                const searchTrim = window.location.search.replaceAll("?", "").replaceAll(/b=[0-9]+/g, "");
+                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?${searchTrim}${window.location.hash}`);
                 Beatmap.HREF = null;
             }
         }

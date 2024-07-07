@@ -70,7 +70,7 @@ function setupDefaultStorage() {
             dim: 0.8,
             blur: 0,
             video: false,
-            storyboard: false
+            storyboard: false,
         },
         volume: {
             master: 1,
@@ -116,7 +116,7 @@ function setupDefaultStorage() {
         document.body.style.padding = 0;
         document.querySelector("#inputContainer").style.display = "none";
     }
-    
+
     setupDefaultStorage();
 
     const baseSettings = JSON.parse(localStorage.getItem("settings"));
@@ -190,20 +190,18 @@ function setupDefaultStorage() {
         }
     );
 
-    if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
-        Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));
-        document.querySelector("#mapInput").value = urlParams.get("b");
-
-        return;
-    }
-
-    if (
-        /#[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(window.location.hash)
-    ) {
+    if (/#[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(window.location.hash)) {
         const url = window.location.hash.slice(1);
         console.log(url);
         const blob = await BeatmapFile.downloadCustom(url);
 
         readZip(blob);
+    }
+
+    if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
+        Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));
+        document.querySelector("#mapInput").value = urlParams.get("b");
+
+        return;
     }
 })();
