@@ -70,9 +70,7 @@ export class BeatmapFile {
         document.querySelector(".loading").style.opacity = 1;
 
         try {
-            const requestClient = axios.create();
-            const blob = (
-                await requestClient.get("https://tryz.vercel.app/api/custom", {
+            const blob = (await axios.get(`https://proxy.tryz.id.vn/download/${url}`, {
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
                         document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
@@ -81,9 +79,6 @@ export class BeatmapFile {
                     //     "Access-Control-Allow-Origin": "*",
                     //     "Access-Control-Allow-Methods": "GET, OPTIONS, POST, HEAD",
                     // },
-                    params: {
-                        url,
-                    },
                 })
             ).data;
 

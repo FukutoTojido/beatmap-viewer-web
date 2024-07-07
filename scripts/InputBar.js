@@ -121,12 +121,6 @@ export function submitMap(isDragAndDrop, beatmapID) {
 
     const inputValue = beatmapID ?? document.querySelector("#mapInput").value.trim();
 
-    if (!isDragAndDrop && !/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
-        document.querySelector("#mapInput").value = "";
-        alert("This is not a valid URL or Beatmap ID");
-        return;
-    }
-
     if (
         !isDragAndDrop &&
         /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(inputValue) &&
@@ -137,10 +131,16 @@ export function submitMap(isDragAndDrop, beatmapID) {
         return;
     }
 
-    if (document.querySelector("audio")) {
-        document.querySelector("audio").pause();
-        document.body.removeChild(document.querySelector("audio"));
+    if (!isDragAndDrop && !/^https:\/\/osu\.ppy\.sh\/(beatmapsets\/[0-9]+\#osu\/[0-9]+|b\/[0-9]+)|[0-9]+$/.test(inputValue)) {
+        document.querySelector("#mapInput").value = "";
+        alert("This is not a valid URL or Beatmap ID");
+        return;
     }
+
+    // if (document.querySelector("audio")) {
+    //     document.querySelector("audio").pause();
+    //     document.body.removeChild(document.querySelector("audio"));
+    // }
 
     const bID = inputValue.split("/").at(-1);
 
