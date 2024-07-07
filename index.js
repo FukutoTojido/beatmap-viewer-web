@@ -193,13 +193,14 @@ function setupDefaultStorage() {
     if (urlParams.get("b") && /[0-9]+/g.test(urlParams.get("b"))) {
         Game.BEATMAP_FILE = new BeatmapFile(urlParams.get("b"));
         document.querySelector("#mapInput").value = urlParams.get("b");
+
+        return;
     }
 
     if (
-        urlParams.get("customUrl") &&
-        /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(urlParams.get("customUrl"))
+        /#[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(window.location.hash)
     ) {
-        const url = decodeURIComponent(urlParams.get("customUrl"));
+        const url = window.location.hash.slice(1);
         console.log(url);
         const blob = await BeatmapFile.downloadCustom(url);
 
