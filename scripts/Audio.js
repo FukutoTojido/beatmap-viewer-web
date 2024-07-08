@@ -41,7 +41,7 @@ export class PAudio {
     }
 
     seekTo(time) {
-        console.log(time);
+        // console.log(time);
         if (time !== 0 && !time) return;
 
         if (this.buf === undefined || time > this.buf.duration * 1000) return;
