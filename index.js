@@ -190,7 +190,7 @@ function setupDefaultStorage() {
         }
     );
 
-    if (/#[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(window.location.hash)) {
+    if (/#[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=-]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi.test(window.location.hash)) {
         const url = window.location.hash.slice(1);
         console.log(url);
         const blob = await BeatmapFile.downloadCustom(url);
