@@ -11,7 +11,7 @@ export class Notification {
     autoTimeout = true;
 
     constructor({ message, autoTimeout = true, type = "message"}) {
-        const dialog = document.createElement("dialog");
+        const dialog = document.createElement("div");
         dialog.classList.add("noti", type);
 
         const img = document.createElement("img");
@@ -48,10 +48,10 @@ export class Notification {
 
         this.dialog.classList.remove("animationOut");
         this.dialog.classList.add("animationIn");
-        this.dialog.show();
+        // this.dialog.show();
 
         const close = () => {
-            this.dialog.close();
+            // this.dialog.close();
 
             this.dialog.classList.remove("animationIn");
             this.dialog.classList.add("animationOut");

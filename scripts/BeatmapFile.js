@@ -42,6 +42,7 @@ export class BeatmapFile {
     isLoaded = false;
     hasOgg = false;
     hasVideo = false;
+    hasNonMp4 = false;
 
     static CURRENT_MAPID;
 
@@ -417,6 +418,7 @@ export class BeatmapFile {
 
             if (extension !== "mp4") {
                 this.videoBlobURL = await Transcoder.transcode({ blob: data, ext: extension });
+                this.hasNonMp4 = true;
             } else {
                 this.videoBlobURL = URL.createObjectURL(data);
             }
@@ -611,6 +613,15 @@ export class BeatmapFile {
                     type: "warning",
                 }).notify();
                 this.hasVideo = false;
+            }
+
+            if (this.hasNonMp4) {
+                new Notification({
+                    message: "This beatmap contains non .mp4 video, which can cause some playback issues.",
+                    autoTimeout: false,
+                    type: "warning",
+                }).notify();
+                this.hasNonMp4 = false;
             }
 
             document.onkeydown = (e) => {

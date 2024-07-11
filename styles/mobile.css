@@ -246,6 +246,16 @@
         box-shadow: 0 0 5px 0px white;
         filter: brightness(1.2);
     }
+
+    .notiContainer {
+        align-items: center;
+        left: unset;
+        bottom: 90px;
+    }
+
+    .noti {
+        width: 100%;
+    }
 }
 
 @media screen and (min-aspect-ratio: 16 / 9) and (max-width: 915px) {
