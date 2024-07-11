@@ -1,4 +1,4 @@
-import { SliderBody } from "./SliderBody2.js";
+import { SliderBody } from "./SliderBody.js";
 
 // Ported from https://github.com/111116/webosu/blob/master/scripts/SliderMesh.js
 // Also have a visit at http://osugame.online/ , very cool tbh
