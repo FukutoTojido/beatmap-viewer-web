@@ -520,6 +520,7 @@ export class ScoreParser {
             document.querySelector("#DT").checked = Game.MODS.DT;
             document.querySelector("#NC").checked = Game.MODS.NC;
             document.querySelector("#HT").checked = Game.MODS.HT;
+            document.querySelector("#DC").checked = Game.MODS.DC;
 
             // [
             //     "NoFail",
