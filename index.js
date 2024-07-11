@@ -11,7 +11,7 @@ import * as PIXI from "pixi.js";
 import { readZip } from "./scripts/InputBar.js";
 
 document.querySelector(".loading").style.opacity = 1;
-document.querySelector("#loadingText").textContent = `Initializing`;
+document.querySelector("#loadingText").textContent = `Initializing\nMight take a while on first load.`;
 
 PIXI.BitmapFont.install({
     name: "Torus",

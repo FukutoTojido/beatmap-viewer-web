@@ -22,6 +22,7 @@ import { urlParams } from "./GlobalVariables.js";
 import WorkerTest from "./Workers/Worker.js?worker";
 import { Storyboard } from "./Storyboard/Storyboard.js";
 import { User } from "./User.js";
+import { Transcoder } from "./FFmpeg.js";
 
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
@@ -724,6 +725,8 @@ export class Game {
         // };
 
         // requestAnimationFrame(() => update());
+
+        await Transcoder.load();
 
         Game.INIT = true;
         Game.WORKER.onmessage = (event) => {

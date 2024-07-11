@@ -21,6 +21,8 @@
     },
     "homepage": "https://github.com/FukutoTojido/beatmap-viewer-how#readme",
     "dependencies": {
+        "@ffmpeg/ffmpeg": "^0.12.10",
+        "@ffmpeg/util": "^0.12.1",
         "@pixi/ui": "^0.10.1",
         "@tweenjs/tween.js": "^21.0.0",
         "axios": "^1.6.2",

@@ -22,6 +22,7 @@ import { toggleMetadataPanel } from "./SidePanel.js";
 import { toggleTimingPanel } from "./BPM.js";
 import { Storyboard } from "./Storyboard/Storyboard.js";
 import { User } from "./User.js";
+import { Transcoder } from "./FFmpeg.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -410,9 +411,15 @@ export class BeatmapFile {
 
         const videoFile = allEntries.filter((e) => e.filename === videoFilename).at(0);
         if (videoFile) {
+            const extension = videoFilename.split(".").at(-1)
             document.querySelector("#loadingText").innerHTML = `Setting up Background Video`;
-            const data = await videoFile.getData(new zip.BlobWriter(`video/${videoFilename.split(".").at(-1)}`));
-            this.videoBlobURL = URL.createObjectURL(data);
+            const data = await videoFile.getData(new zip.BlobWriter(`video/${extension}`));
+
+            if (extension !== "mp4") {
+                this.videoBlobURL = await Transcoder.transcode({ blob: data, ext: extension });
+            } else {
+                this.videoBlobURL = URL.createObjectURL(data);
+            }
             console.log(this.videoBlobURL);
             console.log("Video Loaded");
             Background.videoSrc = this.videoBlobURL;
