@@ -460,7 +460,7 @@ export class ScoreParser {
             // Get Replay Data
             const replay = new Replay(buf);
             const replayData = await replay.deserialize();
-            console.log(replayData);
+            // console.log(replayData);
             ScoreParser.REPLAY_DATA = replayData;
             ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
 
@@ -509,9 +509,15 @@ export class ScoreParser {
             Game.MODS.HD = ScoreParser.MODS.includes("Hidden");
             Game.MODS.HR = ScoreParser.MODS.includes("HardRock");
             Game.MODS.EZ = ScoreParser.MODS.includes("Easy");
-            Game.MODS.DT = ScoreParser.MODS.includes("Nightcore") ? false : ScoreParser.MODS.includes("DoubleTime");
+            Game.MODS.DT = ScoreParser.MODS.includes("DoubleTime") && !ScoreParser.MODS.includes("Nightcore");
             Game.MODS.NC = ScoreParser.MODS.includes("Nightcore");
             Game.MODS.HT = ScoreParser.MODS.includes("HalfTime");
+
+            
+            const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
+            const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
+            Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
+
             Beatmap.updateModdedStats();
 
             document.querySelector("#HD").checked = Game.MODS.HD;
@@ -553,10 +559,6 @@ export class ScoreParser {
                 username: ScoreParser.REPLAY_DATA.player,
                 mods: ScoreParser.MODS
             })
-
-            const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
-            const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
-            Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
 
             ScoreParser.MOD_MULTIPLIER = ScoreParser.MODS.reduce(
                 (prev, curr) => {

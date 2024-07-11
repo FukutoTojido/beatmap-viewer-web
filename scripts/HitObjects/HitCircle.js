@@ -187,7 +187,7 @@ export class HitCircle {
         currentOpacity = Clamp(currentOpacity, 0, 1);
         this.opacity = currentOpacity;
 
-        if (this.hitTime > this.killTime && timestamp > this.killTime) currentOpacity = 0;
+        if (this.hitTime > this.killTime && timestamp > this.killTime - 50) currentOpacity = Clamp((this.killTime - timestamp) / 50, 0, 1);
         if (currentOpacity === this.props.opacity) return;
 
         this.props.opacity = currentOpacity;
