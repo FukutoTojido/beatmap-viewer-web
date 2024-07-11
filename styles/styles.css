@@ -71,6 +71,11 @@ body {
     box-sizing: border-box;
 }
 
+#main {
+    opacity: 0;
+    font-family: Nicolatte;
+}
+
 ::-webkit-scrollbar {
     width: 5px;
 }

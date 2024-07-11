@@ -140,7 +140,7 @@ export class Game {
         await PIXI.Assets.load({ src: "/static/NICOLATTE.ttf", loadParser: "loadWebFont" });
 
         const fpsStyle = {
-            fontFamily: "Nicolatte Regular",
+            fontFamily: "Nicolatte",
             align: "right",
             fontSize: 15,
             fill: "white",
