@@ -116,9 +116,9 @@ export async function refreshSkinDB() {
 
 export async function loadLocalStorage() {
     await Database.initDatabase();
-    document.querySelector("#loadingText").textContent = `Initializing: Default Samples`;
+    document.querySelector("#loadingText").textContent = `Initializing: Default Samples.\nMight take a while on first load.`;
     await loadDefaultSamples();
-    document.querySelector("#loadingText").textContent = `Initializing: Default Skins`;
+    document.querySelector("#loadingText").textContent = `Initializing: Default Skins.\nMight take a while on first load.`;
     await refreshSkinDB();
     // const res = await Database.readObjStore("skins");
     // const res = await Database.getAllKeys();
@@ -319,6 +319,7 @@ export async function loadDefaultSamples() {
                 //     })
                 // ).data;
 
+                document.querySelector("#loadingText").innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
                 const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
                 // console.log(arrBuf);
                 const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);

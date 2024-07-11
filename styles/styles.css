@@ -857,6 +857,10 @@ button:hover {
     }
 }
 
+#loadingText {
+    white-space: pre;
+}
+
 .loading {
     position: absolute;
     top: 0;

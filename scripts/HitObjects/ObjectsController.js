@@ -19,6 +19,7 @@ import * as TWEEN from "@tweenjs/tween.js";
 import { Background } from "../Background.js";
 import { Recorder } from "../Record.js";
 import { Storyboard } from "../Storyboard/Storyboard.js";
+import { User } from "../User.js";
 
 export class ObjectsController {
     hitCirclesList;
@@ -281,6 +282,7 @@ export class ObjectsController {
         TimingPanel.update(currentAudioTime ?? 0);
         MetadataPanel.update(currentAudioTime ?? 0);
         Storyboard.draw(currentAudioTime ?? 0);
+        User.resize();
 
         Game.EMIT_STACK.pop();
 

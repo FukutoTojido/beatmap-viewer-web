@@ -21,6 +21,7 @@ import { urlParams } from "./GlobalVariables.js";
 
 import WorkerTest from "./Workers/Worker.js?worker";
 import { Storyboard } from "./Storyboard/Storyboard.js";
+import { User } from "./User.js";
 
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
@@ -691,6 +692,13 @@ export class Game {
 
         MetadataPanel.init();
         Game.APP.stage.addChild(MetadataPanel.MASTER_CONTAINER.masterContainer);
+
+        await User.init();
+        // User.updateInfo({
+        //     username: "[Boy]Dalat",
+        //     mods: ["Hidden", "HardRock"]
+        // })
+        Game.APP.stage.addChild(User.container);
 
         // Add Game Canvas to DOM
         document.querySelector(".contentWrapper").prepend(Game.APP.canvas);

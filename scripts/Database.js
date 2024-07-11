@@ -144,6 +144,7 @@ export class Database {
             request.onsuccess = async (event) => {
                 const skinJson = event.target.result;
                 // console.log(`Asking for ${skin}/${value}`)
+                document.querySelector("#loadingText").innerHTML = `Initializing: Default Skins.\n(${skin}: ${value})\nMight take a while on first load.`;
                 if (skinJson[type][value]) {
                     resolve(skinJson[type][value]);
                     return;

@@ -10,7 +10,7 @@ export class Text {
             style: style,
         });
 
-        this._metrics = PIXI.CanvasTextMetrics.measureText(text, style);
+        this._metrics = PIXI.CanvasTextMetrics.measureText(text, this._sprite.style);
         this._color = style.fill;
 
         this._x = 0;
@@ -27,6 +27,7 @@ export class Text {
         this._text = val;
         this._sprite.text = val;
         this._metrics = PIXI.CanvasTextMetrics.measureText(val, this._sprite.style);
+
         this._resize();
     }
 

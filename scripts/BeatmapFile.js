@@ -21,6 +21,7 @@ import { Spinner } from "./HitObjects/Spinner.js";
 import { toggleMetadataPanel } from "./SidePanel.js";
 import { toggleTimingPanel } from "./BPM.js";
 import { Storyboard } from "./Storyboard/Storyboard.js";
+import { User } from "./User.js";
 
 export class BeatmapFile {
     isFromFile = false;
@@ -69,11 +70,17 @@ export class BeatmapFile {
         document.querySelector(".loading").style.display = "";
         document.querySelector(".loading").style.opacity = 1;
 
+        document.querySelector("#loadingText").textContent = `Downloading map.\nMight take a while if your internet is slow`;
+
         try {
-            const blob = (await axios.get(`https://proxy.tryz.id.vn/download/${url}`, {
+            const blob = (
+                await axios.get(`https://proxy.tryz.id.vn/download/${url}`, {
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
-                        document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                        // document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
+                        document.querySelector("#loadingText").textContent = `Downloading map.\nUnknown size (${(isNaN(progressEvent.rate) ? 0 : progressEvent.rate / 1024 ** 2).toFixed(
+                            2
+                        )}MiB/s)\nMight take a while if your internet is slow`;
                     },
                     // headers: {
                     //     "Access-Control-Allow-Origin": "*",
@@ -94,6 +101,8 @@ export class BeatmapFile {
 
     async downloadOsz(setId) {
         try {
+            document.querySelector("#loadingText").textContent = `Downloading map.\nMight take a while if your internet is slow`;
+
             const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
             const selectedMirror = currentLocalStorage.mirror.val;
             const customURL = document.querySelector("#custom-mirror").value;
@@ -107,7 +116,19 @@ export class BeatmapFile {
             if (!urls[selectedMirror] && customURL === "") throw "You need a beatmap mirror download link first!";
 
             const url = (urls[selectedMirror] ?? customURL).replace("$setId", setId);
-            const response = await axios.get(url, { responseType: "blob", headers: { Accept: "application/x-osu-beatmap-archive" } });
+            const response = await axios.get(url, {
+                responseType: "blob",
+                headers: { Accept: "application/x-osu-beatmap-archive" },
+                onDownloadProgress: (progressEvent) => {
+                    // console.log(progressEvent);
+                    document.querySelector("#loadingText").textContent = `Downloading map.\n${(progressEvent.progress * 100).toFixed(2)}% (${(isNaN(
+                        progressEvent.rate
+                    )
+                        ? 0
+                        : progressEvent.rate / 1024 ** 2
+                    ).toFixed(2)}MiB/s)\nMight take a while if your internet is slow`;
+                },
+            });
 
             const blob = response.data;
 
@@ -258,11 +279,19 @@ export class BeatmapFile {
 
             if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
                 const searchTrim = window.location.search.replaceAll("?", "").replaceAll(/b=[0-9]+/g, "");
-                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}&${searchTrim}${window.location.hash}`);
+                window.history.pushState(
+                    {},
+                    "JoSu!",
+                    `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}&${searchTrim}${window.location.hash}`
+                );
                 Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
             } else {
                 const searchTrim = window.location.search.replaceAll("?", "").replaceAll(/b=[0-9]+/g, "");
-                window.history.pushState({}, "JoSu!", `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?${searchTrim}${window.location.hash}`);
+                window.history.pushState(
+                    {},
+                    "JoSu!",
+                    `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?${searchTrim}${window.location.hash}`
+                );
                 Beatmap.HREF = null;
             }
         }
@@ -514,6 +543,8 @@ export class BeatmapFile {
 
                 calculateCurrentSR([Game.MODS.HR, Game.MODS.EZ, Game.MODS.DT, Game.MODS.HT]);
             } else {
+                User.updateInfo();
+
                 const raw = urlParams.get("m") && /[A-Za-z]+/g.test(urlParams.get("m")) ? urlParams.get("m").match(/.{2}/g) : [];
                 const mods = raw
                     .reduce((arr, mod) => {

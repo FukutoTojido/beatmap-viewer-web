@@ -10,6 +10,7 @@ import { Beatmap } from "./Beatmap.js";
 import { calculateCurrentSR } from "./Settings.js";
 import { Fixed } from "./Utils.js";
 import axios from "axios";
+import { User } from "./User.js";
 
 export class ScoreParser {
     static BLOB;
@@ -459,6 +460,7 @@ export class ScoreParser {
             // Get Replay Data
             const replay = new Replay(buf);
             const replayData = await replay.deserialize();
+            console.log(replayData);
             ScoreParser.REPLAY_DATA = replayData;
             ScoreParser.IS_OLD_VER = this.getIsOldVersion(replayData.version);
 
@@ -545,6 +547,11 @@ export class ScoreParser {
             //     div.appendChild(img);
             //     document.querySelector(".modsList").appendChild(div);
             // });
+
+            User.updateInfo({
+                username: ScoreParser.REPLAY_DATA.player,
+                mods: ScoreParser.MODS
+            })
 
             const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
             const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
