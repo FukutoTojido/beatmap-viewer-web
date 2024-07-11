@@ -302,10 +302,6 @@ export class Slider {
         // if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
-    reInitialize() {
-        this.sliderGeometryContainer.initiallize(54.4 * (236 / 256));
-    }
-
     createEquiDistCurve(points, actualLength, calculatedLength) {
         let rPoints = points;
         const sectionDistance = actualLength * Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY);
