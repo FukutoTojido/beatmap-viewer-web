@@ -66,4 +66,5 @@ jobs:
             npm run build
             cp ./dist/index.html ../file-proxy/views
             cp -r ./dist/* ../file-proxy/public
+            rm ../file-proxy/public/index.html
             pm2 restart proxy.tryz.id.vn 
