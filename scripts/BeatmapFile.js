@@ -76,7 +76,7 @@ export class BeatmapFile {
 
         try {
             const blob = (
-                await axios.get(`https://proxy.tryz.id.vn/download/${url}`, {
+                await axios.get(`https://preview.tryz.id.vn/download/${url}`, {
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
                         // document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
