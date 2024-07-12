@@ -28,27 +28,27 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn
-      - name: Build
-        run: yarn build
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          # Upload dist repository
-          path: './dist'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      # - name: Checkout
+      #   uses: actions/checkout@v4
+      # - name: Set up Node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 18
+      #     cache: 'yarn'
+      # - name: Install dependencies
+      #   run: yarn
+      # - name: Build
+      #   run: yarn build
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v3
+      # - name: Upload artifact
+      #   uses: actions/upload-pages-artifact@v2
+      #   with:
+      #     # Upload dist repository
+      #     path: './dist'
+      # - name: Deploy to GitHub Pages
+      #   id: deployment
+      #   uses: actions/deploy-pages@v2
       - name: Deploy to proxy
         uses: appleboy/ssh-action@master
         with:
