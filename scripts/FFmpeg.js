@@ -5,6 +5,10 @@ export class Transcoder {
     static ffmpeg = new FFmpeg();
 
     static async load() {
+        if (navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+            return;
+        }
+
         const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
         // this.ffmpeg.on("log", ({ message }) => {
@@ -23,6 +27,10 @@ export class Transcoder {
     }
 
     static async transcode({ blob, ext }) {
+        if (navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+            return URL.createObjectURL(blob);
+        }
+
         await this.ffmpeg.writeFile(`input.${ext}`, await fetchFile(blob));
         await this.ffmpeg.exec(["-i", `input.${ext}`, "-c", "copy", `output.mp4`]);
         const data = await this.ffmpeg.readFile("output.mp4");
