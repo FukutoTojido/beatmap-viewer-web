@@ -42,7 +42,7 @@
 
     #inputContainer {
         width: 100%;
-        padding: 20px;
+        padding: 10px;
         margin: 0;
         gap: 10px;
 
@@ -73,8 +73,11 @@
     }
 
     #settingsButton {
-        background-size: contain;
-        height: 30px;
+        width: 50px;
+    }
+
+    #map-dropper {
+        width: 50px;
     }
 
     .mapBG {   
@@ -87,6 +90,8 @@
     .contentWrapper {
         /* display: unset; */
         /* gap: 0; */
+        border-radius: 0;
+        overflow: initial
     }
 
     .thePlayer {

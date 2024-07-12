@@ -49,3 +49,20 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+      - name: Deploy to proxy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
+            cd ~/beatmap-viewer-web
+            git pull origin master
+            git status
+            npm install --only=prod
+            npm run build
+            cp ./dist/index.html ../file-proxy/views
+            cp -r ./dist/* ../file-proxy/public 

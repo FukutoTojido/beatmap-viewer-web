@@ -37,6 +37,7 @@ export class Background {
         this.mask.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h).fill(0x000000);
 
         this.container.addChild(this.sprite, this.mask);
+        this.container.y = 0;
         this.container.label = "Hello";
         // this.container.mask = this.mask;
 

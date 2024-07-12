@@ -55,7 +55,7 @@ export class ProgressBar {
                 10 * window.devicePixelRatio,
                 10 * window.devicePixelRatio
             )
-            .fill(0x171a1f)
+            .fill(0x2e3440)
             .stroke()
             .setStrokeStyle()
             .circle(0, 0, 2)
@@ -184,7 +184,7 @@ export class ProgressBar {
         this.HEIGHT = 60 * devicePixelRatio;
 
         this.MASTER_CONTAINER = new Component((110 + 360 + 60) * devicePixelRatio, Game.WRAPPER.h - 60 * devicePixelRatio, this.WIDTH, this.HEIGHT);
-        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary1;
+        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary2;
         this.MASTER_CONTAINER.alpha = 1;
 
         this.stage = this.MASTER_CONTAINER.container;
@@ -299,10 +299,10 @@ export class ProgressBar {
     }
 
     static restyle(isHover) {
-        let bgColor = Game.COLOR_PALETTES.primary1;
+        let bgColor = Game.COLOR_PALETTES.primary2;
         let accentColor = Game.COLOR_PALETTES.accent1;
 
-        if (!bgColor) bgColor = 0x171a1f;
+        if (!bgColor) bgColor = 0x2e3440;
         if (!accentColor) accentColor = 0x88c0d0;
 
         this.line

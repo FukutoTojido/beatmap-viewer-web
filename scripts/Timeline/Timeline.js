@@ -71,7 +71,7 @@ export class Timeline {
         if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
 
         if (innerWidth / innerHeight < 1) {
-            Timeline.MASTER_CONTAINER.h = 40 * devicePixelRatio;
+            Timeline.MASTER_CONTAINER.h = 50 * devicePixelRatio;
         } else {
             Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
         }

@@ -16,7 +16,7 @@ export class Component {
         this._alpha = alpha;
         this._padding = 0;
         this._borderBox = true;
-        this.overflow = "hidden";
+        this._overflow = "hidden";
 
         this.masterContainer = new PIXI.Container();
         this.masterContainer.x = this._x;
@@ -142,6 +142,15 @@ export class Component {
         this.redraw();
     }
 
+    get overflow() {
+        return this._overflow;
+    }
+
+    set overflow(val) {
+        this._overflow = val;
+        this.redraw();
+    }
+
     resize(w, h) {
         this._w = w ?? this._w;
         this._h = h ?? this._h;
@@ -183,10 +192,12 @@ export class Component {
         this.mask.clear().roundRect(0, 0, this._w, this._h, 0).fill({ color: 0x000000, alpha: 0.01 });
 
         if (this.overflow === "hidden") {
+            this.masterContainer.mask = this.paddingMask;
             this.container.mask = this.mask;
         }
 
         if (this.overflow === "visible") {
+            this.masterContainer.mask = undefined;
             this.container.mask = undefined;
         }
     }

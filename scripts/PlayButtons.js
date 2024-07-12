@@ -169,7 +169,7 @@ export class FullscreenButton {
         await this.obj.init((Game.WRAPPER.w - 60 * devicePixelRatio) / devicePixelRatio, Game.WRAPPER.h / devicePixelRatio - 60, "static/maximize.svg", "static/minimize.svg");
         this.obj.onclick = () => fullscreenToggle();
         this.obj.container.label = "Fullscreen Button";
-        this.obj.color = Game.COLOR_PALETTES.primary1;
+        this.obj.color = Game.COLOR_PALETTES.primary2;
     }
 
     static redraw() {

@@ -171,6 +171,11 @@
   resolved "https://registry.npmjs.org/@types/css-font-loading-module/-/css-font-loading-module-0.0.12.tgz"
   integrity sha512-x2tZZYkSxXqWvTDgveSynfjq/T2HyiZHXb00j/+gy19yp70PHCizM48XFdjBCWH7eHBD0R5i/pw9yMBP/BH5uA==
 
+"@types/dom-webcodecs@^0.1.4":
+  version "0.1.11"
+  resolved "https://registry.npmjs.org/@types/dom-webcodecs/-/dom-webcodecs-0.1.11.tgz"
+  integrity sha512-yPEZ3z7EohrmOxbk/QTAa0yonMFkNkjnVXqbGb7D4rMr+F1dGQ8ZUFxXkyLLJuiICPejZ0AZE9Rrk9wUCczx4A==
+
 "@types/earcut@^2.1.0", "@types/earcut@^2.1.4":
   version "2.1.4"
   resolved "https://registry.npmjs.org/@types/earcut/-/earcut-2.1.4.tgz"
@@ -180,6 +185,11 @@
   version "1.0.5"
   resolved "https://registry.npmjs.org/@types/estree/-/estree-1.0.5.tgz"
   integrity sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==
+
+"@types/wicg-file-system-access@^2020.9.5":
+  version "2020.9.8"
+  resolved "https://registry.npmjs.org/@types/wicg-file-system-access/-/wicg-file-system-access-2020.9.8.tgz"
+  integrity sha512-ggMz8nOygG7d/stpH40WVaNvBwuyYLnrg5Mbyf6bmsj/8+gb6Ei4ZZ9/4PNpcPNTT8th9Q8sM8wYmWGjMWLX/A==
 
 "@webgpu/types@^0.1.40":
   version "0.1.40"
@@ -532,3 +542,11 @@ vite@^5.0.4:
     rollup "^4.13.0"
   optionalDependencies:
     fsevents "~2.3.3"
+
+webm-muxer@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/webm-muxer/-/webm-muxer-4.0.1.tgz"
+  integrity sha512-qFMWhY9A+nYDGUIxoUT0EmZ2Z3Ls+5jP4zlEYPpppZRUHFFU70Hk2udfPxwdB4xiYnBDiDX8g1IfHXRsn0AwGw==
+  dependencies:
+    "@types/dom-webcodecs" "^0.1.4"
+    "@types/wicg-file-system-access" "^2020.9.5"

@@ -133,9 +133,11 @@ export async function loadLocalStorage() {
             ele.checked = ele.value === currentLocalStorage.mirror.val;
         });
 
-        [...document.querySelectorAll('[name="renderer"]')].forEach((ele) => {
-            ele.checked = ele.value === currentLocalStorage.renderer.val;
-        });
+        // [...document.querySelectorAll('[name="renderer"]')].forEach((ele) => {
+        //     ele.checked = ele.value === currentLocalStorage.renderer.val;
+        // });
+
+        document.querySelector(".rendererSelector").textContent = [...document.querySelectorAll('.rendererSelection')].find(renderer => renderer.dataset.renderer === currentLocalStorage.renderer.val).textContent;
 
         Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
         Skinning.changeSkin();

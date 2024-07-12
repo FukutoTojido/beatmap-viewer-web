@@ -90,17 +90,20 @@
 </head>
 
 <body>
+    <div class="placeholder">PlaceHolder</div>
     <div id="main">
-        PlaceHolder
+
     </div>
     <div id="inputContainer">
         <div class="legacyPart">
-            <button id="settingsButton"></button>
+            <button id="settingsButton">
+                <img src="/static/settings.png" />
+            </button>
             <div id="inputWrapper">
-                <input id="mapInput" type="text" placeholder=" " value="4405432">
+                <input id="mapInput" type="text" placeholder="Enter beatmap ID or beatmap link" value="4405432">
+                <button id="submit"></button>
             </div>
-            <button id="submit">Load</button>
-            <!-- <button id="record">Record</button> -->
+            <button id="record">Record</button>
         </div>
         <div class="utilRow">
             <input type="file" name="map-dropper" id="map-dropper" accept=".osz,.osr,.osk">
@@ -159,17 +162,19 @@
             <div class="title">renderer</div>
             <div class="description">changing this will trigger a page reload</div>
             <div class="list">
-                <div class="radioSel">
-                    <input type="radio" name="renderer" id="webgl" value="webgl">
-                    <label for="webgl">WebGL 2</label>
-                </div>
-                <div class="radioSel">
-                    <input type="radio" name="renderer" id="webgpu" value="webgpu">
-                    <label for="webgpu">WebGPU (Experimental)</label>
-                </div>
-                <div class="radioSel">
-                    <input type="radio" name="renderer" id="auto" value="auto" checked>
-                    <label for="auto">Auto</label>
+                <div class="selection">
+                    <button class="rendererSelector">Renderer</button>
+                    <dialog id="rendererDropdown">
+                        <div class="rendererSelection" data-renderer="webgl">
+                            <button class="renderer">WebGL 2</button>
+                        </div>
+                        <div class="rendererSelection" data-renderer="webgpu">
+                            <button class="renderer">WebGPU (Experimental)</button>
+                        </div>
+                        <div class="rendererSelection" data-renderer="auto">
+                            <button class="renderer">Auto</button>
+                        </div>
+                    </dialog>
                 </div>
             </div>
         </div>
@@ -191,7 +196,7 @@
                 <div class="radioSel radioSelCustom">
                     <div class="radioSel">
                         <input type="radio" name="mirror" id="custom" value="custom">
-                    <label for="custom">Custom URL (replace beatmapset ID with $setId)</label>
+                        <label for="custom">Custom URL (replace beatmapset ID with $setId)</label>
                     </div>
                     <label for="custom">
                         <input type="text" id="custom-mirror" placeholder="url here">

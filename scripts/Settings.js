@@ -52,13 +52,13 @@ document.body.addEventListener("change", (e) => {
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
     }
 
-    if (["webgpu", "webgl", "auto"].includes(target.value)) {
-        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
-        currentLocalStorage.renderer.val = target.value;
-        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+    // if (["webgpu", "webgl", "auto"].includes(target.value)) {
+    //     const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    //     currentLocalStorage.renderer.val = target.value;
+    //     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-        location.reload();
-    }
+    //     location.reload();
+    // }
 });
 
 export function setCustomMirror(input) {
@@ -287,7 +287,7 @@ export function handleCheckBox(checkbox) {
         if (Storyboard.BLACK_BG && Game.IS_STORYBOARD) {
             Background.sprite.tint = 0x000000;
         } else {
-            Background.sprite.tint = 0xFFFFFF;
+            Background.sprite.tint = 0xffffff;
         }
 
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
@@ -338,9 +338,24 @@ export function openDialog() {
 }
 document.querySelector(".skinSelector").onclick = openDialog;
 
+export function openRendererDialog() {
+    const dialog = document.querySelector("#rendererDropdown");
+
+    if (!dialog.open) {
+        dialog.show();
+        dialog.style.display = "flex";
+        return;
+    }
+
+    dialog.close();
+    dialog.style.display = "";
+}
+document.querySelector(".rendererSelector").onclick = openRendererDialog;
+
 document.body.addEventListener("click", (e) => {
     const skinDialogDimensions = document.querySelector("#skinDropdown").getBoundingClientRect();
     const popupDialogDimensions = document.querySelector(".seekTo").getBoundingClientRect();
+    const rendererDialogDimensions = document.querySelector("#rendererDropdown").getBoundingClientRect();
 
     if (
         (e.clientX < skinDialogDimensions.left ||
@@ -352,6 +367,18 @@ document.body.addEventListener("click", (e) => {
     ) {
         document.querySelector("#skinDropdown").close();
         document.querySelector("#skinDropdown").style.display = "";
+    }
+
+    if (
+        (e.clientX < rendererDialogDimensions.left ||
+            e.clientX > rendererDialogDimensions.right ||
+            e.clientY < rendererDialogDimensions.top ||
+            e.clientY > rendererDialogDimensions.bottom) &&
+        document.querySelector("#rendererDropdown").open &&
+        e.target !== document.querySelector(".rendererSelector")
+    ) {
+        document.querySelector("#rendererDropdown").close();
+        document.querySelector("#rendererDropdown").style.display = "";
     }
 
     if (
@@ -369,4 +396,17 @@ document.body.addEventListener("click", (e) => {
 
 [...document.querySelectorAll(".skinName")].forEach((button) => {
     button.onclick = selectSkin;
+});
+
+function selectRenderer() {
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.renderer.val = this.parentElement.dataset.renderer;
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    document.querySelector(".rendererSelector").textContent = this.textContent;
+    location.reload();
+};
+
+[...document.querySelectorAll(".renderer")].forEach((button) => {
+    button.onclick = selectRenderer;
 });
