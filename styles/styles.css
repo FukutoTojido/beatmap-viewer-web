@@ -198,6 +198,9 @@ body {
     padding: 15px;
     background-color: rgba(0 0 0 /0.5);
     border-radius: 10px;
+
+    outline-color: var(--accent-1);
+    transition: ease-in-out 50ms;
 }
 
 #inputContainer input[type="text"] {
@@ -213,7 +216,7 @@ body {
     color: white;
 
     border: none;
-    background: transparent
+    background: transparent;
     /* outline: solid 2px var(--accent-1); */
 }
 
@@ -222,7 +225,7 @@ body {
 }
 
 #inputWrapper:has(input[type="text"]:focus) {
-    outline: solid 3px var(--accent-1);
+    outline: solid 2px var(--accent-1);
 }
 
 #submit {
