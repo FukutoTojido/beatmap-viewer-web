@@ -161,6 +161,6 @@ export class Recorder {
     }
 }
 
-document.querySelector("#record").onclick = () => {
-    Recorder.record();
-};
+// document.querySelector("#record").onclick = () => {
+//     Recorder.record();
+// };
