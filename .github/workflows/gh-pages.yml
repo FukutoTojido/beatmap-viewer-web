@@ -65,4 +65,5 @@ jobs:
             npm install --only=prod
             npm run build
             cp ./dist/index.html ../file-proxy/views
-            cp -r ./dist/* ../file-proxy/public 
+            cp -r ./dist/* ../file-proxy/public
+            pm2 restart proxy.tryz.id.vn 
