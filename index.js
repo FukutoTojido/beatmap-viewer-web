@@ -137,6 +137,7 @@ function setupDefaultStorage() {
 
     document.querySelector(".loading").style.opacity = 0;
     document.querySelector(".loading").style.display = "none";
+    document.querySelector(".switchMirrorContainer").style.display = "flex";
 
     document.body.addEventListener("keydown", (e) => {
         switch (e.key) {

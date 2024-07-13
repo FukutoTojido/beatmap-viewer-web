@@ -130,14 +130,27 @@ export async function loadLocalStorage() {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
 
         [...document.querySelectorAll('[name="mirror"]')].forEach((ele) => {
-            ele.checked = ele.value === currentLocalStorage.mirror.val;
+            if (ele.value === currentLocalStorage.mirror.val) {
+                ele.checked = true;
+                document.querySelector(".mirrorIndicator").textContent = `Too slow? Switch to another mirror (currently using: ${
+                    ele.value === "custom" ? "Custom" : document.querySelector(`[for=${ele.value}]`).textContent
+                })`;
+                document.querySelector(`[data-mirror=${ele.value}]`).style.display = "none";
+
+                return;
+            }
+
+            if (ele.value === "custom") return;
+            document.querySelector(`[data-mirror="${ele.value}"]`).style.display = "block";
         });
 
         // [...document.querySelectorAll('[name="renderer"]')].forEach((ele) => {
         //     ele.checked = ele.value === currentLocalStorage.renderer.val;
         // });
 
-        document.querySelector(".rendererSelector").textContent = [...document.querySelectorAll('.rendererSelection')].find(renderer => renderer.dataset.renderer === currentLocalStorage.renderer.val).textContent;
+        document.querySelector(".rendererSelector").textContent = [...document.querySelectorAll(".rendererSelection")].find(
+            (renderer) => renderer.dataset.renderer === currentLocalStorage.renderer.val
+        ).textContent;
 
         Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
         Skinning.changeSkin();
@@ -148,7 +161,7 @@ export async function loadLocalStorage() {
         document.querySelector("#bgDimVal").innerHTML = `${parseInt(currentLocalStorage.background.dim * 100)}%`;
         // document.querySelector("#overlay").style.backgroundColor = `rgba(0 0 0 / ${currentLocalStorage.background.dim})`;
         // Game.MASTER_CONTAINER.alpha = currentLocalStorage.background.dim;
-        Background.changeOpacity(currentLocalStorage.background.dim)
+        Background.changeOpacity(currentLocalStorage.background.dim);
         Game.ALPHA = currentLocalStorage.background.dim;
 
         document.querySelector("#blur").value = currentLocalStorage.background.blur;
@@ -321,7 +334,9 @@ export async function loadDefaultSamples() {
                 //     })
                 // ).data;
 
-                document.querySelector("#loadingText").innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
+                document.querySelector(
+                    "#loadingText"
+                ).innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
                 const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
                 // console.log(arrBuf);
                 const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
@@ -529,6 +544,5 @@ export const easeOutElastic = (x) => {
 };
 
 // https://github.com/Damnae/storybrew/blob/master/common/Animations/EasingFunctions.cs
-export const easeOutElasticHalf = (x) => Math.pow(2, -10 * x) * Math.sin((0.5 * x - 0.075) * (2 * Math.PI) / .3) + 1;
-export const easeOutElasticQuart = (x) => Math.pow(2, -10 * x) * Math.sin((0.25 * x - 0.075) * (2 * Math.PI) / .3) + 1;
-
+export const easeOutElasticHalf = (x) => Math.pow(2, -10 * x) * Math.sin(((0.5 * x - 0.075) * (2 * Math.PI)) / 0.3) + 1;
+export const easeOutElasticQuart = (x) => Math.pow(2, -10 * x) * Math.sin(((0.25 * x - 0.075) * (2 * Math.PI)) / 0.3) + 1;

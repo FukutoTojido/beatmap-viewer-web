@@ -16,27 +16,6 @@
     <link rel="stylesheet" href="./styles/sidePanel.css">
     <link rel="stylesheet" href="./styles/mobile.css">
 
-    <script type="text/javascript">
-        // const urlParams = new URLSearchParams(window.location.search);
-        // const stayPC = urlParams.get("noredirect");
-
-        // if (stayPC !== "true") {
-        //     if (navigator.userAgent.match(/Android/i) ||
-        //         navigator.userAgent.match(/webOS/i) ||
-        //         navigator.userAgent.match(/iPhone/i) ||
-        //         navigator.userAgent.match(/iPad/i) ||
-        //         navigator.userAgent.match(/iPod/i) ||
-        //         navigator.userAgent.match(/BlackBerry/i) ||
-        //         navigator.userAgent.match(/Windows Phone/i)
-        //     ) {
-        //         const beatmapID = /[0-9]+/g.test(urlParams.get("b")) ? urlParams.get("b") : null;
-        //         const timestamp = /[0-9]+/g.test(urlParams.get("t")) ? urlParams.get("t") : null;
-
-        //         document.location = `https://mobile.tryz.id.vn/${beatmapID ? `?b=${beatmapID}` : ""}${timestamp ? `&?t=${timestamp}` : ""}`;
-        //     }
-        // }
-    </script>
-
     <script src="https://bundle.run/buffer@6.0.3"></script>
     <script src="/lib/Vibrant.min.js"></script>
     <script src="/lib/zip-fs-full.js"></script>
@@ -111,13 +90,6 @@
             <button id="choose-diff" disabled>Change Difficulty</button>
         </div>
     </div>
-    <!-- <div class="timelineContainer">
-        <div class="zoom">
-            <button class="plus"><img src="/static/plus.png"></button>
-            <button class="minus"><img src="/static/minus.png"></button>
-        </div>
-        <div class="timeline"></div>
-    </div> -->
     <div class="contentWrapper">
         <div class="mapBG"></div>
         <dialog class="seekTo">
@@ -135,6 +107,16 @@
             <circle cx="45" cy="45" r="30" strokeLinecap="round" />
         </svg>
         <div id="loadingText">Getting map information</div>
+        <div class="switchMirrorContainer">
+            <div class="mirrorIndicator">
+                Too slow? Switch to another mirror (currently using: ___)
+            </div>
+            <div class="mirrors">
+                <button class="switchMirror" data-mirror="nerinyan">Nerinyan</button>
+                <button class="switchMirror" data-mirror="sayobot">Sayobot</button>
+                <button class="switchMirror" data-mirror="chimu">Mino (catboy.best)</button>
+            </div>
+        </div>
     </div>
     <div class="difficultySelector">
         <div class="selectorWrapper">

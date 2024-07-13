@@ -47,9 +47,18 @@ document.body.addEventListener("change", (e) => {
     if (!target.checked) return;
 
     if (["nerinyan", "custom", "sayobot", "chimu"].includes(target.value)) {
+        document.querySelector(`[data-mirror]`).style.display = "block";
+
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.mirror.val = target.value;
         localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        document.querySelector(".mirrorIndicator").textContent = `Too slow? Switch to another mirror (currently using: ${
+            target.value === "custom" ? "Custom" : document.querySelector(`[for=${target.value}]`).textContent
+        })`;
+
+        if (target.value === "custom") return;
+        document.querySelector(`[data-mirror=${target.value}]`).style.display = "none";
     }
 
     // if (["webgpu", "webgl", "auto"].includes(target.value)) {
@@ -60,6 +69,16 @@ document.body.addEventListener("change", (e) => {
     //     location.reload();
     // }
 });
+
+[...document.querySelectorAll("[data-mirror]")].forEach(ele => {
+    ele.onclick = () => {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.mirror.val = ele.dataset.mirror;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        location.reload();
+    };
+})
 
 export function setCustomMirror(input) {
     // console.log(input.value);
@@ -405,7 +424,7 @@ function selectRenderer() {
 
     document.querySelector(".rendererSelector").textContent = this.textContent;
     location.reload();
-};
+}
 
 [...document.querySelectorAll(".renderer")].forEach((button) => {
     button.onclick = selectRenderer;

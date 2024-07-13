@@ -894,6 +894,38 @@ button:hover {
     z-index: 3;
 }
 
+.switchMirrorContainer {
+    margin-top: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    display: none;
+}
+
+.mirrors {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.switchMirror {
+    color: white;
+    font-family: Torus;
+    font-weight: 400;
+
+    padding: 20px;
+
+    border-radius: 10px;
+    background-color: rgba(255 255 255 /.1);
+}
+
+.switchMirror:hover {
+    filter: none;
+    background-color: rgba(255 255 255 /.2);
+}
+
 .difficultySelector {
     position: absolute;
     top: 0;

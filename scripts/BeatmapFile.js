@@ -45,6 +45,7 @@ export class BeatmapFile {
     hasNonMp4 = false;
 
     static CURRENT_MAPID;
+    static SIGNALER = new AbortController();
 
     constructor(mapId, isFromFile) {
         this.mapId = mapId;
@@ -77,12 +78,14 @@ export class BeatmapFile {
         try {
             const blob = (
                 await axios.get(`https://preview.tryz.id.vn/download/${url}`, {
+                    signal: BeatmapFile.SIGNALER.signal,
                     responseType: "blob",
                     onDownloadProgress: (progressEvent) => {
                         // document.querySelector("#loadingText").textContent = `Downloading map: ${(progressEvent.percent * 100).toFixed(2)}%`;
-                        document.querySelector("#loadingText").textContent = `Downloading map.\nUnknown size (${(isNaN(progressEvent.rate) ? 0 : progressEvent.rate / 1024 ** 2).toFixed(
-                            2
-                        )}MiB/s)\nMight take a while if your internet is slow`;
+                        document.querySelector("#loadingText").textContent = `Downloading map.\nUnknown size (${(isNaN(progressEvent.rate)
+                            ? 0
+                            : progressEvent.rate / 1024 ** 2
+                        ).toFixed(2)}MiB/s)\nMight take a while if your internet is slow`;
                     },
                     // headers: {
                     //     "Access-Control-Allow-Origin": "*",
@@ -119,6 +122,7 @@ export class BeatmapFile {
 
             const url = (urls[selectedMirror] ?? customURL).replace("$setId", setId);
             const response = await axios.get(url, {
+                signal: BeatmapFile.SIGNALER.signal,
                 responseType: "blob",
                 headers: { Accept: "application/x-osu-beatmap-archive" },
                 onDownloadProgress: (progressEvent) => {
@@ -412,7 +416,7 @@ export class BeatmapFile {
 
         const videoFile = allEntries.filter((e) => e.filename === videoFilename).at(0);
         if (videoFile) {
-            const extension = videoFilename.split(".").at(-1)
+            const extension = videoFilename.split(".").at(-1);
             document.querySelector("#loadingText").innerHTML = `Setting up Background Video`;
             const data = await videoFile.getData(new zip.BlobWriter(`video/${extension}`));
 
