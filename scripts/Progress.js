@@ -120,6 +120,8 @@ export class ProgressBar {
         this.breakKiai.x = 40 * devicePixelRatio;
         this.breakKiai.y = this.HEIGHT / 3;
 
+        if (!Game.BEATMAP_FILE?.audioNode) return;
+
         const fullTime = Game.BEATMAP_FILE.audioNode.duration;
         const width = this.WIDTH - 80 * window.devicePixelRatio;
         const height = this.HEIGHT / 3;
