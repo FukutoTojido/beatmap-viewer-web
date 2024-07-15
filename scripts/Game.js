@@ -655,6 +655,7 @@ export class Game {
 
         Storyboard.init();
         Background.container.addChild(Storyboard.container);
+        Background.container.addChild(Background.dim);
         Background.container.addChild(Background.mask);
 
         Game.WRAPPER.container.addChild(Background.container);
