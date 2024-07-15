@@ -4,6 +4,10 @@ import { Timeline } from "./Timeline.js";
 import { TintedNumberSprite } from "./NumberSprite.js";
 import { Skinning } from "../Skinning.js";
 import { Game } from "../Game.js";
+import gpuShader from "../Shaders/Timeline/SliderBody.wgsl?raw";
+import glVertexShader from "../Shaders/Timeline/SliderBody.vert?raw";
+import glFragmentShader from "../Shaders/Timeline/SliderBody.frag?raw";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as PIXI from "pixi.js";
 
 export class TimelineHitCircle {
@@ -11,14 +15,79 @@ export class TimelineHitCircle {
     hitCircle;
     hitCircleOverlay;
     selected;
-    NumberSprite;
+    meshHead;
+    meshTail;
+    theThing;
+    numberSprite;
     hitObject;
+    isSlider = false;
 
-    constructor(hitObject) {
+    constructor(hitObject, isSlider = false) {
+        this.isSlider = isSlider;
         this.obj = new PIXI.Container();
         // this.obj.interactive = true;
-        this.obj.eventMode = "static"
+        this.obj.eventMode = "static";
         this.hitObject = hitObject;
+
+        const gpu = PIXI.GpuProgram.from({
+            vertex: {
+                source: gpuShader,
+                entryPoint: "vsMain",
+            },
+            fragment: {
+                source: gpuShader,
+                entryPoint: "fsMain",
+            },
+        });
+        gpu.autoAssignGlobalUniforms = true;
+        gpu.autoAssignLocalUniforms = true;
+
+        const gl = PIXI.GlProgram.from({
+            name: "timeline-shader",
+            vertex: glVertexShader,
+            fragment: glFragmentShader,
+        });
+
+        const shader = PIXI.Shader.from({
+            gl,
+            gpu,
+            resources: {
+                customUniforms: {
+                    tint: {
+                        value: [0.0, 0.0, 0.0, 1.0],
+                        type: "vec4<f32>",
+                    },
+                    selected: {
+                        value: 0,
+                        type: "f32",
+                    },
+                    skinType: {
+                        value: Game.SKINNING.type,
+                        type: "f32",
+                    },
+                    isReverse: {
+                        value: 0,
+                        type: "f32",
+                    },
+                    nodeTint: {
+                        value: [0.0, 0.0, 0.0, 1.0],
+                        type: "vec4<f32>",
+                    },
+                },
+            },
+        });
+
+        const headGeometry = TimelineHitCircle.createArc(-1, 30.0 * (118 / 128));
+        const tailGeometry = TimelineHitCircle.createArc(1, 30.0 * (118 / 128));
+
+        const meshHead = new PIXI.Mesh({ geometry: headGeometry, shader: shader });
+        const meshTail = new PIXI.Mesh({ geometry: tailGeometry, shader: shader });
+
+        this.meshHead = meshHead;
+        this.meshTail = meshTail;
+
+        this.theThing = new PIXI.Container();
+        this.theThing.addChild(meshHead, meshTail);
 
         const hitCircle = new PIXI.Sprite(Texture.LEGACY.HIT_CIRCLE.texture);
         const hitCircleOverlay = new PIXI.Sprite(Texture.LEGACY.HIT_CIRCLE_OVERLAY.texture);
@@ -38,6 +107,7 @@ export class TimelineHitCircle {
 
         this.numberSprite = numberSprite;
 
+        this.obj.addChild(this.theThing);
         this.obj.addChild(hitCircle);
         this.obj.addChild(hitCircleOverlay);
         this.obj.addChild(numberSprite.obj);
@@ -69,6 +139,31 @@ export class TimelineHitCircle {
         container.removeChild(this.obj);
     }
 
+    static createArc(side, radius, length) {
+        side /= Math.abs(side);
+
+        const indices = [];
+        const dist = [];
+
+        const center = [0.0, 0.0];
+        const RESOLUTION = 400;
+
+        for (let i = 0; i < RESOLUTION; i++) {
+            const angle = (i / RESOLUTION) * Math.PI * side;
+            const angleNext = ((i + 1) / RESOLUTION) * Math.PI * side;
+            indices.push(...center, radius * Math.sin(angle), radius * Math.cos(angle), radius * Math.sin(angleNext), radius * Math.cos(angleNext));
+            dist.push(0.0, 1.0, 1.0);
+        }
+
+        const geometry = new PIXI.Geometry({
+            attributes: {
+                position: indices,
+                dist: dist,
+            },
+        });
+        return geometry;
+    }
+
     draw(timestamp, isSliderTail) {
         const time = this.hitObject.time;
         const delta = timestamp - time;
@@ -77,11 +172,64 @@ export class TimelineHitCircle {
 
         this.obj.x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
 
+        const selected = Game.SELECTED.includes(time);
+
         const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
         const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
 
+        if (colors[idx % colors.length]) {
+            const tint =
+                idx === -1
+                    ? [1.0, 1.0, 1.0, 1.0]
+                    : [...Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255), 1.0];
+            this.meshHead.shader.resources.customUniforms.uniforms.tint = tint;
+            this.meshTail.shader.resources.customUniforms.uniforms.tint = tint;
+
+            if (isSliderTail) {
+                const [R, G, B] = tint;
+                const lumi = 0.299 * R + 0.587 * G + 0.114 * B;
+                if (lumi > 0.5) {
+                    this.meshHead.shader.resources.customUniforms.uniforms.nodeTint = [0.2, 0.2, 0.2, 1.0];
+                    this.meshTail.shader.resources.customUniforms.uniforms.nodeTint = [0.2, 0.2, 0.2, 1.0];
+                } else {
+                    this.meshHead.shader.resources.customUniforms.uniforms.nodeTint = [0.9, 0.9, 0.9, 1.0];
+                    this.meshTail.shader.resources.customUniforms.uniforms.nodeTint = [0.9, 0.9, 0.9, 1.0];
+                }
+            }
+        }
+
         const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
         const textures = skinType !== "CUSTOM" ? Texture.LEGACY : Texture.CUSTOM[Skinning.SKIN_IDX];
+
+        if (skinType === "ARGON") {
+            this.hitCircle.visible = false;
+            this.hitCircleOverlay.visible = false;
+
+            if (this.isSlider && !isSliderTail) {
+                this.theThing.visible = false;
+            } else {
+                this.theThing.visible = true;
+            }
+
+            this.meshHead.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2);
+            this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
+            this.meshHead.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
+
+            this.meshTail.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2);
+            this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
+            this.meshTail.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
+
+            if (isSliderTail) {
+                this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
+                this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
+                this.meshHead.shader.resources.customUniforms.uniforms.isReverse = true;
+                this.meshTail.shader.resources.customUniforms.uniforms.isReverse = true;
+            }
+        } else {
+            this.hitCircle.visible = true;
+            this.hitCircleOverlay.visible = true;
+            this.theThing.visible = false;
+        }
 
         this.hitCircle.tint = colors[idx % colors.length] ?? 0;
 
@@ -95,7 +243,7 @@ export class TimelineHitCircle {
         this.obj.y = Timeline.HEIGHT / 2;
 
         this.selected.visible = false;
-        if (Game.SELECTED.includes(time)) {
+        if (Game.SELECTED.includes(time) && skinType !== "ARGON") {
             this.selected.visible = true;
         }
 

@@ -1618,7 +1618,7 @@ a:visited {
 
 .notiContainer {
     position: absolute;
-    width: 100%;
+    /* width: 100%; */
 
     left: 20px;
     bottom: 80px;

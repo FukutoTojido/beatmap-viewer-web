@@ -38,8 +38,8 @@ export class TimelineSlider {
         this.hitArea = new PIXI.Graphics().rect(0, 0, 0, 0);
         this.obj.addChild(this.hitArea);
 
-        const headGeometry = this.createArc(-1, 0);
-        const tailGeometry = this.createArc(1, 0);
+        const headGeometry = TimelineSlider.createArc(-1, this.radius);
+        const tailGeometry = TimelineSlider.createArc(1, this.radius);
         const bodyGeometry = this.createLine(1);
 
         // const shader = PIXI.Shader.from(vertexShader, fragmentShader, uniforms);
@@ -75,6 +75,18 @@ export class TimelineSlider {
                         value: 0,
                         type: "f32",
                     },
+                    skinType: {
+                        value: Game.SKINNING.type,
+                        type: "f32",
+                    },
+                    isReverse: {
+                        value: 0,
+                        type: "f32",
+                    },
+                    nodeTint: {
+                        value: [0.0, 0.0, 0.0, 1.0],
+                        type: "vec4<f32>",
+                    }
                 },
             },
         });
@@ -97,8 +109,8 @@ export class TimelineSlider {
         this.obj.addChild(meshBody);
         this.obj.addChild(meshTail);
 
-        const sliderHead = new TimelineHitCircle(hitObject);
-        const sliderTail = new TimelineHitCircle(hitObject);
+        const sliderHead = new TimelineHitCircle(hitObject, true);
+        const sliderTail = new TimelineHitCircle(hitObject, true);
         this.sliderHead = sliderHead;
         this.sliderTail = sliderTail;
 
@@ -174,16 +186,19 @@ export class TimelineSlider {
         this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshHead.shader.resources.customUniforms.uniforms.tint = tint;
         this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
+        this.meshHead.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
         this.meshBody.position.set(headPosition, Timeline.HEIGHT / 2);
         this.meshBody.scale.set(this.length * ratio, Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshBody.shader.resources.customUniforms.uniforms.tint = tint;
         this.meshBody.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
+        this.meshBody.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
         this.meshTail.position.set(endPosition, Timeline.HEIGHT / 2);
         this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
         this.meshTail.shader.resources.customUniforms.uniforms.tint = tint;
         this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
+        this.meshTail.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
         this.sliderHead.draw(timestamp);
         this.sliderTail.draw(timestamp, true);
@@ -205,7 +220,7 @@ export class TimelineSlider {
         this.sliderTail.hitCircle.tint = colors[idx % colors.length];
     }
 
-    createArc(side, length) {
+    static createArc(side, radius, length) {
         side /= Math.abs(side);
 
         const indices = [];
@@ -217,13 +232,7 @@ export class TimelineSlider {
         for (let i = 0; i < RESOLUTION; i++) {
             const angle = (i / RESOLUTION) * Math.PI * side;
             const angleNext = ((i + 1) / RESOLUTION) * Math.PI * side;
-            indices.push(
-                ...center,
-                this.radius * Math.sin(angle),
-                this.radius * Math.cos(angle),
-                this.radius * Math.sin(angleNext),
-                this.radius * Math.cos(angleNext)
-            );
+            indices.push(...center, radius * Math.sin(angle), radius * Math.cos(angle), radius * Math.sin(angleNext), radius * Math.cos(angleNext));
             dist.push(0.0, 1.0, 1.0);
         }
 

@@ -132,6 +132,13 @@ export function go(precise, isForward) {
     const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
     expectedDestination = goTo;
 
+    // if (Game.BEATMAP_FILE.audioNode.isPlaying) {
+    //     Game.BEATMAP_FILE.audioNode.seekTo(goTo);
+    //     expectedDestination = null;
+
+    //     return;
+    // }
+
     timeTween = new Tween({ time: Game.BEATMAP_FILE.audioNode.getCurrentTime() })
         .easing(TWEEN.Easing.Sinusoidal.Out)
         .to({ time: goTo }, 100)
