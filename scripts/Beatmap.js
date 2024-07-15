@@ -78,6 +78,7 @@ export class Beatmap {
 
     static beatStepsList = [];
     static timingPointsList = [];
+    static breakPeriods = [];
     static kiaiList = [];
     static mergedPoints = [];
 
@@ -564,6 +565,15 @@ export class Beatmap {
             Timeline.beatLines.greenLines.push(graphic);
         });
 
+        Beatmap.kiaiList = timingPointsList.filter((point, idx) => {
+            if (point.isKiai && (!timingPointsList[idx - 1] || !timingPointsList[idx - 1].isKiai)) return true;
+            if (!point.isKiai && timingPointsList[idx - 1]?.isKiai) return true;
+            if (point.isKiai && idx === timingPointsList.length - 1) return true;
+            return false;
+        });
+
+        // console.log(Beatmap.kiaiList);
+
         Beatmap.mergedPoints = [...Beatmap.beatStepsList, ...Beatmap.timingPointsList].sort((a, b) => {
             if (a.time < b.time) return -1;
             if (a.time > b.time) return 1;
@@ -614,6 +624,8 @@ export class Beatmap {
                     .map((time) => parseInt(time))
             );
         // console.log(breakPeriods);
+        Beatmap.breakPeriods = breakPeriods;
+        ProgressBar.initBreakKiai();
 
         let objectLists = rawBeatmap
             .slice(hitObjectsPosition)

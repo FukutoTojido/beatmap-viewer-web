@@ -16,6 +16,7 @@ export class ProgressBar {
     static line;
     static thumb;
     static timeline;
+    static breakKiai;
     static timelineObjs = [];
 
     static WIDTH;
@@ -112,6 +113,31 @@ export class ProgressBar {
         });
 
         this.stage.addChild(this.container);
+    }
+
+    static initBreakKiai() {
+        this.stage.addChildAt(this.breakKiai, 1);
+        this.breakKiai.x = 40 * devicePixelRatio;
+        this.breakKiai.y = this.HEIGHT / 3;
+
+        const fullTime = Game.BEATMAP_FILE.audioNode.duration;
+        const width = this.WIDTH - 80 * window.devicePixelRatio;
+        const height = this.HEIGHT / 3;
+
+        this.breakKiai.clear();
+        Beatmap.breakPeriods.forEach((period) => {
+            const startX = (period[0] / fullTime) * width;
+            const endX = (period[1] / fullTime) * width;
+
+            this.breakKiai.rect(startX, 0, endX - startX, height).fill({ color: 0xffffff, alpha: 0.5 });
+        });
+
+        for (let i = 0; i < Beatmap.kiaiList.length; i += 2) {
+            const startX = (Beatmap.kiaiList[i].time / fullTime) * width;
+            const endX = (Beatmap.kiaiList[i + 1].time / fullTime) * width;
+
+            this.breakKiai.rect(startX, 0, endX - startX, height).fill({ color: 0xd87b0f, alpha: 0.5 });
+        }
     }
 
     static initTimingPoints() {
@@ -215,12 +241,15 @@ export class ProgressBar {
                     vertex: vertexSrc,
                     fragment: fragmentSrc,
                 }),
-                gpu
+                gpu,
             }),
         });
         this.timeline.x = 40 * devicePixelRatio;
         this.timeline.y = 10 * devicePixelRatio;
         this.stage.addChildAt(this.timeline, 0);
+
+        this.breakKiai = new PIXI.Graphics();
+        this.stage.addChildAt(this.breakKiai, 1);
 
         this.initLine();
         this.initThumb();
@@ -280,6 +309,7 @@ export class ProgressBar {
         this.restyle();
         if (Game.DEVE_RATIO !== devicePixelRatio) this.reinitPoints();
         this.initTimingPoints();
+        this.initBreakKiai();
 
         this.thumb.y = this.HEIGHT / 2;
 
@@ -293,7 +323,7 @@ export class ProgressBar {
         } else {
             this.MASTER_CONTAINER.masterContainer.visible = true;
         }
-        
+
         if (Game.EMIT_STACK.length === 0) return;
         this.forceResize();
     }
