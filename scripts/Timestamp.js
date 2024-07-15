@@ -168,7 +168,7 @@ export class Timestamp {
 
         this.MASTER_CONTAINER.x = 0;
         if (innerWidth / innerHeight < 1) {
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height;
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 * devicePixelRatio;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
             this.timeContainer.x = (this.MASTER_CONTAINER.w - this.timeContainer.width) / 2;
         } else {

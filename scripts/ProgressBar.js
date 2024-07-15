@@ -4,6 +4,7 @@ import { Notification } from "./Notification.js";
 import { Game } from "./Game.js";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
+import { Timeline } from "./Timeline/Timeline.js";
 
 export function setAudioTime(value) {
     if (!Game.BEATMAP_FILE?.audioNode) return;
@@ -11,15 +12,43 @@ export function setAudioTime(value) {
 }
 
 export function fullscreenToggle() {
+    let result = 0;
+    let old = 0;
+
     if (!Game.IS_FULLSCREEN) {
         FullscreenButton.obj.sprite.texture = FullscreenButton.obj.altTexture;
         document.body.style.padding = 0;
-        document.querySelector("#inputContainer").style.display = "none";
+        document.querySelector("#inputContainer").style.maxHeight = 0;
+        document.querySelector("#inputContainer").style.padding = 0;
+        document.querySelector("#inputContainer").style.margin = 0;
+
+        result = 60 * devicePixelRatio;
+        old = 0;
     } else {
         FullscreenButton.obj.sprite.texture = FullscreenButton.obj.texture;
         document.body.style.padding = "";
-        document.querySelector("#inputContainer").style.display = "";
+        document.querySelector("#inputContainer").style.maxHeight = "400px";
+        document.querySelector("#inputContainer").style.padding = "";
+        document.querySelector("#inputContainer").style.margin = "";
+
+        result = 0;
+        old = 60 * devicePixelRatio;
     }
+
+    new TWEEN.Tween({
+        height: old,
+    })
+        .to(
+            {
+                height: result,
+            },
+            200
+        )
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .onUpdate(({ height }) => {
+            Timeline.HEIGHT_REDUCTION = height;
+        })
+        .start();
 
     Game.IS_FULLSCREEN = !Game.IS_FULLSCREEN;
     Game.EMIT_STACK.push(true);

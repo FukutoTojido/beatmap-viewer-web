@@ -225,7 +225,7 @@ export class TimingPanel {
     static ON_ANIM = false;
 
     static init() {
-        this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER = new Component(0, 0, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         this.MASTER_CONTAINER.padding = 15;
         this.MASTER_CONTAINER.alpha = 1;
@@ -450,9 +450,9 @@ export class TimingPanel {
             if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
 
             this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0;
+            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0;
             this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
 
             if (Game.IS_FULLSCREEN) this.MASTER_CONTAINER.borderRadius = 0;
             else this.MASTER_CONTAINER.borderRadius = 10;

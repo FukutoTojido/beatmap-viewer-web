@@ -114,7 +114,9 @@ function setupDefaultStorage() {
 (async () => {
     if (urlParams.get("fullscreen") === "true") {
         document.body.style.padding = 0;
-        document.querySelector("#inputContainer").style.display = "none";
+        document.querySelector("#inputContainer").style.maxHeight = 0;
+        document.querySelector("#inputContainer").style.padding = 0;
+        document.querySelector("#inputContainer").style.margin = 0;
     }
 
     setupDefaultStorage();

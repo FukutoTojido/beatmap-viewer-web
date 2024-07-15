@@ -2,12 +2,14 @@ import * as PIXI from "pixi.js";
 import { Game } from "./Game";
 import { imageToBase64 } from "./Utils";
 import { ObjectsController } from "./HitObjects/ObjectsController";
+import { Timeline } from "./Timeline/Timeline";
 
 export class Background {
     container;
     sprite;
     mask;
     filter;
+    dim;
 
     blob;
     videoHTML;
@@ -23,6 +25,7 @@ export class Background {
         this.container = new PIXI.Container();
         this.sprite = new PIXI.Sprite();
         this.mask = new PIXI.Graphics();
+        this.dim = new PIXI.Graphics();
 
         this.filter = new PIXI.BlurFilter({
             kernelSize: 9,
@@ -35,11 +38,12 @@ export class Background {
 
         // this.mask.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h);
         this.mask.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h).fill(0x000000);
+        this.dim.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h).fill(0x000000);
 
-        this.container.addChild(this.sprite, this.mask);
-        this.container.y = 0;
+        this.container.addChild(this.sprite, this.dim, this.mask);
+        this.container.y = (innerWidth < innerHeight ? 50 : 60) * devicePixelRatio;
         this.container.label = "Hello";
-        // this.container.mask = this.mask;
+        this.container.mask = this.mask;
 
         this._src = null;
         return this.container;
@@ -83,7 +87,7 @@ export class Background {
         const hRatio = Game.MASTER_CONTAINER.h / this.h;
         const ratio = Math.max(wRatio, hRatio);
 
-        this.mask
+        this.dim
             .clear()
             .rect(0, 0, this.w * ratio, this.h * ratio)
             .fill({
@@ -115,7 +119,14 @@ export class Background {
         this.mask
             .clear()
             .rect(0, 0, this.w * ratio, this.h * ratio)
+            .fill({ color: 0x000000, alpha: 1 });
+
+        this.dim
+            .clear()
+            .rect(0, 0, this.w * ratio, this.h * ratio)
             .fill({ color: 0x000000, alpha: Game.ALPHA });
+
+        this.container.y = 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION;
     }
 
     static updateSize() {

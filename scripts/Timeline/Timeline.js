@@ -23,11 +23,14 @@ export class Timeline {
     static BASE_CONTAINER;
     static ZOOMER;
 
+    static HEIGHT_REDUCTION = 0;
+
     static async init() {
-        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, Game.IS_FULLSCREEN ? 0 : 60 * devicePixelRatio);
+        Timeline.HEIGHT_REDUCTION = !Game.IS_FULLSCREEN ? 0 : 60 * devicePixelRatio;
+        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION);
         Timeline.MASTER_CONTAINER.color = 0x000000;
         Timeline.MASTER_CONTAINER.alpha = 0.5;
-        Timeline.MASTER_CONTAINER.borderRadius = 10;
+        // Timeline.MASTER_CONTAINER.borderRadius = 10;
 
         Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;
         Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
@@ -68,24 +71,26 @@ export class Timeline {
 
     static resize() {
         if (Game.IS_FULLSCREEN && Game.EMIT_STACK.length === 0) return;
-        if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
 
         if (innerWidth / innerHeight < 1) {
-            Timeline.MASTER_CONTAINER.h = 50 * devicePixelRatio;
+            if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
         } else {
-            Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+            if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio)
+                Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
         }
 
-        if (Game.IS_FULLSCREEN) Timeline.MASTER_CONTAINER.h = 0;
+        Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION;
+
+        // if (Game.IS_FULLSCREEN) Timeline.MASTER_CONTAINER.h = 0;
 
         Timeline.BASE_CONTAINER.x = 40 * devicePixelRatio;
         Timeline.ZOOMER.draw();
 
-        if (innerWidth / innerHeight < 1) {
-            Timeline.MASTER_CONTAINER.borderRadius = 0;
-        } else {
-            Timeline.MASTER_CONTAINER.borderRadius = 10;
-        }
+        // if (innerWidth / innerHeight < 1) {
+        //     Timeline.MASTER_CONTAINER.borderRadius = 0;
+        // } else {
+        //     Timeline.MASTER_CONTAINER.borderRadius = 10;
+        // }
 
         Timeline.MASTER_CONTAINER.redraw();
 

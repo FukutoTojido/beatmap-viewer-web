@@ -50,6 +50,7 @@ export class TitleArtist {
         );
         this.MASTER_CONTAINER.borderBox = false;
         this.MASTER_CONTAINER.padding = 20;
+        this.MASTER_CONTAINER.container.label = "TitleArtist";
 
         this.flex = new FlexBox();
         this.flex.flexDirection = "row";

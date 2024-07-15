@@ -25,7 +25,7 @@ export function toggleMetadataPanel() {
             metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400 * devicePixelRatio,
         };
 
-        document.querySelector(".mapBG").style.width = `calc(100% - 410px)`;
+        // document.querySelector(".mapBG").style.width = `calc(100% - 410px)`;
     }
 
     if (Game.SHOW_METADATA) {
@@ -34,7 +34,7 @@ export function toggleMetadataPanel() {
             timing: 0,
             metadata: 0,
         };
-        document.querySelector(".mapBG").style.width = ``;
+        // document.querySelector(".mapBG").style.width = ``;
     }
 
     Game.SHOW_TIMING_PANEL = false;
@@ -114,7 +114,7 @@ export class MetadataPanel {
     static SCROLLED = 0;
 
     static init() {
-        this.MASTER_CONTAINER = new Component(0, 70, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER = new Component(0, 0, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         this.MASTER_CONTAINER.padding = 15;
         this.MASTER_CONTAINER.alpha = 1;
@@ -326,9 +326,9 @@ export class MetadataPanel {
             if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
 
             this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0;
+            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0;
             this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 70 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
         }
 
         if (

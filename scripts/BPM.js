@@ -132,7 +132,7 @@ export class BPM {
 
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = Game.WRAPPER.w / 2;
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height;
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 * devicePixelRatio;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
         } else {
             this.MASTER_CONTAINER.x = 110 * devicePixelRatio;

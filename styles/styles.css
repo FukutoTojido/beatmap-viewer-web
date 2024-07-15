@@ -69,6 +69,8 @@ body {
     overflow-y: overlay;
     overflow-x: hidden;
     box-sizing: border-box;
+
+    transition: ease-in-out 200ms;
 }
 
 .placeholder {
@@ -173,6 +175,11 @@ body {
 
     box-sizing: border-box;
 
+    transition: ease-in-out 100ms;
+
+    overflow: hidden;
+
+    max-height: 400px;
     /* display: none; */
 }
 
@@ -399,6 +406,7 @@ svg {
     border-radius: 10px;
 
     overflow: hidden;
+    transition: ease-in-out 200ms;
 }
 
 canvas {
@@ -407,6 +415,8 @@ canvas {
 
     user-select: none;
     z-index: 1;
+
+    /* transition: ease-in-out 200ms; */
 }
 
 .thePlayer {
@@ -892,6 +902,8 @@ button:hover {
     opacity: 0;
 
     z-index: 3;
+
+    padding: 20px;
 }
 
 .switchMirrorContainer {

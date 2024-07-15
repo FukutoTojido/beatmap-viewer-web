@@ -158,8 +158,8 @@ export class Game {
         });
 
         fpsSprite.anchor.set(1, 1);
-        fpsSprite.x = Game.APP.canvas.width - 10;
-        fpsSprite.y = Game.APP.canvas.height - 10;
+        fpsSprite.x = Game.MASTER_CONTAINER.w - 10;
+        fpsSprite.y = Game.MASTER_CONTAINER.h - 10;
 
         return fpsSprite;
     }
@@ -425,8 +425,8 @@ export class Game {
         Game.DRAG_WINDOW.y = Game.OFFSET_Y;
 
         // Reposition FPS
-        Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
-        Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
+        Game.FPS.x = Game.MASTER_CONTAINER.w - 10 * devicePixelRatio;
+        Game.FPS.y = Game.MASTER_CONTAINER.h - 10 * devicePixelRatio;
         Game.FPS.style.fontSize = 15 * devicePixelRatio;
 
         Game.INFO.update();
@@ -488,14 +488,10 @@ export class Game {
     }
 
     static gameSizeSetup() {
-        if (Game.IS_FULLSCREEN) {
-            Game.WRAPPER.y = 0;
+        if (innerWidth / innerHeight < 1) {
+            Game.WRAPPER.y = 0 * devicePixelRatio;
         } else {
-            if (innerWidth / innerHeight < 1) {
-                Game.WRAPPER.y = 50 * devicePixelRatio;
-            } else {
-                Game.WRAPPER.y = 70 * devicePixelRatio;
-            }
+            Game.WRAPPER.y = 0 * devicePixelRatio;
         }
 
         if (innerWidth / innerHeight < 1) {
@@ -512,8 +508,8 @@ export class Game {
             }
         }
 
-        if (Game.WRAPPER.h !== Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio)) {
-            Game.WRAPPER.h = Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio);
+        if (Game.WRAPPER.h !== Game.APP.renderer.height) {
+            Game.WRAPPER.h = Game.APP.renderer.height;
             this.EMIT_STACK.push(true);
             // console.log("Stack Added! 3");
         }
@@ -528,22 +524,18 @@ export class Game {
             if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.w * (3 / 4)) {
                 Game.MASTER_CONTAINER.h = Game.WRAPPER.w * (3 / 4);
                 this.EMIT_STACK.push(true);
-                // console.log("Stack Added! 5");
             }
         } else {
-            if (Game.IS_FULLSCREEN) {
-                if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h) {
-                    Game.MASTER_CONTAINER.h = Game.WRAPPER.h;
-                    this.EMIT_STACK.push(true);
-                    // console.log("Stack Added! 6");
-                }
-            } else {
-                if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 60 * devicePixelRatio) {
-                    Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 60 * devicePixelRatio;
-                    this.EMIT_STACK.push(true);
-                    // console.log("Stack Added! 6");
-                }
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 120 * devicePixelRatio + Timeline.HEIGHT_REDUCTION * 2) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 120 * devicePixelRatio + Timeline.HEIGHT_REDUCTION * 2;
+                this.EMIT_STACK.push(true);
+                // console.log("Stack Added! 6");
             }
+        }
+
+        if (Game.MASTER_CONTAINER.y !== 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION) {
+            Game.MASTER_CONTAINER.y = 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION;
+            this.EMIT_STACK.push(true);
         }
 
         if (Game.WIDTH === Game.MASTER_CONTAINER.w && Game.HEIGHT === Game.MASTER_CONTAINER.h) return;
@@ -582,7 +574,7 @@ export class Game {
             0,
             Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio,
             Game.APP.renderer.width,
-            Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 70)
+            Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 0)
         );
         Game.WRAPPER.color = 0x000000;
         Game.WRAPPER.alpha = 0.01;
@@ -637,7 +629,8 @@ export class Game {
             hidePopup(e);
         });
 
-        Game.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, Game.APP.renderer.height - 60);
+        Game.MASTER_CONTAINER = new Component(0, 60, Game.APP.renderer.width, Game.APP.renderer.height - 60);
+        Game.MASTER_CONTAINER.overflow = "visible";
         Game.gameSizeSetup();
     }
 
@@ -667,8 +660,8 @@ export class Game {
         Game.APP.stage.addChild(Game.WRAPPER.masterContainer);
         Game.WRAPPER.container.addChild(Game.MASTER_CONTAINER.masterContainer);
 
-        Game.WRAPPER.container.addChild(Game.INFO.MASTER_CONTAINER.masterContainer);
-        Game.WRAPPER.container.addChild(Game.STATS.container.container);
+        Game.MASTER_CONTAINER.container.addChild(Game.INFO.MASTER_CONTAINER.masterContainer);
+        Game.MASTER_CONTAINER.container.addChild(Game.STATS.container.container);
 
         Timestamp.init();
         Game.WRAPPER.container.addChild(Timestamp.MASTER_CONTAINER.masterContainer);
@@ -686,7 +679,7 @@ export class Game {
         Game.WRAPPER.container.addChild(FullscreenButton.obj.container);
 
         await Timeline.init();
-        Game.APP.stage.addChild(Timeline.MASTER_CONTAINER.masterContainer);
+        Game.WRAPPER.container.addChild(Timeline.MASTER_CONTAINER.masterContainer);
 
         TimingPanel.init();
         Game.APP.stage.addChild(TimingPanel.MASTER_CONTAINER.masterContainer);

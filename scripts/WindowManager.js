@@ -178,6 +178,16 @@ export class Component {
                 .roundRect(0, 0, this._w - this.padding * 2, this._h - this.padding * 2, 0)
                 .fill({ color: 0x000000, alpha: 0.01 });
 
+            if (this.overflow === "hidden") {
+                this.masterContainer.mask = this.paddingMask;
+                this.container.mask = this.mask;
+            }
+
+            if (this.overflow === "visible") {
+                this.masterContainer.mask = undefined;
+                this.container.mask = undefined;
+            }
+
             return;
         }
 

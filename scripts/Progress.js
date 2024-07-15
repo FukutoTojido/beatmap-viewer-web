@@ -180,7 +180,7 @@ export class ProgressBar {
     }
 
     static init() {
-        this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60) * devicePixelRatio;
+        this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60 + 60) * devicePixelRatio;
         this.HEIGHT = 60 * devicePixelRatio;
 
         this.MASTER_CONTAINER = new Component((110 + 360 + 60) * devicePixelRatio, Game.WRAPPER.h - 60 * devicePixelRatio, this.WIDTH, this.HEIGHT);
