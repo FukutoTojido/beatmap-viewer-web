@@ -115,6 +115,8 @@ export class Game {
     static IS_VIDEO = false;
     static IS_STORYBOARD = false;
 
+    static SHOULD_PLAY_HITSOUND = true;
+
     static WORKER = new WorkerTest();
 
     // Add certain objects from container

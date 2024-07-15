@@ -189,7 +189,7 @@ export class HitSample {
     }
 
     play(isLoop) {
-        if (Game.IS_SEEKING) return;
+        if (Game.IS_SEEKING || !Game.SHOULD_PLAY_HITSOUND ) return;
 
         this.srcs = [];
 

@@ -6,11 +6,6 @@ import TWEEN, { Tween } from "@tweenjs/tween.js";
 import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 import { Timeline } from "./Timeline/Timeline.js";
 
-export function setAudioTime(value) {
-    if (!Game.BEATMAP_FILE?.audioNode) return;
-    Game.BEATMAP_FILE.audioNode.seekTo(value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
-}
-
 export function fullscreenToggle() {
     let result = 0;
     let old = 0;
@@ -90,12 +85,40 @@ export function parseTime(timestamp) {
     };
 }
 
+let timeTween;
+let expectedDestination = null;
+
+export function setAudioTime(value) {
+    if (!Game.BEATMAP_FILE?.audioNode) return;
+
+    if (timeTween) timeTween.stop();
+    expectedDestination = value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000;
+
+    timeTween = new Tween({ time: Game.BEATMAP_FILE.audioNode.getCurrentTime() })
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .to({ time: expectedDestination }, 100)
+        .onUpdate((obj) => {
+            Game.SHOULD_PLAY_HITSOUND = false;
+            Game.BEATMAP_FILE.audioNode.seekTo(obj.time);
+        })
+        .onComplete(() => {
+            expectedDestination = null;
+            Game.SHOULD_PLAY_HITSOUND = true;
+        })
+        .start();
+
+    // Game.BEATMAP_FILE.audioNode.seekTo(value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000)
+}
+
 export function go(precise, isForward) {
     if (!Game.BEATMAP_FILE || !Game.BEATMAP_FILE.audioNode.isLoaded) return;
+    if (timeTween) timeTween.stop();
+    // expectedDestination = null;
+
     let step = 1;
     let side = isForward ? 1 : -1;
     let currentBeatstep;
-    const current = Game.BEATMAP_FILE.audioNode.getCurrentTime();
+    const current = expectedDestination ?? Game.BEATMAP_FILE.audioNode.getCurrentTime();
     const isPlaying = Game.BEATMAP_FILE.audioNode.isPlaying;
 
     if (Beatmap.beatStepsList.length) {
@@ -107,12 +130,22 @@ export function go(precise, isForward) {
     const relativeTickPassed = Math.round(relativePosition / step);
 
     const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
+    expectedDestination = goTo;
 
-    // const tween = new Tween({ time: current }).easing(TWEEN.Easing.Sinusoidal.Out).to({ time: goTo }, 100).onUpdate((obj) => {
-    //     Game.BEATMAP_FILE.audioNode.seekTo(obj.time);
-    // }).start();
+    timeTween = new Tween({ time: Game.BEATMAP_FILE.audioNode.getCurrentTime() })
+        .easing(TWEEN.Easing.Sinusoidal.Out)
+        .to({ time: goTo }, 100)
+        .onUpdate((obj) => {
+            Game.SHOULD_PLAY_HITSOUND = false;
+            Game.BEATMAP_FILE.audioNode.seekTo(obj.time);
+        })
+        .onComplete(() => {
+            expectedDestination = null;
+            Game.SHOULD_PLAY_HITSOUND = true;
+        })
+        .start();
 
-    Game.BEATMAP_FILE.audioNode.seekTo(goTo);
+    // Game.BEATMAP_FILE.audioNode.seekTo(goTo);
 }
 // document.querySelector("#prevButton").onclick = () => go(null, false);
 // document.querySelector("#playButton").onclick = () => playToggle(document.querySelector("#playButton"));
