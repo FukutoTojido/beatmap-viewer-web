@@ -109,7 +109,7 @@ export class Game {
     static IS_SEEKING = false;
     static ALPHA = 1;
     static IS_FULLSCREEN = isFullscreen;
-    static IS_HOVERING_PROGRESS = false;
+    static _IS_HOVERING_PROGRESS = false;
 
     static WORKER_DELTA_MS = 0;
     static IS_VIDEO = false;
@@ -124,6 +124,22 @@ export class Game {
         objectsList.forEach((o) => {
             if (o) Game.CONTAINER.addChild(o.obj);
         });
+    }
+
+    static get IS_HOVERING_PROGRESS() {
+        return Game._IS_HOVERING_PROGRESS;
+    }
+
+    static set IS_HOVERING_PROGRESS(val) {
+        Game._IS_HOVERING_PROGRESS = val;
+
+        if (!Game.IS_FULLSCREEN) return;
+
+        if (val) {
+            Game.FPS.y = Game.MASTER_CONTAINER.h - 70 * devicePixelRatio;
+        } else {
+            Game.FPS.y = Game.MASTER_CONTAINER.h - 10 * devicePixelRatio;
+        }
     }
 
     // Remove certain objects from container
