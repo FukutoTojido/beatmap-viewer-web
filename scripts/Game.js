@@ -437,7 +437,7 @@ export class Game {
         Game.gameSizeSetup();
 
         if (this.EMIT_STACK.length === 0) return;
-        Game.APP.renderer.resolution = Game.RESOLUTION * devicePixelRatio;
+        Game.APP.renderer.resolution = Game.RESOLUTION;
 
         // Reposition grid
         Game.GRID.x = Game.OFFSET_X;
