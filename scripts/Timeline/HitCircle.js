@@ -22,6 +22,14 @@ export class TimelineHitCircle {
     hitObject;
     isSlider = false;
 
+    cache = {
+        tint: null,
+        x: null,
+        selected: null,
+        skinType: null,
+        baseHeight: null,
+    };
+
     constructor(hitObject, isSlider = false) {
         this.isSlider = isSlider;
         this.obj = new PIXI.Container();
@@ -95,7 +103,9 @@ export class TimelineHitCircle {
         const numberSprite = new TintedNumberSprite(hitObject);
 
         hitCircle.anchor.set(0.5, 0.5);
+
         hitCircleOverlay.anchor.set(0.5, 0.5);
+
         selected.anchor.set(0.5, 0.5);
         selected.scale.set(0.5);
 
@@ -164,74 +174,46 @@ export class TimelineHitCircle {
         return geometry;
     }
 
-    draw(timestamp, isSliderTail) {
+    updatePosition(timestamp) {
         const time = this.hitObject.time;
         const delta = timestamp - time;
 
         const center = Timeline.WIDTH / 2;
+        const x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
 
-        this.obj.x = center - (delta / 500) * Timeline.ZOOM_DISTANCE;
+        if (x === this.cache.x) return;
 
-        const selected = Game.SELECTED.includes(time);
+        this.cache.x = x;
+        this.obj.x = x;
+    }
 
-        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
-        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
+    updateSelected() {
+        const time = this.hitObject.time;
+        const selected = !Game.SKINNING.type === 0 && Game.SELECTED.includes(time);
 
-        if (colors[idx % colors.length]) {
-            const tint =
-                idx === -1
-                    ? [1.0, 1.0, 1.0, 1.0]
-                    : [...Object.values(d3.rgb(`#${colors[idx % colors.length].toString(16).padStart(6, "0")}`)).map((val) => val / 255), 1.0];
-            this.meshHead.shader.resources.customUniforms.uniforms.tint = tint;
-            this.meshTail.shader.resources.customUniforms.uniforms.tint = tint;
+        if (selected === this.cache.selected) return;
+        this.cache.selected = selected;
 
-            if (isSliderTail) {
-                const [R, G, B] = tint;
-                const lumi = 0.299 * R + 0.587 * G + 0.114 * B;
-                if (lumi > 0.5) {
-                    this.meshHead.shader.resources.customUniforms.uniforms.nodeTint = [0.2, 0.2, 0.2, 1.0];
-                    this.meshTail.shader.resources.customUniforms.uniforms.nodeTint = [0.2, 0.2, 0.2, 1.0];
-                } else {
-                    this.meshHead.shader.resources.customUniforms.uniforms.nodeTint = [0.9, 0.9, 0.9, 1.0];
-                    this.meshTail.shader.resources.customUniforms.uniforms.nodeTint = [0.9, 0.9, 0.9, 1.0];
-                }
-            }
-        }
+        this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
+        this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
 
-        const skinType = Skinning.SKIN_ENUM[Game.SKINNING.type];
-        const textures = skinType !== "CUSTOM" ? Texture.LEGACY : Texture.CUSTOM[Skinning.SKIN_IDX];
+        this.selected.visible = selected;
+    }
 
-        if (skinType === "ARGON") {
-            this.hitCircle.visible = false;
-            this.hitCircleOverlay.visible = false;
+    updateVisible(isSliderTail) {
+        if (Game.SKINNING.type === this.cache.skinType) return;
+        this.cache.skinType = Game.SKINNING.type;
 
-            if (this.isSlider && !isSliderTail) {
-                this.theThing.visible = false;
-            } else {
-                this.theThing.visible = true;
-            }
+        const skinType = Game.SKINNING.type;
+        const skinType_t = Skinning.SKIN_ENUM[Game.SKINNING.type];
+        const textures = skinType_t !== "CUSTOM" ? Texture.LEGACY : Texture.CUSTOM[Skinning.SKIN_IDX];
 
-            this.meshHead.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2 / devicePixelRatio);
-            this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
-            this.meshHead.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
+        this.theThing.visible = skinType === "0" && !(this.isSlider && !isSliderTail);
+        this.hitCircle.visible = !(skinType === "0");
+        this.hitCircleOverlay.visible = !(skinType === "0");
 
-            this.meshTail.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2 / devicePixelRatio);
-            this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
-            this.meshTail.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
-
-            if (isSliderTail) {
-                this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60 / devicePixelRatio);
-                this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60 / devicePixelRatio);
-                this.meshHead.shader.resources.customUniforms.uniforms.isReverse = true;
-                this.meshTail.shader.resources.customUniforms.uniforms.isReverse = true;
-            }
-        } else {
-            this.hitCircle.visible = true;
-            this.hitCircleOverlay.visible = true;
-            this.theThing.visible = false;
-        }
-
-        this.hitCircle.tint = colors[idx % colors.length] ?? 0;
+        this.meshHead.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
+        this.meshTail.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
         this.hitCircle.texture = textures.HIT_CIRCLE.texture;
         this.hitCircle.scale.set(textures.HIT_CIRCLE.isHD ? 0.5 : 1);
@@ -239,16 +221,71 @@ export class TimelineHitCircle {
         this.hitCircleOverlay.texture = textures.HIT_CIRCLE_OVERLAY.texture;
         this.hitCircleOverlay.scale.set(textures.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
 
-        this.obj.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / this.hitCircle.height);
-        this.obj.y = Timeline.HEIGHT / 2;
+        if (isSliderTail) {
+            this.meshHead.shader.resources.customUniforms.uniforms.isReverse = true;
+            this.meshTail.shader.resources.customUniforms.uniforms.isReverse = true;
+        }
+    }
 
-        this.selected.visible = false;
-        if (Game.SELECTED.includes(time) && skinType !== "ARGON") {
-            this.selected.visible = true;
+    updateTint(isSliderTail) {
+        const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
+        const idx = Game.SLIDER_APPEARANCE.ignoreSkin ? this.hitObject.colourIdx : this.hitObject.colourHaxedIdx;
+
+        if (colors[idx % colors.length] === undefined) return;
+        if (colors[idx % colors.length] === this.cache.tint) return;
+        this.cache.tint = colors[idx % colors.length];
+
+        this.hitCircle.tint = colors[idx % colors.length];
+
+        const tint =
+            idx === -1
+                ? [1.0, 1.0, 1.0, 1.0]
+                : [...Object.values(d3.rgb(`#${this.cache.tint.toString(16).padStart(6, "0")}`)).map((val) => val / 255), 1.0];
+
+        if (isSliderTail) {
+            const [R, G, B] = tint;
+            const lumi = 0.299 * R + 0.587 * G + 0.114 * B;
+
+            if (lumi > 0.5) {
+                this.meshHead.shader.resources.customUniforms.uniforms.nodeTint = [0.2, 0.2, 0.2, 1.0];
+                this.meshTail.shader.resources.customUniforms.uniforms.nodeTint = [0.2, 0.2, 0.2, 1.0];
+                return;
+            }
+
+            this.meshHead.shader.resources.customUniforms.uniforms.nodeTint = [0.9, 0.9, 0.9, 1.0];
+            this.meshTail.shader.resources.customUniforms.uniforms.nodeTint = [0.9, 0.9, 0.9, 1.0];
+            return;
         }
 
-        if (isSliderTail) return;
+        this.meshHead.shader.resources.customUniforms.uniforms.tint = tint;
+        this.meshTail.shader.resources.customUniforms.uniforms.tint = tint;
+    }
 
+    updateScale(isSliderTail) {
+        if (this.cache.baseHeight === Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1)) return;
+        this.cache.baseHeight = Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1);
+
+        this.obj.scale.set(this.cache.baseHeight / this.hitCircle.height);
+        this.obj.y = Timeline.HEIGHT / 2;
+
+        if (isSliderTail) {
+            this.meshHead.scale.set(this.cache.baseHeight / 60 / devicePixelRatio);
+            this.meshTail.scale.set(this.cache.baseHeight / 60 / devicePixelRatio);
+            return;
+        }
+
+        this.meshHead.scale.set(((this.cache.baseHeight / 60) * 2) / devicePixelRatio);
+        this.meshTail.scale.set(((this.cache.baseHeight / 60) * 2) / devicePixelRatio);
+    }
+
+    draw(timestamp, isSliderTail) {
+        this.updatePosition(timestamp);
+        this.updateSelected();
+        this.updateVisible(isSliderTail);
+        this.updateScale(isSliderTail);
+        this.updateTint(isSliderTail);
+
+        if (isSliderTail) return;
         this.numberSprite.draw(timestamp, this.hitObject.comboIdx);
     }
 }

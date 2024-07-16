@@ -733,7 +733,7 @@ export class Game {
             }
 
             if (event.data.type === "updateOrder") {
-                const { objects, currentTime, lastTime } = event.data;
+                const { objects, currentTime, lastTime, timeline } = event.data;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.addTop = objects.addTop;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
@@ -741,6 +741,9 @@ export class Game {
 
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.playHitsounds(currentTime, lastTime);
+
+                Timeline.updateOrder(timeline);
+                Timeline.DRAW_LIST = timeline.filtered;
                 return;
             }
 

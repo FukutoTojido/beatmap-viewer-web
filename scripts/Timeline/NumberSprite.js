@@ -10,6 +10,10 @@ export class TintedNumberSprite extends NumberSprite {
     number = 0;
     sprites = [];
 
+    cache = {
+        number: null
+    }
+
     constructor(hitObject) {
         super(hitObject);
     }

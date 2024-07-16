@@ -67,6 +67,11 @@ export class Timeline {
 
         Timeline.beatLines = new BeatLines();
         Timeline.BASE_CONTAINER.addChild(Timeline.beatLines.obj);
+
+        Game.WORKER.postMessage({
+            type: "range",
+            range: (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD,
+        });
     }
 
     static resize() {
@@ -99,7 +104,28 @@ export class Timeline {
         Timeline.WIDTH = Timeline.MASTER_CONTAINER.w;
         Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
 
+        Game.WORKER.postMessage({
+            type: "range",
+            range: (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD,
+        });
+
         Timeline.hitArea.resize();
+    }
+
+    static updateOrder({ removed, addBack, addTop }) {
+        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
+
+        removed.forEach((object) => {
+            Timeline.hitArea.obj.removeChild(objList[object.idx].timelineObject.obj);
+        });
+
+        addBack.forEach((object) => {
+            Timeline.hitArea.obj.addChildAt(objList[object.idx].timelineObject.obj, 0);
+        });
+
+        addTop.forEach((object) => {
+            Timeline.hitArea.obj.addChild(objList[object.idx].timelineObject.obj);
+        });
     }
 
     static draw(timestamp) {
@@ -112,70 +138,18 @@ export class Timeline {
 
         const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
 
-        const range = (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD;
-
-        const drawList = [];
-        const compareFunc = (element, value) => {
-            if (element.obj.endTime < value - range) return -1;
-            if (element.obj.time > value + range) return 1;
-            return 0;
-        };
-        const foundIndex = binarySearch(objList, timestamp, compareFunc);
-
-        if (foundIndex !== -1) {
-            let start = foundIndex - 1;
-            let end = foundIndex + 1;
-
-            while (start >= 0 && compareFunc(objList[start], timestamp) === 0) {
-                drawList.push(objList[start]);
-                start--;
-            }
-
-            drawList.reverse();
-            drawList.push(objList[foundIndex]);
-
-            while (end <= objList.length - 1 && compareFunc(objList[end], timestamp) === 0) {
-                drawList.push(objList[end]);
-                end++;
-            }
-
-            drawList.reverse();
-        }
-
-        this.DRAW_LIST.forEach((o) => {
-            if (drawList.length > 0 && o.obj.time <= drawList.at(0).obj.time && o.obj.time >= drawList.at(-1).obj.time) return;
-            o.timelineObject?.removeSelfFromContainer(Timeline.hitArea.obj);
-        });
-
-        drawList.forEach((o) => {
-            if (!o.timelineObject) return;
-
-            if (this.DRAW_LIST.length <= 0) {
-                Timeline.hitArea.obj.addChild(o.timelineObject.obj);
-                return;
-            }
-
-            if (o.obj.time > this.DRAW_LIST.at(0).obj.time) {
-                Timeline.hitArea.obj.addChildAt(o.timelineObject.obj, 0);
-                return;
-            }
-
-            if (o.obj.time < this.DRAW_LIST.at(-1).obj.time) {
-                Timeline.hitArea.obj.addChild(o.timelineObject.obj);
-                return;
-            }
-        });
-
-        this.DRAW_LIST = drawList;
-        this.DRAW_LIST.forEach((o) => {
-            o.timelineObject?.draw(timestamp);
+        this.DRAW_LIST.forEach((object) => {
+            objList[object.idx].timelineObject?.draw(timestamp);
         });
     }
 
     static destruct() {
-        this.DRAW_LIST.forEach((o) => {
-            o.timelineObject.removeSelfFromContainer(Timeline.hitArea.obj);
-            o.timelineObject.obj.destroy();
+        if (!Game.BEATMAP_FILE?.beatmapRenderData) return;
+        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
+
+        this.DRAW_LIST.forEach((object) => {
+            objList[object.idx].timelineObject?.removeSelfFromContainer(Timeline.hitArea.obj);
+            objList[object.idx].timelineObject?.obj.destroy();
         });
 
         this.DRAW_LIST.length = 0;

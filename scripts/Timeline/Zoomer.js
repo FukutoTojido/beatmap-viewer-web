@@ -99,10 +99,18 @@ export class TimelineZoomer {
 
         this.zoomIn.setOnClick(() => {
             Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + 1 * 20, 20, 800);
+            Game.WORKER.postMessage({
+                type: "range",
+                range: (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD,
+            });
         });
 
         this.zoomOut.setOnClick(() => {
             Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE - 1 * 20, 20, 800);
+            Game.WORKER.postMessage({
+                type: "range",
+                range: (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD,
+            });
         });
     }
 
