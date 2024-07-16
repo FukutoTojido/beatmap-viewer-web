@@ -11,8 +11,8 @@ export class TintedNumberSprite extends NumberSprite {
     sprites = [];
 
     cache = {
-        number: null
-    }
+        number: null,
+    };
 
     constructor(hitObject) {
         super(hitObject);
@@ -70,8 +70,10 @@ export class TintedNumberSprite extends NumberSprite {
 
                 if (prevSprite) {
                     const overlapValue =
-                        skinType === "LEGACY" || skinType === "ARGON"
+                        skinType === "LEGACY"
                             ? Skinning.HIT_CIRCLE_OVERLAP
+                            : skinType === "ARGON"
+                            ? Skinning.HIT_CIRCLE_OVERLAP_ARGON
                             : Skinning.SKIN_LIST[Skinning.SKIN_IDX].ini.HIT_CIRCLE_OVERLAP;
                     sprite.x = prevSprite.x + prevSprite.width / 2 + sprite.width / 2 - overlapValue * 0.8;
                 }
