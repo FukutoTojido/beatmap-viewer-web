@@ -24,8 +24,8 @@ export class Button {
         this.sprite = new PIXI.Sprite(this.texture);
         this.sprite.scale.set(this.imgURL === "static/info.png" ? 1 : 0.75);
         this.sprite.anchor.set(0.5);
-        this.sprite.x = 30 * devicePixelRatio;
-        this.sprite.y = 30 * devicePixelRatio;
+        this.sprite.x = 30;
+        this.sprite.y = 30;
 
         this._onclick = () => {};
 
@@ -59,11 +59,11 @@ export class Button {
     }
 
     get width() {
-        return 60 * devicePixelRatio;
+        return 60;
     }
 
     get height() {
-        return 60 * devicePixelRatio;
+        return 60;
     }
 
     set onclick(fn) {
@@ -79,17 +79,14 @@ export class Button {
     }
 
     redraw() {
-        this.graphics
-            .clear()
-            .rect(0, 0, 60 * devicePixelRatio, 60 * devicePixelRatio)
-            .fill(this.color);
+        this.graphics.clear().rect(0, 0, 60, 60).fill(this.color);
 
-        this.container.x = this.x * devicePixelRatio;
-        this.container.y = this.y * devicePixelRatio;
+        this.container.x = this.x;
+        this.container.y = this.y;
 
-        this.sprite.scale.set(devicePixelRatio * (this.imgURL === "static/info.png" ? 1 : 0.75));
-        this.sprite.x = 30 * devicePixelRatio;
-        this.sprite.y = 30 * devicePixelRatio;
+        this.sprite.scale.set(this.imgURL === "static/info.png" ? 1 : 0.75);
+        this.sprite.x = 30;
+        this.sprite.y = 30;
     }
 }
 
@@ -136,12 +133,12 @@ export class PlayContainer {
             this.MASTER_CONTAINER.y = BPM.MASTER_CONTAINER.y + BPM.MASTER_CONTAINER.h;
             this.MASTER_CONTAINER.width = Game.WRAPPER.w;
         } else {
-            this.MASTER_CONTAINER.x = 290 * devicePixelRatio;
-            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.width = 240 * devicePixelRatio;
+            this.MASTER_CONTAINER.x = 290;
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60;
+            this.MASTER_CONTAINER.width = 240;
         }
 
-        this.MASTER_CONTAINER.container.h = 60 * devicePixelRatio;
+        this.MASTER_CONTAINER.container.h = 60;
 
         this.playButton.redraw();
         this.prevButton.redraw();
@@ -166,7 +163,7 @@ export class PlayContainer {
 export class FullscreenButton {
     static async init() {
         this.obj = new Button();
-        await this.obj.init((Game.WRAPPER.w - 60 * devicePixelRatio) / devicePixelRatio, Game.WRAPPER.h / devicePixelRatio - 60, "static/maximize.svg", "static/minimize.svg");
+        await this.obj.init(Game.WRAPPER.w - 60, Game.WRAPPER.h - 60, "static/maximize.svg", "static/minimize.svg");
         this.obj.onclick = () => fullscreenToggle();
         this.obj.container.label = "Fullscreen Button";
         this.obj.color = Game.COLOR_PALETTES.primary2;
@@ -182,12 +179,12 @@ export class FullscreenButton {
         if (Game.EMIT_STACK.length === 0) return;
         if (!this.obj) return;
 
-        this.obj.x = (Game.WRAPPER.w - 60 * devicePixelRatio) / devicePixelRatio;
+        this.obj.x = Game.WRAPPER.w - 60;
 
         if (innerWidth / innerHeight < 1) {
             this.obj.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
         } else {
-            this.obj.y = Game.WRAPPER.h / devicePixelRatio - 60;
+            this.obj.y = Game.WRAPPER.h - 60;
         }
 
         this.obj.redraw();

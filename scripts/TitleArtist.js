@@ -24,7 +24,7 @@ export class TitleArtist {
             style: {
                 fontFamily: "Torus",
                 fontWeight: 600,
-                fontSize: 20 * devicePixelRatio,
+                fontSize: 20 ,
                 fill: 0xffffff,
                 wordWrap: true,
             },
@@ -36,7 +36,7 @@ export class TitleArtist {
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
-                fontSize: 16 * devicePixelRatio,
+                fontSize: 16 ,
                 fill: 0xffffff,
                 wordWrap: true,
             },
@@ -46,7 +46,7 @@ export class TitleArtist {
             0,
             0,
             Math.max(this.titleArtist.width, this.diffMapper.width),
-            this.titleArtist.height + 5 * devicePixelRatio + this.diffMapper.height
+            this.titleArtist.height + 5  + this.diffMapper.height
         );
         this.MASTER_CONTAINER.borderBox = false;
         this.MASTER_CONTAINER.padding = 20;
@@ -144,13 +144,13 @@ export class TitleArtist {
     }
 
     update() {
-        this.titleArtist.style.fontSize = 20 * devicePixelRatio;
-        this.diffMapper.style.fontSize = 14 * devicePixelRatio;
-        // this.diffMapper.sprite.y = 5 * devicePixelRatio + this.titleArtist.height;
+        this.titleArtist.style.fontSize = 20 ;
+        this.diffMapper.style.fontSize = 14 ;
+        // this.diffMapper.sprite.y = 5  + this.titleArtist.height;
 
         this.titleArtist.style.wordWrapWidth = Game.WRAPPER.w - this.MASTER_CONTAINER.padding * 2;
         this.diffMapper.style.wordWrapWidth = Game.WRAPPER.w - this.MASTER_CONTAINER.padding * 2;
-        // this.diffMapper.sprite.y = 5 * devicePixelRatio + this.titleArtist.height;
+        // this.diffMapper.sprite.y = 5  + this.titleArtist.height;
 
         this.titleArtist.update();
         this.diffMapper.update();

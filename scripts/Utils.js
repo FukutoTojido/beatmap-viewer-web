@@ -153,9 +153,9 @@ export async function loadLocalStorage() {
         ).textContent;
         document.querySelector("#resolution").value = currentLocalStorage.renderer.resolution;
         document.querySelector("#resolutionVal").innerHTML = currentLocalStorage.renderer.resolution.toFixed(2);
+        Game.RESOLUTION = currentLocalStorage.renderer.resolution;
 
         document.querySelector("#aa").checked = currentLocalStorage.renderer.aa;
-
 
         Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
         Skinning.changeSkin();

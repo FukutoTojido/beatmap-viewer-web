@@ -37,6 +37,15 @@ export class Game {
     static DRAG_WINDOW;
     static FPS;
     static CURSOR;
+    static _RESOLUTION = 1;
+    static get RESOLUTION() {
+        return this._RESOLUTION;
+    };
+
+    static set RESOLUTION(val) {
+        this._RESOLUTION = val;
+        this.EMIT_STACK.push(true);
+    }
 
     static WIDTH;
     static HEIGHT;
@@ -103,7 +112,7 @@ export class Game {
     static REDUCTION = 0;
     static COMPUTED_HEIGHT = 0;
 
-    static DEVE_RATIO = devicePixelRatio;
+    static DEVE_RATIO = 1;
     static EMIT_STACK = [];
 
     static IS_SEEKING = false;
@@ -136,9 +145,9 @@ export class Game {
         if (!Game.IS_FULLSCREEN) return;
 
         if (val) {
-            Game.FPS.y = Game.MASTER_CONTAINER.h - 70 * devicePixelRatio;
+            Game.FPS.y = Game.MASTER_CONTAINER.h - 70;
         } else {
-            Game.FPS.y = Game.MASTER_CONTAINER.h - 10 * devicePixelRatio;
+            Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
         }
     }
 
@@ -428,6 +437,7 @@ export class Game {
         Game.gameSizeSetup();
 
         if (this.EMIT_STACK.length === 0) return;
+        Game.APP.renderer.resolution = Game.RESOLUTION * devicePixelRatio;
 
         // Reposition grid
         Game.GRID.x = Game.OFFSET_X;
@@ -443,9 +453,9 @@ export class Game {
         Game.DRAG_WINDOW.y = Game.OFFSET_Y;
 
         // Reposition FPS
-        Game.FPS.x = Game.MASTER_CONTAINER.w - 10 * devicePixelRatio;
-        Game.FPS.y = Game.MASTER_CONTAINER.h - 10 * devicePixelRatio;
-        Game.FPS.style.fontSize = 15 * devicePixelRatio;
+        Game.FPS.x = Game.MASTER_CONTAINER.w - 10;
+        Game.FPS.y = Game.MASTER_CONTAINER.h - 10;
+        Game.FPS.style.fontSize = 15;
 
         Game.INFO.update();
         Game.STATS.update();
@@ -455,15 +465,13 @@ export class Game {
     static appSizeSetup() {
         // Set renderer size to container size
         let { width, height } = getComputedStyle(document.querySelector(".contentWrapper"));
-        width = Math.round(parseInt(width) * devicePixelRatio);
-        height = Math.round(parseInt(height) * devicePixelRatio);
+        width = Math.round(parseInt(width));
+        height = Math.round(parseInt(height));
         const preHeight = height;
         Game.COMPUTED_HEIGHT = preHeight;
 
         if (innerWidth / innerHeight < 1) {
-            height = Math.round(
-                Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70 * devicePixelRatio)
-            );
+            height = Math.round(Math.max(height, (ProgressBar?.MASTER_CONTAINER?.y ?? 0) + (ProgressBar?.MASTER_CONTAINER?.h ?? 0) + 70));
 
             if (preHeight !== height && document.querySelector(".contentWrapper").style.height !== height) {
                 document.querySelector(".contentWrapper").style.height = `${height}px`;
@@ -475,7 +483,7 @@ export class Game {
         // console.log("Stack Added! 0", width, height, Game.APP.renderer.width, Game.APP.renderer.height);
         Game.APP.renderer.resize(width, height);
 
-        Game.APP.canvas.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        // Game.APP.canvas.style.transform = `scale(${1 })`;
     }
 
     static async appInit() {
@@ -507,11 +515,7 @@ export class Game {
     }
 
     static gameSizeSetup() {
-        if (innerWidth / innerHeight < 1) {
-            Game.WRAPPER.y = 0 * devicePixelRatio;
-        } else {
-            Game.WRAPPER.y = 0 * devicePixelRatio;
-        }
+        Game.WRAPPER.y = 0;
 
         if (innerWidth / innerHeight < 1) {
             if (Game.WRAPPER.w !== Game.APP.renderer.width) {
@@ -520,8 +524,8 @@ export class Game {
                 // console.log("Stack Added! 1");
             }
         } else {
-            if (Game.WRAPPER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio) {
-                Game.WRAPPER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
+            if (Game.WRAPPER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410) {
+                Game.WRAPPER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410;
                 this.EMIT_STACK.push(true);
                 // console.log("Stack Added! 2");
             }
@@ -545,15 +549,15 @@ export class Game {
                 this.EMIT_STACK.push(true);
             }
         } else {
-            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 120 * devicePixelRatio + Timeline.HEIGHT_REDUCTION * 2) {
-                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 120 * devicePixelRatio + Timeline.HEIGHT_REDUCTION * 2;
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 120 + Timeline.HEIGHT_REDUCTION * 2) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 120 + Timeline.HEIGHT_REDUCTION * 2;
                 this.EMIT_STACK.push(true);
                 // console.log("Stack Added! 6");
             }
         }
 
-        if (Game.MASTER_CONTAINER.y !== 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION) {
-            Game.MASTER_CONTAINER.y = 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION;
+        if (Game.MASTER_CONTAINER.y !== 60 - Timeline.HEIGHT_REDUCTION) {
+            Game.MASTER_CONTAINER.y = 60 - Timeline.HEIGHT_REDUCTION;
             this.EMIT_STACK.push(true);
         }
 
@@ -591,7 +595,7 @@ export class Game {
     static gameInit() {
         Game.WRAPPER = new Component(
             0,
-            Game.IS_FULLSCREEN ? 0 : 70 * devicePixelRatio,
+            Game.IS_FULLSCREEN ? 0 : 70,
             Game.APP.renderer.width,
             Game.APP.renderer.height - (Game.IS_FULLSCREEN ? 0 : 0)
         );
@@ -610,7 +614,7 @@ export class Game {
             if (!Game.IS_DRAGSCROLL) return;
 
             const delta = e.global.y - Game.START_DRAG_Y;
-            window.scrollBy(0, -delta / devicePixelRatio);
+            window.scrollBy(0, -delta);
             Game.START_DRAG_Y = e.global.y;
         });
 
@@ -621,7 +625,7 @@ export class Game {
 
         Game.WRAPPER.masterContainer.on("mousemove", (e) => {
             const { y } = e.global;
-            Game.IS_HOVERING_PROGRESS = y - Game.WRAPPER.y >= Game.WRAPPER.h - 60 * devicePixelRatio;
+            Game.IS_HOVERING_PROGRESS = y - Game.WRAPPER.y >= Game.WRAPPER.h - 60;
         });
 
         const hidePopup = (e) => {
@@ -721,23 +725,6 @@ export class Game {
         HitSample.masterGainNode = Game.AUDIO_CTX.createGain();
         HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;
         HitSample.masterGainNode.connect(Game.AUDIO_CTX.destination);
-
-        Game.APP.ticker.add(() => {
-            // console.log("tick");
-            // TWEEN.update();
-            // ObjectsController.render();
-            // Game.DEVE_RATIO = devicePixelRatio;
-        });
-
-        // const update = () => {
-        //         TWEEN.update();
-        //         ObjectsController.render();
-        //         Game.DEVE_RATIO = devicePixelRatio;
-
-        //         requestAnimationFrame(() => update())
-        // };
-
-        // requestAnimationFrame(() => update());
 
         await Transcoder.load();
 

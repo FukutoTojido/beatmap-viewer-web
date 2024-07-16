@@ -122,11 +122,11 @@ export class Stats {
     }
 
     update() {
-        this.CSSprite.style.fontSize = 12 * devicePixelRatio;
-        this.ARSprite.style.fontSize = 12 * devicePixelRatio;
-        this.ODSprite.style.fontSize = 12 * devicePixelRatio;
-        this.HPSprite.style.fontSize = 12 * devicePixelRatio;
-        this.SRSprite.style.fontSize = 12 * devicePixelRatio;
+        this.CSSprite.style.fontSize = 12 ;
+        this.ARSprite.style.fontSize = 12 ;
+        this.ODSprite.style.fontSize = 12 ;
+        this.HPSprite.style.fontSize = 12 ;
+        this.SRSprite.style.fontSize = 12 ;
 
         this.CSSprite.update();
         this.ARSprite.update();
@@ -145,8 +145,8 @@ export class Stats {
             this.flex.gap = 40;
         } else {
             this.container.width = undefined;
-            this.container.x = Game.WRAPPER.w - this.container.width - 10 * devicePixelRatio;
-            this.container.y = 10 * devicePixelRatio;
+            this.container.x = Game.WRAPPER.w - this.container.width - 10 ;
+            this.container.y = 10 ;
             this.container.borderRadius = 20;
             this.flex.gap = 20;
         }

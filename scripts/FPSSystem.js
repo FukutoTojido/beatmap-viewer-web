@@ -58,7 +58,7 @@ export class FPSSystem {
 
         ObjectsController.render();
         TWEEN.update();
-        Game.DEVE_RATIO = devicePixelRatio;
+        // Game.DEVE_RATIO = devicePixelRatio;
     }
 
     postrender() {

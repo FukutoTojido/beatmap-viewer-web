@@ -74,7 +74,7 @@ export class Timestamp {
             // renderMode: "bitmap",
             style: {
                 fontFamily: "Torus16",
-                fontSize: 16 * devicePixelRatio,
+                fontSize: 16 ,
                 align: "center",
                 fontWeight: 400,
             },
@@ -91,7 +91,7 @@ export class Timestamp {
         // this.renderer = new PIXI.Renderer({ width: 110, height: 60, backgroundColor: 0x4c566a, antialias: true, autoDensity: true });
         // document.querySelector("#timeContainer").append(this.renderer.view);
 
-        this.MASTER_CONTAINER = new Component(0, Game.WRAPPER.h - 60 * devicePixelRatio, 110 * devicePixelRatio, 60 * devicePixelRatio);
+        this.MASTER_CONTAINER = new Component(0, Game.WRAPPER.h - 60 , 110 , 60 );
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary4;
         this.MASTER_CONTAINER.alpha = 1;
 
@@ -105,8 +105,8 @@ export class Timestamp {
 
         this.stage = this.MASTER_CONTAINER.container;
 
-        this.WIDTH = 120 * devicePixelRatio;
-        this.HEIGHT = 60 * devicePixelRatio;
+        this.WIDTH = 120 ;
+        this.HEIGHT = 60 ;
 
         const timeContainer = new PIXI.Container();
         const minutes = new PIXI.Container();
@@ -140,8 +140,8 @@ export class Timestamp {
         }
 
         minutes.x = 0;
-        seconds.x = 24 * devicePixelRatio;
-        miliseconds.x = 48 * devicePixelRatio;
+        seconds.x = 24 ;
+        miliseconds.x = 48 ;
 
         timeContainer.addChild(minutes, seconds, miliseconds);
         timeContainer.x = 23;
@@ -168,45 +168,45 @@ export class Timestamp {
 
         this.MASTER_CONTAINER.x = 0;
         if (innerWidth / innerHeight < 1) {
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 * devicePixelRatio;
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 ;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
             this.timeContainer.x = (this.MASTER_CONTAINER.w - this.timeContainer.width) / 2;
         } else {
-            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.w = 110 * devicePixelRatio;
-            this.timeContainer.x = 23 * devicePixelRatio;
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 ;
+            this.MASTER_CONTAINER.w = 110 ;
+            this.timeContainer.x = 23 ;
         }
-        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+        this.MASTER_CONTAINER.h = 60 ;
 
-        this.WIDTH = 120 * devicePixelRatio;
-        this.HEIGHT = 60 * devicePixelRatio;
+        this.WIDTH = 120 ;
+        this.HEIGHT = 60 ;
 
         this.minutes.x = 0;
-        this.seconds.x = 24 * devicePixelRatio;
-        this.miliseconds.x = 48 * devicePixelRatio;
+        this.seconds.x = 24 ;
+        this.miliseconds.x = 48 ;
 
         this.colons.forEach((colon) => {
-            colon.x = 16 * devicePixelRatio;
-            colon.y = this.HEIGHT / 2 - 1 * devicePixelRatio;
-            colon.style.fontSize = 16 * devicePixelRatio;
+            colon.x = 16 ;
+            colon.y = this.HEIGHT / 2 - 1 ;
+            colon.style.fontSize = 16 ;
         });
 
         this.digits.minutes.forEach((digit, idx) => {
-            digit.x = 9 * idx * devicePixelRatio;
+            digit.x = 9 * idx ;
             digit.y = this.HEIGHT / 2;
-            digit.style.fontSize = 16 * devicePixelRatio;
+            digit.style.fontSize = 16 ;
         });
 
         this.digits.seconds.forEach((digit, idx) => {
-            digit.x = 9 * idx * devicePixelRatio;
+            digit.x = 9 * idx ;
             digit.y = this.HEIGHT / 2;
-            digit.style.fontSize = 16 * devicePixelRatio;
+            digit.style.fontSize = 16 ;
         });
 
         this.digits.miliseconds.forEach((digit, idx) => {
-            digit.x = 9 * idx * devicePixelRatio;
+            digit.x = 9 * idx ;
             digit.y = this.HEIGHT / 2;
-            digit.style.fontSize = 16 * devicePixelRatio;
+            digit.style.fontSize = 16 ;
         });
     }
 
@@ -240,7 +240,7 @@ export class Timestamp {
             this.MASTER_CONTAINER.masterContainer.visible = true;
         }
         
-        if (Game.DEVE_RATIO !== devicePixelRatio || Game.EMIT_STACK.length !== 0) this.EMIT_CHANGE = true;
+        if (Game.EMIT_STACK.length !== 0) this.EMIT_CHANGE = true;
 
         this.forceUpdate(time);
         this.EMIT_CHANGE = false;

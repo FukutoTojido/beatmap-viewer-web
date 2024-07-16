@@ -17,7 +17,7 @@ export function fullscreenToggle() {
         document.querySelector("#inputContainer").style.padding = 0;
         document.querySelector("#inputContainer").style.margin = 0;
 
-        result = 60 * devicePixelRatio;
+        result = 60 ;
         old = 0;
     } else {
         FullscreenButton.obj.sprite.texture = FullscreenButton.obj.texture;
@@ -27,7 +27,7 @@ export function fullscreenToggle() {
         document.querySelector("#inputContainer").style.margin = "";
 
         result = 0;
-        old = 60 * devicePixelRatio;
+        old = 60 ;
     }
 
     new TWEEN.Tween({

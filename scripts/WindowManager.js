@@ -88,7 +88,7 @@ export class Component {
     }
 
     get borderRadius() {
-        return this._borderRadius * devicePixelRatio;
+        return this._borderRadius ;
     }
 
     set borderRadius(val) {
@@ -99,7 +99,7 @@ export class Component {
     }
 
     get padding() {
-        return this._padding * devicePixelRatio;
+        return this._padding ;
     }
 
     set padding(val) {

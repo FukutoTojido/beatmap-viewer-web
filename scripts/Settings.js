@@ -95,7 +95,7 @@ export function setResolution(slider) {
     currentLocalStorage.renderer.resolution = parseFloat(slider.value);
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 
-    Game.APP.renderer.resolution = parseFloat(slider.value);
+    Game.RESOLUTION = parseFloat(slider.value);
 }
 document.querySelector("#resolution").oninput = () => setResolution(document.querySelector("#resolution"));
 

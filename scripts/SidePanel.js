@@ -22,7 +22,7 @@ export function toggleMetadataPanel() {
         result = {
             game: innerWidth < innerHeight ? 0 : 400,
             timing: 0,
-            metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400 * devicePixelRatio,
+            metadata: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400 ,
         };
 
         // document.querySelector(".mapBG").style.width = `calc(100% - 410px)`;
@@ -114,7 +114,7 @@ export class MetadataPanel {
     static SCROLLED = 0;
 
     static init() {
-        this.MASTER_CONTAINER = new Component(0, 0, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER = new Component(0, 0, 370 , Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         this.MASTER_CONTAINER.padding = 15;
         this.MASTER_CONTAINER.alpha = 1;
@@ -130,13 +130,13 @@ export class MetadataPanel {
         this.MASTER_CONTAINER.masterContainer.on("touchmove", (e) => {
             if (!this.IS_TOUCHING) return;
 
-            const heightDiff = Math.max(0, this.flex.height - this.container.height + this.container.paddingY * devicePixelRatio);
+            const heightDiff = Math.max(0, this.flex.height - this.container.height + this.container.paddingY );
             const deltaY = e.global.y - this.START_Y_TOUCH;
 
             this.START_Y_TOUCH = e.global.y;
 
             if (this.SCROLLED - deltaY > heightDiff || this.SCROLLED - deltaY < 0) {
-                window.scrollBy(0, -deltaY / devicePixelRatio);
+                window.scrollBy(0, -deltaY );
             }
 
             this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, heightDiff);
@@ -151,7 +151,7 @@ export class MetadataPanel {
 
         this.MASTER_CONTAINER.masterContainer.on("touchend", (e) => {
             this.IS_TOUCHING = false;
-            const heightDiff = Math.max(0, this.flex.height - this.container.height + this.container.paddingY * devicePixelRatio);
+            const heightDiff = Math.max(0, this.flex.height - this.container.height + this.container.paddingY );
 
             const currentTimestamp = performance.now();
             this.TOUCH_VELOCITY = this.TOUCH_VELOCITY * Clamp(1 - (currentTimestamp - this.TOUCH_LAST_TIMESTAMP) / 200, 0, 1);
@@ -323,12 +323,12 @@ export class MetadataPanel {
             this.MASTER_CONTAINER.w = Game.APP.renderer.width;
             this.MASTER_CONTAINER.h = this.SIZE_X;
         } else {
-            if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
+            if (Game.SHOW_METADATA && !this.ON_ANIM) this.SIZE_X = 400 ;
 
             this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0;
-            this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
+            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 0  : 0;
+            this.MASTER_CONTAINER.w = 400 ;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 0  : 0) - this.SIZE_Y ;
         }
 
         if (
@@ -354,8 +354,8 @@ export class MetadataPanel {
             this.LABEL[label].style.wordWrapWidth = this.container.width - this.container.paddingX * 2;
             this[label.toUpperCase()].style.wordWrapWidth = this.container.width - this.container.paddingX * 2;
 
-            this.LABEL[label].style.fontSize = 12 * devicePixelRatio;
-            this[label.toUpperCase()].style.fontSize = 16 * devicePixelRatio;
+            this.LABEL[label].style.fontSize = 12 ;
+            this[label.toUpperCase()].style.fontSize = 16 ;
 
             this.LABEL[label].update();
             this[label.toUpperCase()].update();

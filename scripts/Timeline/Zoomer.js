@@ -64,13 +64,13 @@ class Button {
 
         this.graphics
             .clear()
-            .rect(0, 0, this.w * devicePixelRatio, this.h)
+            .rect(0, 0, this.w , this.h)
             .fill(!this.isHover ? Game.COLOR_PALETTES.primary3 : Game.COLOR_PALETTES.primary4);
 
         if (!this.sprite) return;
 
-        this.sprite.scale.set(0.5 * devicePixelRatio);
-        this.sprite.x = (this.w * devicePixelRatio) / 2;
+        this.sprite.scale.set(0.5 );
+        this.sprite.x = (this.w ) / 2;
         this.sprite.y = this.h / 2;
     }
 }
@@ -129,7 +129,7 @@ export class TimelineZoomer {
     draw(timestamp) {
         this.graphics
             .clear()
-            .rect(0, 0, 40 * devicePixelRatio, Timeline.HEIGHT)
+            .rect(0, 0, 40 , Timeline.HEIGHT)
             .fill(Game.COLOR_PALETTES.primary3);
         this.zoomIn.draw(timestamp);
         this.zoomOut.draw(timestamp);

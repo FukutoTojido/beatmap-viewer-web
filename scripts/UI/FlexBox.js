@@ -27,7 +27,7 @@ export class FlexBox {
     }
 
     get gap() {
-        return this._gap * devicePixelRatio;
+        return this._gap ;
     }
 
     set gap(val) {

@@ -32,29 +32,29 @@ export class ProgressBar {
     static initLine() {
         this.line = new PIXI.Graphics()
             .setStrokeStyle({
-                width: 4 * window.devicePixelRatio,
+                width: 4 ,
                 cap: "round",
                 color: 0x88c0d0,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2)
+            .lineTo(this.WIDTH - 80 , this.HEIGHT / 2)
             .stroke();
     }
 
     static initThumb() {
         this.thumb = new PIXI.Graphics()
             .setStrokeStyle({
-                width: 4 * window.devicePixelRatio,
+                width: 4 ,
                 cap: "round",
                 alignment: 0,
                 color: 0x88c0d0,
             })
             .roundRect(
-                -20 * window.devicePixelRatio,
-                -5 * window.devicePixelRatio,
-                40 * window.devicePixelRatio,
-                10 * window.devicePixelRatio,
-                10 * window.devicePixelRatio
+                -20 ,
+                -5 ,
+                40 ,
+                10 ,
+                10 
             )
             .fill(0x2e3440)
             .stroke()
@@ -80,8 +80,8 @@ export class ProgressBar {
 
         this.container.addChild(this.line);
         this.container.addChild(this.thumb);
-        this.container.x = 40 * window.devicePixelRatio;
-        this.container.hitArea = new PIXI.Rectangle(-40 * window.devicePixelRatio, 0, this.WIDTH, this.HEIGHT);
+        this.container.x = 40 ;
+        this.container.hitArea = new PIXI.Rectangle(-40 , 0, this.WIDTH, this.HEIGHT);
         // this.container.interactive = true;
         this.container.eventMode = "static";
 
@@ -117,13 +117,13 @@ export class ProgressBar {
 
     static initBreakKiai() {
         this.stage.addChildAt(this.breakKiai, 1);
-        this.breakKiai.x = 40 * devicePixelRatio;
+        this.breakKiai.x = 40 ;
         this.breakKiai.y = this.HEIGHT / 3;
 
         if (!Game.BEATMAP_FILE?.audioNode) return;
 
         const fullTime = Game.BEATMAP_FILE.audioNode.duration;
-        const width = this.WIDTH - 80 * window.devicePixelRatio;
+        const width = this.WIDTH - 80 ;
         const height = this.HEIGHT / 3;
 
         this.breakKiai.clear();
@@ -143,14 +143,14 @@ export class ProgressBar {
     }
 
     static initTimingPoints() {
-        this.timeline.x = 40 * devicePixelRatio;
-        this.timeline.y = 10 * devicePixelRatio;
+        this.timeline.x = 40 ;
+        this.timeline.y = 10 ;
 
         if (!Game.BEATMAP_FILE?.audioNode) return;
 
         const fullTime = Game.BEATMAP_FILE.audioNode.duration;
-        const width = this.WIDTH - 80 * window.devicePixelRatio;
-        const height = this.HEIGHT / 2 - 10 * devicePixelRatio;
+        const width = this.WIDTH - 80 ;
+        const height = this.HEIGHT / 2 - 10 ;
 
         const positionsBuffer = [];
         const colorBuffer = [];
@@ -202,16 +202,16 @@ export class ProgressBar {
                 }),
             }),
         });
-        this.timeline.x = 40 * devicePixelRatio;
-        this.timeline.y = 10 * devicePixelRatio;
+        this.timeline.x = 40 ;
+        this.timeline.y = 10 ;
         this.stage.addChildAt(this.timeline, 0);
     }
 
     static init() {
-        this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60 + 60) * devicePixelRatio;
-        this.HEIGHT = 60 * devicePixelRatio;
+        this.WIDTH = Game.MASTER_CONTAINER.w - (110 + 360 + 60 + 60) ;
+        this.HEIGHT = 60 ;
 
-        this.MASTER_CONTAINER = new Component((110 + 360 + 60) * devicePixelRatio, Game.WRAPPER.h - 60 * devicePixelRatio, this.WIDTH, this.HEIGHT);
+        this.MASTER_CONTAINER = new Component((110 + 360 + 60) , Game.WRAPPER.h - 60 , this.WIDTH, this.HEIGHT);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary2;
         this.MASTER_CONTAINER.alpha = 1;
 
@@ -246,8 +246,8 @@ export class ProgressBar {
                 gpu,
             }),
         });
-        this.timeline.x = 40 * devicePixelRatio;
-        this.timeline.y = 10 * devicePixelRatio;
+        this.timeline.x = 40 ;
+        this.timeline.y = 10 ;
         this.stage.addChildAt(this.timeline, 0);
 
         this.breakKiai = new PIXI.Graphics();
@@ -262,7 +262,7 @@ export class ProgressBar {
         this.IS_DRAGGING = true;
 
         let { x } = this.container.toLocal(e.global);
-        let width = this.WIDTH - 80 * window.devicePixelRatio;
+        let width = this.WIDTH - 80 ;
 
         const percentage = Clamp(x / width, 0, 1);
         setAudioTime(percentage);
@@ -274,7 +274,7 @@ export class ProgressBar {
         if (!this.IS_DRAGGING) return;
 
         let { x } = this.container.toLocal(e.global);
-        let width = this.WIDTH - 80 * window.devicePixelRatio;
+        let width = this.WIDTH - 80 ;
 
         const percentage = Clamp(x / width, 0, 1);
         setAudioTime(percentage);
@@ -293,12 +293,12 @@ export class ProgressBar {
             this.MASTER_CONTAINER.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w;
         } else {
-            this.MASTER_CONTAINER.x = (110 + 360 + 60) * devicePixelRatio;
-            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - (110 + 360 + 60 + 60) * devicePixelRatio;
+            this.MASTER_CONTAINER.x = (110 + 360 + 60) ;
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 ;
+            this.MASTER_CONTAINER.w = Game.MASTER_CONTAINER.w - (110 + 360 + 60 + 60) ;
         }
 
-        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+        this.MASTER_CONTAINER.h = 60 ;
 
         const width = this.MASTER_CONTAINER.w;
         const height = this.MASTER_CONTAINER.h;
@@ -309,14 +309,14 @@ export class ProgressBar {
         this.HEIGHT = height;
 
         this.restyle();
-        if (Game.DEVE_RATIO !== devicePixelRatio) this.reinitPoints();
+        // if (Game.DEVE_RATIO !== devicePixelRatio) this.reinitPoints();
         this.initTimingPoints();
         this.initBreakKiai();
 
         this.thumb.y = this.HEIGHT / 2;
 
-        this.container.x = 40 * window.devicePixelRatio;
-        this.container.hitArea = new PIXI.Rectangle(-40 * window.devicePixelRatio, 0, this.WIDTH, this.HEIGHT);
+        this.container.x = 40 ;
+        this.container.hitArea = new PIXI.Rectangle(-40 , 0, this.WIDTH, this.HEIGHT);
     }
 
     static resize() {
@@ -340,28 +340,28 @@ export class ProgressBar {
         this.line
             .clear()
             .setStrokeStyle({
-                width: 4 * window.devicePixelRatio,
+                width: 4 ,
                 cap: "round",
                 color: accentColor,
             })
             .moveTo(0, this.HEIGHT / 2)
-            .lineTo(this.WIDTH - 80 * window.devicePixelRatio, this.HEIGHT / 2)
+            .lineTo(this.WIDTH - 80 , this.HEIGHT / 2)
             .stroke();
 
         this.thumb
             .clear()
             .setStrokeStyle({
-                width: 4 * window.devicePixelRatio,
+                width: 4 ,
                 cap: "round",
                 alignment: 0,
                 color: accentColor,
             })
             .roundRect(
-                -20 * window.devicePixelRatio,
-                -5 * window.devicePixelRatio,
-                40 * window.devicePixelRatio,
-                10 * window.devicePixelRatio,
-                10 * window.devicePixelRatio
+                -20 ,
+                -5 ,
+                40 ,
+                10 ,
+                10 
             )
             .fill(isHover ? accentColor : bgColor)
             .stroke()
@@ -374,7 +374,7 @@ export class ProgressBar {
         this.resize();
 
         if (Game.BEATMAP_FILE?.audioNode?.buf) {
-            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 * window.devicePixelRatio);
+            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80 );
         }
 
         // this.renderer.render(this.stage);

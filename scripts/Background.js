@@ -41,7 +41,7 @@ export class Background {
         this.dim.rect(0, 0, Game.MASTER_CONTAINER.w, Game.MASTER_CONTAINER.h).fill(0x000000);
 
         this.container.addChild(this.sprite, this.dim, this.mask);
-        this.container.y = (innerWidth < innerHeight ? 50 : 60) * devicePixelRatio;
+        this.container.y = (innerWidth < innerHeight ? 60 : 60);
         this.container.label = "Hello";
         this.container.mask = this.mask;
 
@@ -126,7 +126,7 @@ export class Background {
             .rect(0, 0, this.w * ratio, this.h * ratio)
             .fill({ color: 0x000000, alpha: Game.ALPHA });
 
-        this.container.y = 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION;
+        this.container.y = 60 - Timeline.HEIGHT_REDUCTION;
     }
 
     static updateSize() {

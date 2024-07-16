@@ -273,13 +273,13 @@ export class TimelineHitCircle {
         this.obj.y = Timeline.HEIGHT / 2;
 
         if (isSliderTail) {
-            this.meshHead.scale.set(this.cache.baseHeight / 60 / devicePixelRatio);
-            this.meshTail.scale.set(this.cache.baseHeight / 60 / devicePixelRatio);
+            this.meshHead.scale.set(this.cache.baseHeight / 60 );
+            this.meshTail.scale.set(this.cache.baseHeight / 60 );
             return;
         }
 
-        this.meshHead.scale.set(((this.cache.baseHeight / 60) * 2) / devicePixelRatio);
-        this.meshTail.scale.set(((this.cache.baseHeight / 60) * 2) / devicePixelRatio);
+        this.meshHead.scale.set(((this.cache.baseHeight / 60) * 2) );
+        this.meshTail.scale.set(((this.cache.baseHeight / 60) * 2) );
     }
 
     draw(timestamp, isSliderTail) {

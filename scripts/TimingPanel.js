@@ -28,22 +28,22 @@ class TimingPoint {
         this.idx = idx;
         this.graphics = new PIXI.Graphics();
         this.obj = new PIXI.Container();
-        this.obj.y = 40 * devicePixelRatio * this.idx;
+        this.obj.y = 40  * this.idx;
         this.obj.cullable = true;
         this.obj.eventMode = "none";
 
         this.marker = new PIXI.Graphics()
             .roundRect(
-                90 * devicePixelRatio,
-                5 * devicePixelRatio,
-                TimingPanel.WIDTH - 105 * devicePixelRatio,
-                30 * devicePixelRatio,
-                5 * devicePixelRatio
+                90 ,
+                5 ,
+                TimingPanel.WIDTH - 105 ,
+                30 ,
+                5 
             )
             .fill(0x1b1b1b);
 
         this.indicator = new PIXI.Graphics()
-            .roundRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio)
+            .roundRect(95 , 10 , 5 , 20 , 5 )
             .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
 
         let currentTime = timingPoint.time;
@@ -64,13 +64,13 @@ class TimingPoint {
             style: {
                 fontFamily: "Torus",
                 fontWeight: 400,
-                fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
+                fontSize: TimingPoint.FONT_SIZE ,
                 fill: 0xffffff,
             },
         });
 
-        this.timestamp.x = 10 * devicePixelRatio;
-        this.timestamp.y = 20 * devicePixelRatio;
+        this.timestamp.x = 10 ;
+        this.timestamp.y = 20 ;
         this.timestamp.anchor.set(0, 0.5);
 
         this.value = new PIXI.Text({
@@ -81,13 +81,13 @@ class TimingPoint {
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
-                fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
+                fontSize: TimingPoint.FONT_SIZE ,
                 fill: 0xffffff,
             },
         });
 
-        this.value.x = 120 * devicePixelRatio;
-        this.value.y = 20 * devicePixelRatio;
+        this.value.x = 120 ;
+        this.value.y = 20 ;
         this.value.anchor.set(0, 0.5);
 
         this.obj.addChild(this.graphics);
@@ -103,12 +103,12 @@ class TimingPoint {
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
-                fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
+                fontSize: TimingPoint.FONT_SIZE ,
                 fill: 0xffffff,
             },
         });
-        this.sample.x = 210 * devicePixelRatio;
-        this.sample.y = 20 * devicePixelRatio;
+        this.sample.x = 210 ;
+        this.sample.y = 20 ;
         this.sample.anchor.set(0, 0.5);
 
         this.volume = new PIXI.Text({
@@ -117,12 +117,12 @@ class TimingPoint {
             style: {
                 fontFamily: "Torus",
                 fontWeight: 500,
-                fontSize: TimingPoint.FONT_SIZE * devicePixelRatio,
+                fontSize: TimingPoint.FONT_SIZE ,
                 fill: 0xffffff,
             },
         });
-        this.volume.x = 270 * devicePixelRatio;
-        this.volume.y = 20 * devicePixelRatio;
+        this.volume.x = 270 ;
+        this.volume.y = 20 ;
         this.volume.anchor.set(0, 0.5);
 
         this.obj.addChild(this.sample);
@@ -137,11 +137,11 @@ class TimingPoint {
         this.marker
             .clear()
             .roundRect(
-                90 * devicePixelRatio,
-                5 * devicePixelRatio,
-                TimingPanel.WIDTH - 105 * devicePixelRatio,
-                30 * devicePixelRatio,
-                5 * devicePixelRatio
+                90 ,
+                5 ,
+                TimingPanel.WIDTH - 105 ,
+                30 ,
+                5 
             )
             .fill(this.timingPoint.isKiai ? accent : bg);
 
@@ -153,41 +153,41 @@ class TimingPoint {
     resize() {
         this.changeColor();
 
-        if (Game.DEVE_RATIO !== devicePixelRatio) {
-            this.indicator
-                .clear()
-                .roundRect(95 * devicePixelRatio, 10 * devicePixelRatio, 5 * devicePixelRatio, 20 * devicePixelRatio, 5 * devicePixelRatio)
-                .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
+        // if (Game.DEVE_RATIO !== devicePixelRatio) {
+        //     this.indicator
+        //         .clear()
+        //         .roundRect(95 , 10 , 5 , 20 , 5 )
+        //         .fill(this.timingPoint.beatstep ? 0xf5425a : 0x42f560);
 
-            this.timestamp.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-            this.timestamp.x = 10 * devicePixelRatio;
-            this.timestamp.y = 20 * devicePixelRatio;
+        //     this.timestamp.style.fontSize = TimingPoint.FONT_SIZE ;
+        //     this.timestamp.x = 10 ;
+        //     this.timestamp.y = 20 ;
 
-            this.value.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-            this.value.x = 120 * devicePixelRatio;
-            this.value.y = 20 * devicePixelRatio;
+        //     this.value.style.fontSize = TimingPoint.FONT_SIZE ;
+        //     this.value.x = 120 ;
+        //     this.value.y = 20 ;
 
-            this.sample.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-            this.sample.x = 210 * devicePixelRatio;
-            this.sample.y = 20 * devicePixelRatio;
+        //     this.sample.style.fontSize = TimingPoint.FONT_SIZE ;
+        //     this.sample.x = 210 ;
+        //     this.sample.y = 20 ;
 
-            this.volume.style.fontSize = TimingPoint.FONT_SIZE * devicePixelRatio;
-            this.volume.x = 270 * devicePixelRatio;
-            this.volume.y = 20 * devicePixelRatio;
+        //     this.volume.style.fontSize = TimingPoint.FONT_SIZE ;
+        //     this.volume.x = 270 ;
+        //     this.volume.y = 20 ;
 
-            this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
-        }
+        //     this.obj.y = 40  * this.idx - TimingPanel.SCROLLED;
+        // }
     }
 
     update() {
-        this.obj.y = 40 * devicePixelRatio * this.idx - TimingPanel.SCROLLED;
+        this.obj.y = 40  * this.idx - TimingPanel.SCROLLED;
 
         this.graphics.clear();
 
         if (this.idx === TimingPanel.CURRENT_SV_IDX) {
             const bg = Game.COLOR_PALETTES.primary5;
 
-            this.graphics.roundRect(0, 0, TimingPanel.WIDTH - 10 * devicePixelRatio, 40 * devicePixelRatio, 5 * devicePixelRatio).fill(bg);
+            this.graphics.roundRect(0, 0, TimingPanel.WIDTH - 10 , 40 , 5 ).fill(bg);
         }
     }
 }
@@ -225,7 +225,7 @@ export class TimingPanel {
     static ON_ANIM = false;
 
     static init() {
-        this.MASTER_CONTAINER = new Component(0, 0, 370 * window.devicePixelRatio, Game.APP.renderer.height - 100);
+        this.MASTER_CONTAINER = new Component(0, 0, 370 , Game.APP.renderer.height - 100);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         this.MASTER_CONTAINER.padding = 15;
         this.MASTER_CONTAINER.alpha = 1;
@@ -293,9 +293,9 @@ export class TimingPanel {
         this.CURRENT_SV_IDX = foundIndex;
 
         let rate = this.SCROLLED;
-        if (40 * devicePixelRatio * foundIndex - this.SCROLLED < 0) rate = 40 * devicePixelRatio * foundIndex;
-        if (40 * devicePixelRatio * foundIndex - this.SCROLLED > this.HEIGHT - 40 * devicePixelRatio)
-            rate = 40 * devicePixelRatio * foundIndex - (this.HEIGHT - 40 * devicePixelRatio);
+        if (40  * foundIndex - this.SCROLLED < 0) rate = 40  * foundIndex;
+        if (40  * foundIndex - this.SCROLLED > this.HEIGHT - 40 )
+            rate = 40  * foundIndex - (this.HEIGHT - 40 );
 
         this.forceUpdate();
 
@@ -330,7 +330,7 @@ export class TimingPanel {
         this.START_Y_TOUCH = e.global.y;
 
         if (this.SCROLLED - deltaY > this.MAX_HEIGHT - this.HEIGHT || this.SCROLLED - deltaY < 0) {
-            window.scrollBy(0, -deltaY / devicePixelRatio);
+            window.scrollBy(0, -deltaY );
         }
 
         this.SCROLLED = Clamp(this.SCROLLED - deltaY, 0, this.MAX_HEIGHT - this.HEIGHT);
@@ -414,10 +414,10 @@ export class TimingPanel {
     }
 
     static initTimingPoints() {
-        this.MAX_HEIGHT = 40 * devicePixelRatio * Beatmap.timingPointsList.length;
+        this.MAX_HEIGHT = 40  * Beatmap.timingPointsList.length;
         this.scrollbar
             .clear()
-            .roundRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
+            .roundRect(0, 0, 5 , this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
             .fill({ color: 0xaaaaaa, alpha: this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1 });
         this.POINTS = [];
         this.SCROLLED = 0;
@@ -447,12 +447,12 @@ export class TimingPanel {
 
             this.scrollTo(Game.BEATMAP_FILE?.audioNode?.getCurrentTime() ?? 0);
         } else {
-            if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 * devicePixelRatio;
+            if (Game.SHOW_TIMING_PANEL && !this.ON_ANIM) this.SIZE_X = 400 ;
 
             this.MASTER_CONTAINER.x = Game.APP.renderer.width - this.SIZE_X;
-            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0;
-            this.MASTER_CONTAINER.w = 400 * devicePixelRatio;
-            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 0 * devicePixelRatio : 0) - this.SIZE_Y * devicePixelRatio;
+            this.MASTER_CONTAINER.y = !Game.IS_FULLSCREEN ? 0  : 0;
+            this.MASTER_CONTAINER.w = 400 ;
+            this.MASTER_CONTAINER.h = Game.APP.renderer.height - (!Game.IS_FULLSCREEN ? 0  : 0) - this.SIZE_Y ;
 
             if (Game.IS_FULLSCREEN) this.MASTER_CONTAINER.borderRadius = 0;
             else this.MASTER_CONTAINER.borderRadius = 10;
@@ -465,8 +465,7 @@ export class TimingPanel {
         if (this.MASTER_CONTAINER.color !== Game.COLOR_PALETTES.primary3) this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         if (
             this.WIDTH === this.MASTER_CONTAINER.w - this.MASTER_CONTAINER.padding * 2 &&
-            this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2 &&
-            Game.DEVE_RATIO === devicePixelRatio
+            this.HEIGHT === this.MASTER_CONTAINER.h - this.MASTER_CONTAINER.padding * 2
         )
             return;
 
@@ -478,16 +477,16 @@ export class TimingPanel {
 
         this.stage.hitArea = new PIXI.Rectangle(0, 0, this.WIDTH, this.HEIGHT);
 
-        this.MAX_HEIGHT = 40 * devicePixelRatio * Beatmap.timingPointsList.length;
+        this.MAX_HEIGHT = 40  * Beatmap.timingPointsList.length;
 
         this.scrollbar
             .clear()
-            .roundRect(0, 0, 5 * devicePixelRatio, this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
+            .roundRect(0, 0, 5 , this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT))
             .fill({ color: 0xaaaaaa, alpha: this.MAX_HEIGHT <= this.HEIGHT ? 0 : 1 });
 
-        if (Game.DEVE_RATIO !== devicePixelRatio) {
-            this.POINTS.forEach((point) => point.resize());
-        }
+        // if (Game.DEVE_RATIO !== devicePixelRatio) {
+        //     this.POINTS.forEach((point) => point.resize());
+        // }
     }
 
     static resize() {
@@ -499,7 +498,7 @@ export class TimingPanel {
         // } else {
         if (Game.EMIT_STACK.length === 0) return;
         this.forceResize();
-        // this.renderer.view.style.transform = `scale(${1 / window.devicePixelRatio})`;
+        // this.renderer.view.style.transform = `scale(${1 })`;
     }
 
     static forceUpdate() {
@@ -507,8 +506,8 @@ export class TimingPanel {
         this.stage.removeChildren();
         this.stage.addChild(this.MASTER_CONTAINER.mask);
 
-        let idx = Math.floor(this.SCROLLED / (40 * devicePixelRatio));
-        while (idx < this.POINTS.length && 40 * devicePixelRatio * idx - this.SCROLLED < this.HEIGHT) {
+        let idx = Math.floor(this.SCROLLED / (40 ));
+        while (idx < this.POINTS.length && 40  * idx - this.SCROLLED < this.HEIGHT) {
             if (idx < 0) {
                 idx++;
                 continue;
@@ -523,7 +522,7 @@ export class TimingPanel {
 
         this.stage.addChild(this.scrollbar);
 
-        this.scrollbar.x = this.WIDTH - 5 * devicePixelRatio;
+        this.scrollbar.x = this.WIDTH - 5 ;
         this.scrollbar.y = (this.HEIGHT - this.HEIGHT * (this.HEIGHT / this.MAX_HEIGHT)) * (this.SCROLLED / (this.MAX_HEIGHT - this.HEIGHT));
     }
 

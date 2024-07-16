@@ -26,8 +26,8 @@ export class Timeline {
     static HEIGHT_REDUCTION = 0;
 
     static async init() {
-        Timeline.HEIGHT_REDUCTION = !Game.IS_FULLSCREEN ? 0 : 60 * devicePixelRatio;
-        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION);
+        Timeline.HEIGHT_REDUCTION = !Game.IS_FULLSCREEN ? 0 : 60 ;
+        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60  - Timeline.HEIGHT_REDUCTION);
         Timeline.MASTER_CONTAINER.color = 0x000000;
         Timeline.MASTER_CONTAINER.alpha = 0.5;
         // Timeline.MASTER_CONTAINER.borderRadius = 10;
@@ -36,7 +36,7 @@ export class Timeline {
         Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
 
         Timeline.BASE_CONTAINER = new PIXI.Container();
-        Timeline.BASE_CONTAINER.x = 40 * devicePixelRatio;
+        Timeline.BASE_CONTAINER.x = 40 ;
 
         Timeline.MASTER_CONTAINER.container.addChild(Timeline.BASE_CONTAINER);
 
@@ -80,15 +80,15 @@ export class Timeline {
         if (innerWidth / innerHeight < 1) {
             if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
         } else {
-            if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio)
-                Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 * devicePixelRatio;
+            if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 )
+                Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 ;
         }
 
-        Timeline.MASTER_CONTAINER.h = 60 * devicePixelRatio - Timeline.HEIGHT_REDUCTION;
+        Timeline.MASTER_CONTAINER.h = 60  - Timeline.HEIGHT_REDUCTION;
 
         // if (Game.IS_FULLSCREEN) Timeline.MASTER_CONTAINER.h = 0;
 
-        Timeline.BASE_CONTAINER.x = 40 * devicePixelRatio;
+        Timeline.BASE_CONTAINER.x = 40 ;
         Timeline.ZOOMER.draw();
 
         // if (innerWidth / innerHeight < 1) {

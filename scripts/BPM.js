@@ -8,7 +8,7 @@ import { MetadataPanel } from "./SidePanel";
 
 export function toggleTimingPanel() {
     TimingPanel.ON_ANIM = true;
-    
+
     let result = {
         game: 0,
         timing: 0,
@@ -17,8 +17,8 @@ export function toggleTimingPanel() {
 
     if (!Game.SHOW_TIMING_PANEL) {
         result = {
-            game: (innerWidth < innerHeight) ? 0 : 400,
-            timing: (innerWidth < innerHeight) ? Game.WRAPPER.h * 0.75 : 400 * devicePixelRatio,
+            game: innerWidth < innerHeight ? 0 : 400,
+            timing: innerWidth < innerHeight ? Game.WRAPPER.h * 0.75 : 400,
             metadata: 0,
         };
 
@@ -58,7 +58,8 @@ export function toggleTimingPanel() {
             TimingPanel.ON_ANIM = true;
 
             Game.EMIT_STACK.push(true);
-        }).onComplete(() => {
+        })
+        .onComplete(() => {
             TimingPanel.ON_ANIM = false;
         })
         .start();
@@ -69,12 +70,7 @@ export class BPM {
     static SV_TEXT;
 
     static init() {
-        this.MASTER_CONTAINER = new Component(
-            110 * devicePixelRatio,
-            Game.WRAPPER.h - 60 * devicePixelRatio,
-            180 * devicePixelRatio,
-            60 * devicePixelRatio
-        );
+        this.MASTER_CONTAINER = new Component(110, Game.WRAPPER.h - 60, 180, 60);
         this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
         this.MASTER_CONTAINER.alpha = 1;
 
@@ -132,33 +128,33 @@ export class BPM {
 
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = Game.WRAPPER.w / 2;
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 * devicePixelRatio;
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
         } else {
-            this.MASTER_CONTAINER.x = 110 * devicePixelRatio;
-            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60 * devicePixelRatio;
-            this.MASTER_CONTAINER.w = 180 * devicePixelRatio;
+            this.MASTER_CONTAINER.x = 110;
+            this.MASTER_CONTAINER.y = Game.WRAPPER.h - 60;
+            this.MASTER_CONTAINER.w = 180;
         }
-        this.MASTER_CONTAINER.h = 60 * devicePixelRatio;
+        this.MASTER_CONTAINER.h = 60;
 
-        this.BPM_TEXT.x = this.MASTER_CONTAINER.w / 2 - 5 * devicePixelRatio;
+        this.BPM_TEXT.x = this.MASTER_CONTAINER.w / 2 - 5;
         this.BPM_TEXT.y = this.MASTER_CONTAINER.h / 2;
-        this.BPM_TEXT.style.fontSize = 16 * devicePixelRatio;
-        this.BPM_TEXT.resolution = devicePixelRatio;
+        this.BPM_TEXT.style.fontSize = 16;
+        // this.BPM_TEXT.resolution = devicePixelRatio;
 
         this.FLAIR.clear()
             .roundRect(
-                this.MASTER_CONTAINER.w / 2 + 5 * devicePixelRatio,
-                this.MASTER_CONTAINER.h / 2 - 10 * devicePixelRatio,
-                50 * devicePixelRatio,
-                20 * devicePixelRatio
+                this.MASTER_CONTAINER.w / 2 + 5,
+                this.MASTER_CONTAINER.h / 2 - 10,
+                50,
+                20
             )
             .fill(0x9beea7);
 
-        this.SV_TEXT.x = this.MASTER_CONTAINER.w / 2 + 5 * devicePixelRatio + 25 * devicePixelRatio;
+        this.SV_TEXT.x = this.MASTER_CONTAINER.w / 2 + 5 + 25;
         this.SV_TEXT.y = this.MASTER_CONTAINER.h / 2;
-        this.SV_TEXT.style.fontSize = 12 * devicePixelRatio;
-        this.SV_TEXT.resolution = devicePixelRatio;
+        this.SV_TEXT.style.fontSize = 12;
+        // this.SV_TEXT.resolution = devicePixelRatio;
     }
 
     static update() {
@@ -167,7 +163,7 @@ export class BPM {
         } else {
             this.MASTER_CONTAINER.masterContainer.visible = true;
         }
-        
+
         if (Game.EMIT_STACK.length === 0) return;
         this.forceUpdate();
     }

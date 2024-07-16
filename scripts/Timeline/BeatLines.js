@@ -200,7 +200,7 @@ export class BeatLines {
                     alpha: 0.9,
                 })
                 .moveTo(x, y)
-                .lineTo(x, y - 40 * devicePixelRatio)
+                .lineTo(x, y - 40 )
                 .stroke();
         }
 
@@ -222,7 +222,7 @@ export class BeatLines {
                     alignment: 0.5,
                 })
                 .moveTo(x, y)
-                .lineTo(x, y - 10 * devicePixelRatio)
+                .lineTo(x, y - 10 )
                 .stroke();
         }
 

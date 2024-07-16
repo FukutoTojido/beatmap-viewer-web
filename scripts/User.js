@@ -8,7 +8,7 @@ export class User {
         style: {
             fontFamily: "Torus",
             fontWeight: 500,
-            fontSize: 16 * devicePixelRatio,
+            fontSize: 16 ,
             fill: 0xffffff,
             wordWrap: true,
         },
@@ -19,12 +19,12 @@ export class User {
 
     static async init() {
         const metrics = PIXI.CanvasTextMetrics.measureText("a", this.username.style);
-        this.username.x = 10 * devicePixelRatio;
-        this.username.y = (40 * devicePixelRatio - metrics.height) / 2;
+        this.username.x = 10 ;
+        this.username.y = (40  - metrics.height) / 2;
 
         this.container.label = "User";
-        this.container.x = 10 * devicePixelRatio;
-        this.container.y = Game.WRAPPER.h - 20 * devicePixelRatio;
+        this.container.x = 10 ;
+        this.container.y = Game.WRAPPER.h - 20 ;
         this.container.addChild(this.graphics, this.username, this.modsContainer);
         this.container.visible = false;
 
@@ -47,39 +47,39 @@ export class User {
     }
 
     static forceResize() {
-        let userHeight = 60 * devicePixelRatio;
+        let userHeight = 60 ;
         if (innerWidth / innerHeight < 1) {
-            userHeight = 40 * devicePixelRatio;
-            this.container.x = 10 * devicePixelRatio;
-            this.container.y = Game.MASTER_CONTAINER.h + (50 - 10) * devicePixelRatio - userHeight;
+            userHeight = 40 ;
+            this.container.x = 10 ;
+            this.container.y = Game.MASTER_CONTAINER.h + (50 - 10)  - userHeight;
         } else {
-            this.container.x = 10 * devicePixelRatio;
-            this.container.y = Game.APP.renderer.height - (60 + 60 + 10) * devicePixelRatio;
+            this.container.x = 10 ;
+            this.container.y = Game.APP.renderer.height - (60 + 60 + 10) ;
         }
 
         this.username.style = {
             fontFamily: "Torus",
             fontWeight: 500,
-            fontSize: innerWidth / innerHeight < 1 ? 12 * devicePixelRatio : 16 * devicePixelRatio,
+            fontSize: innerWidth / innerHeight < 1 ? 12  : 16 ,
             fill: 0xffffff,
             wordWrap: true,
         };
         const metrics = PIXI.CanvasTextMetrics.measureText(this.username.text, this.username.style);
-        this.username.x = 20 * devicePixelRatio;
+        this.username.x = 20 ;
         this.username.y = (userHeight - metrics.height) / 2;
 
         this.mods.forEach((sprite, idx) => {
-            sprite.width = (innerWidth / innerHeight < 1 ? 21.25 : 42.5) * devicePixelRatio;
-            sprite.height = (innerWidth / innerHeight < 1 ? 20 : 40) * devicePixelRatio;
-            sprite.x = idx * (innerWidth / innerHeight < 1 ? 10 : 20) * devicePixelRatio;
-            // sprite.y = 40 * devicePixelRatio / 2;
+            sprite.width = (innerWidth / innerHeight < 1 ? 21.25 : 42.5) ;
+            sprite.height = (innerWidth / innerHeight < 1 ? 20 : 40) ;
+            sprite.x = idx * (innerWidth / innerHeight < 1 ? 10 : 20) ;
+            // sprite.y = 40  / 2;
         });
-        this.modsContainer.x = 30 * devicePixelRatio + metrics.width;
-        this.modsContainer.y = (userHeight - (innerWidth / innerHeight < 1 ? 20 : 40) * devicePixelRatio) / 2;
+        this.modsContainer.x = 30  + metrics.width;
+        this.modsContainer.y = (userHeight - (innerWidth / innerHeight < 1 ? 20 : 40) ) / 2;
 
         this.graphics
             .clear()
-            .roundRect(0, 0, 40 * devicePixelRatio + metrics.width + this.modsContainer.width, userHeight, 5 * devicePixelRatio)
+            .roundRect(0, 0, 40  + metrics.width + this.modsContainer.width, userHeight, 5 )
             .fill({ color: 0x000000, alpha: 0.5 });
     }
 

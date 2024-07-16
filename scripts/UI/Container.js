@@ -39,7 +39,7 @@ export class Container {
     }
 
     get paddingX() {
-        return this._paddingX * devicePixelRatio;
+        return this._paddingX ;
     }
 
     set paddingX(val) {
@@ -48,7 +48,7 @@ export class Container {
     }
 
     get paddingY() {
-        return this._paddingY * devicePixelRatio;
+        return this._paddingY ;
     }
 
     set paddingY(val) {
@@ -118,7 +118,7 @@ export class Container {
     }
 
     get borderRadius() {
-        return this._borderRadius * devicePixelRatio;
+        return this._borderRadius ;
     }
 
     set borderRadius(val) {
