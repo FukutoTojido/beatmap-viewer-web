@@ -181,6 +181,18 @@ body {
 
     max-height: 400px;
     /* display: none; */
+
+    transition: cubic-bezier(0, 0.4, 0, 1) 200ms; 
+}
+
+body:has(.opened) {
+    #inputContainer {
+        transform: translateX(100px);
+    }
+
+    .contentWrapper {
+        transform: translateX(100px);
+    }
 }
 
 .legacyPart {
@@ -407,6 +419,8 @@ svg {
 
     overflow: hidden;
     transition: ease-in-out 200ms;
+
+    transition: transform cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
 canvas {

@@ -15,6 +15,12 @@ export function openMenu() {
     const settingsPanel = document.querySelector("#settingsPanel");
     const block = document.querySelector("#block");
 
+    if (settingsPanel.style.left === "") {
+        settingsPanel.classList.add("opened");
+    } else {
+        settingsPanel.classList.remove("opened");
+    }
+
     settingsPanel.style.left = settingsPanel.style.left === "" ? "0px" : "";
     settingsPanel.style.opacity = settingsPanel.style.opacity === "" ? "1" : "";
 
@@ -33,6 +39,7 @@ document.body.addEventListener("click", (e) => {
         if (!settingsPanelIsClick) {
             settingsPanel.style.left = "";
             settingsPanel.style.opacity = "";
+            settingsPanel.classList.remove("opened");
             block.style.opacity = settingsPanel.style.opacity === "1" ? 0.5 : "";
             setTimeout(() => {
                 block.style.display = settingsPanel.style.opacity === "1" ? "block" : "";
