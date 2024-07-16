@@ -70,7 +70,7 @@ document.body.addEventListener("change", (e) => {
     // }
 });
 
-[...document.querySelectorAll("[data-mirror]")].forEach(ele => {
+[...document.querySelectorAll("[data-mirror]")].forEach((ele) => {
     ele.onclick = () => {
         const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
         currentLocalStorage.mirror.val = ele.dataset.mirror;
@@ -78,7 +78,7 @@ document.body.addEventListener("change", (e) => {
 
         location.reload();
     };
-})
+});
 
 export function setCustomMirror(input) {
     // console.log(input.value);
@@ -87,6 +87,17 @@ export function setCustomMirror(input) {
     localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
 }
 document.querySelector("#custom-mirror").onblur = () => setCustomMirror(document.querySelector("#custom-mirror"));
+
+export function setResolution(slider) {
+    document.querySelector("#resolutionVal").innerHTML = parseFloat(slider.value).toFixed(2);
+
+    const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+    currentLocalStorage.renderer.resolution = parseFloat(slider.value);
+    localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+    Game.APP.renderer.resolution = parseFloat(slider.value);
+}
+document.querySelector("#resolution").oninput = () => setResolution(document.querySelector("#resolution"));
 
 // BACKGROUND
 export function setBackgroundDim(slider) {
@@ -267,6 +278,14 @@ export function handleCheckBox(checkbox) {
         }
 
         return;
+    }
+
+    if (checkbox.name === "aa") {
+        const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+        currentLocalStorage.renderer.aa = checkbox.checked;
+        localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+        Game.APP.renderer.antialias = checkbox.checked;
     }
 
     if (checkbox.name === "disableBMHS") {

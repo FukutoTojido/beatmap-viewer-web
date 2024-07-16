@@ -486,7 +486,8 @@ export class Game {
         const preferred = currentLocalStorage.renderer.val;
 
         const initOptions = {
-            // antialias: true,
+            antialias: currentLocalStorage.renderer.aa,
+            resolution: currentLocalStorage.renderer.resolution,
             autoDensity: true,
             backgroundAlpha: 0,
             resizeTo: document.querySelector(".contentWrapper"),

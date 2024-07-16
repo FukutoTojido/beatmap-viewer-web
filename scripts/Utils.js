@@ -151,6 +151,11 @@ export async function loadLocalStorage() {
         document.querySelector(".rendererSelector").textContent = [...document.querySelectorAll(".rendererSelection")].find(
             (renderer) => renderer.dataset.renderer === currentLocalStorage.renderer.val
         ).textContent;
+        document.querySelector("#resolution").value = currentLocalStorage.renderer.resolution;
+        document.querySelector("#resolutionVal").innerHTML = currentLocalStorage.renderer.resolution.toFixed(2);
+
+        document.querySelector("#aa").checked = currentLocalStorage.renderer.aa;
+
 
         Skinning.SKIN_IDX = currentLocalStorage.skinning.val;
         Skinning.changeSkin();

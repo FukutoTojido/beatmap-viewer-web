@@ -189,7 +189,7 @@ export class TimelineHitCircle {
 
     updateSelected() {
         const time = this.hitObject.time;
-        const selected = !Game.SKINNING.type === 0 && Game.SELECTED.includes(time);
+        const selected = Game.SELECTED.includes(time);
 
         if (selected === this.cache.selected) return;
         this.cache.selected = selected;
@@ -197,6 +197,10 @@ export class TimelineHitCircle {
         this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
         this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
 
+        if (Game.SKINNING.type === "0") {
+            this.selected.visible = false;
+            return;
+        }
         this.selected.visible = selected;
     }
 

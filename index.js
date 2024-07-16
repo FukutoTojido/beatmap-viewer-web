@@ -56,6 +56,8 @@ function setupDefaultStorage() {
     const settingsTemplate = {
         renderer: {
             val: "webgl",
+            resolution: 1,
+            aa: false
         },
         mirror: {
             val: "nerinyan",
