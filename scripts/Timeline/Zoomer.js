@@ -99,6 +99,11 @@ export class TimelineZoomer {
 
         this.zoomIn.setOnClick(() => {
             Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE + 1 * 20, 20, 800);
+            
+            const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+            currentLocalStorage.timeline.zoomRate = Timeline.ZOOM_DISTANCE;
+            localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
             Game.WORKER.postMessage({
                 type: "range",
                 range: (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD,
@@ -107,6 +112,11 @@ export class TimelineZoomer {
 
         this.zoomOut.setOnClick(() => {
             Timeline.ZOOM_DISTANCE = Clamp(Timeline.ZOOM_DISTANCE - 1 * 20, 20, 800);
+
+            const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+            currentLocalStorage.timeline.zoomRate = Timeline.ZOOM_DISTANCE;
+            localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
             Game.WORKER.postMessage({
                 type: "range",
                 range: (Timeline.WIDTH / 2 / Timeline.ZOOM_DISTANCE) * 500 + Timeline.LOOK_AHEAD,
