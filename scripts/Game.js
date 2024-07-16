@@ -40,7 +40,7 @@ export class Game {
     static _RESOLUTION = 1;
     static get RESOLUTION() {
         return this._RESOLUTION;
-    };
+    }
 
     static set RESOLUTION(val) {
         this._RESOLUTION = val;
@@ -549,8 +549,8 @@ export class Game {
                 this.EMIT_STACK.push(true);
             }
         } else {
-            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - 120 + Timeline.HEIGHT_REDUCTION * 2) {
-                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - 120 + Timeline.HEIGHT_REDUCTION * 2;
+            if (Game.MASTER_CONTAINER.h !== Game.WRAPPER.h - (60 - (Game.IS_FULLSCREEN ? 60 : 0)) - (60 - Timeline.HEIGHT_REDUCTION)) {
+                Game.MASTER_CONTAINER.h = Game.WRAPPER.h - (60 - (Game.IS_FULLSCREEN ? 60 : 0)) - (60 - Timeline.HEIGHT_REDUCTION);
                 this.EMIT_STACK.push(true);
                 // console.log("Stack Added! 6");
             }

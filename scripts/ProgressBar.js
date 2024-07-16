@@ -17,8 +17,8 @@ export function fullscreenToggle() {
         document.querySelector("#inputContainer").style.padding = 0;
         document.querySelector("#inputContainer").style.margin = 0;
 
-        result = 60 ;
-        old = 0;
+        result = 60;
+        old = 0 + (Timeline.SHOW_GREENLINE ? -30 : 0);
     } else {
         FullscreenButton.obj.sprite.texture = FullscreenButton.obj.texture;
         document.body.style.padding = "";
@@ -26,7 +26,7 @@ export function fullscreenToggle() {
         document.querySelector("#inputContainer").style.padding = "";
         document.querySelector("#inputContainer").style.margin = "";
 
-        result = 0;
+        result = 0 + (Timeline.SHOW_GREENLINE ? -30 : 0);
         old = 60 ;
     }
 

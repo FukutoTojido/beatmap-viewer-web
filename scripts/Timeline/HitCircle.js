@@ -266,15 +266,15 @@ export class TimelineHitCircle {
     }
 
     updateScale(isSliderTail) {
-        if (this.cache.baseHeight === Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1)) return;
-        this.cache.baseHeight = Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1);
+        if (this.cache.baseHeight === Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) return;
+        this.cache.baseHeight = Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0);
 
         this.obj.scale.set(this.cache.baseHeight / this.hitCircle.height);
         this.obj.y = Timeline.HEIGHT / 2;
 
         if (isSliderTail) {
-            this.meshHead.scale.set(this.cache.baseHeight / 60 );
-            this.meshTail.scale.set(this.cache.baseHeight / 60 );
+            this.meshHead.scale.set(this.cache.baseHeight / 60);
+            this.meshTail.scale.set(this.cache.baseHeight / 60);
             return;
         }
 

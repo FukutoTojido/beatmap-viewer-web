@@ -130,7 +130,10 @@ export class BeatLines {
     };
 
     constructor() {
+        this.container = new PIXI.Container();
         this.obj = new PIXI.Graphics();
+
+        this.container.addChild(this.obj);
     }
 
     getLineInRange(time, range, type) {
@@ -227,8 +230,8 @@ export class BeatLines {
         }
 
         this.drawList.forEach((line) => {
-            this.obj.removeChild(line.sv);
-            this.obj.removeChild(line.sample);
+            this.container.removeChild(line.sv);
+            this.container.removeChild(line.sample);
         });
 
         this.drawList = [];
@@ -236,8 +239,8 @@ export class BeatLines {
 
         this.drawList = GreenLineInfo.findGreenLineInRange(timestamp);
         this.drawList.forEach((line) => {
-            this.obj.addChild(line.sv);
-            this.obj.addChild(line.sample);
+            this.container.addChild(line.sv);
+            this.container.addChild(line.sample);
             line.draw(timestamp);
         });
     }

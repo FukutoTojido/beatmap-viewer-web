@@ -6,6 +6,7 @@ import { Component } from "../WindowManager.js";
 import * as PIXI from "pixi.js";
 import { TimelineZoomer } from "./Zoomer.js";
 import { TimelineHitCircle } from "./HitCircle.js";
+import TWEEN, { Tween } from "@tweenjs/tween.js";
 
 export class Timeline {
     static obj;
@@ -18,16 +19,58 @@ export class Timeline {
     static ZOOM_DISTANCE = 200;
     static LOOK_AHEAD = 300;
     static DRAW_LIST = [];
-    static SHOW_GREENLINE = false;
+    static _SHOW_GREENLINE = false;
     static MASTER_CONTAINER;
     static BASE_CONTAINER;
     static ZOOMER;
 
     static HEIGHT_REDUCTION = 0;
 
+    static get SHOW_GREENLINE() {
+        return this._SHOW_GREENLINE;
+    }
+
+    static set SHOW_GREENLINE(val) {
+        this._SHOW_GREENLINE = val;
+
+
+        if (this.HEIGHT_REDUCTION === 60) return;
+
+        if (val) {
+            const currentReduction = this.HEIGHT_REDUCTION;
+            new TWEEN.Tween({
+                reduction: currentReduction,
+            })
+                .to(
+                    {
+                        reduction: currentReduction - 30,
+                    },
+                    200
+                )
+                .onUpdate(({ reduction }) => (Timeline.HEIGHT_REDUCTION = reduction))
+                .easing(TWEEN.Easing.Sinusoidal.InOut)
+                .start();
+            return;
+        }
+
+        const currentReduction = this.HEIGHT_REDUCTION;
+        new TWEEN.Tween({
+            reduction: currentReduction,
+        })
+            .to(
+                {
+                    reduction: 0,
+                },
+                200
+            )
+            .onUpdate(({ reduction }) => (Timeline.HEIGHT_REDUCTION = reduction))
+            .easing(TWEEN.Easing.Sinusoidal.InOut)
+            .start();
+    }
+
     static async init() {
-        Timeline.HEIGHT_REDUCTION = !Game.IS_FULLSCREEN ? 0 : 60 ;
-        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60  - Timeline.HEIGHT_REDUCTION);
+        Timeline.HEIGHT_REDUCTION = !Game.IS_FULLSCREEN ? (Timeline.SHOW_GREENLINE ? -30 : 0) : 60;
+        Timeline.MASTER_CONTAINER = new Component(0, 0, Game.APP.renderer.width, 60 - Timeline.HEIGHT_REDUCTION);
         Timeline.MASTER_CONTAINER.color = 0x000000;
         Timeline.MASTER_CONTAINER.alpha = 0.5;
         // Timeline.MASTER_CONTAINER.borderRadius = 10;
@@ -36,7 +79,7 @@ export class Timeline {
         Timeline.HEIGHT = Timeline.MASTER_CONTAINER.h;
 
         Timeline.BASE_CONTAINER = new PIXI.Container();
-        Timeline.BASE_CONTAINER.x = 40 ;
+        Timeline.BASE_CONTAINER.x = 40;
 
         Timeline.MASTER_CONTAINER.container.addChild(Timeline.BASE_CONTAINER);
 
@@ -66,7 +109,7 @@ export class Timeline {
         Timeline.BASE_CONTAINER.addChild(Timeline.centerLine);
 
         Timeline.beatLines = new BeatLines();
-        Timeline.BASE_CONTAINER.addChild(Timeline.beatLines.obj);
+        Timeline.BASE_CONTAINER.addChild(Timeline.beatLines.container);
 
         Game.WORKER.postMessage({
             type: "range",
@@ -80,15 +123,15 @@ export class Timeline {
         if (innerWidth / innerHeight < 1) {
             if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width) Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width;
         } else {
-            if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 )
-                Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410 ;
+            if (Timeline.MASTER_CONTAINER.w !== Game.APP.renderer.width - (Game.REDUCTION / 400) * 410)
+                Timeline.MASTER_CONTAINER.w = Game.APP.renderer.width - (Game.REDUCTION / 400) * 410;
         }
 
-        Timeline.MASTER_CONTAINER.h = 60  - Timeline.HEIGHT_REDUCTION;
+        Timeline.MASTER_CONTAINER.h = 60 - Timeline.HEIGHT_REDUCTION;
 
         // if (Game.IS_FULLSCREEN) Timeline.MASTER_CONTAINER.h = 0;
 
-        Timeline.BASE_CONTAINER.x = 40 ;
+        Timeline.BASE_CONTAINER.x = 40;
         Timeline.ZOOMER.draw();
 
         // if (innerWidth / innerHeight < 1) {
