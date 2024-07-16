@@ -4,6 +4,7 @@ import { Component } from "./WindowManager";
 import * as TWEEN from "@tweenjs/tween.js";
 import bezier from "bezier-easing";
 import { TimingPanel } from "./TimingPanel";
+import { Timeline } from "./Timeline/Timeline";
 import { MetadataPanel } from "./SidePanel";
 
 export function toggleTimingPanel() {
@@ -128,7 +129,7 @@ export class BPM {
 
         if (innerWidth / innerHeight < 1) {
             this.MASTER_CONTAINER.x = Game.WRAPPER.w / 2;
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60;
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 - Timeline.HEIGHT_REDUCTION;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
         } else {
             this.MASTER_CONTAINER.x = 110;

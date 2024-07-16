@@ -182,7 +182,7 @@ export class FullscreenButton {
         this.obj.x = Game.WRAPPER.w - 60;
 
         if (innerWidth / innerHeight < 1) {
-            this.obj.y = PlayContainer.MASTER_CONTAINER.y + PlayContainer.MASTER_CONTAINER.height;
+            this.obj.y = PlayContainer.MASTER_CONTAINER.y;
         } else {
             this.obj.y = Game.WRAPPER.h - 60;
         }

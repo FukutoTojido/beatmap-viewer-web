@@ -4,6 +4,7 @@ import * as PIXI from "pixi.js";
 import { Component } from "./WindowManager.js";
 import { Game } from "./Game.js";
 import { Beatmap } from "./Beatmap.js";
+import { Timeline } from "./Timeline/Timeline.js";
 
 export function closePopup() {
     const popup = document.querySelector(".seekTo");
@@ -168,7 +169,7 @@ export class Timestamp {
 
         this.MASTER_CONTAINER.x = 0;
         if (innerWidth / innerHeight < 1) {
-            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 ;
+            this.MASTER_CONTAINER.y = Game.STATS.container.y + Game.STATS.container.height + 60 - Timeline.HEIGHT_REDUCTION;
             this.MASTER_CONTAINER.w = Game.WRAPPER.w / 2;
             this.timeContainer.x = (this.MASTER_CONTAINER.w - this.timeContainer.width) / 2;
         } else {
