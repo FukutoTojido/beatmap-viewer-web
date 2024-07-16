@@ -169,6 +169,10 @@ export class ObjectsController {
         });
 
         this.selected = selected;
+        this.selected.forEach(object => {
+            if (object.obj instanceof Spinner) return;
+            object.obj.handleSkinChange();
+        })
 
         if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
             Background.changeOpacity(Game.ALPHA * 0.7);

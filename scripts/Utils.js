@@ -284,8 +284,8 @@ export const loadColorPalette = (bg) => {
     if (primary) {
         const lumi = (0.299 * parseInt(primary[0]) + 0.587 * parseInt(primary[1]) + 0.114 * parseInt(primary[2])) / 255;
 
-        console.log(lumi)
-        console.log(primary)
+        // console.log(lumi)
+        // console.log(primary)
 
         let primaryHex = d3.color(`rgb(${parseInt(primary[0])}, ${parseInt(primary[1])}, ${parseInt(primary[2])})`);
         if (lumi < 0.1) {
@@ -293,7 +293,7 @@ export const loadColorPalette = (bg) => {
             const k = -Math.log(ratio) / Math.log(0.7)
 
             primaryHex = primaryHex.brighter(k);
-            console.log(primaryHex);
+            // console.log(primaryHex);
         }
         // console.log(primary, primaryHex);
         const primaryPalette = [

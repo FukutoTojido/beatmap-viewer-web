@@ -78,6 +78,8 @@ export class Slider {
     judgementContainer;
     judgement;
 
+    skinType;
+
     binom(n, k) {
         if (k < 0 || k > n) return 0;
         if (k == 0 || k == n) return 1;
@@ -109,7 +111,9 @@ export class Slider {
         if (this.ILLEGAL) return;
 
         this.sliderGeometryContainer.selSliderContainer.alpha = 1;
-        this.sliderGeometryContainer.selSliderContainer.tint = Object.values(d3.rgb(`#3197ff`)).map((val) => val / 255);
+        this.sliderGeometryContainer.selSliderContainer.tint = Object.values(d3.rgb(Game.SKINNING.type === "0" ? `#edab00` : `#3197ff`)).map(
+            (val) => val / 255
+        );
         this.sliderGeometryContainer.selSliderContainer.update();
 
         this.hitCircle.drawSelected();
@@ -125,7 +129,7 @@ export class Slider {
         this.selectedSliderEnd.x = x * Game.SCALE_RATE;
         this.selectedSliderEnd.y = y * Game.SCALE_RATE;
 
-        this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
+        this.selectedSliderEnd.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * (Game.SKINNING.type === "0" ? 1 : 0.5));
     }
 
     playHitsound(timestamp, lastTimestamp) {
@@ -175,7 +179,16 @@ export class Slider {
         }
     }
 
+    handleSkinChange() {
+        if (this.skinType === Game.SKINNING.type) return;
+        this.skinType = Game.SKINNING.type;
+
+        this.selectedSliderEnd.texture = Game.SKINNING.type === "0" ? Texture.SELECTED_ARGON.texture : Texture.SELECTED.texture;
+        this.hitCircle.handleSkinChange();
+    }
+
     drawBorder(timestamp) {
+        this.handleSkinChange();
         // console.log(this.time, opacity, percentage);
 
         // Calculate object radius on HR / EZ toggle
@@ -953,7 +966,7 @@ export class Slider {
 
         this.nodesLine.stroke();
 
-        this.selectedSliderEnd = new PIXI.Sprite(Texture.SELECTED.texture);
+        this.selectedSliderEnd = new PIXI.Sprite(Game.SKINNING.type === "0" ? Texture.SELECTED_ARGON.texture : Texture.SELECTED.texture);
         this.selectedSliderEnd.anchor.set(0.5);
 
         SliderContainer.addChild(this.ball.obj);

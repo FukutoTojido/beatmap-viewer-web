@@ -4,6 +4,7 @@ import * as PIXI from "pixi.js";
 
 export class Texture {
     static SELECTED;
+    static SELECTED_ARGON;
     static ARGON = {
         DEFAULTS: null,
         HIT_CIRCLE: null,
@@ -28,14 +29,14 @@ export class Texture {
 
     static createSelectedHitCircle() {
         return new PIXI.Graphics()
-            .setStrokeStyle({
-                width: 10,
-                color: 0xf2cc0f,
-                alpha: 1,
-                cap: "round",
-                alignment: 1,
-            })
-            .arc(0, 0, 59, 0, Math.PI * 2).stroke();
+        .setStrokeStyle({
+            width: 12,
+            color: 0xedab00,
+            alpha: 1,
+            cap: "round",
+            alignment: 1,
+        })
+        .arc(0, 0, 59, 0, Math.PI * 2).stroke();
     }
 
     static createHitCircle() {
@@ -194,6 +195,10 @@ export class Texture {
             texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "hitcircleselect@2x", "legacy")),
             isHD: true,
         };
+        Texture.SELECTED_ARGON = {
+            texture: await Texture.createTexture("SELECTED_HIT_CIRCLE"),
+            isHD: false,
+        }
         Texture.ARGON.HIT_CIRCLE = {
             texture: await Texture.createTexture("HIT_CIRCLE"),
             isHD: false,

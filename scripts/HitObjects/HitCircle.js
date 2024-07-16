@@ -75,7 +75,7 @@ export class HitCircle {
         this.selected.x = x * Game.SCALE_RATE;
         this.selected.y = y * Game.SCALE_RATE;
 
-        this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * 0.5);
+        this.selected.scale.set(circleBaseScale * Game.SCALE_RATE * (236 / 256) ** 2 * (this.skinType === "0" ? 1 : 0.5));
     }
 
     playHitsound(timestamp, lastTimestamp) {
@@ -113,6 +113,8 @@ export class HitCircle {
 
         this.hitCircleOverlaySprite.texture = textures.HIT_CIRCLE_OVERLAY.texture;
         this.hitCircleOverlaySprite.scale.set(textures.HIT_CIRCLE_OVERLAY.isHD ? 0.5 : 1);
+
+        this.selected.texture = Game.SKINNING.type === "0" ? Texture.SELECTED_ARGON.texture : Texture.SELECTED.texture;
 
         if (this.skinType !== "0") {
             this.hitCircleSprite.alpha = 0.9;
@@ -402,9 +404,9 @@ export class HitCircle {
         this.startTime = time - Beatmap.stats.preempt;
         this.killTime = time + 240;
 
-        const selected = new PIXI.Sprite(Texture.SELECTED.texture);
+        const selected = new PIXI.Sprite(Game.SKINNING.type === "0" ? Texture.SELECTED_ARGON.texture : Texture.SELECTED.texture);
         selected.anchor.set(0.5);
-        selected.scale.set(0.5);
+        selected.scale.set(Game.SKINNING.type === "0" ? 1 : 0.5);
         this.selected = selected;
 
         const hitCircleOverlaySprite = new PIXI.Sprite(Texture.ARGON.HIT_CIRCLE_OVERLAY.texture);
