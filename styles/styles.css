@@ -1594,7 +1594,7 @@ a:visited {
     0% {
         display: flex;
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateX(-100px);
     }
 
     100% {
@@ -1612,7 +1612,7 @@ a:visited {
 
     100% {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateX(-100px);
     }
 }
 
@@ -1631,6 +1631,10 @@ a:visited {
     gap: 10px;
 
     padding: 10px;
+}
+
+.notiContent {
+    flex: 1;
 }
 
 .noti {

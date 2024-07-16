@@ -2,10 +2,12 @@ import * as PIXI from "pixi.js";
 import { Game } from "./Game";
 import { Component } from "./WindowManager";
 import * as TWEEN from "@tweenjs/tween.js";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import bezier from "bezier-easing";
 import { TimingPanel } from "./TimingPanel";
 import { Timeline } from "./Timeline/Timeline";
 import { MetadataPanel } from "./SidePanel";
+import { ObjectsController } from "./HitObjects/ObjectsController";
 
 export function toggleTimingPanel() {
     TimingPanel.ON_ANIM = true;
@@ -69,6 +71,69 @@ export function toggleTimingPanel() {
 export class BPM {
     static BPM_TEXT;
     static SV_TEXT;
+
+    static _IS_KIAI = false;
+
+    static get IS_KIAI() {
+        return this._IS_KIAI;
+    }
+
+    static set IS_KIAI(val) {
+        this._IS_KIAI = val;
+
+        if (val) {
+            const [r3, g3, b3] =
+                typeof Game.COLOR_PALETTES.primary3 === "number"
+                    ? [...Object.values(d3.rgb(`#${Game.COLOR_PALETTES.primary3.toString(16).padStart(6, "0")}`)).map((val) => val / 1.0)]
+                    : Game.COLOR_PALETTES.primary3
+                          .slice(1)
+                          .match(/.{2}/g)
+                          .map((val) => parseInt(val, 16));
+
+            const [r4, g4, b4] =
+                typeof Game.COLOR_PALETTES.primary4 === "number"
+                    ? [...Object.values(d3.rgb(`#${Game.COLOR_PALETTES.primary5.toString(16).padStart(6, "0")}`)).map((val) => val / 1.0)]
+                    : Game.COLOR_PALETTES.primary4
+                          .slice(1)
+                          .match(/.{2}/g)
+                          .map((val) => parseInt(val, 16));
+
+            // console.log(r3, g3, b3);
+            // console.log(r4, g4, b4);
+            // console.log(ObjectsController.CURRENT_BPM.beatstep);
+
+            this.TWEEN = new TWEEN.Tween({
+                r: r4,
+                g: g4,
+                b: b4,
+            })
+                .to(
+                    {
+                        r: r3,
+                        g: g3,
+                        b: b3,
+                    },
+                    ObjectsController.CURRENT_BPM.beatstep
+                )
+                .onUpdate(({ r, g, b }) => {
+                    const color = (r << 16) | (g << 8) | b;
+                    this.MASTER_CONTAINER.color = color;
+                })
+                .easing(TWEEN.Easing.Sinusoidal.InOut)
+                .repeat(Infinity)
+                .start();
+
+            return;
+        }
+
+        if (!this.TWEEN) return;
+
+        this.TWEEN.stop();
+        this.TWEEN = null;
+        this.MASTER_CONTAINER.color = Game.COLOR_PALETTES.primary3;
+    }
+
+    static TWEEN = null;
 
     static init() {
         this.MASTER_CONTAINER = new Component(110, Game.WRAPPER.h - 60, 180, 60);
@@ -144,12 +209,7 @@ export class BPM {
         // this.BPM_TEXT.resolution = devicePixelRatio;
 
         this.FLAIR.clear()
-            .roundRect(
-                this.MASTER_CONTAINER.w / 2 + 5,
-                this.MASTER_CONTAINER.h / 2 - 10,
-                50,
-                20
-            )
+            .roundRect(this.MASTER_CONTAINER.w / 2 + 5, this.MASTER_CONTAINER.h / 2 - 10, 50, 20)
             .fill(0x9beea7);
 
         this.SV_TEXT.x = this.MASTER_CONTAINER.w / 2 + 5 + 25;

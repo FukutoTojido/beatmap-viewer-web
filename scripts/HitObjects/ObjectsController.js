@@ -115,11 +115,17 @@ export class ObjectsController {
 
         const currentSV = Beatmap.findNearestTimingPoint(timestamp, "timingPointsList", true);
         const currentBPM = Beatmap.findNearestTimingPoint(timestamp, "beatStepsList", true);
-        const currentPoint = Beatmap.findNearestTimingPointIndex(timestamp, "mergedPoints", true);
+        const currentPoint = Beatmap.findNearestTimingPoint(timestamp, "mergedPoints", true);
+
+        if (currentPoint.isKiai !== BPM.IS_KIAI) {
+            BPM.IS_KIAI = currentPoint.isKiai;
+        }
 
         if (JSON.stringify(ObjectsController.CURRENT_BPM) !== JSON.stringify(currentBPM)) {
             BPM.BPM_TEXT.text = `${Fixed(60000 / currentBPM.beatstep, 2)}BPM`;
             ObjectsController.CURRENT_BPM = currentBPM;
+
+            BPM.IS_KIAI = currentPoint.isKiai;
         }
 
         if (JSON.stringify(currentSV) !== JSON.stringify(ObjectsController.CURRENT_SV)) {

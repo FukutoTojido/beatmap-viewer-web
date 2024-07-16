@@ -261,6 +261,32 @@
     .noti {
         width: 100%;
     }
+
+    @keyframes slideUp {
+        0% {
+            display: flex;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+    
+        100% {
+            opacity: 1;
+            transform: unset;
+        }
+    }
+    
+    @keyframes slideDown {
+        0% {
+            display: flex;
+            opacity: 1;
+            transform: unset;
+        }
+    
+        100% {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+    }
 }
 
 @media screen and (min-aspect-ratio: 16 / 9) and (max-width: 915px) {
