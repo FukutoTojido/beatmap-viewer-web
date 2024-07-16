@@ -288,7 +288,7 @@ export class BeatmapFile {
                 window.history.pushState(
                     {},
                     "JoSu!",
-                    `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}&${searchTrim}${window.location.hash}`
+                    `${origin}${!origin.includes("github.io") ? "" : "/beatmap-viewer-web"}/?b=${beatmapID}${searchTrim !== "" ? `&${searchTrim}` : ""}${window.location.hash}`
                 );
                 Beatmap.HREF = `https://osu.ppy.sh/beatmapsets/${beatmapSetID}#osu/${beatmapID}`;
             } else {

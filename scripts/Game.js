@@ -737,6 +737,7 @@ export class Game {
             }
 
             if (event.data.type === "updateOrder") {
+                if (!Game.BEATMAP_FILE?.beatmapRenderData) return;
                 const { objects, currentTime, lastTime, timeline } = event.data;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.addTop = objects.addTop;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;

@@ -144,14 +144,7 @@ export class Timeline {
     }
 
     static destruct() {
-        if (!Game.BEATMAP_FILE?.beatmapRenderData) return;
-        const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
-
-        this.DRAW_LIST.forEach((object) => {
-            objList[object.idx].timelineObject?.removeSelfFromContainer(Timeline.hitArea.obj);
-            objList[object.idx].timelineObject?.obj.destroy();
-        });
-
+        Timeline.hitArea.clearAll();
         this.DRAW_LIST.length = 0;
     }
 }

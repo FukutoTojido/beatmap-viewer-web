@@ -91,6 +91,19 @@ export class TimelineDragWindow {
         this.obj.on("mouseleave", (e) => this.handleLeaveEvent(e));
     }
 
+    clearAll() {
+        this.obj.removeChild(this.graphics)
+        this.obj.removeChild(this.dragWindow);
+
+        const children = this.obj.removeChildren();
+
+        children.forEach((child) => {
+            child.destroy();
+        })
+        
+        this.obj.addChild(this.graphics, this.dragWindow);
+    }
+
     handleDraggingEvent(e) {
         if (!this.isDragging) return;
 
