@@ -211,17 +211,17 @@ export class TimelineHitCircle {
                 this.theThing.visible = true;
             }
 
-            this.meshHead.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2);
+            this.meshHead.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2 / devicePixelRatio);
             this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
             this.meshHead.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
-            this.meshTail.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2);
+            this.meshTail.scale.set((Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60) * 2 / devicePixelRatio);
             this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
             this.meshTail.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
             if (isSliderTail) {
-                this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
-                this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60);
+                this.meshHead.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60 / devicePixelRatio);
+                this.meshTail.scale.set(Timeline.HEIGHT / (Timeline.SHOW_GREENLINE ? 1.5 : 1) / 60 / devicePixelRatio);
                 this.meshHead.shader.resources.customUniforms.uniforms.isReverse = true;
                 this.meshTail.shader.resources.customUniforms.uniforms.isReverse = true;
             }
