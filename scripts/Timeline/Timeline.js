@@ -139,7 +139,7 @@ export class Timeline {
         const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
 
         this.DRAW_LIST.forEach((object) => {
-            objList[object.idx].timelineObject?.draw(timestamp);
+            objList[object.idx]?.timelineObject?.draw(timestamp);
         });
     }
 
