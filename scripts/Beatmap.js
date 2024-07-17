@@ -799,7 +799,7 @@ export class Beatmap {
         Beatmap.updateModdedStats();
 
         this.objectsController.objectsList.forEach((object, idx, arr) => {
-            Timeline.hitArea.obj.addChild(object.timelineObject.obj);
+            Timeline.hitArea.obj.addChildAt(object.timelineObject.obj, 0);
 
             // Game.CONTAINER.addChild(object.obj.obj);
             // if (object.obj.approachCircleObj) {

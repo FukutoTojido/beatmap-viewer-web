@@ -22,7 +22,7 @@ export class FollowPoint {
 
         this.container.zIndex = -1;
         this.container.visible = false;
-        this.container.interactive = "none";
+        this.container.eventMode = "none";
 
         this.graphics = new PIXI.Graphics();
         this.container.addChild(this.graphics);
@@ -46,6 +46,7 @@ export class FollowPoint {
                 sprite.anchor.set(0.5);
                 // if (Texture.FOLLOWPOINT.isHD) sprite.scale.set(0.5);
                 sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
+                sprite.eventMode = "none";
 
                 sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE;
 

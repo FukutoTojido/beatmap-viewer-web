@@ -419,7 +419,7 @@ export class Game {
         // Set container offset
         container.x = Game.OFFSET_X;
         container.y = Game.OFFSET_Y;
-        container.eventMode = "static";
+        container.eventMode = "none";
         container.sortableChildren = true;
 
         return container;
