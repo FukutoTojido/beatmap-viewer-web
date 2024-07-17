@@ -106,13 +106,13 @@ export class SliderBall {
         this.followCircle.tint = 0xffffff;
         if (skinType === "ARGON") this.followCircle.tint = colors[idx % colors.length];
 
-        if (timestamp > this.baseSlider.endTime && timestamp < this.baseSlider.endTime + 200) {
-            const alphaB = Clamp((timestamp - this.baseSlider.endTime) / 200, 0, 1);
-            const alphaF = Clamp((timestamp - this.baseSlider.endTime) / 200, 0, 1);
-
+        if (timestamp > this.baseSlider.endTime) {
+            const alphaB = Clamp((timestamp - this.baseSlider.endTime) / 100, 0, 1);
             this.sliderB.alpha = 1 - easeOutQuint(alphaB);
+
+            const alphaF = Clamp((timestamp - this.baseSlider.endTime) / 100, 0, 1);
             this.followCircle.alpha = 1 - easeOutQuint(alphaF);
-            this.followCircle.scale.set((1.5 + easeOutSine(1 - alphaF) * 0.9) * sliderFollowSkinScale);
+            this.followCircle.scale.set((1.0 + easeOutSine(1 - alphaF) * 1.4) * sliderFollowSkinScale);
         }
     }
 }
