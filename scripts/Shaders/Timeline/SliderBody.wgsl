@@ -13,7 +13,10 @@ struct LocalUniforms {
 
 struct CustomUniforms {
     tint: vec4<f32>,
-    selected: f32
+    selected: f32,
+    skinType: f32,
+    isReverse: f32,
+    nodeTint: vec4<f32>
 }
 
 @group(0) @binding(0) var<uniform> globalUniforms : GlobalUniforms;
@@ -52,26 +55,56 @@ fn darken(color: vec4<f32>, strength: f32) -> vec4<f32> {
 
 @fragment
 fn fsMain(input : VertexOutput) -> @location(0) vec4<f32>{
-    var blurRate = 0.1;
+    var blurRate = 0.05;
     var alpha = 1.0;
+
     var totalAlpha = 0.7;
+
     var tint = customUniforms.tint;
 
     var outerColor = darken(tint, 0.1);
     var innerColor = tint;
 
-    var color = mix(outerColor, innerColor, input.dist);
-
-    if (customUniforms.selected > 0.0) {
-        color = tint;
-        totalAlpha = 1.0;
-    }
-
-    color[3] = 1.0;
-
     if (input.dist > 1.0 - blurRate) {
         alpha = (1.0 - input.dist) / blurRate;
     }
 
-    return color * alpha * totalAlpha;
+    if (customUniforms.skinType != 0.0) {
+        var color = mix(outerColor, innerColor, input.dist);
+
+        if (customUniforms.selected > 0.0) {
+            color = tint;
+            totalAlpha = 1.0;
+        }
+
+        color[3] = 1.0;
+
+        return color * alpha * totalAlpha;
+    } else {
+        totalAlpha = 1.0;
+
+        outerColor = darken(tint, 0.4);
+        
+        var color = outerColor;
+        if (input.dist <= 0.8) {
+            color = innerColor;
+        }
+
+        if (customUniforms.selected > 0.0) {
+            color = tint;
+            if (input.dist > 0.8) {
+                color = vec4<f32>(0.93, 0.67, 0.0, 1.0);
+            }
+
+            totalAlpha = 1.0;
+        }
+
+        if (customUniforms.isReverse > 0.0) {
+            color = customUniforms.nodeTint;
+        }
+
+        color[3] = 1.0;
+        return color * alpha * totalAlpha;
+    }
+
 }
