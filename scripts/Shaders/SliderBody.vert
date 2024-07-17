@@ -6,7 +6,7 @@ out float dist;
 
 uniform float dx, ox, dy, oy, dt, ot;
 uniform float inverse;
-// uniform vec2 ballPosition;
+uniform vec2 ballPosition;
 // uniform float stackOffset;
 
 // uniform mat3 uProjectionMatrix;
@@ -39,10 +39,17 @@ void main() {
     //     // gl_Position = vec4(-1.0 + aPosition.x * dx + ox, (y * dy + 1.0) + oy, aPosition[3] + 2.0 * distance_var, 1.0);
     //     gl_Position = vec4((mvp * (vec3(aPosition.x + stackOffset, y + stackOffset, 1.0))).xy, aPosition[3] + 2.0 * distance_var, 1.0);
     // }
+    float x = aPosition[0];
+    float y = aPosition[1];
 
-    float y = inverse == 0.0 ? aPosition[1] : 384.0 - aPosition[1];
+    if (isCirc == 1.0) {
+        x += ballPosition[0];
+        y += ballPosition[1];
+    }
 
-    gl_Position = vec4(aPosition[0], aPosition[1], aPosition[3] + 2.0 * distance_var, 1.0);
-    gl_Position.x = -1.0 + gl_Position.x * dx + ox;
+    y = inverse == 0.0 ? y : 384.0 - y;
+
+    gl_Position = vec4(x, y, aPosition[3] + 2.0 * distance_var, 1.0);
+    gl_Position.x = -1.0 + x * dx + ox;
     gl_Position.y = (y * dy + 1.0) + oy;
 }

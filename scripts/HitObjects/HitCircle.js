@@ -21,6 +21,9 @@ export class HitCircle {
     positionX;
     positionY;
 
+    endX;
+    endY;
+
     originalX;
     originalY;
 
@@ -321,7 +324,7 @@ export class HitCircle {
 
         this.number.draw(timestamp);
         this.approachCircleObj.draw(timestamp);
-
+        
         // if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
@@ -397,6 +400,16 @@ export class HitCircle {
         this.originalX = parseInt(positionX);
         this.originalY = parseInt(positionY);
 
+        this.startPosition = {
+            x: this.originalX,
+            y: this.originalY
+        };
+
+        this.endPosition = {
+            x: this.originalX,
+            y: this.originalY
+        };
+
         this.time = time;
         this.endTime = time;
         this.hitTime = time;
@@ -438,6 +451,7 @@ export class HitCircle {
         this.approachCircleObj = new ApproachCircle(this);
 
         this.obj = container;
+        // this.obj.visible = false;
 
         this.hitSounds = hitSounds;
     }

@@ -152,15 +152,15 @@ export class SliderMeshContainer extends PIXI.RenderContainer {
     }
 
     drawGPUCircle(renderer, body, state) {
-        const p = body.ballPosition;
-        body.shader.resources.customUniforms.uniforms.ballPosition[0] = p.x * body.transform.dx;
+        // const p = body.ballPosition;
+        // body.shader.resources.customUniforms.uniforms.ballPosition[0] = p.x * body.transform.dx;
 
-        if (Game.MODS.HR) {
-            p.y = 384 - p.y;
-            body.shader.resources.customUniforms.uniforms.ballPosition[1] = p.y * body.transform.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
-        } else {
-            body.shader.resources.customUniforms.uniforms.ballPosition[1] = p.y * body.transform.dy;
-        }
+        // if (Game.MODS.HR) {
+        //     p.y = 384 - p.y;
+        //     body.shader.resources.customUniforms.uniforms.ballPosition[1] = p.y * body.transform.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
+        // } else {
+        //     body.shader.resources.customUniforms.uniforms.ballPosition[1] = p.y * body.transform.dy;
+        // }
 
         this.draw(renderer, body.circleGeometry, body.shader, state);
     }
@@ -262,15 +262,17 @@ export class SliderMeshContainer extends PIXI.RenderContainer {
             body.shader.resources.customUniforms.uniforms.dt = 0;
             body.shader.resources.customUniforms.uniforms.ot = 1;
 
-            const p = body.ballPosition;
-            body.shader.resources.customUniforms.uniforms.ox += p.x * body.transform.dx;
+            // const p = body.ballPosition;
+            // body.shader.resources.customUniforms.uniforms.ox += p.x * body.transform.dx;
 
-            if (Game.MODS.HR) {
-                p.y = 384 - p.y;
-                body.shader.resources.customUniforms.uniforms.oy += p.y * body.transform.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
-            } else {
-                body.shader.resources.customUniforms.uniforms.oy += p.y * body.transform.dy;
-            }
+            // // console.log(Game.MODS.HR)
+
+            // if (Game.MODS.HR) {
+            //     p.y = 384 - p.y;
+            //     body.shader.resources.customUniforms.uniforms.oy += p.y * body.transform.dy + (2 * Game.HEIGHT) / Game.APP.renderer.height;
+            // } else {
+            //     body.shader.resources.customUniforms.uniforms.oy += p.y * body.transform.dy;
+            // }
 
             bind(body.circleGeometry, body.shader);
             gl.drawElements(drawMode, indexLength, glType, 0);

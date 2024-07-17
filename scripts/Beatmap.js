@@ -17,6 +17,7 @@ import { Texture } from "./Texture.js";
 import { TimingPanel } from "./TimingPanel.js";
 import { MetadataPanel } from "./SidePanel.js";
 import { Notification } from "./Notification.js";
+import { FollowPoint } from "./HitObjects/FollowPoint.js";
 
 export class Beatmap {
     objectsController;
@@ -703,12 +704,8 @@ export class Beatmap {
             .filter((o) => o);
         console.log(`Took: ${performance.now() - start}ms to finish objects construction.`);
 
-        start = performance.now();
         this.objectsController = new ObjectsController(parsedHitObjects, coloursList, breakPeriods);
         // console.log(Game.WORKER)
-
-        console.log(`Took: ${performance.now() - start}ms to finish objectsController construction.`);
-
         // Ported from Lazer
         let extendedEndIndex = this.objectsController.objectsList.length - 1;
         let extendedStartIndex = 0;
@@ -800,6 +797,26 @@ export class Beatmap {
 
         Beatmap.updateStats();
         Beatmap.updateModdedStats();
+
+        this.objectsController.objectsList.forEach((object, idx, arr) => {
+            Timeline.hitArea.obj.addChild(object.timelineObject.obj);
+
+            // Game.CONTAINER.addChild(object.obj.obj);
+            // if (object.obj.approachCircleObj) {
+            //     Game.CONTAINER.addChild(object.obj.approachCircleObj.obj);
+            // }
+
+            if (idx === this.objectsController.objectsList.length - 1) return;
+            if (arr[idx + 1].obj.comboIdx === 1) return;
+            if (object.obj instanceof Spinner) return;
+
+            object.obj.followPoint = new FollowPoint({
+                startObj: object.obj,
+                endObj: arr[idx + 1].obj,
+            });
+
+            Game.CONTAINER.addChild(object.obj.followPoint.container);
+        });
 
         this.objectsController.slidersList.forEach((o) => {
             o.obj.hitCircle.stackHeight = o.obj.stackHeight;

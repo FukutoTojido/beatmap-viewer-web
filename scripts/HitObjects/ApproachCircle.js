@@ -15,6 +15,8 @@ export class ApproachCircle {
         approachCircle.anchor.set(0.5);
         approachCircle.zIndex = Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000 + 1;
         this.obj = approachCircle;
+
+        // this.obj.visible = false;
     }
 
     draw(timestamp) {

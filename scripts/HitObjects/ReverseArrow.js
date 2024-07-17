@@ -118,7 +118,7 @@ export class ReverseArrow {
 
         this.arrowSprite.scale.set(baseScale * (1 + easeOutSine(pulseRate) * 0.2));
         this.ringSprite.scale.set((229 / 200) * baseScale);
-        this.ringSprite.x = easeOutSine(pulseRate) * -12 * (512 / Game.WIDTH);
+        this.ringSprite.x = easeOutSine(pulseRate) * -6 * Game.SCALE_RATE;
         this.obj.scale.set(1);
         this.obj.alpha = 0;
 

@@ -42,6 +42,8 @@ export class ObjectsController {
     addTop = [];
     addBack = [];
     removed = [];
+    fpBoundary = [];
+    removedFp = [];
 
     _in = [];
 
@@ -76,19 +78,55 @@ export class ObjectsController {
 
     updateOrder() {
         this.removed.forEach((object) => {
+            // this.objectsList[object.idx].obj.obj.visible = false;
             Game.CONTAINER.removeChild(this.objectsList[object.idx].obj.obj);
-            if (this.objectsList[object.idx].obj.approachCircleObj)
+
+            if (this.objectsList[object.idx].obj.approachCircleObj) {
                 Game.CONTAINER.removeChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+                // this.objectsList[object.idx].obj.approachCircleObj.obj.visible = false;
+            }
+
+            if (this.objectsList[object.idx].obj.followPoint) {
+                this.objectsList[object.idx].obj.followPoint.container.visible = false;
+            }
         });
 
         this.addBack.forEach((object) => {
+            // this.objectsList[object.idx].obj.obj.visible = true;
             Game.CONTAINER.addChildAt(this.objectsList[object.idx].obj.obj, 0);
-            if (this.objectsList[object.idx].obj.approachCircleObj) Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+            if (this.objectsList[object.idx].obj.approachCircleObj) {
+                Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+                // this.objectsList[object.idx].obj.approachCircleObj.obj.visible = true;
+            }
+
+            if (this.objectsList[object.idx].obj.followPoint) {
+                this.objectsList[object.idx].obj.followPoint.container.visible = true;
+            }
         });
 
         this.addTop.forEach((object) => {
+            // this.objectsList[object.idx].obj.obj.visible = true;
             Game.CONTAINER.addChild(this.objectsList[object.idx].obj.obj);
-            if (this.objectsList[object.idx].obj.approachCircleObj) Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+            if (this.objectsList[object.idx].obj.approachCircleObj) {
+                Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
+                // this.objectsList[object.idx].obj.approachCircleObj.obj.visible = true;
+            }
+
+            if (this.objectsList[object.idx].obj.followPoint) {
+                this.objectsList[object.idx].obj.followPoint.container.visible = true;
+            }
+        });
+
+        this.fpBoundary.forEach((object) => {
+            if (this.objectsList[object.idx].obj.followPoint) {
+                this.objectsList[object.idx].obj.followPoint.container.visible = true;
+            }
+        });
+
+        this.removedFp.forEach((object) => {
+            if (this.objectsList[object.idx].obj.followPoint) {
+                this.objectsList[object.idx].obj.followPoint.container.visible = false;
+            }
         });
     }
 
@@ -97,8 +135,8 @@ export class ObjectsController {
         this.filtered.forEach((object) => {
             this.objectsList[object.idx].obj.playHitsound(timestamp, lastTimestamp);
             if (this.objectsList[object.idx].obj instanceof Slider) {
-                this.objectsList[object.idx].obj.ticks.forEach(tick => tick.playHitsound(timestamp, lastTimestamp));
-                this.objectsList[object.idx].obj.revArrows.forEach(arrow => arrow.playHitsound(timestamp, lastTimestamp));
+                this.objectsList[object.idx].obj.ticks.forEach((tick) => tick.playHitsound(timestamp, lastTimestamp));
+                this.objectsList[object.idx].obj.revArrows.forEach((arrow) => arrow.playHitsound(timestamp, lastTimestamp));
             }
         });
     }
@@ -169,10 +207,10 @@ export class ObjectsController {
         });
 
         this.selected = selected;
-        this.selected.forEach(object => {
+        this.selected.forEach((object) => {
             if (object.obj instanceof Spinner) return;
             object.obj.handleSkinChange();
-        })
+        });
 
         if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
             Background.changeOpacity(Game.ALPHA * 0.7);
@@ -227,6 +265,12 @@ export class ObjectsController {
         this.filtered.forEach((object) => {
             // selected.forEach((o) => o.obj.drawSelected());
             this.objectsList[object.idx].obj.draw(Math.max(timestamp, 0));
+            this.objectsList[object.idx].obj.followPoint?.draw(timestamp);
+        });
+
+        this.fpBoundary.forEach((object) => {
+            // selected.forEach((o) => o.obj.drawSelected());
+            this.objectsList[object.idx].obj.followPoint?.draw(timestamp);
         });
 
         this.selected.forEach((object) => {

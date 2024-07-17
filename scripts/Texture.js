@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 export class Texture {
     static SELECTED;
     static SELECTED_ARGON;
+    static FOLLOWPOINT;
     static ARGON = {
         DEFAULTS: null,
         HIT_CIRCLE: null,
@@ -198,6 +199,10 @@ export class Texture {
         Texture.SELECTED_ARGON = {
             texture: await Texture.createTexture("SELECTED_HIT_CIRCLE"),
             isHD: false,
+        }
+        Texture.FOLLOWPOINT = {
+            texture: await PIXI.Assets.load("/static/followpoint@2x.png"),
+            isHD: true
         }
         Texture.ARGON.HIT_CIRCLE = {
             texture: await Texture.createTexture("HIT_CIRCLE"),

@@ -743,6 +743,8 @@ export class Game {
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.addBack = objects.addBack;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered = objects.filtered;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.fpBoundary = objects.fpBoundary;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.removedFp = objects.removedFp;
 
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.playHitsounds(currentTime, lastTime);

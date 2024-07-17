@@ -33,6 +33,7 @@ class Timer {
 
     static objects = [];
     static filtered = [];
+    static fpBoundary = [];
     static filteredTimeline = [];
 
     static range = 0;
@@ -140,6 +141,7 @@ class Timer {
         };
 
         const drawList = [];
+        const fpBoundary = [];
         const foundIndex = binarySearch(this.objects, currentTime, compareFunc);
         if (foundIndex !== -1) {
             let start = foundIndex - 1;
@@ -159,7 +161,23 @@ class Timer {
             }
 
             drawList.reverse();
+
+            if (start >= 0) {
+                fpBoundary.push(this.objects[start]);
+            }
+
+            if (end <= this.objects.length - 1) {
+                fpBoundary.push(this.objects[end]);
+            }
         }
+
+        const removedFp = [];
+        this.fpBoundary.forEach((object) => {
+            if (fpBoundary.find((o) => object.idx === o.idx) || drawList.find((o) => object.idx === o.idx)) return;
+            removedFp.push(object);
+        })
+
+        this.fpBoundary = fpBoundary;
 
         const removed = [];
         this.filtered.forEach((object) => {
@@ -190,6 +208,8 @@ class Timer {
             removed,
             addBack,
             addTop,
+            fpBoundary,
+            removedFp,
             filtered: this.filtered,
         };
     }
@@ -211,7 +231,7 @@ class Timer {
                     // current
                 },
                 timeline: {
-                    ...timelineObjs
+                    ...timelineObjs,
                 },
                 currentTime,
                 lastTime: this.lastTime,

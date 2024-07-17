@@ -143,6 +143,10 @@ export class TimelineSlider {
         this.obj.on("mouseleave", (e) => {
             this.hitObject.isHover = false;
         });
+
+        this.obj.visible = false;
+        this.sliderHead.obj.visible = true;
+        this.sliderTail.obj.visible = true;
     }
 
     addSelfToContainer(container) {

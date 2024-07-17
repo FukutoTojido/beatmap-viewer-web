@@ -168,6 +168,7 @@ export class SliderBody {
 
         const point = SliderBody.getPointAtT(this.angleList, this.startt, this.endt);
         this.ballPosition = point;
+        this.shader.resources.customUniforms.uniforms.ballPosition = [point.x, point.y];
 
         this.shader.resources.customUniforms.uniforms.circleBaseScale = circleBaseScale;
 

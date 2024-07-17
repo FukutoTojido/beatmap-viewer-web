@@ -46,12 +46,16 @@ fn vsMain(
         distance_var = 1.0;
     }
 
-    var y: f32 = 0;
+    var x: f32 = aPosition.x;
+    var y: f32 = aPosition.y;
+
+    if (isCirc == 1.0) {
+        x += customUniforms.ballPosition.x;
+        y += customUniforms.ballPosition.y;
+    }
 
     if (customUniforms.inverse > 0) {
-        y = 384.0 - aPosition.y;
-    } else {
-        y = aPosition.y;
+        y = 384.0 - y;
     }
 
     var z: f32 = aPosition[3] + 2.0 * distance_var;
@@ -59,14 +63,9 @@ fn vsMain(
     var offset_x = customUniforms.ox;
     var offset_y = customUniforms.oy;
 
-    if (isCirc == 1.0) {
-        offset_x += customUniforms.ballPosition.x;
-        offset_y += customUniforms.ballPosition.y;
-    }
-
     return VertexOutput(
         vec4<f32>(
-            -1.0 + aPosition.x * customUniforms.dx + offset_x,
+            -1.0 + x * customUniforms.dx + offset_x,
             (y * customUniforms.dy + 1.0) + offset_y,
             (z + 1.0) / 2.0,
             1.0

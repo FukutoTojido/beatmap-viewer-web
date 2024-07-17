@@ -311,7 +311,6 @@ export class Slider {
         this.ticks.forEach((tick) => tick.draw(timestamp));
         this.ball.draw(timestamp);
         this.updateJudgement(timestamp);
-
         // if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
@@ -765,6 +764,11 @@ export class Slider {
             };
         });
 
+        this.startPosition = {
+            x: parseFloat(originalArr[0].x),
+            y: parseFloat(originalArr[0].y)
+        }
+
         const nodes = [];
         for (let i = 0; i < originalArr.length; i++) {
             if (originalArr[i + 1] && this.Dist(originalArr[i], originalArr[i + 1]) === 0) {
@@ -872,6 +876,7 @@ export class Slider {
         // this.draw(0.5);
         // console.log(this.repeat % 2);
 
+        this.endPosition = this.realTrackPoints.at(-1);
         this.sliderEnd = new SliderEnd(this);
 
         // console.log(time, this.angleList)
@@ -973,6 +978,8 @@ export class Slider {
         SliderContainer.addChild(this.hitCircle.obj);
         SliderContainer.addChild(this.nodesContainer);
         // this.obj.alpha = 0.0;
+
+        // this.obj.visible = false;
     }
 
     get approachCircleObj() {
