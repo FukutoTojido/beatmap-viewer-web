@@ -5,7 +5,7 @@ import { Texture } from "../Texture";
 import { HitCircle } from "./HitCircle";
 import { Slider } from "./Slider";
 import { Clamp } from "../Utils";
-import { easeInOutSine, easeOutQuint, easeOutSine } from "easing-utils";
+import { easeOutQuad } from "easing-utils";
 
 export class FollowPoint {
     isHR = false;
@@ -100,21 +100,6 @@ export class FollowPoint {
         this.calculate();
     }
 
-    updateSpritesPosition(timestamp) {
-        if (timestamp < this.readyTime) {
-            const percentage = easeOutQuint(Clamp((timestamp - this.startTime) / (this.readyTime - this.startTime), 0, 1));
-            this.sprites.forEach((sprite, idx) => {
-                sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE * percentage;
-            });
-        }
-
-        if (timestamp >= this.readyTime) {
-            this.sprites.forEach((sprite, idx) => {
-                sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE;
-            });
-        }
-    }
-
     updateOpacity(timestamp) {
         const duration = this.endTime - this.animTime;
         const fraction = duration / this.sprites.length;
@@ -122,21 +107,33 @@ export class FollowPoint {
         const timeFade = Beatmap.moddedStats.fadeIn;
 
         this.sprites.forEach((sprite, idx) => {
-            const fadeOutTime = this.animTime + idx * fraction;
-            const fadeInTime = this.animTime + idx * fraction - preempt;
+            const d = 32 * 1.5 + 32 * idx;
+            const f = d / this.width;
+
+            const fadeOutTime = this.animTime + f * duration;
+            const fadeInTime = fadeOutTime - preempt;   
 
             if (timestamp < fadeInTime + timeFade) {
-                const opacity = easeOutSine(Clamp((timestamp - fadeInTime) / timeFade, 0, 1));
+                const opacity = easeOutQuad(Clamp((timestamp - fadeInTime) / timeFade, 0, 1));
                 sprite.alpha = opacity;
+                sprite.scale.set((1.5 - 0.5 * opacity) * Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
+
+                sprite.x = (f - 0.1 * (1 - opacity)) * this.width * Game.SCALE_RATE;
             }
 
             if (timestamp > fadeOutTime) {
-                const opacity = 1 - easeInOutSine(Clamp((timestamp - fadeOutTime) / timeFade, 0, 1));
+                const opacity = 1 - easeOutQuad(Clamp((timestamp - fadeOutTime) / timeFade, 0, 1));
                 sprite.alpha = opacity;
+                sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
+                // sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE
+                sprite.x = f * this.width * Game.SCALE_RATE;
             }
 
             if (timestamp >= fadeInTime + timeFade && timestamp < fadeOutTime) {
                 sprite.alpha = 1;
+                sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
+                // sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE
+                sprite.x = f * this.width * Game.SCALE_RATE;
             }
         });
     }
@@ -147,7 +144,6 @@ export class FollowPoint {
         this.container.x = this.startX * Game.SCALE_RATE;
         this.container.y = this.startY * Game.SCALE_RATE;
 
-        this.updateSpritesPosition(timestamp);
         this.updateOpacity(timestamp);
 
         // this.graphics.clear().rect(0, 0, this.width * Game.SCALE_RATE, 3).fill(this.color);
