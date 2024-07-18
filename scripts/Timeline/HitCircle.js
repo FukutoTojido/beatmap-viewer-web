@@ -271,7 +271,7 @@ export class TimelineHitCircle {
         if (this.cache.baseHeight === Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) return;
         this.cache.baseHeight = Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0);
 
-        this.obj.scale.set(this.cache.baseHeight / this.hitCircle.height);
+        this.obj.scale.set(this.cache.baseHeight / this.hitCircle.height * 0.9);
         this.obj.y = Timeline.HEIGHT / 2;
 
         if (isSliderTail) {
@@ -280,8 +280,8 @@ export class TimelineHitCircle {
             return;
         }
 
-        this.meshHead.scale.set(((this.cache.baseHeight / 60) * 2) );
-        this.meshTail.scale.set(((this.cache.baseHeight / 60) * 2) );
+        this.meshHead.scale.set((this.cache.baseHeight / 60) * 2);
+        this.meshTail.scale.set((this.cache.baseHeight / 60) * 2);
     }
 
     draw(timestamp, isSliderTail) {

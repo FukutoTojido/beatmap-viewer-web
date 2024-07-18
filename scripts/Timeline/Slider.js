@@ -187,19 +187,19 @@ export class TimelineSlider {
         // const ratio = 1;
 
         this.meshHead.position.set(headPosition, Timeline.HEIGHT / 2);
-        this.meshHead.scale.set((Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) / 60);
+        this.meshHead.scale.set((Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) / 60 * 0.9);
         this.meshHead.shader.resources.customUniforms.uniforms.tint = tint;
         this.meshHead.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
         this.meshHead.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
         this.meshBody.position.set(headPosition, Timeline.HEIGHT / 2);
-        this.meshBody.scale.set(this.length * ratio, (Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) / 60);
+        this.meshBody.scale.set(this.length * ratio, (Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) / 60 * 0.9);
         this.meshBody.shader.resources.customUniforms.uniforms.tint = tint;
         this.meshBody.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
         this.meshBody.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
 
         this.meshTail.position.set(endPosition, Timeline.HEIGHT / 2);
-        this.meshTail.scale.set((Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) / 60);
+        this.meshTail.scale.set((Timeline.HEIGHT - (Timeline.SHOW_GREENLINE ? 30 : 0)) / 60 * 0.9);
         this.meshTail.shader.resources.customUniforms.uniforms.tint = tint;
         this.meshTail.shader.resources.customUniforms.uniforms.selected = selected ? 1 : 0;
         this.meshTail.shader.resources.customUniforms.uniforms.skinType = Game.SKINNING.type;
