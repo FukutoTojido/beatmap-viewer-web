@@ -47,7 +47,7 @@ export class TintedNumberSprite extends NumberSprite {
 
                 const sprite = this.sprites[idx];
                 sprite.texture = textures.DEFAULTS[value].texture;
-                sprite.scale.set((textures.DEFAULTS[value].isHD ? 0.5 * 0.8 : 0.8) * 0.9);
+                sprite.scale.set((textures.DEFAULTS[value].isHD ? 0.5 * 0.8 : 0.8));
 
                 if (skinType === "ARGON") {
                     const colors = Game.SLIDER_APPEARANCE.ignoreSkin ? Skinning.DEFAULT_COLORS : Beatmap.COLORS;
