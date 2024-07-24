@@ -209,7 +209,7 @@ export class Slider {
             }
             if (timestamp > this.endTime) {
                 currentOpacity = 1 - (timestamp - this.endTime) / fadeOutTime;
-                // if (Game.SLIDER_APPEARANCE.snaking && this.hitTime <= this.killTime) currentOpacity = 0;
+                if (Game.SLIDER_APPEARANCE.snaking && this.hitTime <= this.killTime) currentOpacity = 0;
             }
         } else {
             currentOpacity = 1 - (timestamp - this.time) / (this.endTime - this.time);
