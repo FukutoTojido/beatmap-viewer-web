@@ -596,19 +596,29 @@ export class Slider {
             const tickEndDelta = this.sliderTime - (this.sliderTicksCount / this.repeat) * this.beatStep;
             const currentTrackPoint = i % 2 === 0 ? this.angleList.at(-1) : this.angleList[0];
 
-            sliderParts.push(
-                ...baseTicksList.map((tick, idx) => {
-                    return {
-                        ...tick,
-                        type: "Slider Tick",
-                        time:
-                            i % 2 === 0
-                                ? i * this.sliderTime + Math.floor(this.time + ((idx + 1) * this.beatStep) / Beatmap.stats.sliderTickRate)
-                                : (i - 1) * this.sliderTime +
-                                  Math.floor(this.time + this.sliderTime + (idx * this.beatStep) / Beatmap.stats.sliderTickRate + tickEndDelta),
-                    };
-                })
-            );
+            if (i % 2 === 0) {
+                sliderParts.push(
+                    ...baseTicksList.map((tick, idx) => {
+                        return {
+                            ...tick,
+                            type: "Slider Tick",
+                            time: i * this.sliderTime + Math.floor(this.time + ((idx + 1) * this.beatStep) / Beatmap.stats.sliderTickRate),
+                        };
+                    })
+                );
+            } else {
+                sliderParts.push(
+                    ...baseTicksList.toReversed().map((tick, idx) => {
+                        return {
+                            ...tick,
+                            type: "Slider Tick",
+                            time:
+                                (i - 1) * this.sliderTime +
+                                Math.floor(this.time + this.sliderTime + (idx * this.beatStep) / Beatmap.stats.sliderTickRate + tickEndDelta),
+                        };
+                    })
+                );
+            }
 
             if (i < this.repeat - 1)
                 sliderParts.push({
@@ -766,8 +776,8 @@ export class Slider {
 
         this.startPosition = {
             x: parseFloat(originalArr[0].x),
-            y: parseFloat(originalArr[0].y)
-        }
+            y: parseFloat(originalArr[0].y),
+        };
 
         const nodes = [];
         for (let i = 0; i < originalArr.length; i++) {
