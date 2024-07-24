@@ -110,15 +110,6 @@ class Timer {
             }
         }
 
-        const removedFp = [];
-        this.fpBoundary.forEach((object) => {
-            if (fpBoundary.find((o) => object.idx === o.idx)) return;
-            removedFp.push(object);
-        });
-
-        const addedFp = fpBoundary.filter((object) => !this.fpBoundary.some((o) => o.idx === object.idx));
-        this.fpBoundary = fpBoundary;
-
         const removed = [];
         this.filteredTimeline.forEach((object) => {
             if (drawList.length > 0) {
@@ -168,6 +159,15 @@ class Timer {
         }
 
         this.filtered = [...drawListPlayfield];
+
+        const removedFp = [];
+        this.fpBoundary.forEach((object) => {
+            if (fpBoundary.find((o) => object.idx === o.idx || drawListPlayfield.find((o) => object.idx === o.idx))) return;
+            removedFp.push(object);
+        });
+
+        const addedFp = fpBoundary.filter((object) => !this.fpBoundary.some((o) => o.idx === object.idx));
+        this.fpBoundary = fpBoundary;
 
         return {
             timeline: {

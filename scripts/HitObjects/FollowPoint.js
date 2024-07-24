@@ -20,7 +20,7 @@ export class FollowPoint {
 
         this.color = Math.floor(Math.random() * 0xffffff);
 
-        this.container.zIndex = -1;
+        this.container.zIndex = -999;
         // this.container.visible = false;
         this.container.eventMode = "none";
 
@@ -120,7 +120,7 @@ export class FollowPoint {
                 sprite.x = (f - 0.1 * (1 - opacity)) * this.width * Game.SCALE_RATE;
             }
 
-            if (timestamp > fadeOutTime && timestamp < fadeOutTime + timeFade) {
+            if (timestamp > fadeOutTime) {
                 const opacity = 1 - easeOutQuad(Clamp((timestamp - fadeOutTime) / timeFade, 0, 1));
                 sprite.alpha = opacity;
                 sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
@@ -133,10 +133,6 @@ export class FollowPoint {
                 sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
                 // sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE
                 sprite.x = f * this.width * Game.SCALE_RATE;
-            }
-
-            if (timestamp > fadeOutTime + timeFade) {
-                sprite.alpha = 0;
             }
         });
     }
