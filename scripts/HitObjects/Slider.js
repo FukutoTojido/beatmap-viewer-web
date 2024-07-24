@@ -809,6 +809,7 @@ export class Slider {
 
         this.hitCircle = new HitCircle(originalArr[0].x, originalArr[0].y, time);
         this.hitCircle.hitTime = this.hitTime;
+        // this.hitCircle.obj.visible = true;
 
         this.hitSounds = hitSounds;
 

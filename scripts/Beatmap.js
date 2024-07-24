@@ -799,7 +799,7 @@ export class Beatmap {
         Beatmap.updateModdedStats();
 
         this.objectsController.objectsList.forEach((object, idx, arr) => {
-            Timeline.hitArea.obj.addChildAt(object.timelineObject.obj, 0);
+            // Timeline.hitArea.obj.addChildAt(object.timelineObject.obj, 0);
 
             // Game.CONTAINER.addChild(object.obj.obj);
             // if (object.obj.approachCircleObj) {
@@ -815,7 +815,7 @@ export class Beatmap {
                 endObj: arr[idx + 1].obj,
             });
 
-            Game.CONTAINER.addChild(object.obj.followPoint.container);
+            // Game.CONTAINER.addChild(object.obj.followPoint.container);
         });
 
         this.objectsController.slidersList.forEach((o) => {

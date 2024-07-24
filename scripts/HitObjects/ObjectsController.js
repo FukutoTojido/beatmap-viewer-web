@@ -42,6 +42,7 @@ export class ObjectsController {
     addTop = [];
     addBack = [];
     removed = [];
+    addedFp = [];
     fpBoundary = [];
     removedFp = [];
 
@@ -85,10 +86,6 @@ export class ObjectsController {
                 Game.CONTAINER.removeChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
                 // this.objectsList[object.idx].obj.approachCircleObj.obj.visible = false;
             }
-
-            if (this.objectsList[object.idx].obj.followPoint) {
-                this.objectsList[object.idx].obj.followPoint.container.visible = false;
-            }
         });
 
         this.addBack.forEach((object) => {
@@ -97,10 +94,6 @@ export class ObjectsController {
             if (this.objectsList[object.idx].obj.approachCircleObj) {
                 Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
                 // this.objectsList[object.idx].obj.approachCircleObj.obj.visible = true;
-            }
-
-            if (this.objectsList[object.idx].obj.followPoint) {
-                this.objectsList[object.idx].obj.followPoint.container.visible = true;
             }
         });
 
@@ -111,21 +104,17 @@ export class ObjectsController {
                 Game.CONTAINER.addChild(this.objectsList[object.idx].obj.approachCircleObj.obj);
                 // this.objectsList[object.idx].obj.approachCircleObj.obj.visible = true;
             }
-
-            if (this.objectsList[object.idx].obj.followPoint) {
-                this.objectsList[object.idx].obj.followPoint.container.visible = true;
-            }
         });
 
-        this.fpBoundary.forEach((object) => {
+        this.addedFp.forEach((object) => {
             if (this.objectsList[object.idx].obj.followPoint) {
-                this.objectsList[object.idx].obj.followPoint.container.visible = true;
+                Game.CONTAINER.addChild(this.objectsList[object.idx].obj.followPoint.container);
             }
         });
 
         this.removedFp.forEach((object) => {
             if (this.objectsList[object.idx].obj.followPoint) {
-                this.objectsList[object.idx].obj.followPoint.container.visible = false;
+                Game.CONTAINER.removeChild(this.objectsList[object.idx].obj.followPoint.container);
             }
         });
     }
@@ -211,12 +200,6 @@ export class ObjectsController {
             if (object.obj instanceof Spinner) return;
             object.obj.handleSkinChange();
         });
-
-        if (this.breakPeriods.some((period) => period[0] < timestamp && period[1] > timestamp)) {
-            Background.changeOpacity(Game.ALPHA * 0.7);
-        } else {
-            Background.changeOpacity(Game.ALPHA);
-        }
 
         if (
             this.breakPeriods.some(

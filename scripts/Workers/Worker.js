@@ -66,8 +66,9 @@ class Timer {
         return this.currentTime + (performance.now() - this.absStartTime) * Timer.playbackRate + (Timer.mods.DT ? -40 : 0);
     }
 
-    static getObjectsTimeline() {
+    static getObjects() {
         const currentTime = this.getCurrentTime();
+        const currentPreempt = this.moddedStats.preempt;
 
         const compareFunc = (element, value) => {
             if (element.endTime < value - Timer.range) return -1;
@@ -76,72 +77,8 @@ class Timer {
         };
 
         const drawList = [];
-        const foundIndex = binarySearch(this.objects, currentTime, compareFunc);
-        if (foundIndex !== -1) {
-            let start = foundIndex - 1;
-            let end = foundIndex + 1;
-
-            while (start >= 0 && compareFunc(this.objects[start], currentTime) === 0) {
-                drawList.push(this.objects[start]);
-                start--;
-            }
-
-            drawList.reverse();
-            drawList.push(this.objects[foundIndex]);
-
-            while (end <= this.objects.length - 1 && compareFunc(this.objects[end], currentTime) === 0) {
-                drawList.push(this.objects[end]);
-                end++;
-            }
-
-            drawList.reverse();
-        }
-
-        const removed = [];
-        this.filteredTimeline.forEach((object) => {
-            if (drawList.length > 0) {
-                const firstObj = drawList.at(-1);
-                const lastObj = drawList.at(0);
-
-                if (object.time <= lastObj.time && object.time >= firstObj.time) return;
-            }
-            removed.push(object);
-        });
-
-        const addTop = [];
-        const addBack = [];
-
-        if (this.filteredTimeline.length > 0) {
-            drawList.forEach((object) => {
-                if (object.time > this.filteredTimeline.at(0).time) addBack.push(object);
-                if (object.time < this.filteredTimeline.at(-1).time) addTop.push(object);
-            });
-        } else {
-            addTop.push(...drawList);
-        }
-
-        this.filteredTimeline = [...drawList];
-
-        return {
-            removed,
-            addBack,
-            addTop,
-            filtered: this.filteredTimeline,
-        };
-    }
-
-    static getObjects() {
-        const currentTime = this.getCurrentTime();
-        const currentPreempt = this.moddedStats.preempt;
-
-        const compareFunc = (element, value) => {
-            if (element.killTime + 800 < value) return -1;
-            if (element.time - currentPreempt > value) return 1;
-            return 0;
-        };
-
-        const drawList = [];
         const fpBoundary = [];
+
         const foundIndex = binarySearch(this.objects, currentTime, compareFunc);
         if (foundIndex !== -1) {
             let start = foundIndex - 1;
@@ -149,6 +86,7 @@ class Timer {
 
             while (start >= 0 && compareFunc(this.objects[start], currentTime) === 0) {
                 drawList.push(this.objects[start]);
+                fpBoundary.push(this.objects[start]);
                 start--;
             }
 
@@ -157,6 +95,7 @@ class Timer {
 
             while (end <= this.objects.length - 1 && compareFunc(this.objects[end], currentTime) === 0) {
                 drawList.push(this.objects[end]);
+                fpBoundary.push(this.objects[end]);
                 end++;
             }
 
@@ -173,14 +112,15 @@ class Timer {
 
         const removedFp = [];
         this.fpBoundary.forEach((object) => {
-            if (fpBoundary.find((o) => object.idx === o.idx) || drawList.find((o) => object.idx === o.idx)) return;
+            if (fpBoundary.find((o) => object.idx === o.idx)) return;
             removedFp.push(object);
-        })
+        });
 
+        const addedFp = fpBoundary.filter((object) => !this.fpBoundary.some((o) => o.idx === object.idx));
         this.fpBoundary = fpBoundary;
 
         const removed = [];
-        this.filtered.forEach((object) => {
+        this.filteredTimeline.forEach((object) => {
             if (drawList.length > 0) {
                 const firstObj = drawList.at(-1);
                 const lastObj = drawList.at(0);
@@ -192,25 +132,59 @@ class Timer {
 
         const addTop = [];
         const addBack = [];
-
-        if (this.filtered.length > 0) {
+        if (this.filteredTimeline.length > 0) {
             drawList.forEach((object) => {
-                if (object.time > this.filtered.at(0).time) addBack.push(object);
-                if (object.time < this.filtered.at(-1).time) addTop.push(object);
+                if (object.time > this.filteredTimeline.at(0).time) addBack.push(object);
+                if (object.time < this.filteredTimeline.at(-1).time) addTop.push(object);
             });
         } else {
             addTop.push(...drawList);
         }
 
-        this.filtered = [...drawList];
+        this.filteredTimeline = [...drawList];
+
+        const drawListPlayfield = drawList.filter((object) => object.killTime + 800 >= currentTime && object.time - currentPreempt <= currentTime);
+        const removedPlayfield = [];
+        this.filtered.forEach((object) => {
+            if (drawListPlayfield.length > 0) {
+                const firstObj = drawListPlayfield.at(-1);
+                const lastObj = drawListPlayfield.at(0);
+
+                if (object.time <= lastObj.time && object.time >= firstObj.time) return;
+            }
+            removedPlayfield.push(object);
+        });
+
+        const addTopPlayfield = [];
+        const addBackPlayfield = [];
+
+        if (this.filtered.length > 0) {
+            drawListPlayfield.forEach((object) => {
+                if (object.time > this.filtered.at(0).time) addBackPlayfield.push(object);
+                if (object.time < this.filtered.at(-1).time) addTopPlayfield.push(object);
+            });
+        } else {
+            addTopPlayfield.push(...drawListPlayfield);
+        }
+
+        this.filtered = [...drawListPlayfield];
 
         return {
-            removed,
-            addBack,
-            addTop,
-            fpBoundary,
-            removedFp,
-            filtered: this.filtered,
+            timeline: {
+                removed,
+                addBack,
+                addTop,
+                filtered: this.filteredTimeline,
+            },
+            playfield: {
+                removed: removedPlayfield,
+                addBack: addBackPlayfield,
+                addTop: addTopPlayfield,
+                fpBoundary,
+                removedFp,
+                addedFp,
+                filtered: this.filtered,
+            },
         };
     }
 
@@ -220,18 +194,17 @@ class Timer {
         this._msQueue.push(deltaMs);
 
         if (this.objects.length > 0) {
-            const objs = this.getObjects();
-            const timelineObjs = this.getObjectsTimeline();
+            const { timeline, playfield } = this.getObjects();
             const currentTime = this.getCurrentTime();
 
             postMessage({
                 type: "updateOrder",
                 objects: {
-                    ...objs,
+                    ...playfield,
                     // current
                 },
                 timeline: {
-                    ...timelineObjs,
+                    ...timeline,
                 },
                 currentTime,
                 lastTime: this.lastTime,

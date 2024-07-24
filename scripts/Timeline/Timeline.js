@@ -159,18 +159,18 @@ export class Timeline {
         const objList = Game.BEATMAP_FILE.beatmapRenderData.objectsController.objectsList;
 
         removed.forEach((object) => {
-            // Timeline.hitArea.obj.removeChild(objList[object.idx].timelineObject.obj);
-            objList[object.idx].timelineObject.obj.visible = false;
+            Timeline.hitArea.obj.removeChild(objList[object.idx].timelineObject.obj);
+            // objList[object.idx].timelineObject.obj.visible = false;
         });
 
         addBack.forEach((object) => {
-            // Timeline.hitArea.obj.addChildAt(objList[object.idx].timelineObject.obj, 0);
-            objList[object.idx].timelineObject.obj.visible = true;
+            Timeline.hitArea.obj.addChildAt(objList[object.idx].timelineObject.obj, 0);
+            // objList[object.idx].timelineObject.obj.visible = true;
         });
 
         addTop.forEach((object) => {
-            // Timeline.hitArea.obj.addChild(objList[object.idx].timelineObject.obj);
-            objList[object.idx].timelineObject.obj.visible = true;
+            Timeline.hitArea.obj.addChild(objList[object.idx].timelineObject.obj);
+            // objList[object.idx].timelineObject.obj.visible = true;
         });
     }
 

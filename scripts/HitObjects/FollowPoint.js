@@ -21,7 +21,7 @@ export class FollowPoint {
         this.color = Math.floor(Math.random() * 0xffffff);
 
         this.container.zIndex = -1;
-        this.container.visible = false;
+        // this.container.visible = false;
         this.container.eventMode = "none";
 
         this.graphics = new PIXI.Graphics();
@@ -102,7 +102,6 @@ export class FollowPoint {
 
     updateOpacity(timestamp) {
         const duration = this.endTime - this.animTime;
-        const fraction = duration / this.sprites.length;
         const preempt = 800 * Math.min(1, Beatmap.moddedStats.preempt / 800);
         const timeFade = Beatmap.moddedStats.fadeIn;
 
@@ -121,7 +120,7 @@ export class FollowPoint {
                 sprite.x = (f - 0.1 * (1 - opacity)) * this.width * Game.SCALE_RATE;
             }
 
-            if (timestamp > fadeOutTime) {
+            if (timestamp > fadeOutTime && timestamp < fadeOutTime + timeFade) {
                 const opacity = 1 - easeOutQuad(Clamp((timestamp - fadeOutTime) / timeFade, 0, 1));
                 sprite.alpha = opacity;
                 sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
@@ -134,6 +133,10 @@ export class FollowPoint {
                 sprite.scale.set(Game.SCALE_RATE * (Texture.FOLLOWPOINT.isHD ? 0.5 : 1));
                 // sprite.x = (1.5 + idx) * (512 / 16) * Game.SCALE_RATE
                 sprite.x = f * this.width * Game.SCALE_RATE;
+            }
+
+            if (timestamp > fadeOutTime + timeFade) {
+                sprite.alpha = 0;
             }
         });
     }

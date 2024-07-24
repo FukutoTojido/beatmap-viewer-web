@@ -228,6 +228,19 @@ export class Game {
                 graphics.rect(i * gridWidth, j * gridHeight, gridWidth, gridHeight).stroke();
             }
         }
+        graphics.setStrokeStyle({
+            width: 1,
+            color: 0xffffff,
+            alpha: 0.2,
+            alignment: 0.5,
+        }).moveTo(256, 0).lineTo(256, 384).stroke();
+
+        graphics.setStrokeStyle({
+            width: 1,
+            color: 0xffffff,
+            alpha: 0.2,
+            alignment: 0.5,
+        }).moveTo(0, 192).lineTo(512, 192).stroke();
 
         // Create grid texture and sprite
         const texture = Game.APP.renderer.generateTexture(graphics);
@@ -744,6 +757,7 @@ export class Game {
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.removed = objects.removed;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.filtered = objects.filtered;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.fpBoundary = objects.fpBoundary;
+                Game.BEATMAP_FILE.beatmapRenderData.objectsController.addedFp = objects.addedFp;
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.removedFp = objects.removedFp;
 
                 Game.BEATMAP_FILE.beatmapRenderData.objectsController.updateOrder();

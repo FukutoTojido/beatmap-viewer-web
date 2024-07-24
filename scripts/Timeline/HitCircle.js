@@ -137,7 +137,7 @@ export class TimelineHitCircle {
             Timeline.hitArea.isObjectSelecting = true;
         };
 
-        this.obj.visible = false;
+        // this.obj.visible = false;
 
         this.obj.on("mousedown", handleClickEvent);
         this.obj.on("touchstart", handleClickEvent);

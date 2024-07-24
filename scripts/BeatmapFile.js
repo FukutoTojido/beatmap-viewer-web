@@ -720,6 +720,8 @@ export class BeatmapFile {
                     handleCanvasDrag();
                 }
 
+                if (event.altKey) return;
+
                 if (!event.ctrlKey) {
                     if (event.deltaY > 0) go(event.shiftKey, true);
                     if (event.deltaY < 0) go(event.shiftKey, false);
