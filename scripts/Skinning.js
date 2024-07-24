@@ -93,7 +93,7 @@ export class Skinning {
     }
 
     static async readSkinIni(allEntries) {
-        const entry = allEntries.find((entry) => entry.filename === "skin.ini");
+        const entry = allEntries.find((entry) => entry.filename.toLowerCase() === "skin.ini");
         const blob = await entry.getData(new zip.BlobWriter("text/plain"));
         const text = await blob.text();
 
