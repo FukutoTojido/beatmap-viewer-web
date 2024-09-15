@@ -6,3 +6,4 @@ node_modules/
 biome.json
 dist/
 *.lock
+package-lock.json
