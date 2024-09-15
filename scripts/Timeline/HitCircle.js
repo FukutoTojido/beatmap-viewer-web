@@ -7,7 +7,7 @@ import { Game } from "../Game.js";
 import gpuShader from "../Shaders/Timeline/SliderBody.wgsl?raw";
 import glVertexShader from "../Shaders/Timeline/SliderBody.vert?raw";
 import glFragmentShader from "../Shaders/Timeline/SliderBody.frag?raw";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import * as PIXI from "pixi.js";
 
 export class TimelineHitCircle {

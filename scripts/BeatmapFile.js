@@ -22,7 +22,7 @@ import osuPerformance from "../lib/osujs.js";
 import axios from "axios";
 import ky from "ky";
 import md5 from "crypto-js/md5";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import { Background } from "./Background.js";
 import { Spinner } from "./HitObjects/Spinner.js";
 import { toggleMetadataPanel } from "./SidePanel.js";

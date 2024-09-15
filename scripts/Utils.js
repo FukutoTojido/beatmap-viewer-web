@@ -7,7 +7,7 @@ import { ProgressBar } from "./Progress.js";
 import { Skinning } from "./Skinning.js";
 import { HitSample } from "./Audio.js";
 import { Database } from "./Database.js";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import axios from "axios";
 import { FullscreenButton, PlayContainer } from "./PlayButtons.js";
 import { BPM } from "./BPM.js";

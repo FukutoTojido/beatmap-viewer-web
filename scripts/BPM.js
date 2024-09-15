@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { Game } from "./Game";
 import { Component } from "./WindowManager";
 import * as TWEEN from "@tweenjs/tween.js";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import bezier from "bezier-easing";
 import { TimingPanel } from "./TimingPanel";
 import { Timeline } from "./Timeline/Timeline";

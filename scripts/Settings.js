@@ -5,7 +5,7 @@ import { Timeline } from "./Timeline/Timeline.js";
 import { HitSample, PAudio } from "./Audio.js";
 import { Game } from "./Game.js";
 import osuPerformance from "../lib/osujs.js";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import { Background } from "./Background.js";
 import { Storyboard } from "./Storyboard/Storyboard.js";
 

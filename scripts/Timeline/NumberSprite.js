@@ -3,7 +3,7 @@ import { Texture } from "../Texture.js";
 import { Skinning } from "../Skinning.js";
 import { Game } from "../Game.js";
 import { Beatmap } from "../Beatmap.js";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import * as PIXI from "pixi.js";
 
 export class TintedNumberSprite extends NumberSprite {
