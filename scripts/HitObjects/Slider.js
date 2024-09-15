@@ -805,6 +805,7 @@ export class Slider {
 
         this.baseSV = baseSV;
         this.beatStep = parseFloat(beatStep);
+        this.velocity = baseSV * svMultiplier / this.beatStep;
 
         this.time = time;
         this.endTime = time + ((this.sliderLength * this.repeat) / (this.svMultiplier * this.baseSV)) * beatStep;

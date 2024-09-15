@@ -278,6 +278,16 @@ export class Texture {
 
         // console.log(LEGACY_NUM);
         await Texture.updateNumberTextures(LEGACY_NUM);
+        
+        Texture.BALL_SPEC = {
+            texture: await PIXI.Assets.load("static/sliderb-spec@2x.png"),
+            isHD: true,
+        }
+        
+        Texture.BALL_ND = {
+            texture: await PIXI.Assets.load("static/sliderb-nd@2x.png"),
+            isHD: true,
+        }
     }
 
     static async updateNumberTextures(arr, forIdx) {
