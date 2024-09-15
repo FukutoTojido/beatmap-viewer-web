@@ -1,8 +1,8 @@
 import { Game } from "../Game.js";
 import { Texture } from "../Texture.js";
 import { Beatmap } from "../Beatmap.js";
-import { ObjectsController } from "./ObjectsController.js";
-import { ProgressBar } from "../Progress.js";
+// import { ObjectsController } from "./ObjectsController.js";
+// import { ProgressBar } from "../Progress.js";
 import { SliderEnd } from "./SliderEnd.js";
 import { HitCircle } from "./HitCircle.js";
 import { SliderGeometryContainers } from "./SliderMesh.js";
