@@ -986,8 +986,8 @@ export class Slider {
         this.selectedSliderEnd = new PIXI.Sprite(Game.SKINNING.type === "0" ? Texture.SELECTED_ARGON.texture : Texture.SELECTED.texture);
         this.selectedSliderEnd.anchor.set(0.5);
 
-        SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.hitCircle.obj);
+        SliderContainer.addChild(this.ball.obj);
         SliderContainer.addChild(this.nodesContainer);
         // this.obj.alpha = 0.0;
 
