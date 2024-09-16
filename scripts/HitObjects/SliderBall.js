@@ -58,25 +58,25 @@ export class SliderBall {
 			shader: defaultBallShader,
 		});
 
-        const defaultSpec = new PIXI.Sprite({
-            texture: Texture.BALL_SPEC.texture,
-            blendMode: "add"
-        });
+		const defaultSpec = new PIXI.Sprite({
+			texture: Texture.BALL_SPEC.texture,
+			blendMode: "add",
+		});
 
-        const defaultNd = new PIXI.Sprite({
-            texture: Texture.BALL_ND.texture,
-            blendMode: "multiply"
-        });
+		const defaultNd = new PIXI.Sprite({
+			texture: Texture.BALL_ND.texture,
+			blendMode: "multiply",
+		});
 
-        defaultSpec.anchor.set(0.5);
-        // defaultSpec.scale.set(0.5);
-        defaultNd.anchor.set(0.5);
-        // defaultNd.scale.set(0.5);
+		defaultSpec.anchor.set(0.5);
+		// defaultSpec.scale.set(0.5);
+		defaultNd.anchor.set(0.5);
+		// defaultNd.scale.set(0.5);
 
-        const defaultContainer = new PIXI.Container();
-        defaultContainer.addChild(defaultBall);
-        defaultContainer.addChild(defaultNd);
-        defaultContainer.addChild(defaultSpec);
+		const defaultContainer = new PIXI.Container();
+		defaultContainer.addChild(defaultBall);
+		defaultContainer.addChild(defaultNd);
+		defaultContainer.addChild(defaultSpec);
 
 		sliderFollowCircle.anchor.set(0.5);
 		sprite.anchor.set(0.5);
@@ -102,7 +102,7 @@ export class SliderBall {
 		this.sliderB = sliderB;
 		this.shader = defaultBallShader;
 		this.defaultContainer = defaultContainer;
-        this.defaultB = defaultBall;
+		this.defaultB = defaultBall;
 	}
 
 	draw(timestamp) {
@@ -198,16 +198,16 @@ export class SliderBall {
 		this.bg.tint = colors[idx % colors.length];
 		this.bg.angle = -this.obj.angle;
 		this.ring.visible = true;
-        this.defaultContainer.visible = false;
+		this.defaultContainer.visible = false;
 
 		this.followCircle.tint = 0xffffff;
 		if (skinType === "ARGON")
 			this.followCircle.tint = colors[idx % colors.length];
 
 		if (skinType === "LEGACY") {
-            this.ring.visible = false;
-            this.defaultContainer.visible = true;
-        }
+			this.ring.visible = false;
+			this.defaultContainer.visible = true;
+		}
 
 		if (timestamp > this.baseSlider.endTime) {
 			const alphaB = Clamp((timestamp - this.baseSlider.endTime) / 100, 0, 1);
@@ -222,8 +222,14 @@ export class SliderBall {
 			);
 		}
 
-		const duration = 0.15 / this.baseSlider.velocity * (5000 / 6);
-		const t = ((timestamp - this.baseSlider.time) % duration) / duration;
+		const duration = (0.15 / this.baseSlider.velocity) * (5000 / 6);
+		const t =
+			(Math.min(
+				timestamp - this.baseSlider.time,
+				this.baseSlider.endTime - this.baseSlider.time,
+			) %
+				duration) /
+			duration;
 
 		this.shader.resources.customUniforms.uniforms.t = t;
 		this.shader.resources.customUniforms.uniforms.color = [
