@@ -3,30 +3,6 @@ uniform float t;
 uniform float a;
 uniform vec4 color;
 
-vec4 darken(vec4 zcolor, float amount) {
-    float scalar = max(1.0, 1.0 + amount);
-    vec4 ret = vec4(1.0);
-
-    ret.r = min(1.0, zcolor.r / scalar);
-    ret.g = min(1.0, zcolor.g / scalar);
-    ret.b = min(1.0, zcolor.b / scalar);
-    ret.a = zcolor.a;
-
-    return ret;
-}
-
-vec4 lighten(vec4 zcolor, float amount) {
-    amount *= 0.5;
-    vec4 ret = vec4(1.0);
-
-    ret.r = min(1.0, zcolor.r * (1.0 + 0.5 * amount) + 1.0 * amount);
-    ret.g = min(1.0, zcolor.g * (1.0 + 0.5 * amount) + 1.0 * amount);
-    ret.b = min(1.0, zcolor.b * (1.0 + 0.5 * amount) + 1.0 * amount);
-    ret.a = zcolor.a;
-
-    return ret;
-}
-
 vec4 getColor(float x) {
     x = mod(x - t, 1.0) * 4.0;
 

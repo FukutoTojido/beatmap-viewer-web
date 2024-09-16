@@ -6,6 +6,7 @@ import { Skinning } from "../Skinning.js";
 import * as PIXI from "pixi.js";
 import vertex from "../Shaders/SliderBall/SliderBall.vert?raw";
 import fragment from "../Shaders/SliderBall/SliderBall.frag?raw";
+import gpu from "../Shaders/SliderBall/SliderBall.wgsl?raw";
 
 export class SliderBall {
 	baseSlider;
@@ -43,6 +44,16 @@ export class SliderBall {
 			gl: {
 				vertex,
 				fragment,
+			},
+			gpu: {
+				vertex: {
+					source: gpu,
+					entryPoint: "vsMain",
+				},
+				fragment: {
+					source: gpu,
+					entryPoint: "fsMain",
+				},
 			},
 			resources: {
 				customUniforms: {
