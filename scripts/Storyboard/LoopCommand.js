@@ -66,6 +66,7 @@ export class LoopCommand {
 
     execute(object, timestamp) {
         if (timestamp < this.startTime || timestamp > this.endTime) return;
+
         const loopTimestamp = (timestamp - this.startTime) % (this.oneIterationEnd - this.oneIterationStart);
 
         Object.values(this.commands).forEach((commandGroup) => {
