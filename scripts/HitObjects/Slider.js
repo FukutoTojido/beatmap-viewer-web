@@ -800,7 +800,7 @@ export class Slider {
 
         this.originalArr = originalArr;
         this.sliderLength = sliderLength;
-        this.svMultiplier = svMultiplier;
+        this.svMultiplier = Clamp(svMultiplier, 0.1, 20);
         this.repeat = repeat;
 
         this.baseSV = baseSV;
