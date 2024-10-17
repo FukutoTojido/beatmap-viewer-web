@@ -130,7 +130,7 @@ export class ProgressBar {
 
         for (let i = 0; i < Beatmap.kiaiList.length; i += 2) {
             const startX = (Beatmap.kiaiList[i].time / fullTime) * width;
-            const endX = (Beatmap.kiaiList[i + 1].time / fullTime) * width;
+            const endX = ((Beatmap.kiaiList[i + 1]?.time ?? fullTime) / fullTime) * width;
 
             this.breakKiai.rect(startX, 0, endX - startX, height).fill({ color: 0xd87b0f, alpha: 0.5 });
         }
