@@ -174,7 +174,7 @@ export class Beatmap {
         };
     }
 
-    static constructSlider(params, timingPoints, beatSteps, initialSliderVelocity) {
+    static constructSlider(params, timingPoints, beatSteps, initialSliderVelocity, raw) {
         const hitSoundIdx = parseInt(params[4]);
         const time = parseInt(params[2]);
         const svPrecise = Beatmap.findNearestTimingPoint(time, "timingPointsList", true);
@@ -235,7 +235,8 @@ export class Beatmap {
             beatStep,
             time,
             slides,
-            hitsounds
+            hitsounds,
+            raw
         );
 
         return {
@@ -660,7 +661,7 @@ export class Beatmap {
                     timelineObject = new TimelineHitCircle(returnObject.obj);
                 }
                 if (typeBit[1]) {
-                    returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity);
+                    returnObject = Beatmap.constructSlider(params, timingPointsList, beatStepsList, initialSliderVelocity, object);
                     timelineObject = new TimelineSlider(returnObject.obj);
                 }
                 if (typeBit[3]) {

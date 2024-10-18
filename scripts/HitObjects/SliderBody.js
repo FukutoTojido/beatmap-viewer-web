@@ -338,7 +338,8 @@ export class SliderBody {
 
         const x = list[startIdx].x + lerpValue * (list[endIdx].x - list[startIdx].x);
         const y = list[startIdx].y + lerpValue * (list[endIdx].y - list[startIdx].y);
-        const angle = list[startIdx].angle + lerpValue * (list[endIdx].angle - list[startIdx].angle);
+        // const angle = list[startIdx].angle + lerpValue * (list[endIdx].angle - list[startIdx].angle);
+        const angle = lerpValue >= 0.5 ? list[endIdx].angle : list[startIdx].angle;
         // const t = (time - this.time) / (this.endTime - this.time);
 
         return {

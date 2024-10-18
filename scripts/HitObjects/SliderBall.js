@@ -179,6 +179,10 @@ export class SliderBall {
 			this.baseSlider.getPointAtTime(timestamp) ??
 			this.baseSlider.realTrackPoints.at(-1);
 
+		// if (this.baseSlider.time === 2031) {
+		// 	console.log(point.angle)
+		// }
+
 		if (timestamp < this.baseSlider.time)
 			point = this.baseSlider.realTrackPoints.at(0);
 

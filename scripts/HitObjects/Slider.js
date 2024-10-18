@@ -14,6 +14,7 @@ import { Skinning } from "../Skinning.js";
 import { ScoreParser } from "../ScoreParser.js";
 import * as d3 from "d3";
 import * as PIXI from "pixi.js";
+import { SliderCalculator } from "./SliderCalculator.js";
 
 const _32_BIT_LIMIT = 2147483647;
 
@@ -314,234 +315,8 @@ export class Slider {
         // if (!ProgressBar.IS_DRAGGING) this.playHitsound(timestamp);
     }
 
-    createEquiDistCurve(points, actualLength, calculatedLength) {
-        let rPoints = points;
-        const sectionDistance = actualLength * Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY);
-
-        for (let i = 0; i < rPoints.length - 1; i++) {
-            let distanceToNextPoint = this.Dist(rPoints[i], rPoints[i + 1]);
-            // console.log(distanceToNextPoint, sectionDistance);
-            while (distanceToNextPoint < sectionDistance && i + 1 < rPoints.length - 1) {
-                rPoints.splice(i + 1, 1);
-                distanceToNextPoint = this.Dist(rPoints[i], rPoints[i + 1]);
-            }
-
-            if (distanceToNextPoint > sectionDistance) {
-                const newPoints = [];
-                for (let j = 0; j < 1; j += sectionDistance / distanceToNextPoint) {
-                    if (j === 0) continue;
-
-                    const x = rPoints[i].x + ((rPoints[i + 1].x - rPoints[i].x) * sectionDistance) / distanceToNextPoint;
-                    const y = rPoints[i].y + ((rPoints[i + 1].y - rPoints[i].y) * sectionDistance) / distanceToNextPoint;
-
-                    newPoints.push({
-                        x: x,
-                        y: y,
-                    });
-                }
-
-                rPoints = rPoints
-                    .slice(0, i + 1)
-                    .concat(newPoints)
-                    .concat(rPoints.slice(i + 1));
-            }
-        }
-
-        // console.log(limit);
-        return rPoints;
-    }
-
     Dist(p1, p2) {
         return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-    }
-
-    generatePointsList(controlPointsList) {
-        let pointsList = [];
-        for (let i = 0; i <= 1; i += Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY)) {
-            pointsList.push(this.bezier(i, controlPointsList));
-        }
-
-        let length = 0;
-        for (let i = 0; i < pointsList.length - 1; i++) {
-            length += this.Dist(pointsList[i], pointsList[i + 1]);
-        }
-
-        pointsList = this.createEquiDistCurve(pointsList, this.sliderLength, length);
-
-        let recalculatedLength = 0;
-        for (let i = 0; i < pointsList.length - 1; i++) {
-            recalculatedLength += this.Dist(pointsList[i], pointsList[i + 1]);
-        }
-
-        pointsList = pointsList.map((c, idx) => {
-            return { ...c, t: idx / (pointsList.length - 1) };
-        });
-
-        // console.log(pointsList, this.initialSliderLen / this.repeat, length, recalculatedLength);
-        return {
-            points: pointsList,
-            length: recalculatedLength,
-        };
-    }
-
-    getCirclePoints(pointArr) {
-        let lengthAB, lengthBC, lengthAC, angleA, angleB, angleC, radius, innerAngle, upper, lower, angleIndex, b, centerX, centerY;
-
-        lengthAB = Math.sqrt((pointArr[0].x - pointArr[1].x) ** 2 + (pointArr[0].y - pointArr[1].y) ** 2);
-        lengthBC = Math.sqrt((pointArr[1].x - pointArr[2].x) ** 2 + (pointArr[1].y - pointArr[2].y) ** 2);
-        lengthAC = Math.sqrt((pointArr[0].x - pointArr[2].x) ** 2 + (pointArr[0].y - pointArr[2].y) ** 2);
-
-        angleA = Math.acos(Clamp((lengthAB ** 2 + lengthAC ** 2 - lengthBC ** 2) / (2 * lengthAB * lengthAC), -1, 1));
-        angleB = Math.acos(Clamp((lengthAB ** 2 + lengthBC ** 2 - lengthAC ** 2) / (2 * lengthAB * lengthBC), -1, 1));
-        angleC = Math.acos(Clamp((lengthAC ** 2 + lengthBC ** 2 - lengthAB ** 2) / (2 * lengthAC * lengthBC), -1, 1));
-
-        radius = Clamp(lengthAB / (2 * Math.sin(angleC)), 0, Number.MAX_SAFE_INTEGER);
-
-        upper = pointArr[2].x - pointArr[0].x;
-        lower = pointArr[2].y - pointArr[0].y;
-        angleIndex = lower / upper;
-        b = pointArr[0].y - angleIndex * pointArr[0].x;
-
-        // innerAngle =
-        //     (upper === 0 && pointArr[1].x > pointArr[0].x) || upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0
-        //         ? Math.acos((2 * radius ** 2 - lengthAC ** 2) / (2 * radius ** 2))
-        //         : -Math.acos((2 * radius ** 2 - lengthAC ** 2) / (2 * radius ** 2));
-
-        centerX =
-            (pointArr[0].x * Math.sin(2 * angleA) + pointArr[1].x * Math.sin(2 * angleB) + pointArr[2].x * Math.sin(2 * angleC)) /
-            (Math.sin(2 * angleA) + Math.sin(2 * angleB) + Math.sin(2 * angleC));
-        centerY =
-            (pointArr[0].y * Math.sin(2 * angleA) + pointArr[1].y * Math.sin(2 * angleB) + pointArr[2].y * Math.sin(2 * angleC)) /
-            (Math.sin(2 * angleA) + Math.sin(2 * angleB) + Math.sin(2 * angleC));
-
-        const absoluteAngle =
-            Math.abs(angleIndex) === Infinity || (pointArr[1].y - (angleIndex * pointArr[1].x + b)) * (centerY - (angleIndex * centerX + b)) < 0
-                ? Math.asin(Clamp(lengthAC / (2 * radius), 0, 1)) * 2
-                : Math.PI * 2 - Math.asin(Clamp(lengthAC / (2 * radius), 0, 1)) * 2;
-        // console.log(this.time, centerX, centerY, angleIndex, b, radius, absoluteAngle, pointArr[1], lengthAC / (2 * radius));
-
-        if (upper === 0) {
-            if (lower === 0) {
-                const firstHalf = this.generatePointsList([pointArr[0], pointArr[1]]);
-                const secondHalf = this.generatePointsList([pointArr[1], pointArr[2]]);
-                return {
-                    points: firstHalf.points.concat(secondHalf.points),
-                    length: firstHalf.length + secondHalf.length,
-                };
-            }
-
-            const middle_start = Math.round((pointArr[1].x - pointArr[0].x) * 1000) / 1000;
-            const center_start = Math.round((centerX - pointArr[0].x) * 1000) / 1000;
-
-            if (middle_start < 0 && center_start >= 0) innerAngle = (lower > 0 ? -1 : 1) * absoluteAngle;
-            if (middle_start > 0 && center_start <= 0) innerAngle = (lower > 0 ? 1 : -1) * absoluteAngle;
-            if (middle_start > 0 && center_start >= 0) innerAngle = (lower > 0 ? -1 : 1) * Math.abs(Math.PI * 2 - absoluteAngle);
-            if (middle_start < 0 && center_start <= 0) innerAngle = (lower > 0 ? 1 : -1) * Math.abs(Math.PI * 2 - absoluteAngle);
-            if (middle_start == 0 && center_start == 0) {
-                pointArr.splice(1, 1);
-                return this.generatePointsList(pointArr);
-            }
-
-            // console.log("z", this.time, innerAngle, middle_start, center_start, centerX);
-        } else {
-            const projectile = {
-                x: pointArr[1].x,
-                y: pointArr[1].x * angleIndex + b,
-            };
-
-            if (this.time === 130364) console.log(projectile);
-            if (this.Dist(projectile, pointArr[1]) < 0.1) {
-                pointArr.splice(1, 1);
-                return this.generatePointsList(pointArr);
-            }
-            innerAngle = upper * (pointArr[1].y - (angleIndex * pointArr[1].x + b)) < 0 ? absoluteAngle : -absoluteAngle;
-        }
-
-        // if (upper === 0) console.log(this.startTime, pointArr[2].y - pointArr[0].y, absoluteAngle);
-        // console.log(this.time, (absoluteAngle * 180) / Math.PI, (innerAngle * 180) / Math.PI, upper, lower, angleIndex, b);
-
-        const points = [];
-        let length = 0;
-
-        // console.log(this.time, innerAngle, centerX, centerY, pointArr[0]);
-        for (let i = 0; i < 1; i += Math.max(1 / this.sliderLength, Game.SLIDER_ACCURACY)) {
-            const toPush = {
-                x: centerX + (pointArr[0].x - centerX) * Math.cos(innerAngle * i) - (pointArr[0].y - centerY) * Math.sin(innerAngle * i),
-                y: centerY + (pointArr[0].x - centerX) * Math.sin(innerAngle * i) + (pointArr[0].y - centerY) * Math.cos(innerAngle * i),
-                t: i,
-            };
-            if (i > 0) length += this.Dist(points.at(-1), toPush);
-            points.push(toPush);
-        }
-
-        return {
-            points: points,
-            length: length,
-        };
-    }
-
-    getAngleList(pointArr) {
-        let breakPoints = [];
-
-        breakPoints.push(0);
-        for (let i = 0; i < pointArr.length - 1; i++) {
-            if (this.Dist(pointArr[i], pointArr[i + 1]) === 0) breakPoints.push(i);
-        }
-        breakPoints.push(pointArr.length - 1);
-
-        const calculatedAngleLength = (
-            this.sliderType === "P"
-                ? [this.getCirclePoints(pointArr)]
-                : breakPoints.map((bP, idx) => {
-                      if (idx === breakPoints.length - 1) return;
-
-                      const calculatedPoints = this.generatePointsList(
-                          bP === 0
-                              ? pointArr.slice(breakPoints[idx], breakPoints[idx + 1] + 1)
-                              : pointArr.slice(breakPoints[idx] + 1, breakPoints[idx + 1] + 1)
-                      );
-
-                      return calculatedPoints;
-                  })
-        ).filter((section) => section);
-
-        const calculatedAngle = calculatedAngleLength
-            .map((ele) => ele.points)
-            .reduce((prev, curr) => prev.concat(curr), [])
-            .filter((s) => s);
-        const sliderLen = calculatedAngleLength.reduce((prev, curr) => prev + curr.length, 0);
-        let limit = Math.max(Math.floor((this.sliderLength / sliderLen) * (calculatedAngle.length - 1)), 1);
-
-        const sliced = calculatedAngle.slice(0, limit);
-        // console.log(calculatedAngle, limit, this.sliderLength, sliderLen);
-
-        // console.log(this.time, calculatedAngle.length, sliced.at(-1));
-
-        // if (this.time === 130364) console.log(calculatedAngleLength);
-
-        return sliced.map((coord, idx, arr) => {
-            let angle = arr[idx - 1]?.angle ?? 0;
-
-            if (idx !== arr.length - 1) {
-                const nextEle = arr[idx + 1] ?? arr[idx];
-
-                const vec = {
-                    x: nextEle.x - coord.x,
-                    y: nextEle.y - coord.y,
-                };
-
-                const normVec = {
-                    x: vec.x / Math.hypot(vec.x, vec.y),
-                    y: vec.y / Math.hypot(vec.x, vec.y),
-                };
-
-                angle = (Math.atan2(normVec.y, normVec.x) * 180) / Math.PI;
-            }
-
-            coord.angle = angle;
-            coord.t = idx / (sliced.length - 1);
-            return coord;
-        });
     }
 
     getPointAtTime(time) {
@@ -559,7 +334,8 @@ export class Slider {
 
         const x = this.realTrackPoints[startIdx].x + lerpValue * (this.realTrackPoints[endIdx].x - this.realTrackPoints[startIdx].x);
         const y = this.realTrackPoints[startIdx].y + lerpValue * (this.realTrackPoints[endIdx].y - this.realTrackPoints[startIdx].y);
-        const angle = this.realTrackPoints[startIdx].angle + lerpValue * (this.realTrackPoints[endIdx].angle - this.realTrackPoints[startIdx].angle);
+        // const angle = this.realTrackPoints[startIdx].angle + lerpValue * (this.realTrackPoints[endIdx].angle - this.realTrackPoints[startIdx].angle);
+        const angle = lerpValue >= 0.5 ? this.realTrackPoints[endIdx].angle : this.realTrackPoints[startIdx].angle;
         const t = (time - this.time) / (this.endTime - this.time);
 
         return {
@@ -765,7 +541,7 @@ export class Slider {
         };
     }
 
-    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, repeat, hitSounds) {
+    constructor(pointLists, sliderType, sliderLength, svMultiplier, baseSV, beatStep, time, repeat, hitSounds, raw) {
         this.sliderType = sliderType;
         const originalArr = pointLists.split("|").map((point) => {
             return {
@@ -805,7 +581,7 @@ export class Slider {
 
         this.baseSV = baseSV;
         this.beatStep = parseFloat(beatStep);
-        this.velocity = baseSV * svMultiplier / this.beatStep;
+        this.velocity = baseSV * this.svMultiplier / this.beatStep;
 
         this.time = time;
         this.endTime = time + ((this.sliderLength * this.repeat) / (this.svMultiplier * this.baseSV)) * beatStep;
@@ -835,7 +611,14 @@ export class Slider {
         }
 
         // let start = performance.now();
-        this.angleList = this.getAngleList(originalArr);
+        const points = new SliderCalculator(originalArr.map((point) => {
+            return {
+                x: parseFloat(point.x),
+                y: parseFloat(point.y),
+            }
+        }), sliderType, sliderLength);
+        this.angleList = points.points;
+
         this.sliderEndVisualPosition = structuredClone(this.angleList.at(-1));
 
         // console.log(this.time, this.svMultiplier, this.baseSV, this.beatStep, this.angleList);
