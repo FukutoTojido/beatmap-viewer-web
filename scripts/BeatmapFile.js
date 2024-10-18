@@ -385,10 +385,15 @@ export class BeatmapFile {
 		// console.log(beatmapData)
 		// console.log(difficultyAttributes)
 
-		const audioFilename = this.osuFile
-			.split("\r\n")
-			.filter((line) => line.match(/AudioFilename: /g))[0]
-			.replace("AudioFilename: ", "");
+		const osuVersion = parseInt(this.osuFile.split("\r\n")[0].at(-1));
+
+		const audioFilename =
+			osuVersion <= 3
+				? this.osuFile.split("\r\n")[3]
+				: this.osuFile
+						.split("\r\n")
+						.filter((line) => line.match(/AudioFilename: /g))[0]
+						.replace("AudioFilename: ", "");
 		const backgroundFilename = this.osuFile
 			.split("\r\n")
 			.filter((line) => line.match(/0,0,"*.*"/g))
