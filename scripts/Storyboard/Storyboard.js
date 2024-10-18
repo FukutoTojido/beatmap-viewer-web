@@ -258,9 +258,9 @@ export class StoryboardSprite {
 	}
 
 	static loopParse(block) {
-		const [line, ...rest] = block.split("\r\n");
+		const [line, ...rest] = block.split("\n");
 		const [, startTime, loopCount] = line.split(",");
-		const rawCommands = rest.join("\r\n");
+		const rawCommands = rest.join("\n");
 
 		return new LoopCommand({
 			startTime: parseFloat(startTime),
@@ -270,7 +270,7 @@ export class StoryboardSprite {
 	}
 
 	getSpriteInfo() {
-		const [infoLine] = this.raw.split("\r\n");
+		const [infoLine] = this.raw.split("\n");
 		const [, layer, origin, texturepath, x, y] = infoLine.split(",");
 
 		this.layer = layer;
@@ -394,7 +394,7 @@ export class StoryboardAnimatedSprite extends StoryboardSprite {
 	}
 
 	getSpriteInfo() {
-		const [infoLine] = this.raw.split("\r\n");
+		const [infoLine] = this.raw.split("\n");
 		const [
 			,
 			layer,
@@ -589,8 +589,8 @@ export class Storyboard {
 	) {
 		Storyboard.backgroundFilename = backgroundFilename;
 
-		const osbSprites = Storyboard.load(osbContent);
-		const osuSprites = Storyboard.load(osuOsbContent, true);
+		const osbSprites = Storyboard.load(osbContent.replaceAll("\r", ""));
+		const osuSprites = Storyboard.load(osuOsbContent.replaceAll("\r", ""), true);
 		Storyboard.sprites = [...osuSprites, ...osbSprites];
 
 		// Storyboard.sprites = Storyboard.sprites.toSorted((a, b) => {

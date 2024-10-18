@@ -68,8 +68,9 @@ export class GreenLineInfo {
         this.sv.y = 0;
 
         let custom = this.greenLine.sampleIdx != 0 ? `:C${this.greenLine.sampleIdx}` : "";
+
         const sampleText = new PIXI.Text({
-            text: `${HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0].toUpperCase()}${custom}`,
+            text: `${(HitSound.HIT_SAMPLES[this.greenLine.sampleSet][0] ?? "").toUpperCase()}${custom}`,
             style: {
                 fontFamily: "Torus",
                 fontSize: 12,

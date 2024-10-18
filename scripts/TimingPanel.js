@@ -98,7 +98,7 @@ class TimingPoint {
         // TimingPanel.stage.addChild(this.obj);
 
         this.sample = new PIXI.Text({
-            text: `${HitSound.HIT_SAMPLES[timingPoint.sampleSet][0].toUpperCase()}${timingPoint.sampleIdx !== 0 ? ":C" + timingPoint.sampleIdx : ""}`,
+            text: `${(HitSound.HIT_SAMPLES[timingPoint.sampleSet][0] ?? "").toUpperCase()}${timingPoint.sampleIdx !== 0 ? ":C" + timingPoint.sampleIdx : ""}`,
             // renderMode: "canvas",
             style: {
                 fontFamily: "Torus",

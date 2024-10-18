@@ -64,7 +64,7 @@ export class BeatmapFile {
 		const rawOsuFile = (
 			await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}/osu`)
 		).data;
-		this.osuFile = rawOsuFile;
+		this.osuFile = rawOsuFile.replaceAll("\r", "");
 	}
 
 	async readBlobAsBuffer(blob) {
@@ -220,7 +220,7 @@ export class BeatmapFile {
 				const rawFile = await blob.text();
 
 				const mode = rawFile
-					.split("\r\n")
+					.split("\n")
 					.filter((line) => /Mode:\s[0-9]+/g.test(line))
 					.at(0)
 					?.replace("Mode: ", "");
@@ -239,7 +239,7 @@ export class BeatmapFile {
 					osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
 				const diffName = rawFile
-					.split("\r\n")
+					.split("\n")
 					.filter((line) => /Version:.+/g.test(line))
 					.at(0)
 					?.replace("Version:", "");
@@ -267,7 +267,7 @@ export class BeatmapFile {
 			const blob = await map.getData(new zip.BlobWriter("text/plain"));
 			this.osuFile = await blob.text();
 
-			const splitted = this.osuFile.split("\r\n");
+			const splitted = this.osuFile.split("\n");
 
 			const artist = splitted
 				.filter((line) => /Artist:.+/g.test(line))
@@ -385,24 +385,23 @@ export class BeatmapFile {
 		// console.log(beatmapData)
 		// console.log(difficultyAttributes)
 
-		const osuVersion = parseInt(this.osuFile.split("\r\n")[0].at(-1));
-
+		const osuVersion = parseInt(this.osuFile.split("\n")[0].at(-3));
 		const audioFilename =
 			osuVersion <= 3
-				? this.osuFile.split("\r\n")[3]
+				? this.osuFile.split("\n")[3]
 				: this.osuFile
-						.split("\r\n")
+						.split("\n")
 						.filter((line) => line.match(/AudioFilename: /g))[0]
 						.replace("AudioFilename: ", "");
 		const backgroundFilename = this.osuFile
-			.split("\r\n")
+			.split("\n")
 			.filter((line) => line.match(/0,0,"*.*"/g))
 			.at(0)
 			?.match(/".*?\.[a-zA-Z0-9]+"/g)
 			.at(0)
 			?.replaceAll('"', "");
 		const videoFilename = this.osuFile
-			.split("\r\n")
+			.split("\n")
 			.filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
 			.at(0)
 			?.match(/".*?\.[a-zA-Z0-9]+"/g)
@@ -410,7 +409,7 @@ export class BeatmapFile {
 			?.replaceAll('"', "");
 		const videoOffset = parseInt(
 			this.osuFile
-				.split("\r\n")
+				.split("\n")
 				.filter((line) => line.match(/Video,-?[0-9]+,"*.*"/g))
 				.at(0)
 				?.split(",")

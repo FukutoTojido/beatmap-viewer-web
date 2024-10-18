@@ -71,7 +71,7 @@ export async function readZip(file) {
         const rawFile = await blob.text();
 
         const mode = rawFile
-            .split("\r\n")
+            .split("\n")
             .filter((line) => /Mode:\s[0-9]+/g.test(line))
             .at(0)
             ?.replace("Mode: ", "");
@@ -86,7 +86,7 @@ export async function readZip(file) {
         const difficultyAttributes = osuPerformance.calculateDifficultyAttributes(beatmapData, true)[0];
 
         const diffName = rawFile
-            .split("\r\n")
+            .split("\n")
             .filter((line) => /Version:.+/g.test(line))
             .at(0)
             ?.replace("Version:", "");

@@ -612,15 +612,15 @@ export class Beatmap {
 		Beatmap.hasILLEGAL = false;
 
 		Beatmap.COLORS = Skinning.DEFAULT_COLORS;
-		Beatmap.loadMetadata(rawBeatmap.split("\r\n"));
+		Beatmap.loadMetadata(rawBeatmap.split("\n"));
 		// Get Approach Rate
 		if (
-			rawBeatmap.split("\r\n").filter((line) => line.includes("ApproachRate:"))
+			rawBeatmap.split("\n").filter((line) => line.includes("ApproachRate:"))
 				.length === 0
 		) {
 			Beatmap.stats.approachRate = parseFloat(
 				rawBeatmap
-					.split("\r\n")
+					.split("\n")
 					.filter((line) => line.includes("OverallDifficulty:"))
 					.at(0)
 					.replaceAll("OverallDifficulty:", ""),
@@ -628,7 +628,7 @@ export class Beatmap {
 		} else {
 			Beatmap.stats.approachRate = parseFloat(
 				rawBeatmap
-					.split("\r\n")
+					.split("\n")
 					.filter((line) => line.includes("ApproachRate:"))
 					.at(0)
 					.replaceAll("ApproachRate:", ""),
@@ -638,7 +638,7 @@ export class Beatmap {
 		// Get Circle Size
 		Beatmap.stats.circleSize = parseFloat(
 			rawBeatmap
-				.split("\r\n")
+				.split("\n")
 				.filter((line) => line.includes("CircleSize:"))
 				.at(0)
 				.replaceAll("CircleSize:", ""),
@@ -647,7 +647,7 @@ export class Beatmap {
 		// Get Circle Size
 		Beatmap.stats.HPDrainRate = parseFloat(
 			rawBeatmap
-				.split("\r\n")
+				.split("\n")
 				.filter((line) => line.includes("HPDrainRate:"))
 				.at(0)
 				.replaceAll("HPDrainRate:", ""),
@@ -657,7 +657,7 @@ export class Beatmap {
 		Beatmap.stats.stackLeniency = rawBeatmap.includes("StackLeniency: ")
 			? parseFloat(
 					rawBeatmap
-						.split("\r\n")
+						.split("\n")
 						.filter((line) => line.includes("StackLeniency: "))
 						.at(0)
 						.replaceAll("StackLeniency: ", ""),
@@ -667,7 +667,7 @@ export class Beatmap {
 		// Get Stack Leniency
 		Beatmap.SAMPLE_SET = rawBeatmap.includes("SampleSet: ")
 			? rawBeatmap
-					.split("\r\n")
+					.split("\n")
 					.filter((line) => line.includes("SampleSet: "))
 					.at(0)
 					.replaceAll("SampleSet: ", "")
@@ -676,7 +676,7 @@ export class Beatmap {
 		// Get Slider Tick Rate
 		Beatmap.stats.sliderTickRate = parseFloat(
 			rawBeatmap
-				.split("\r\n")
+				.split("\n")
 				.filter((line) => line.includes("SliderTickRate:"))
 				.at(0)
 				.replaceAll("SliderTickRate:", ""),
@@ -685,7 +685,7 @@ export class Beatmap {
 		// Get Overall Difficulty
 		Beatmap.stats.overallDifficulty = parseFloat(
 			rawBeatmap
-				.split("\r\n")
+				.split("\n")
 				.filter((line) => line.includes("OverallDifficulty:"))
 				.at(0)
 				.replaceAll("OverallDifficulty:", ""),
@@ -731,22 +731,22 @@ export class Beatmap {
 			Beatmap.stats.preempt * Beatmap.stats.stackLeniency;
 
 		const difficultyPosition =
-			rawBeatmap.indexOf("[Difficulty]") + "[Difficulty]\r\n".length;
+			rawBeatmap.indexOf("[Difficulty]") + "[Difficulty]\n".length;
 		const timingPosition =
-			rawBeatmap.indexOf("[TimingPoints]") + "[TimingPoints]\r\n".length;
+			rawBeatmap.indexOf("[TimingPoints]") + "[TimingPoints]\n".length;
 		const colourPosition =
-			rawBeatmap.indexOf("[Colours]") + "[Colours]\r\n".length;
+			rawBeatmap.indexOf("[Colours]") + "[Colours]\n".length;
 		const hitObjectsPosition =
-			rawBeatmap.indexOf("[HitObjects]") + "[HitObjects]\r\n".length;
+			rawBeatmap.indexOf("[HitObjects]") + "[HitObjects]\n".length;
 
 		const initialSliderVelocity =
 			parseFloat(
 				rawBeatmap
 					.slice(difficultyPosition)
-					.split("\r\n")
+					.split("\n")
 					[
 						rawBeatmap
-							.split("\r\n")
+							.split("\n")
 							.filter((line) => line.includes("ApproachRate:")).length === 0
 							? 3
 							: 4
@@ -757,10 +757,10 @@ export class Beatmap {
 			.slice(
 				timingPosition,
 				rawBeatmap.indexOf("[Colours]") !== -1
-					? colourPosition - "[Colours]\r\n".length
-					: hitObjectsPosition - "[HitObjects]\r\n".length,
+					? colourPosition - "[Colours]\n".length
+					: hitObjectsPosition - "[HitObjects]\n".length,
 			)
-			.split("\r\n")
+			.split("\n")
 			.filter((timingPoint) => {
 				const params = timingPoint.split(",");
 				return timingPoint !== "" && params[1] > 0;
@@ -779,10 +779,10 @@ export class Beatmap {
 			.slice(
 				timingPosition,
 				rawBeatmap.indexOf("[Colours]") !== -1
-					? colourPosition - "[Colours]\r\n".length
-					: hitObjectsPosition - "[HitObjects]\r\n".length,
+					? colourPosition - "[Colours]\n".length
+					: hitObjectsPosition - "[HitObjects]\n".length,
 			)
-			.split("\r\n")
+			.split("\n")
 			.filter((timingPoint) => timingPoint !== "")
 			.map((timingPoint) => {
 				const params = timingPoint.split(",");
@@ -842,9 +842,9 @@ export class Beatmap {
 				? rawBeatmap
 						.slice(
 							colourPosition,
-							hitObjectsPosition - "[HitObjects]\r\n".length,
+							hitObjectsPosition - "[HitObjects]\n".length,
 						)
-						.split("\r\n")
+						.split("\n")
 						.filter((line) => line !== "" && line.match(/Combo[0-9]+\s:\s/g))
 						.map(
 							(colour) =>
@@ -870,7 +870,7 @@ export class Beatmap {
 		// console.log(coloursList);
 
 		const breakPeriods = rawBeatmap
-			.split("\r\n")
+			.split("\n")
 			.filter((line) => /^2,[0-9]+,[0-9]+$/g.test(line))
 			.map((line) =>
 				line
@@ -884,7 +884,7 @@ export class Beatmap {
 
 		let objectLists = rawBeatmap
 			.slice(hitObjectsPosition)
-			.split("\r\n")
+			.split("\n")
 			.filter((s) => s !== "");
 
 		let combo = 1;

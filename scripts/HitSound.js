@@ -1,3 +1,5 @@
+import { Beatmap } from "./Beatmap";
+
 export class HitSound {
     static HIT_SAMPLES = ["", "normal", "soft", "drum"];
     static HIT_SOUNDS = ["hitwhistle", "hitfinish", "hitclap"];
