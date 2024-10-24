@@ -237,7 +237,7 @@ export class SliderBall {
 			);
 		}
 
-		const duration = (0.15 / this.baseSlider.velocity) * (5000 / 6);
+		const duration = (0.15 / this.baseSlider.velocity) * (100 / 6);
 		const t =
 			(Math.min(
 				timestamp - this.baseSlider.time,
