@@ -616,7 +616,7 @@ export class Slider {
                 x: parseFloat(point.x),
                 y: parseFloat(point.y),
             }
-        }), sliderType, sliderLength);
+        }), sliderType, sliderLength, time);
         this.angleList = points.points;
 
         this.sliderEndVisualPosition = structuredClone(this.angleList.at(-1));

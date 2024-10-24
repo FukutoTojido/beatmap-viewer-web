@@ -133,14 +133,16 @@ export class SliderCalculator {
 	type;
 	length;
 	points;
-	constructor(nodesList, type, length) {
+	constructor(nodesList, type, length, time) {
 		// const start = performance.now();
 		// this.raw = raw;
 		// const { nodesList, type, length } = this.parse();
+		this.time = time;
 		this.nodes = nodesList;
 		this.type = type;
 		this.length = length;
 		this.points = this.process();
+
 		// console.log(performance.now() - start);
 	}
 	parse() {
@@ -209,7 +211,12 @@ export class SliderCalculator {
 		if (this.nodes.length > 3) return this.processBezier();
 		const [a, b, c] = this.nodes;
 		const center = calculateCenter(a, b, c);
-		if (center === null) return this.processLinear();
+		if (
+			center === null ||
+			Math.abs(center.x) === Infinity ||
+			Math.abs(center.y) === Infinity
+		)
+			return this.processLinear();
 		const v1 = new Vector(b, a);
 		const v2 = new Vector(b, c);
 		const o1 = new Vector(center, a);
@@ -231,7 +238,7 @@ export class SliderCalculator {
 		const points = [new Node(controlPoints[0].x, controlPoints[0].y)];
 		let i = 1;
 		while (i <= this.length) {
-            const point = bezier(i / this.length, controlPoints);
+			const point = bezier(i / this.length, controlPoints);
 			const dist = Node.dist(points.at(-1), point);
 
 			if (i + 1 > this.length) {
