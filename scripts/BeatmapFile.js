@@ -385,14 +385,16 @@ export class BeatmapFile {
 		// console.log(beatmapData)
 		// console.log(difficultyAttributes)
 
-		const osuVersion = parseInt(this.osuFile.split("\n")[0].at(-3));
+		const osuVersion = parseInt(this.osuFile.split("\n")[0].slice(-3));
 		const audioFilename =
 			osuVersion <= 3
 				? this.osuFile.split("\n")[3]
 				: this.osuFile
 						.split("\n")
 						.filter((line) => line.match(/AudioFilename: /g))[0]
-						.replace("AudioFilename: ", "");
+						.replace("AudioFilename: ", "")
+						.replace("\r", "")
+						.replace("\n", "");
 		const backgroundFilename = this.osuFile
 			.split("\n")
 			.filter((line) => line.match(/0,0,"*.*"/g))
@@ -421,9 +423,7 @@ export class BeatmapFile {
 
 		document.querySelector("#loadingText").innerHTML =
 			`Setting up Audio<br>Might take long if the audio file is large`;
-		const audioFile = allEntries
-			.filter((e) => e.filename === audioFilename)
-			.at(0);
+		const audioFile = allEntries.find((e) => e.filename === audioFilename);
 
 		if (!audioFile) {
 			throw "This map has no audio file";
