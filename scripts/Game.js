@@ -27,6 +27,7 @@ import { Transcoder } from "./FFmpeg.js";
 
 import { go } from "./ProgressBar.js";
 import { setBeatsnapDivisor } from "./Settings.js";
+import { Clamp } from "./Utils.js";
 
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
