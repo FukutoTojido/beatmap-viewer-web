@@ -451,6 +451,7 @@ export class HitCircle {
         this.approachCircleObj = new ApproachCircle(this);
 
         this.obj = container;
+        this.obj.label = `${Math.round(this.time)}-HITCIRCLE`
         // this.obj.visible = false;
 
         this.hitSounds = hitSounds;

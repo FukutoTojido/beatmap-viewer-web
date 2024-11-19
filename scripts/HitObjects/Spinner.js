@@ -295,6 +295,8 @@ export class Spinner {
         container.y = (192 * Game.WIDTH) / 512;
 
         this.obj = container;
+		this.obj.label = `${Math.round(this.time)}-SPINNER`;
+
         // this.obj.visible = false;
 
         this.approachCircle = approachCircleContainer;

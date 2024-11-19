@@ -742,17 +742,11 @@ export class Beatmap {
 		const initialSliderVelocity =
 			parseFloat(
 				rawBeatmap
-					.slice(difficultyPosition)
 					.split("\n")
-					[
-						rawBeatmap
-							.split("\n")
-							.filter((line) => line.includes("ApproachRate:")).length === 0
-							? 3
-							: 4
-					].replace("SliderMultiplier:", ""),
+					.find(line => /^SliderMultiplier:[0-9]+(\.[0-9]+)?(\r)?/g.test(line))
+					.replace("SliderMultiplier:", "")
 			) * 100;
-		// console.log(initialSliderVelocity);
+		// console.log(difficultyPosition, initialSliderVelocity, rawBeatmap);
 		const beatStepsList = rawBeatmap
 			.slice(
 				timingPosition,

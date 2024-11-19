@@ -1002,6 +1002,9 @@ export class Slider {
 		SliderContainer.addChild(this.hitCircle.obj);
 		SliderContainer.addChild(this.ball.obj);
 		SliderContainer.addChild(this.nodesContainer);
+
+		SliderContainer.label = `${Math.round(this.time)}-SLIDER`;
+
 		// this.obj.alpha = 0.0;
 
 		// this.obj.visible = false;

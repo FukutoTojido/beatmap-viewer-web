@@ -591,12 +591,13 @@ export class BeatmapFile {
 				throw "This beatmap should not be loaded under any circumstances. Please provide a different beatmap.";
 			}
 
-			const removedChildren = Game.CONTAINER.removeChildren();
-			removedChildren.forEach((ele) => ele.destroy());
-
 			Game.WORKER.postMessage({
 				type: "clear",
 			});
+
+			const removedChildren = Game.CONTAINER.removeChildren();
+			removedChildren.forEach((ele) => ele.destroy());
+
 
 			Timeline.destruct();
 			Background.reset();
@@ -836,80 +837,6 @@ export class BeatmapFile {
 			}
 
 			// Game.APP.ticker.add(this.beatmapRenderData.objectsController.render);
-
-			const scrollEventHandler = (event) => {
-				if (
-					Game.IS_DRAGGING &&
-					Game.CURRENT_X !== -1 &&
-					Game.CURRENT_Y !== -1
-				) {
-					Game.DRAGGING_END = this.audioNode.getCurrentTime();
-					handleCanvasDrag();
-				}
-
-				if (event.altKey) return;
-
-				if (!event.ctrlKey) {
-					if (event.deltaY > 0) go(event.shiftKey, true);
-					if (event.deltaY < 0) go(event.shiftKey, false);
-
-					return;
-				}
-
-				// event.preventDefault();
-
-				if (event.deltaY > 0) {
-					document.querySelector("#beat").value = Math.max(
-						parseInt(document.querySelector("#beat").value) - 1,
-						1,
-					);
-				}
-				if (event.deltaY < 0) {
-					document.querySelector("#beat").value = Math.min(
-						parseInt(document.querySelector("#beat").value) + 1,
-						16,
-					);
-				}
-
-				setBeatsnapDivisor(document.querySelector("#beat"));
-				new Notification({
-					message: `Beatsnap Divisor changed to 1/${document.querySelector("#beat").value}`,
-				}).notify();
-
-				// console.log("Scrolled");
-			};
-
-			Game.WRAPPER.masterContainer.on("wheel", scrollEventHandler, {
-				capture: true,
-				passive: false,
-			});
-
-			Timeline.MASTER_CONTAINER.masterContainer.on(
-				"wheel",
-				(e) => {
-					if (!e.altKey) {
-						scrollEventHandler(e);
-						return;
-					}
-
-					if (e.deltaY > 0)
-						Timeline.ZOOM_DISTANCE = Clamp(
-							Timeline.ZOOM_DISTANCE - 20,
-							20,
-							800,
-						);
-					if (e.deltaY < 0)
-						Timeline.ZOOM_DISTANCE = Clamp(
-							Timeline.ZOOM_DISTANCE + 20,
-							20,
-							800,
-						);
-				},
-				{
-					capture: true,
-					passive: false,
-				},
-			);
 
 			// document.querySelector(".timelineContainer").addEventListener("wheel", scrollEventHandler, {
 			//     capture: true,
