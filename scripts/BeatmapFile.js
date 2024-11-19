@@ -315,7 +315,10 @@ export class BeatmapFile {
 			if (beatmapSetID && beatmapID && beatmapSetID > 0 && beatmapID > 0) {
 				const searchTrim = window.location.search
 					.replaceAll("?", "")
-					.replaceAll(/b=[0-9]+/g, "");
+					.replaceAll(/b=[0-9]+/g, "")
+					.split("&")
+					.filter(word => word !== "")
+					.join("&");
 				window.history.pushState(
 					{},
 					"JoSu!",
