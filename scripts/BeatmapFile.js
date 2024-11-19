@@ -62,7 +62,7 @@ export class BeatmapFile {
 
 	async getOsuFile() {
 		const rawOsuFile = (
-			await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}/osu`)
+			await axios.get(`https://preview.tryz.id.vn/api/b/${this.mapId}/osu`)
 		).data;
 		this.osuFile = rawOsuFile.replaceAll("\r", "");
 	}
@@ -161,7 +161,7 @@ export class BeatmapFile {
 		let mapsetData;
 		if (!this.isFromFile) {
 			mapsetData = (
-				await axios.get(`https://tryz.vercel.app/api/b/${this.mapId}`)
+				await axios.get(`https://preview.tryz.id.vn/api/b/${this.mapId}`)
 			).data;
 			this.artist = mapsetData.artist_unicode;
 			this.title = mapsetData.title_unicode;
