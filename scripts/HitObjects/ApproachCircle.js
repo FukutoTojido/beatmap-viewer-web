@@ -13,7 +13,7 @@ export class ApproachCircle {
 
         const approachCircle = new PIXI.Sprite(Texture.ARGON.APPROACH_CIRCLE.texture);
         approachCircle.anchor.set(0.5);
-        approachCircle.zIndex = Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000 + 1;
+        approachCircle.zIndex = Game.BEATMAP_FILE?.audioNode?.raw_buf.duration * 1000 + 1;
         this.obj = approachCircle;
 
         // this.obj.visible = false;

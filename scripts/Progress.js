@@ -363,7 +363,7 @@ export class ProgressBar {
         this.resize();
 
         if (Game.BEATMAP_FILE?.audioNode?.buf) {
-            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.buf.duration * 1000)) * (this.WIDTH - 80);
+            this.thumb.x = (time / (Game.BEATMAP_FILE?.audioNode?.raw_buf.duration * 1000)) * (this.WIDTH - 80);
         }
 
         // this.renderer.render(this.stage);

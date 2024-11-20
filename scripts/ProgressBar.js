@@ -92,7 +92,7 @@ export function setAudioTime(value) {
     if (!Game.BEATMAP_FILE?.audioNode) return;
 
     if (timeTween) timeTween.stop();
-    expectedDestination = value * Game.BEATMAP_FILE.audioNode.buf.duration * 1000;
+    expectedDestination = value * Game.BEATMAP_FILE.audioNode.raw_buf.duration * 1000;
 
     timeTween = new Tween({ time: Game.BEATMAP_FILE.audioNode.getCurrentTime() })
         .easing(TWEEN.Easing.Sinusoidal.Out)
@@ -129,7 +129,7 @@ export function go(precise, isForward) {
     const relativePosition = current - currentBeatstep.time;
     const relativeTickPassed = Math.round(relativePosition / step);
 
-    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.buf.duration * 1000);
+    const goTo = Clamp(Math.floor(currentBeatstep.time + (relativeTickPassed + side) * step), 0, Game.BEATMAP_FILE.audioNode.raw_buf.duration * 1000);
     expectedDestination = goTo;
 
     if (Game.BEATMAP_FILE.audioNode.isPlaying) {

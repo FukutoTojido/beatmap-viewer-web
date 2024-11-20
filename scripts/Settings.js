@@ -289,28 +289,40 @@ export function handleCheckBox(checkbox) {
 		!Game.SLIDER_APPEARANCE[checkbox.name];
 	Game.MAPPING[checkbox.name] = !Game.MAPPING[checkbox.name];
 
-	if (Game.MODS.DT && Game.MODS.NC) {
-		if (checkbox.name === "NC") {
-			Game.MODS.DT = false;
-			document.querySelector("#DT").checked = false;
-		}
-
-		if (checkbox.name === "DT") {
-			Game.MODS.NC = false;
-			document.querySelector("#NC").checked = false;
-		}
+	if (checkbox.name === "NC") {
+		Game.MODS.DT = false;
+		Game.MODS.HT = false;
+		Game.MODS.DC = false;
+		document.querySelector("#DT").checked = false;
+		document.querySelector("#HT").checked = false;
+		document.querySelector("#DC").checked = false;
 	}
 
-	if (Game.MODS.HT && Game.MODS.DC) {
-		if (checkbox.name === "DC") {
-			Game.MODS.HT = false;
-			document.querySelector("#HT").checked = false;
-		}
+	if (checkbox.name === "DT") {
+		Game.MODS.NC = false;
+		Game.MODS.HT = false;
+		Game.MODS.DC = false;
+		document.querySelector("#NC").checked = false;
+		document.querySelector("#HT").checked = false;
+		document.querySelector("#DC").checked = false;
+	}
 
-		if (checkbox.name === "HT") {
-			Game.MODS.DC = false;
-			document.querySelector("#DC").checked = false;
-		}
+	if (checkbox.name === "DC") {
+		Game.MODS.HT = false;
+		Game.MODS.DT = false;
+		Game.MODS.NC = false;
+		document.querySelector("#HT").checked = false;
+		document.querySelector("#NC").checked = false;
+		document.querySelector("#DT").checked = false;
+	}
+
+	if (checkbox.name === "HT") {
+		Game.MODS.DC = false;
+		Game.MODS.DT = false;
+		Game.MODS.NC = false;
+		document.querySelector("#DC").checked = false;
+		document.querySelector("#NC").checked = false;
+		document.querySelector("#DT").checked = false;
 	}
 
 	const DTMultiplier = !Game.MODS.DT && !Game.MODS.NC ? 1 : 1.5;
