@@ -264,14 +264,16 @@ export class Texture {
                 texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "approachcircle@2x", "argon")),
                 isHD: true,
             });
-            Texture.ARGON.DEFAULTS = [];
-            for (const idx in [...Array(10)].fill(null, 0, 10)) {
-                loadAsync(async () => Texture.ARGON.DEFAULTS.push({
-                    // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
-                    texture: await PIXI.Assets.load(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
-                    isHD: true,
+            loadAsync(async () => {
+                Texture.ARGON.DEFAULTS = await Promise.all(Array.from({ length: 10}).map(async (_, idx) => {
+                    return {
+                        // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
+                        texture: await PIXI.Assets.load(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
+                        isHD: true,
+                    }
                 }));
-            }
+            });
+
             loadAsync(async () => Texture.ARGON.GLOW = {
                 texture: await Texture.createTexture("GLOW"),
                 isHD: false
@@ -289,17 +291,19 @@ export class Texture {
             for (const key of updateKeys)
                 loadAsync(() => Texture.updateTextureFor(key))
 
-            const LEGACY_NUM = [];
-            for (const idx in [...Array(10)].fill(null, 0, 10)) {
-                loadAsync(async () => LEGACY_NUM.push({
-                    // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
-                    base64: await Database.getDefaults("base64s", `default-${idx}@2x`, "legacy"),
-                    isHD: true,
-                }));
-            }
+            loadAsync(async () => {
+                const LEGACY_NUM = await Promise.all(
+                    Array.from({length: 10}).map(async (_, idx) => {
+                        return {
+                            // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
+                            base64: await Database.getDefaults("base64s", `default-${idx}@2x`, "legacy"),
+                            isHD: true,
+                        }
+                    })
+                );
 
-            // console.log(LEGACY_NUM);
-            loadAsync(() => Texture.updateNumberTextures(LEGACY_NUM))
+                await Texture.updateNumberTextures(LEGACY_NUM)
+            })
 
             loadAsync(async () => Texture.BALL_SPEC = {
                 texture: await PIXI.Assets.load("static/sliderb-spec@2x.png"),
