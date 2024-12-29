@@ -27,7 +27,7 @@ import { Transcoder } from "./FFmpeg.js";
 
 import { go } from "./ProgressBar.js";
 import { setBeatsnapDivisor } from "./Settings.js";
-import { Clamp } from "./Utils.js";
+import {Clamp, loadParallel} from "./Utils.js";
 
 const isFullscreen = urlParams.get("fullscreen") === "true" ? true : false;
 
@@ -761,14 +761,16 @@ export class Game {
 
 	static async init() {
 		await Game.appInit();
-		Game.BACKGROUND = Background.init();
-		Game.CONTAINER = Game.containerInit();
-		Game.GRID = Game.gridInit();
-		Game.DRAG_WINDOW = Game.dragWindowInit();
-		Game.FPS = await Game.FPSInit();
-		Game.CURSOR = await Game.CursorInit();
-		Game.INFO = new TitleArtist("", "", "", "");
-		Game.STATS = new Stats();
+		await loadParallel((loadAsync) => {
+			Game.BACKGROUND = Background.init();
+			Game.CONTAINER = Game.containerInit();
+			Game.GRID = Game.gridInit();
+			Game.DRAG_WINDOW = Game.dragWindowInit();
+			loadAsync(async () => Game.FPS = await Game.FPSInit());
+			loadAsync(async () => Game.CURSOR = await Game.CursorInit());
+			Game.INFO = new TitleArtist("", "", "", "");
+			Game.STATS = new Stats();
+		})
 
 		Game.MASTER_CONTAINER.container.addChild(Game.GRID);
 		Game.MASTER_CONTAINER.container.addChild(Game.DRAG_WINDOW);
@@ -797,7 +799,13 @@ export class Game {
 		BPM.init();
 		Game.WRAPPER.container.addChild(BPM.MASTER_CONTAINER.masterContainer);
 
-		await PlayContainer.init();
+		await loadParallel((loadAsync) => {
+			loadAsync(PlayContainer.init())
+			loadAsync(FullscreenButton.init())
+			loadAsync(Timeline.init())
+			loadAsync(User.init())
+		})
+
 		Game.WRAPPER.container.addChild(PlayContainer.MASTER_CONTAINER.container);
 
 		ProgressBar.init();
@@ -805,10 +813,8 @@ export class Game {
 			ProgressBar.MASTER_CONTAINER.masterContainer,
 		);
 
-		await FullscreenButton.init();
 		Game.WRAPPER.container.addChild(FullscreenButton.obj.container);
 
-		await Timeline.init();
 		Game.WRAPPER.container.addChild(Timeline.MASTER_CONTAINER.masterContainer);
 
 		TimingPanel.init();
@@ -816,8 +822,6 @@ export class Game {
 
 		MetadataPanel.init();
 		Game.APP.stage.addChild(MetadataPanel.MASTER_CONTAINER.masterContainer);
-
-		await User.init();
 		// User.updateInfo({
 		//     username: "[Boy]Dalat",
 		//     mods: ["Hidden", "HardRock"]
