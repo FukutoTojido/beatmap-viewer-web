@@ -894,7 +894,7 @@ export class Game {
 		HitSample.masterGainNode.gain.value = Game.HS_VOL * Game.MASTER_VOL;
 		HitSample.masterGainNode.connect(Game.AUDIO_CTX.destination);
 
-		await Transcoder.load();
+		Transcoder.loadInBackground();
 
 		Game.INIT = true;
 		Game.WORKER.onmessage = (event) => {
