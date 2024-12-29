@@ -6,6 +6,7 @@ import { toggleMetadataPanel } from "./SidePanel";
 import { Container } from "./UI/Container";
 import { FlexBox } from "./UI/FlexBox";
 import { BPM } from "./BPM";
+import {loadParallel} from "./Utils.js";
 
 export class Button {
     isAlt = false;
@@ -18,8 +19,13 @@ export class Button {
         this.imgURL = imgURL;
         this.altImgURL = altImgURL ?? imgURL;
 
-        this.texture = await PIXI.Assets.load(this.imgURL);
-        this.altTexture = altImgURL ? await PIXI.Assets.load(this.altImgURL) : this.texture;
+        const [texture, altTexture] = await Promise.all([
+            PIXI.Assets.load(this.imgURL),
+            altImgURL ? PIXI.Assets.load(this.altImgURL) : Promise.resolve(undefined)
+        ])
+
+        this.texture = texture;
+        this.altTexture = altTexture ?? texture;
 
         this.sprite = new PIXI.Sprite(this.texture);
         this.sprite.scale.set(this.imgURL === "static/info.png" ? 1 : 0.75);
@@ -97,23 +103,33 @@ export class PlayContainer {
         this.MASTER_CONTAINER.alpha = 1;
         this.MASTER_CONTAINER.placeItemsCenter = true;
 
-        this.flex = new FlexBox();
+        await loadParallel((loadAsync) => {
+            this.flex = new FlexBox();
 
-        this.playButton = new Button();
-        await this.playButton.init(120, 0, "static/play.svg", "static/pause.svg");
-        this.playButton.onclick = () => playToggle();
+            this.playButton = new Button();
+            loadAsync(async () => {
+                await this.playButton.init(120, 0, "static/play.svg", "static/pause.svg");
+                this.playButton.onclick = () => playToggle();
+            })
 
-        this.prevButton = new Button();
-        await this.prevButton.init(60, 0, "static/step-back.svg");
-        this.prevButton.onclick = () => go(null, false);
+            this.prevButton = new Button();
+            loadAsync(async () => {
+                await this.prevButton.init(60, 0, "static/step-back.svg");
+                this.prevButton.onclick = () => go(null, false);
+            })
 
-        this.nextButton = new Button();
-        await this.nextButton.init(180, 0, "static/step-forward.svg");
-        this.nextButton.onclick = () => go(null, true);
+            this.nextButton = new Button();
+            loadAsync(async () => {
+                await this.nextButton.init(180, 0, "static/step-forward.svg");
+                this.nextButton.onclick = () => go(null, true);
+            })
 
-        this.infoButton = new Button();
-        await this.infoButton.init(0, 0, "static/info.svg");
-        this.infoButton.onclick = () => toggleMetadataPanel();
+            this.infoButton = new Button();
+            loadAsync(async () => {
+                await this.infoButton.init(0, 0, "static/info.svg");
+                this.infoButton.onclick = () => toggleMetadataPanel();
+            })
+        });
 
         this.flex.addChild(this.infoButton.container);
         this.flex.addChild(this.prevButton.container);
