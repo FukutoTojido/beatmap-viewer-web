@@ -126,6 +126,9 @@ export class Database {
         })
     }
 
+    static skinSetupPromises = {}
+
+
     static async getDefaults(type, value, skin) {
         return new Promise(async (resolve, reject) => {
             let transaction = Database.db.transaction("defaultSkins", "readwrite");
@@ -133,7 +136,9 @@ export class Database {
             const allKeys = await this.getAllDefaultKeys();
 
             if (!allKeys.includes(skin)) {
-                await Database.setupSkins(skin);
+                this.skinSetupPromises[skin] ??= Database.setupSkins(skin);
+
+                await this.skinSetupPromises[skin];
             }
 
             transaction = Database.db.transaction("defaultSkins", "readwrite");
