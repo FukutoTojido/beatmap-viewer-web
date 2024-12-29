@@ -341,26 +341,30 @@ export const loadColorPalette = (bg) => {
 };
 
 export async function loadDefaultSamples() {
-    for (const skin of ["ARGON", "LEGACY"])
-        for (const sampleset of ["normal", "soft", "drum"]) {
-            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
-                // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
-                // const res = (
-                //     await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
-                //         responseType: "arraybuffer",
-                //     })
-                // ).data;
+    await loadParallel((loadAsync) => {
+        for (const skin of ["ARGON", "LEGACY"])
+            for (const sampleset of ["normal", "soft", "drum"]) {
+                for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
+                    loadAsync(async () => {
+                        // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
+                        // const res = (
+                        //     await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
+                        //         responseType: "arraybuffer",
+                        //     })
+                        // ).data;
 
-                document.querySelector(
-                    "#loadingText"
-                ).innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
-                const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
-                // console.log(arrBuf);
-                const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
-                HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
-                HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                        document.querySelector(
+                            "#loadingText"
+                        ).innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
+                        const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
+                        // console.log(arrBuf);
+                        const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
+                        HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                        HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                    });
+                }
             }
-        }
+    })
 }
 
 export async function loadSampleSound(sample, idx, buf) {
