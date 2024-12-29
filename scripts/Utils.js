@@ -563,3 +563,27 @@ export const easeOutElastic = (x) => {
 // https://github.com/Damnae/storybrew/blob/master/common/Animations/EasingFunctions.cs
 export const easeOutElasticHalf = (x) => Math.pow(2, -10 * x) * Math.sin(((0.5 * x - 0.075) * (2 * Math.PI)) / 0.3) + 1;
 export const easeOutElasticQuart = (x) => Math.pow(2, -10 * x) * Math.sin(((0.25 * x - 0.075) * (2 * Math.PI)) / 0.3) + 1;
+
+/**
+ * Allows queueing up several promises in parallel
+ *
+ * @example ```js
+ * await loadParallel((loadAsync) => {
+ *      loadAsync(async () => await someAsyncValue())
+ *      loadAsync(async () => await someOtherAsyncValue())
+ * })
+ * ```
+ *
+ * @param {(fnOrPromise: Promise<any> | (() => Promise<any>)) => void | Promise<void>} loadFn
+ * @returns {Promise<unknown[]>}
+ */
+export async function loadParallel(loadFn) {
+    const loadPromises = []
+
+    const loadAsync = (fnOrPromise) =>
+        loadPromises.push(typeof fnOrPromise === 'function' ? fnOrPromise() : fnOrPromise)
+
+    await loadFn(loadAsync)
+
+    return await Promise.all(loadPromises)
+}
