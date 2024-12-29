@@ -1,6 +1,7 @@
 import { Game } from "./Game.js";
 import { Database } from "./Database.js";
 import * as PIXI from "pixi.js";
+import {loadParallel} from "./Utils.js";
 
 export class Texture {
     static SELECTED;
@@ -191,103 +192,125 @@ export class Texture {
     }
 
     static async generateDefaultTextures() {
-        Texture.SELECTED = {
-            // texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
-            texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "hitcircleselect@2x", "legacy")),
-            isHD: true,
-        };
-        Texture.SELECTED_ARGON = {
-            texture: await Texture.createTexture("SELECTED_HIT_CIRCLE"),
-            isHD: false,
-        }
-        Texture.FOLLOWPOINT = {
-            texture: await PIXI.Assets.load("/static/followpoint@2x.png"),
-            isHD: true
-        }
-        Texture.ARGON.HIT_CIRCLE = {
-            texture: await Texture.createTexture("HIT_CIRCLE"),
-            isHD: false,
-        };
-        Texture.ARGON.HIT_CIRCLE_OVERLAY = {
-            texture: await Texture.createTexture("HIT_CIRCLE_OVERLAY"),
-            isHD: false,
-        };
-        Texture.ARGON.SLIDER_B = {
-            ring: {
-                texture: await Texture.createTexture("SLIDER_BALL"),
-                isHD: false,
-            },
-            arrow: {
-                texture: await PIXI.Assets.load("/static/arrow.png"),
-                isHD: false,
-            },
-            gradient: {
-                texture: await Texture.createTexture("SLIDER_BALL_BG"),
-                isHD: false,
-            },
-        };
-        Texture.ARGON.REVERSE_ARROW = {
-            arrow: {
-                // texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
-                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "reversearrow@2x", "argon")),
+        await loadParallel((loadAsync) => {
+            loadAsync(async () => Texture.SELECTED = {
+                // texture: PIXI.Texture.from("/static/legacy/hitcircleselect@2x.png"),
+                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "hitcircleselect@2x", "legacy")),
                 isHD: true,
-            },
-            ring: {
-                // texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
-                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "repeat-edge-piece", "argon")),
+            })
+            loadAsync(async () => Texture.SELECTED_ARGON = {
+                texture: await Texture.createTexture("SELECTED_HIT_CIRCLE"),
                 isHD: false,
-            },
-        };
-        Texture.ARGON.SLIDER_FOLLOW_CIRCLE = {
-            texture: await Texture.createTexture("SLIDER_FOLLOW_CIRCLE"),
-            isHD: false,
-        };
-        Texture.ARGON.APPROACH_CIRCLE = {
-            // texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
-            texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "approachcircle@2x", "argon")),
-            isHD: true,
-        };
-        Texture.ARGON.DEFAULTS = [];
-        for (const idx in [...Array(10)].fill(null, 0, 10)) {
-            Texture.ARGON.DEFAULTS.push({
-                // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
-                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
+            });
+            loadAsync(async () => Texture.FOLLOWPOINT = {
+                texture: await PIXI.Assets.load("/static/followpoint@2x.png"),
+                isHD: true
+            });
+            loadAsync(async () => Texture.ARGON.HIT_CIRCLE = {
+                texture: await Texture.createTexture("HIT_CIRCLE"),
+                isHD: false,
+            });
+            loadAsync(async () => Texture.ARGON.HIT_CIRCLE_OVERLAY = {
+                texture: await Texture.createTexture("HIT_CIRCLE_OVERLAY"),
+                isHD: false,
+            });
+            loadAsync(async () => {
+                const [ring, arrow, gradient] = await Promise.all([
+                    Texture.createTexture("SLIDER_BALL"),
+                    PIXI.Assets.load("/static/arrow.png"),
+                    Texture.createTexture("SLIDER_BALL_BG")
+                ])
+
+                Texture.ARGON.SLIDER_B = {
+                    ring: {
+                        texture: ring,
+                        isHD: false,
+                    },
+                    arrow: {
+                        texture: arrow,
+                        isHD: false,
+                    },
+                    gradient: {
+                        texture: gradient,
+                        isHD: false,
+                    },
+                }
+            })
+            loadAsync(async () => {
+                const [arrow, ring] = await Promise.all([
+                    Database.getDefaults("base64s", "reversearrow@2x", "argon").then(source => PIXI.Assets.load(source)),
+                    Database.getDefaults("base64s", "repeat-edge-piece", "argon").then(source => PIXI.Assets.load(source))
+                ])
+
+                Texture.ARGON.REVERSE_ARROW = {
+                    arrow: {
+                        // texture: PIXI.Texture.from("/static/argon/reversearrow@2x.png"),
+                        texture: arrow,
+                        isHD: true,
+                    },
+                    ring: {
+                        // texture: PIXI.Texture.from("/static/argon/repeat-edge-piece.png"),
+                        texture: ring,
+                        isHD: false,
+                    },
+                };
+            })
+            loadAsync(async () => Texture.ARGON.SLIDER_FOLLOW_CIRCLE = {
+                texture: await Texture.createTexture("SLIDER_FOLLOW_CIRCLE"),
+                isHD: false,
+            });
+            loadAsync(async () => Texture.ARGON.APPROACH_CIRCLE = {
+                // texture: PIXI.Texture.from("/static/argon/approachcircle@2x.png"),
+                texture: await PIXI.Assets.load(await Database.getDefaults("base64s", "approachcircle@2x", "argon")),
                 isHD: true,
             });
-        }
-        Texture.ARGON.GLOW = {
-            texture: await Texture.createTexture("GLOW"),
-            isHD: false
-        }
+            Texture.ARGON.DEFAULTS = [];
+            for (const idx in [...Array(10)].fill(null, 0, 10)) {
+                loadAsync(async () => Texture.ARGON.DEFAULTS.push({
+                    // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
+                    texture: await PIXI.Assets.load(await Database.getDefaults("base64s", `default-${idx}@2x`, "argon")),
+                    isHD: true,
+                }));
+            }
+            loadAsync(async () => Texture.ARGON.GLOW = {
+                texture: await Texture.createTexture("GLOW"),
+                isHD: false
+            })
 
-        await Texture.updateTextureFor("HIT_CIRCLE");
-        await Texture.updateTextureFor("HIT_CIRCLE_OVERLAY");
-        await Texture.updateTextureFor("SLIDER_B");
-        await Texture.updateTextureFor("SLIDER_FOLLOW_CIRCLE");
-        await Texture.updateTextureFor("REVERSE_ARROW");
-        await Texture.updateTextureFor("APPROACH_CIRCLE");
+            const updateKeys = [
+                "HIT_CIRCLE",
+                "HIT_CIRCLE_OVERLAY",
+                "SLIDER_B",
+                "SLIDER_FOLLOW_CIRCLE",
+                "REVERSE_ARROW",
+                "APPROACH_CIRCLE",
+            ]
 
-        const LEGACY_NUM = [];
-        for (const idx in [...Array(10)].fill(null, 0, 10)) {
-            LEGACY_NUM.push({
-                // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
-                base64: await Database.getDefaults("base64s", `default-${idx}@2x`, "legacy"),
+            for (const key of updateKeys)
+                loadAsync(() => Texture.updateTextureFor(key))
+
+            const LEGACY_NUM = [];
+            for (const idx in [...Array(10)].fill(null, 0, 10)) {
+                loadAsync(async () => LEGACY_NUM.push({
+                    // texture: PIXI.Texture.from(`static/argon/default-${idx}@2x.png`),
+                    base64: await Database.getDefaults("base64s", `default-${idx}@2x`, "legacy"),
+                    isHD: true,
+                }));
+            }
+
+            // console.log(LEGACY_NUM);
+            loadAsync(() => Texture.updateNumberTextures(LEGACY_NUM))
+
+            loadAsync(async () => Texture.BALL_SPEC = {
+                texture: await PIXI.Assets.load("static/sliderb-spec@2x.png"),
                 isHD: true,
-            });
-        }
+            })
 
-        // console.log(LEGACY_NUM);
-        await Texture.updateNumberTextures(LEGACY_NUM);
-        
-        Texture.BALL_SPEC = {
-            texture: await PIXI.Assets.load("static/sliderb-spec@2x.png"),
-            isHD: true,
-        }
-        
-        Texture.BALL_ND = {
-            texture: await PIXI.Assets.load("static/sliderb-nd@2x.png"),
-            isHD: true,
-        }
+            loadAsync(async () => Texture.BALL_ND = {
+                texture: await PIXI.Assets.load("static/sliderb-nd@2x.png"),
+                isHD: true,
+            })
+        })
     }
 
     static async updateNumberTextures(arr, forIdx) {
