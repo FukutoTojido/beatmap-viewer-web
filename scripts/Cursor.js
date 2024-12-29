@@ -1,6 +1,7 @@
 import { Game } from "./Game.js";
 import { ScoreParser } from "./ScoreParser.js";
 import * as PIXI from "pixi.js";
+import {loadParallel} from "./Utils.js";
 
 export class Cursor {
     obj;
@@ -10,13 +11,15 @@ export class Cursor {
     async init() {
         const container = new PIXI.Container();
 
-        const cursorTexture = await PIXI.Assets.load("/static/cursor.png");
+        const [cursorTexture, trailTexture] = await Promise.all([
+            PIXI.Assets.load("/static/cursor.png"),
+            PIXI.Assets.load("/static/cursortrail.png")
+        ]);
         this.cursor = PIXI.Sprite.from(cursorTexture);
         this.cursor.anchor.set(0.5);
         this.cursor.width = (128 * (1024 / 640)) / (Game.WIDTH / 512);
         this.cursor.height = (128 * (1024 / 640)) / (Game.WIDTH / 512);
 
-        const trailTexture = await PIXI.Assets.load("/static/cursortrail.png");
         const trailList = [...Array(10).keys()].map(() => PIXI.Sprite.from(trailTexture));
         this.trailList = trailList;
 
