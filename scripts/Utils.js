@@ -62,51 +62,53 @@ export async function refreshSkinDB() {
 
     const skinDropdown = document.querySelector("#skinDropdown");
 
-    for (const [idx, skin] of res.entries()) {
-        const skinId = allKeys[idx];
-        const { ini, base64s, samples } = skin;
+    await loadParallel((loadAsync) => {
+        for (const [idx, skin] of res.entries()) {
+            const skinId = allKeys[idx];
+            const { ini, base64s, samples } = skin;
 
-        const div = document.createElement("div");
-        div.classList.add("skinSelection");
-        div.dataset.skinId = "custom";
-        div.dataset.customIndex = skinId;
+            const div = document.createElement("div");
+            div.classList.add("skinSelection");
+            div.dataset.skinId = "custom";
+            div.dataset.customIndex = skinId;
 
-        const button = document.createElement("button");
-        button.classList.add("skinName");
-        button.textContent = ini.NAME;
-        button.onclick = selectSkin;
+            const button = document.createElement("button");
+            button.classList.add("skinName");
+            button.textContent = ini.NAME;
+            button.onclick = selectSkin;
 
-        const delButton = document.createElement("button");
-        delButton.classList.add("deleteButton");
-        delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
-        delButton.onclick = removeSkin;
+            const delButton = document.createElement("button");
+            delButton.classList.add("deleteButton");
+            delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
+            delButton.onclick = removeSkin;
 
-        div.appendChild(button);
-        div.appendChild(delButton);
-        skinDropdown.appendChild(div);
+            div.appendChild(button);
+            div.appendChild(delButton);
+            skinDropdown.appendChild(div);
 
-        for (const element of [
-            "HIT_CIRCLE",
-            "HIT_CIRCLE_OVERLAY",
-            "SLIDER_B",
-            "REVERSE_ARROW",
-            "DEFAULTS",
-            "SLIDER_FOLLOW_CIRCLE",
-            "APPROACH_CIRCLE",
-        ]) {
-            if (!base64s[element]) continue;
+            for (const element of [
+                "HIT_CIRCLE",
+                "HIT_CIRCLE_OVERLAY",
+                "SLIDER_B",
+                "REVERSE_ARROW",
+                "DEFAULTS",
+                "SLIDER_FOLLOW_CIRCLE",
+                "APPROACH_CIRCLE",
+            ]) {
+                if (!base64s[element]) continue;
 
-            if (element === "DEFAULTS") {
-                await Texture.updateNumberTextures(base64s[element], skinId);
-                continue;
+                if (element === "DEFAULTS") {
+                    loadAsync(Texture.updateNumberTextures(base64s[element], skinId));
+                    continue;
+                }
+
+                const { base64, isHD } = base64s[element];
+                loadAsync(Texture.updateTextureFor(element, base64, isHD, skinId))
             }
 
-            const { base64, isHD } = base64s[element];
-            await Texture.updateTextureFor(element, base64, isHD, skinId);
+            loadAsync(Skinning.loadHitsounds(samples, skinId))
         }
-
-        await Skinning.loadHitsounds(samples, skinId);
-    }
+    })
 
     Skinning.SKIN_LIST = res.reduce((obj, curr, idx) => {
         obj[allKeys[idx]] = curr;
@@ -573,8 +575,9 @@ export const easeOutElasticQuart = (x) => Math.pow(2, -10 * x) * Math.sin(((0.25
  *
  * @example ```js
  * await loadParallel((loadAsync) => {
- *      loadAsync(async () => await someAsyncValue())
- *      loadAsync(async () => await someOtherAsyncValue())
+ *      loadAsync(async () => await someAsyncValue());
+ *      loadAsync(async () => await someOtherAsyncValue());
+ *      loadAsync(somePromise);
  * })
  * ```
  *
