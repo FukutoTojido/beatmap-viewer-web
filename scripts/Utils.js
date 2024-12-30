@@ -62,51 +62,53 @@ export async function refreshSkinDB() {
 
     const skinDropdown = document.querySelector("#skinDropdown");
 
-    for (const [idx, skin] of res.entries()) {
-        const skinId = allKeys[idx];
-        const { ini, base64s, samples } = skin;
+    await loadParallel((loadAsync) => {
+        for (const [idx, skin] of res.entries()) {
+            const skinId = allKeys[idx];
+            const { ini, base64s, samples } = skin;
 
-        const div = document.createElement("div");
-        div.classList.add("skinSelection");
-        div.dataset.skinId = "custom";
-        div.dataset.customIndex = skinId;
+            const div = document.createElement("div");
+            div.classList.add("skinSelection");
+            div.dataset.skinId = "custom";
+            div.dataset.customIndex = skinId;
 
-        const button = document.createElement("button");
-        button.classList.add("skinName");
-        button.textContent = ini.NAME;
-        button.onclick = selectSkin;
+            const button = document.createElement("button");
+            button.classList.add("skinName");
+            button.textContent = ini.NAME;
+            button.onclick = selectSkin;
 
-        const delButton = document.createElement("button");
-        delButton.classList.add("deleteButton");
-        delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
-        delButton.onclick = removeSkin;
+            const delButton = document.createElement("button");
+            delButton.classList.add("deleteButton");
+            delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
+            delButton.onclick = removeSkin;
 
-        div.appendChild(button);
-        div.appendChild(delButton);
-        skinDropdown.appendChild(div);
+            div.appendChild(button);
+            div.appendChild(delButton);
+            skinDropdown.appendChild(div);
 
-        for (const element of [
-            "HIT_CIRCLE",
-            "HIT_CIRCLE_OVERLAY",
-            "SLIDER_B",
-            "REVERSE_ARROW",
-            "DEFAULTS",
-            "SLIDER_FOLLOW_CIRCLE",
-            "APPROACH_CIRCLE",
-        ]) {
-            if (!base64s[element]) continue;
+            for (const element of [
+                "HIT_CIRCLE",
+                "HIT_CIRCLE_OVERLAY",
+                "SLIDER_B",
+                "REVERSE_ARROW",
+                "DEFAULTS",
+                "SLIDER_FOLLOW_CIRCLE",
+                "APPROACH_CIRCLE",
+            ]) {
+                if (!base64s[element]) continue;
 
-            if (element === "DEFAULTS") {
-                await Texture.updateNumberTextures(base64s[element], skinId);
-                continue;
+                if (element === "DEFAULTS") {
+                    loadAsync(Texture.updateNumberTextures(base64s[element], skinId));
+                    continue;
+                }
+
+                const { base64, isHD } = base64s[element];
+                loadAsync(Texture.updateTextureFor(element, base64, isHD, skinId))
             }
 
-            const { base64, isHD } = base64s[element];
-            await Texture.updateTextureFor(element, base64, isHD, skinId);
+            loadAsync(Skinning.loadHitsounds(samples, skinId))
         }
-
-        await Skinning.loadHitsounds(samples, skinId);
-    }
+    })
 
     Skinning.SKIN_LIST = res.reduce((obj, curr, idx) => {
         obj[allKeys[idx]] = curr;
@@ -341,26 +343,30 @@ export const loadColorPalette = (bg) => {
 };
 
 export async function loadDefaultSamples() {
-    for (const skin of ["ARGON", "LEGACY"])
-        for (const sampleset of ["normal", "soft", "drum"]) {
-            for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
-                // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
-                // const res = (
-                //     await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
-                //         responseType: "arraybuffer",
-                //     })
-                // ).data;
+    await loadParallel((loadAsync) => {
+        for (const skin of ["ARGON", "LEGACY"])
+            for (const sampleset of ["normal", "soft", "drum"]) {
+                for (const hs of ["hitnormal", "hitwhistle", "hitfinish", "hitclap", "slidertick", "sliderwhistle", "sliderslide"]) {
+                    loadAsync(async () => {
+                        // console.log(`./static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`);
+                        // const res = (
+                        //     await axios.get(`/static/${skin.toLowerCase()}/${sampleset}-${hs}.wav`, {
+                        //         responseType: "arraybuffer",
+                        //     })
+                        // ).data;
 
-                document.querySelector(
-                    "#loadingText"
-                ).innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
-                const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
-                // console.log(arrBuf);
-                const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
-                HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
-                HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                        document.querySelector(
+                            "#loadingText"
+                        ).innerHTML = `Initializing: Default Samples.\n(${skin}: ${sampleset}-${hs})\nMight take a while on first load.`;
+                        const arrBuf = await Database.getDefaults("samples", `${sampleset}-${hs}`, skin.toLowerCase());
+                        // console.log(arrBuf);
+                        const buffer = await Game.AUDIO_CTX.decodeAudioData(arrBuf);
+                        HitSample.SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                        HitSample.DEFAULT_SAMPLES[skin][`${sampleset}-${hs}`] = buffer;
+                    });
+                }
             }
-        }
+    })
 }
 
 export async function loadSampleSound(sample, idx, buf) {
@@ -563,3 +569,28 @@ export const easeOutElastic = (x) => {
 // https://github.com/Damnae/storybrew/blob/master/common/Animations/EasingFunctions.cs
 export const easeOutElasticHalf = (x) => Math.pow(2, -10 * x) * Math.sin(((0.5 * x - 0.075) * (2 * Math.PI)) / 0.3) + 1;
 export const easeOutElasticQuart = (x) => Math.pow(2, -10 * x) * Math.sin(((0.25 * x - 0.075) * (2 * Math.PI)) / 0.3) + 1;
+
+/**
+ * Allows queueing up several promises in parallel
+ *
+ * @example ```js
+ * await loadParallel((loadAsync) => {
+ *      loadAsync(async () => await someAsyncValue());
+ *      loadAsync(async () => await someOtherAsyncValue());
+ *      loadAsync(somePromise);
+ * })
+ * ```
+ *
+ * @param {(fnOrPromise: Promise<any> | (() => Promise<any>)) => void | Promise<void>} loadFn
+ * @returns {Promise<unknown[]>}
+ */
+export async function loadParallel(loadFn) {
+    const loadPromises = []
+
+    const loadAsync = (fnOrPromise) =>
+        loadPromises.push(typeof fnOrPromise === 'function' ? fnOrPromise() : fnOrPromise)
+
+    await loadFn(loadAsync)
+
+    return await Promise.all(loadPromises)
+}

@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Game } from "./Game";
+import {loadParallel} from "./Utils.js";
 
 export class User {
     static container = new PIXI.Container();
@@ -28,22 +29,24 @@ export class User {
         this.container.addChild(this.graphics, this.username, this.modsContainer);
         this.container.visible = false;
 
-        for (const mod of [
-            "DoubleTime",
-            "Easy",
-            "Flashlight",
-            "HalfTime",
-            "HardRock",
-            "Hidden",
-            "Nightcore",
-            "NoFail",
-            "Perfect",
-            "ScoreV2",
-            "SpunOut",
-            "SuddenDeath",
-        ]) {
-            this.textures[mod] = await PIXI.Assets.load({ src: `/static/mods/${mod}.png`, loadParser: "loadTextures" });
-        }
+        await loadParallel((loadAsync) => {
+            for (const mod of [
+                "DoubleTime",
+                "Easy",
+                "Flashlight",
+                "HalfTime",
+                "HardRock",
+                "Hidden",
+                "Nightcore",
+                "NoFail",
+                "Perfect",
+                "ScoreV2",
+                "SpunOut",
+                "SuddenDeath",
+            ]) {
+                loadAsync(async () => this.textures[mod] = await PIXI.Assets.load({ src: `/static/mods/${mod}.png`, loadParser: "loadTextures" }));
+            }
+        })
     }
 
     static forceResize() {
