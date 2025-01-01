@@ -39,7 +39,7 @@ export class Transcoder {
     static async transcode({ blob, ext }) {
         await this.ensureLoaded();
 
-        if (ext === "mp4" || ext === "m4a" || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+        if (ext === "mp4" || ext === "m4v" || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
             return URL.createObjectURL(blob);
         }
 
