@@ -6,6 +6,7 @@ import { PlayContainer } from "./PlayButtons.js";
 import { ObjectsController } from "./HitObjects/ObjectsController.js";
 import { Background } from "./Background.js";
 import { Storyboard } from "./Storyboard/Storyboard.js";
+import AudioWorker from "./Workers/AudioWorker.js?worker";
 
 export class PAudio {
 	raw_buf;
@@ -22,58 +23,19 @@ export class PAudio {
 
 	static SOFT_OFFSET = 0;
 
-	doStretch(inputData, stretchFactor, numChannels) {
-		var numInputFrames = inputData.length / numChannels;
-		var bufsize = 4096 * numChannels;
+	stretchAudio(inputData, stretchFactor) {
+		const worker = new AudioWorker();
+		return new Promise((resolve) => {
+			worker.postMessage({
+				data: inputData,
+				stretchFactor,
+				rate: Game.AUDIO_CTX.sampleRate,
+			});
 
-		// Create a Kali instance and initialize it
-		var kali = new window.Kali(numChannels);
-		kali.setup(Game.AUDIO_CTX.sampleRate, stretchFactor, true);
-
-		// Create an array for the stretched output
-		var completed = new Float32Array(
-			Math.floor((numInputFrames / stretchFactor) * numChannels + 1),
-		);
-
-		var inputOffset = 0;
-		var completedOffset = 0;
-		var loopCount = 0;
-		var flushed = false;
-
-		while (completedOffset < completed.length) {
-			// if (loopCount % 100 == 0) {
-			// 	console.log("Stretching", completedOffset / completed.length);
-			// }
-
-			// Read stretched samples into our output array
-			completedOffset += kali.output(
-				completed.subarray(
-					completedOffset,
-					Math.min(completedOffset + bufsize, completed.length),
-				),
-			);
-
-			if (inputOffset < inputData.length) {
-				// If we have more data to write, write it
-				var dataToInput = inputData.subarray(
-					inputOffset,
-					Math.min(inputOffset + bufsize, inputData.length),
-				);
-				inputOffset += dataToInput.length;
-
-				// Feed Kali samples
-				kali.input(dataToInput);
-				kali.process();
-			} else if (!flushed) {
-				// Flush if we haven't already
-				kali.flush();
-				flushed = true;
-			}
-
-			loopCount++;
-		}
-
-		return completed;
+			worker.onmessage = ({ data }) => {
+				resolve(data.data);
+			};
+		});
 	}
 
 	async createBufferNode(buf) {
@@ -81,21 +43,26 @@ export class PAudio {
 		this.raw_buf = buf;
 		const data = await Game.AUDIO_CTX.decodeAudioData(buf);
 
-		const dt_output = this.doStretch(data.getChannelData(0), 1.5, 1);
+		const [dt_output, ht_output] = await Promise.all([
+			this.stretchAudio(data.getChannelData(0), 1.5),
+			this.stretchAudio(data.getChannelData(0), 0.75),
+		]);
+
+		// const dt_output = this.doStretch(data.getChannelData(0), 1.5, 1);
 		const dt_buf = Game.AUDIO_CTX.createBuffer(
 			1,
 			dt_output.length,
 			Game.AUDIO_CTX.sampleRate,
 		);
-        dt_buf.getChannelData(0).set(dt_output);
+		dt_buf.getChannelData(0).set(dt_output);
 
-		const ht_output = this.doStretch(data.getChannelData(0), 0.75, 1);
-        const ht_buf = Game.AUDIO_CTX.createBuffer(
-            1,
-            ht_output.length,
-            Game.AUDIO_CTX.sampleRate
-        )
-        ht_buf.getChannelData(0).set(ht_output);
+		// const ht_output = this.doStretch(data.getChannelData(0), 0.75, 1);
+		const ht_buf = Game.AUDIO_CTX.createBuffer(
+			1,
+			ht_output.length,
+			Game.AUDIO_CTX.sampleRate,
+		);
+		ht_buf.getChannelData(0).set(ht_output);
 
 		this.raw_buf = data;
 		this.buf = data;
