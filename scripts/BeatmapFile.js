@@ -8,6 +8,7 @@ import {
 	loadColorPalette,
 	loadSampleSound,
 	Clamp,
+	getOS,
 } from "./Utils.js";
 import { go, playToggle } from "./ProgressBar.js";
 import { openMenu, setBeatsnapDivisor } from "./Settings.js";
@@ -317,7 +318,7 @@ export class BeatmapFile {
 					.replaceAll("?", "")
 					.replaceAll(/b=[0-9]+/g, "")
 					.split("&")
-					.filter(word => word !== "")
+					.filter((word) => word !== "")
 					.join("&");
 				window.history.pushState(
 					{},
@@ -601,7 +602,6 @@ export class BeatmapFile {
 			const removedChildren = Game.CONTAINER.removeChildren();
 			removedChildren.forEach((ele) => ele.destroy());
 
-
 			Timeline.destruct();
 			Background.reset();
 			Storyboard.reset();
@@ -713,7 +713,9 @@ export class BeatmapFile {
 
 			Game.appResize();
 
-			if (this.hasOgg) {
+			const isiOS = getOS() === "iOS";
+
+			if (this.hasOgg && isiOS) {
 				new Notification({
 					message:
 						"This beatmap contains .ogg files, which are not supported on iOS devices.",
@@ -723,7 +725,7 @@ export class BeatmapFile {
 				this.hasOgg = false;
 			}
 
-			if (this.hasVideo) {
+			if (this.hasVideo && isiOS) {
 				new Notification({
 					message:
 						"This beatmap contains video, which is not supported on iOS devices.",
