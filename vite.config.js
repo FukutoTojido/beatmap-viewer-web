@@ -1,4 +1,5 @@
 import fs from "fs";
+import crossOriginIsolation from 'vite-plugin-cross-origin-isolation'
 import { defineConfig, loadEnv } from "vite";
 
 // vite.config.js
@@ -21,5 +22,8 @@ export default defineConfig(({ mode }) => {
         optimizeDeps: {
             exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
         },
+        plugins: [
+            crossOriginIsolation()
+        ]
     };
 });

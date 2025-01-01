@@ -388,6 +388,14 @@ export function handleCheckBox(checkbox) {
 		return;
 	}
 
+	if (checkbox.name === "transcode") {
+		const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+		currentLocalStorage.background.transcodeVideo = !currentLocalStorage.background.transcodeVideo;
+		localStorage.setItem("settings", JSON.stringify(currentLocalStorage));
+
+		return;
+	}
+
 	if (checkbox.name === "storyboard") {
 		const originalIsPlaying = Game.BEATMAP_FILE.audioNode.isPlaying;
 		if (Game.BEATMAP_FILE.audioNode.isPlaying)

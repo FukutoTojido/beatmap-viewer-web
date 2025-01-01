@@ -16,11 +16,11 @@
     <link rel="stylesheet" href="./styles/sidePanel.css">
     <link rel="stylesheet" href="./styles/mobile.css">
 
-    <script src="https://bundle.run/buffer@6.0.3"></script>
+    <!-- <script src="https://bundle.run/buffer@6.0.3"></script> -->
     <script src="/lib/Vibrant.min.js"></script>
     <script src="/lib/zip-fs-full.js"></script>
     <script src="/lib/lzma_worker.js"></script>
-    <script src="/lib/kali.min.js"/>
+    <script src="/lib/kali.min.js" />
 
     <script src="./lib/osujs.js" type="module"></script>
     <script src="./lib/leb128.js" type="module"></script>
@@ -268,6 +268,10 @@
                     <input type="checkbox" id="video" name="video">
                 </div>
                 <div class="selection">
+                    <label for="transcode">transcode video</label>
+                    <input type="checkbox" id="transcode" name="transcode">
+                </div>
+                <div class="selection">
                     <label for="storyboard">enable storyboard</label>
                     <input type="checkbox" id="storyboard" name="storyboard">
                 </div>
@@ -361,11 +365,11 @@
                     <div class="linkContent">[Boy]DaLat</div>
                 </a>
                 <a href="https://twitter.com/FukutoTojido" target="_blank" rel="noreferrer noopener">
-                    <img src="https://img.icons8.com/material-rounded/24/ffffff/twitter.png" class="linkIcon">
+                    <img src="/static/twitter.png" class="linkIcon">
                     <div class="linkContent">@FukutoTojido</div>
                 </a>
                 <a href="https://github.com/FukutoTojido/beatmap-viewer-web" target="_blank" rel="noreferrer noopener">
-                    <img src="https://img.icons8.com/material-rounded/24/ffffff/github.png" class="linkIcon">
+                    <img src="/static/github.png" class="linkIcon">
                     <div class="linkContent">Source Code</div>
                 </a>
             </div>

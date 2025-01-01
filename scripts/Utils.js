@@ -82,7 +82,7 @@ export async function refreshSkinDB() {
 
 			const delButton = document.createElement("button");
 			delButton.classList.add("deleteButton");
-			delButton.innerHTML = `<img width="18" height="18" src="https://img.icons8.com/material-rounded/24/ffffff/delete-forever.png" alt="delete-forever"/>`;
+			delButton.innerHTML = `<img width="18" height="18" src="/static/delete-forever.png" alt="delete-forever"/>`;
 			delButton.onclick = removeSkin;
 
 			div.appendChild(button);
@@ -196,6 +196,7 @@ export async function loadLocalStorage() {
 
 		document.querySelector("#video").checked =
 			currentLocalStorage.background.video;
+		document.querySelector("#transcode").checked = currentLocalStorage.background.transcodeVideo;
 		document.querySelector("#storyboard").checked =
 			currentLocalStorage.background.storyboard;
 		Game.IS_STORYBOARD = currentLocalStorage.background.storyboard;

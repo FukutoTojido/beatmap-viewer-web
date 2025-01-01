@@ -73,6 +73,7 @@ function setupDefaultStorage() {
             blur: 0,
             video: false,
             storyboard: false,
+            transcodeVideo: false,
         },
         volume: {
             master: 1,

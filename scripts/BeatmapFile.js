@@ -740,10 +740,11 @@ export class BeatmapFile {
 				this.hasVideo = false;
 			}
 
-			if (this.hasNonMp4) {
+			const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));
+			if (this.hasNonMp4 && !currentLocalStorage.background.transcodeVideo) {
 				new Notification({
 					message:
-						"This beatmap contains non .mp4 video, which can cause some playback issues.",
+						"Check \"Transcode Video\" in settings if you have playback issues. (might take longer to load)",
 					autoTimeout: false,
 					type: "warning",
 				}).notify();
