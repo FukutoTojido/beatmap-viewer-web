@@ -685,6 +685,7 @@ export class ScoreParser {
 			document.querySelector(".loading").style.display = "none";
 
 			if (ScoreParser.REPLAY_DATA.md5map !== Game.BEATMAP_FILE?.md5Map) {
+				console.log(ScoreParser.REPLAY_DATA.md5map, Game.BEATMAP_FILE?.md5Map);
 				const mapData = await this.getMapData(ScoreParser.REPLAY_DATA.md5map);
 				if (!mapData.beatmap_id) {
 					throw "Map is not available online!";

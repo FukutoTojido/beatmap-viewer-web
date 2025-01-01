@@ -65,6 +65,7 @@ export class BeatmapFile {
 		const rawOsuFile = (
 			await axios.get(`https://preview.tryz.id.vn/api/b/${this.mapId}/osu`)
 		).data;
+		this.md5Map = md5(rawOsuFile).toString();
 		this.osuFile = rawOsuFile.replaceAll("\r", "");
 	}
 
@@ -618,7 +619,6 @@ export class BeatmapFile {
 
 			document.querySelector("#loadingText").textContent =
 				`Setting up HitObjects`;
-			this.md5Map = md5(this.osuFile).toString();
 			this.beatmapRenderData = new Beatmap(this.osuFile, 0);
 
 			document.querySelector(".loading").style.opacity = 0;
