@@ -43,31 +43,26 @@ export class PAudio {
 		this.raw_buf = buf;
 		const data = await Game.AUDIO_CTX.decodeAudioData(buf);
 
-		const [dt_output, ht_output] = await Promise.all([
-			this.stretchAudio(data.getChannelData(0), 1.5),
-			this.stretchAudio(data.getChannelData(0), 0.75),
-		]);
+		// const [dt_output] = await Promise.all([
+		// 	this.stretchAudio(data.getChannelData(0), 1.5),
+		// ]);
 
-		// const dt_output = this.doStretch(data.getChannelData(0), 1.5, 1);
-		const dt_buf = Game.AUDIO_CTX.createBuffer(
-			1,
-			dt_output.length,
-			Game.AUDIO_CTX.sampleRate,
-		);
-		dt_buf.getChannelData(0).set(dt_output);
+		// const dt_buf = Game.AUDIO_CTX.createBuffer(
+		// 	1,
+		// 	dt_output.length,
+		// 	Game.AUDIO_CTX.sampleRate,
+		// );
+		// dt_buf.getChannelData(0).set(dt_output);
 
-		// const ht_output = this.doStretch(data.getChannelData(0), 0.75, 1);
-		const ht_buf = Game.AUDIO_CTX.createBuffer(
-			1,
-			ht_output.length,
-			Game.AUDIO_CTX.sampleRate,
+		await Game.AUDIO_CTX.audioWorklet.addModule("../lib/phase-vocoder.min.js");
+		this.phazeNode = new AudioWorkletNode(
+			Game.AUDIO_CTX,
+			"phase-vocoder-processor",
 		);
-		ht_buf.getChannelData(0).set(ht_output);
 
 		this.raw_buf = data;
 		this.buf = data;
-		this.dt_buf = dt_buf;
-		this.ht_buf = ht_buf;
+		// this.dt_buf = dt_buf;
 
 		if (
 			urlParams.get("b") &&
@@ -114,15 +109,12 @@ export class PAudio {
 		if (!this.isPlaying && this.gainNode) {
 			this.src = Game.AUDIO_CTX.createBufferSource();
 
-			this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * 1;
+			this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * (Game.PLAYBACK_RATE !== 1 && (Game.MODS.DT || Game.MODS.HT) ? 3 : 1);
 
-			const buf = Game.MODS.DT
-				? this.dt_buf
-				: Game.MODS.HT
-					? this.ht_buf
-					: this.buf;
+			// const buf = Game.MODS.DT ? this.dt_buf : this.buf;
+			const buf = this.buf;
 
-			if (Game.MODS.NC || Game.MODS.DC) {
+			if (Game.MODS.NC || Game.MODS.DC || Game.MODS.HT || Game.MODS.DT) {
 				this.src.playbackRate.value = Game.PLAYBACK_RATE;
 			}
 			this.src.buffer = buf;
@@ -140,17 +132,31 @@ export class PAudio {
 				}
 			};
 
-			this.src.connect(this.gainNode);
+			if (Game.MODS.HT || Game.MODS.DT) {
+				let pitchFactorParam = this.phazeNode.parameters.get("pitchFactor");
+				pitchFactorParam.value = 1 / Game.PLAYBACK_RATE;
+				this.src.connect(this.phazeNode);
+				this.phazeNode.connect(this.gainNode);
+			} else {
+				this.src.connect(this.gainNode);
+			}
+
 			this.gainNode.connect(Game.AUDIO_CTX.destination);
 
 			this.startTime = Game.AUDIO_CTX.currentTime * 1000;
 			this.absStartTime = performance.now();
+			// this.src.start(
+			// 	Game.AUDIO_CTX.currentTime -
+			// 		(PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
+			// 	this.currentTime /
+			// 		1000 /
+			// 		(Game.MODS.DT || Game.MODS.HT ? Game.PLAYBACK_RATE : 1) +
+			// 		(PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
+			// );
 			this.src.start(
 				Game.AUDIO_CTX.currentTime -
 					(PAudio.SOFT_OFFSET < 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
-				this.currentTime /
-					1000 /
-					(Game.MODS.DT || Game.MODS.HT ? Game.PLAYBACK_RATE : 1) +
+				this.currentTime / 1000 +
 					(PAudio.SOFT_OFFSET >= 0 ? PAudio.SOFT_OFFSET / 1000 : 0),
 			);
 

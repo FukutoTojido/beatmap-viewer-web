@@ -5,7 +5,7 @@ function doStretch(inputData, stretchFactor, rate, numChannels = 1) {
 
 	// Create a Kali instance and initialize it
 	var kali = new Kali(numChannels);
-	kali.setup(rate, stretchFactor, true);
+	kali.setup(rate, stretchFactor, false);
 
 	// Create an array for the stretched output
 	var completed = new Float32Array(
