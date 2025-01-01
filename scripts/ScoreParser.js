@@ -625,6 +625,19 @@ export class ScoreParser {
 			const HTMultiplier = !Game.MODS.HT ? 1 : 0.75;
 			Game.PLAYBACK_RATE = 1 * DTMultiplier * HTMultiplier;
 
+			document.querySelector(".loading").style.opacity = 0;
+			document.querySelector(".loading").style.display = "none";
+
+			if (ScoreParser.REPLAY_DATA.md5map !== Game.BEATMAP_FILE?.md5Map) {
+				console.log(ScoreParser.REPLAY_DATA.md5map, Game.BEATMAP_FILE?.md5Map);
+				const mapData = await this.getMapData(ScoreParser.REPLAY_DATA.md5map);
+				if (!mapData.beatmap_id) {
+					throw "Map is not available online!";
+				}
+				submitMap(false, mapData.beatmap_id);
+				return;
+			}
+
 			Beatmap.updateModdedStats();
 			Game.BEATMAP_FILE.beatmapRenderData.applyStacking();
 
@@ -663,11 +676,6 @@ export class ScoreParser {
 			//     document.querySelector(".modsList").appendChild(div);
 			// });
 
-			User.updateInfo({
-				username: ScoreParser.REPLAY_DATA.player,
-				mods: ScoreParser.MODS,
-			});
-
 			ScoreParser.MOD_MULTIPLIER = ScoreParser.MODS.reduce(
 				(prev, curr) => {
 					return {
@@ -680,19 +688,6 @@ export class ScoreParser {
 					V2: 1,
 				},
 			);
-
-			document.querySelector(".loading").style.opacity = 0;
-			document.querySelector(".loading").style.display = "none";
-
-			if (ScoreParser.REPLAY_DATA.md5map !== Game.BEATMAP_FILE?.md5Map) {
-				console.log(ScoreParser.REPLAY_DATA.md5map, Game.BEATMAP_FILE?.md5Map);
-				const mapData = await this.getMapData(ScoreParser.REPLAY_DATA.md5map);
-				if (!mapData.beatmap_id) {
-					throw "Map is not available online!";
-				}
-				submitMap(false, mapData.beatmap_id);
-				return;
-			}
 
 			ScoreParser.eval();
 			document.querySelector("#HD").disabled = true;

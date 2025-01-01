@@ -654,6 +654,11 @@ export class BeatmapFile {
 					Game.MODS.DT,
 					Game.MODS.HT,
 				]);
+
+				User.updateInfo({
+					username: ScoreParser.REPLAY_DATA.player,
+					mods: ScoreParser.MODS,
+				});
 			} else {
 				User.updateInfo();
 

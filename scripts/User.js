@@ -92,6 +92,7 @@ export class User {
     }
 
     static async updateInfo(userInfo) {
+        console.log(userInfo);
         if (!userInfo) {
             this.container.visible = false;
             return;
