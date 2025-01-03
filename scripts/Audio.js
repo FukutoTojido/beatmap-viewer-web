@@ -38,11 +38,12 @@ export class PAudio {
 		});
 	}
 
-	async createBufferNode(buf) {
+	async createBufferNode({ base, dt, ht }) {
 		// console.log(buf);
-		this.raw_buf = buf;
-		const data = await Game.AUDIO_CTX.decodeAudioData(buf);
-
+		this.raw_buf = base;
+		const data = await Game.AUDIO_CTX.decodeAudioData(base);
+		// const dt_buf = await Game.AUDIO_CTX.decodeAudioData(dt);
+		// const ht_buf = await Game.AUDIO_CTX.decodeAudioData(ht);
 		// const [dt_output] = await Promise.all([
 		// 	this.stretchAudio(data.getChannelData(0), 1.5),
 		// ]);
@@ -63,6 +64,7 @@ export class PAudio {
 		this.raw_buf = data;
 		this.buf = data;
 		// this.dt_buf = dt_buf;
+		// this.ht_buf = ht_buf;
 
 		if (
 			urlParams.get("b") &&
@@ -109,14 +111,27 @@ export class PAudio {
 		if (!this.isPlaying && this.gainNode) {
 			this.src = Game.AUDIO_CTX.createBufferSource();
 
-			this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL * (Game.PLAYBACK_RATE !== 1 && (Game.MODS.DT || Game.MODS.HT) ? 3 : 1);
+			this.gainNode.gain.value =
+				Game.MUSIC_VOL *
+				Game.MASTER_VOL *
+				(Game.PLAYBACK_RATE !== 1 && (Game.MODS.DT || Game.MODS.HT) ? 3 : 1);
 
-			// const buf = Game.MODS.DT ? this.dt_buf : this.buf;
+			// this.gainNode.gain.value = Game.MUSIC_VOL * Game.MASTER_VOL;
+
+			// const buf = Game.MODS.DT
+			// 	? this.dt_buf
+			// 	: Game.MODS.HT
+			// 		? this.ht_buf
+			// 		: this.buf;
 			const buf = this.buf;
 
 			if (Game.MODS.NC || Game.MODS.DC || Game.MODS.HT || Game.MODS.DT) {
 				this.src.playbackRate.value = Game.PLAYBACK_RATE;
 			}
+			// if (Game.MODS.NC || Game.MODS.DC) {
+			// 	this.src.playbackRate.value = Game.PLAYBACK_RATE;
+			// }
+
 			this.src.buffer = buf;
 			this.src.onended = () => {
 				const tempCurrentTime = this.getCurrentTime();
@@ -141,6 +156,7 @@ export class PAudio {
 				this.src.connect(this.gainNode);
 			}
 
+			// this.src.connect(this.gainNode);
 			this.gainNode.connect(Game.AUDIO_CTX.destination);
 
 			this.startTime = Game.AUDIO_CTX.currentTime * 1000;

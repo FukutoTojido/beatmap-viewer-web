@@ -442,8 +442,16 @@ export class BeatmapFile {
 			new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`),
 		);
 		// console.log("Audio Blob Generated");
+		// const { dt, ht } = await Transcoder.changeRate({
+		// 	blob: audioBlob,
+		// 	ext: audioFilename.split(".").at(-1),
+		// });
 		this.audioBlobURL = URL.createObjectURL(audioBlob);
 		const audioArrayBuffer = await this.readBlobAsBuffer(audioBlob);
+		// const [dtBuffer, htBuffer] = await Promise.all([
+		// 	this.readBlobAsBuffer(dt),
+		// 	this.readBlobAsBuffer(ht),
+		// ]);
 		console.log("Audio Loaded");
 
 		const backgroundFile = allEntries
@@ -565,7 +573,11 @@ export class BeatmapFile {
 		zipReader.close();
 		document.querySelector("#loadingText").innerHTML = `Setting up HitObjects`;
 		console.log("Get .osz completed");
-		return audioArrayBuffer;
+		return {
+			audioArrayBuffer,
+			// dtBuffer,
+			// htBuffer,
+		};
 	}
 
 	async loadHitsounds() {
@@ -610,12 +622,16 @@ export class BeatmapFile {
 			Beatmap.CURRENT_MAPID = this.mapId;
 			document.querySelector(".loading").style.display = "";
 			document.querySelector(".loading").style.opacity = 1;
-			const audioArrayBuffer = await this.getOsz();
+			const { audioArrayBuffer } = await this.getOsz();
 			this.audioNode = new PAudio();
 			await this.loadHitsounds();
 
 			document.querySelector("#loadingText").textContent = `Setting up Audio`;
-			await this.audioNode.createBufferNode(audioArrayBuffer);
+			await this.audioNode.createBufferNode({
+				base: audioArrayBuffer,
+				// dt: dtBuffer,
+				// ht: htBuffer,
+			});
 
 			document.querySelector("#loadingText").textContent =
 				`Setting up HitObjects`;
@@ -744,7 +760,7 @@ export class BeatmapFile {
 			if (this.hasNonMp4 && !currentLocalStorage.background.transcodeVideo) {
 				new Notification({
 					message:
-						"Check \"Transcode Video\" in settings if you have playback issues. (might take longer to load)",
+						'Check "Transcode Video" in settings if you have playback issues. (might take longer to load)',
 					autoTimeout: false,
 					type: "warning",
 				}).notify();
