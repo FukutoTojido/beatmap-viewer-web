@@ -9,11 +9,6 @@ export class Transcoder {
 		this.ffmpeg.on("log", ({ message }) => {
 			console.log(message);
 		});
-
-		this.ffmpeg.on("progress", ({ progress, time }) => {
-			document.querySelector("#loadingText").textContent =
-				`Transcoding video to mp4 using FFmpeg: ${(progress * 100).toFixed(2)}%`;
-		});
 	}
 	static loader = new BackgroundLoader(async () => {
 		if (
@@ -50,9 +45,29 @@ export class Transcoder {
 		return this.loader.load();
 	}
 
+	static async toMp3({ blob, ext }) {
+		await this.ensureLoaded();
+
+		this.ffmpeg.on("progress", ({ progress, time }) => {
+			document.querySelector("#loadingText").textContent =
+				`Transcoding .ogg audio to .mp3 using FFmpeg: ${(progress * 100).toFixed(2)}%`;
+		});
+
+		await this.ffmpeg.writeFile(`audio.${ext}`, await fetchFile(blob));
+		await this.ffmpeg.exec(["-i", `audio.${ext}`, "-c", "mp3", `audio.mp3`]);
+
+		const data = await this.ffmpeg.readFile(`audio.mp3`);
+		return new Blob([data.buffer], { type: "audio/mp3" });
+	}
+
 	static async changeRate({ blob, ext }) {
 		await this.ensureLoaded();
 		console.log("Hellis!", blob, ext);
+
+		this.ffmpeg.on("progress", ({ progress, time }) => {
+			document.querySelector("#loadingText").textContent =
+				`Timestretching audio using FFmpeg: ${(progress * 100).toFixed(2)}%`;
+		});
 
 		let start = performance.now();
 		await this.ffmpeg.writeFile(`audio.${ext}`, await fetchFile(blob));
@@ -63,7 +78,7 @@ export class Transcoder {
 				"-c",
 				"mp3",
 				"-af",
-				'atempo=1.5',
+				"atempo=1.5",
 				`dt.mp3`,
 			]),
 			this.ffmpeg.exec([
@@ -72,7 +87,7 @@ export class Transcoder {
 				"-c",
 				"mp3",
 				"-af",
-				'atempo=0.75',
+				"atempo=0.75",
 				`ht.mp3`,
 			]),
 		]);
@@ -101,6 +116,11 @@ export class Transcoder {
 		) {
 			return URL.createObjectURL(blob);
 		}
+
+		this.ffmpeg.on("progress", ({ progress, time }) => {
+			document.querySelector("#loadingText").textContent =
+				`Transcoding video to mp4 using FFmpeg: ${(progress * 100).toFixed(2)}%`;
+		});
 
 		await this.ffmpeg.writeFile(`input.${ext}`, await fetchFile(blob));
 		const currentLocalStorage = JSON.parse(localStorage.getItem("settings"));

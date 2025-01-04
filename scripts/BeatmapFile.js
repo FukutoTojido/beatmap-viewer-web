@@ -434,13 +434,18 @@ export class BeatmapFile {
 			throw "This map has no audio file";
 		}
 
-		if (audioFilename.split(".").at(-1) === "ogg") {
-			this.hasOgg = true;
-		}
-
-		const audioBlob = await audioFile.getData(
+		let audioBlob = await audioFile.getData(
 			new zip.BlobWriter(`audio/${audioFilename.split(".").at(-1)}`),
 		);
+
+		if (audioFilename.split(".").at(-1) === "ogg") {
+			this.hasOgg = true;
+			// audioBlob = await Transcoder.toMp3({
+			// 	blob: audioBlob,
+			// 	ext: audioFilename.split(".").at(-1),
+			// });
+		}
+
 		// console.log("Audio Blob Generated");
 		// const { dt, ht } = await Transcoder.changeRate({
 		// 	blob: audioBlob,
