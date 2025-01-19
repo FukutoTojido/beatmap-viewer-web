@@ -743,7 +743,7 @@ export class Beatmap {
 			parseFloat(
 				rawBeatmap
 					.split("\n")
-					.find(line => /^SliderMultiplier:[0-9]+(\.[0-9]+)?(\r)?/g.test(line))
+					.find(line => /^SliderMultiplier:/g.test(line))
 					.replace("SliderMultiplier:", "")
 			) * 100;
 		// console.log(difficultyPosition, initialSliderVelocity, rawBeatmap);
