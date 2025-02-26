@@ -126,7 +126,7 @@ export class BeatmapFile {
 			const customURL = document.querySelector("#custom-mirror").value;
 
 			const urls = {
-				nerinyan: "https://api.nerinyan.moe/d/$setId",
+				nerinyan: "https://ko2.nerinyan.moe/d/$setId",
 				sayobot: "https://dl.sayobot.cn/beatmaps/download/$setId",
 				chimu: "https://catboy.best/d/$setId",
 			};
