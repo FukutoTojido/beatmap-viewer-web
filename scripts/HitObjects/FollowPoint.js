@@ -29,7 +29,7 @@ export class FollowPoint {
 	}
 
 	refreshSprites() {
-		if (this.width < 80) {
+		if (Number.isNaN(this.width) || this.width < 80) {
 			this.sprites = [];
 			this.container.removeChildren();
 			return;
