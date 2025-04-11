@@ -667,7 +667,7 @@ export class BeatmapFile {
 				document.querySelector("#NC").disabled = true;
 				document.querySelector("#EZ").disabled = true;
 				document.querySelector("#HT").disabled = true;
-				document.querySelector("#DC").disabled = false;
+				document.querySelector("#DC").disabled = true;
 
 				calculateCurrentSR([
 					Game.MODS.HR,
