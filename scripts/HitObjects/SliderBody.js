@@ -74,9 +74,9 @@ export class SliderBody {
                     ox: { value: 0, type: "f32" },
                     dy: { value: 0, type: "f32" },
                     oy: { value: 0, type: "f32" },
-                    dt: { value: 0, type: "f32" },
-                    ot: { value: 1, type: "f32" },
                     inverse: { value: 0, type: "f32" },
+                    startt: { value: 0, type: "f32" },
+                    endt: { value: 0, type: "f32" },
                     stackOffset: { value: 0, type: "f32" },
                     ballPosition: { value: [0, 0], type: "vec2<f32>" },
                     // Fragment Uniforms

@@ -32,7 +32,7 @@ export class Background {
             quality: 10,
             strength: 50,
         });
-        this.filter.blur = 0;
+        this.filter.strength = 0;
 
         this.container.filters = [this.filter];
 
@@ -79,7 +79,7 @@ export class Background {
     }
 
     static changeStrength(val) {
-        this.filter.blur = (val / 20) * 100;
+        this.filter.strength = (val / 20) * 100;
     }
 
     static changeOpacity(val) {
