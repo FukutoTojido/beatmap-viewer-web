@@ -117,7 +117,7 @@ export class Skinning {
             .concat([1.0]);
 
         const sliderTrackOverride = lines
-            .find((line) => line.includes("SliderTrackOverride:"))
+            .find((line) => /^SliderTrackOverride\s*:/.test(line))
             ?.replaceAll(" ", "")
             .match(/[0-9]{0,3},[0-9]{0,3},[0-9]{0,3}/g)
             .at(0)
