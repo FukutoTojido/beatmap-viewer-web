@@ -81,7 +81,7 @@ export class SliderMeshContainer extends PIXI.RenderContainer {
 
 	createPipeline(renderer, geometry, program, state, topology) {
 		const device = renderer.gpu.device;
-		const buffers = renderer.pipeline._createVertexBufferLayouts(geometry);
+		const buffers = renderer.pipeline._createVertexBufferLayouts(geometry, program);
 		const blendModes = renderer.state.getColorTargets(state);
 
 		blendModes[0].writeMask = renderer.pipeline._colorMask;
@@ -164,7 +164,7 @@ export class SliderMeshContainer extends PIXI.RenderContainer {
 	draw(renderer, geometry, shader, state) {
 		renderer.renderTarget.renderTarget.depth = true;
 		this.setPipeline(renderer, geometry, shader.gpuProgram, state);
-		renderer.encoder.setGeometry(geometry);
+		renderer.encoder.setGeometry(geometry, shader.gpuProgram);
 		renderer.encoder._setShaderBindGroups(shader, undefined);
 
 		renderer.encoder.renderPassEncoder.drawIndexed(
@@ -205,6 +205,9 @@ export class SliderMeshContainer extends PIXI.RenderContainer {
 		// ALSO VERY IMPORTANT
 		this.passCount = 0;
 		renderer.pipeline.setColorMask(0b0000);
+
+		body.shader.resources.customUniforms.uniforms.startt = body.startt;
+		body.shader.resources.customUniforms.uniforms.endt = body.endt;
 
 		this.drawGPUSlider(renderer, body, state);
 		if (!(body.startt === 0.0 && body.endt === 1.0))

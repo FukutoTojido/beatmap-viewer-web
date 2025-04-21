@@ -115,6 +115,17 @@ function setupDefaultStorage() {
 }
 
 (async () => {
+    try {
+        const adapter = await navigator.gpu.requestAdapter();
+        const device = adapter && (await adapter.requestDevice());
+        const maxTextures = device?.limits.maxSampledTexturesPerShaderStage;
+        if (maxTextures) {
+            PIXI.Batcher.defaultOptions.maxTextures = maxTextures;
+        }
+    } catch (error) {
+        console.warn("Failed to configure Batcher with WebGPU limits:", error);
+    }
+
     if (urlParams.get("fullscreen") === "true") {
         document.body.style.padding = 0;
         document.querySelector("#inputContainer").style.maxHeight = 0;

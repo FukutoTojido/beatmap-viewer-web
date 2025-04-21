@@ -34,7 +34,7 @@ fn vsMain(
     var dist = aPosition[3];
 
     var distance_var = 0.0;
-    if (aPosition[2] < startt || aPosition[2] > endt) {
+    if (aPosition[2] < customUniforms.startt || aPosition[2] > customUniforms.endt) {
         distance_var = 1.0;
     }
 
@@ -71,7 +71,7 @@ fn vsMain(
         vec4<f32>(
             -1.0 + x * customUniforms.dx + offset_x,
             (y * customUniforms.dy + 1.0) + offset_y,
-            (z + 1.0) / 2.0,
+            z,
             1.0
         ),
         dist
@@ -111,9 +111,9 @@ fn fsMain(
 
     color[3] = 1.0;
 
-    // if (position > 1.0) {
-    //     return vec4<f32>(0.0, 0.0, 0.0, 0.0);
-    // }
+    if (position > 1.0) {
+        return vec4<f32>(0.0, 0.0, 0.0, 0.0);
+    }
     
     return vec4<f32>(color[0], color[1], color[2], 1.0) * a * customUniforms.alpha;
     // return vec4<f32>(vec3<f32>(1.0 - position), 1.0);
