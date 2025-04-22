@@ -1,0 +1,19 @@
+{
+  "name": "beatmap-viewer-web",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "vite"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "beatmap-viewer-web": ".",
+    "vite": "^6.3.2"
+  }
+}
