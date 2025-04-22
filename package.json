@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 8080",
     "build": "vite build"
   },
   "devDependencies": {
@@ -14,8 +14,8 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@pixi/layout": "^2.0.1",
     "@tailwindcss/vite": "^4.1.4",
-    "beatmap-viewer-web": ".",
     "osu-classes": "^3.1.0",
     "osu-parsers": "^4.1.7",
     "osu-standard-stable": "^5.0.1",
