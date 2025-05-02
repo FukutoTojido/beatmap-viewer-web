@@ -81,7 +81,7 @@ export class Game {
 
 		const headerStyle: TextStyle | TextStyleOptions | undefined = {
 			fontFamily: "Rubik",
-			fontSize: 12,
+			fontSize: 14,
 			fill: 0xcdd6f4,
 			fontWeight: "600",
 			wordWrap: true,
@@ -90,7 +90,8 @@ export class Game {
 
 		const contentStyle: TextStyle | TextStyleOptions | undefined = {
 			fontFamily: "Rubik",
-			fontSize: 14,
+			fontSize: 16,
+			fontWeight: "400",
 			fill: 0xcdd6f4,
 			wordWrap: true,
 			align: "left",
@@ -113,7 +114,8 @@ export class Game {
 			"crychic 1st album 迷跡波 meisekiha bushiroad gbp garupa girls band party! bandori バンドリ！ ガールズバンドパーティ！ 高松燈 千早愛音 要楽奈 長崎そよ 椎名立希 羊宮妃那 立石凛 青木陽菜 小日向美香 林鼓子 tomori takamatsu anon chihaya raana kaname soyo nagasaki taki shiina hina youmiya rin tateishi hina aoki mika kohinata koko hayashi rock japanese anime jrock j-rock kalibe hey lululu hey_lululu lu^3 coco",
 		];
 
-		const ts = texts.map((text, idx) => {
+		const ts = [...Array(14)].map((_, idx) => {
+			const text = texts[idx % texts.length];
 			return new Text({
 				text,
 				style: idx % 2 === 0 ? headerStyle : contentStyle,
@@ -131,19 +133,34 @@ export class Game {
 		const s = new LayoutContainer({
 			label: "side",
 			layout: {
-				width: 400,
-				height: "100%",
-				padding: 20,
+				width: 360,
+				flex: 1,
 				flexDirection: "column",
 				overflow: "scroll",
 				justifyContent: "flex-start",
 				alignItems: "flex-start",
 				alignContent: "flex-start",
 				gap: 10,
-				flexShrink: 0,
+				// padding: 10,
 				boxSizing: "border-box",
+				backgroundColor: 0x181825,
+				borderRadius: 0,
+				borderWidth: 1,
 			},
 		});
+
+		const tabSwitcher = new LayoutContainer({
+			label: "tab switcher",
+			layout: {
+				width: 360,
+				height: 80,
+				flexShrink: 0,
+				backgroundColor: 0x1e1e2e,
+				borderRadius: 10,
+				borderColor: 0x585b70,
+				borderWidth: 1,
+			}
+		})
 
 		const sWrapper = new ZContainer({
 			layout: {
@@ -153,12 +170,16 @@ export class Game {
 				borderColor: 0x585b70,
 				borderWidth: 1,
 				borderRadius: 20,
+				flexDirection: "column",
+				overflow: "hidden",
+				padding: 20,
+				gap: 20
 			},
 		});
 
-		sWrapper.addChild(s);
-
 		s.addChild(...ts);
+		sWrapper.addChild(tabSwitcher, s);
+
 		this.app.stage.addChild(c, sWrapper);
 		this.s = sWrapper;
 

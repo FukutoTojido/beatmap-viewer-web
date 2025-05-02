@@ -18,6 +18,7 @@ export default class State {
 
 	toggleSidebar() {
 		if (!this.game || !this.game.s) return;
+		const ANIMATION_DURATION = 200;
 
 		switch (this.sidebar) {
 			case "OPENED": {
@@ -25,15 +26,19 @@ export default class State {
 				this.game.animationController.addAnimation("gap", 10, 0, (val) => {
 					if (!this.game?.app) return;
 					this.game.app.stage.layout = { gap: val }
-				}, 500);
+				}, ANIMATION_DURATION);
 				this.game.s?.triggerAnimation("width", 400, 0, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.layout = { width: val };
-				}, 500);
+				}, ANIMATION_DURATION);
+				this.game.s?.triggerAnimation("padding", 20, 0, (val) => {
+					if (!this.game?.s) return;
+					this.game.s.layout = { paddingInline: val };
+				}, ANIMATION_DURATION);
 				this.game.s?.triggerAnimation("opacity", 1, 0, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.alpha = val;
-				}, 500);
+				}, ANIMATION_DURATION);
 				break;
 			}
 			case "CLOSED": {
@@ -41,15 +46,19 @@ export default class State {
 				this.game.animationController.addAnimation("gap", 0, 10, (val) => {
 					if (!this.game?.app) return;
 					this.game.app.stage.layout = { gap: val }
-				}, 500);
+				}, ANIMATION_DURATION);
 				this.game.s?.triggerAnimation("width", 0, 400, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.layout = { width: val };
-				}, 500);
+				}, ANIMATION_DURATION);
+				this.game.s?.triggerAnimation("padding", 0, 20, (val) => {
+					if (!this.game?.s) return;
+					this.game.s.layout = { paddingInline: val };
+				}, ANIMATION_DURATION);
 				this.game.s?.triggerAnimation("opacity", 0, 1, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.alpha = val;
-				}, 500);
+				}, ANIMATION_DURATION);
 				break;
 			}
 		}
