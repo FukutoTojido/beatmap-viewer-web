@@ -25,15 +25,15 @@ export default class State {
 				this.game.animationController.addAnimation("gap", 10, 0, (val) => {
 					if (!this.game?.app) return;
 					this.game.app.stage.layout = { gap: val }
-				}, 1000);
+				}, 500);
 				this.game.s?.triggerAnimation("width", 400, 0, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.layout = { width: val };
-				}, 1000);
+				}, 500);
 				this.game.s?.triggerAnimation("opacity", 1, 0, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.alpha = val;
-				}, 1000);
+				}, 500);
 				break;
 			}
 			case "CLOSED": {
@@ -41,15 +41,15 @@ export default class State {
 				this.game.animationController.addAnimation("gap", 0, 10, (val) => {
 					if (!this.game?.app) return;
 					this.game.app.stage.layout = { gap: val }
-				}, 1000);
+				}, 500);
 				this.game.s?.triggerAnimation("width", 0, 400, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.layout = { width: val };
-				}, 1000);
+				}, 500);
 				this.game.s?.triggerAnimation("opacity", 0, 1, (val) => {
 					if (!this.game?.s) return;
 					this.game.s.alpha = val;
-				}, 1000);
+				}, 500);
 				break;
 			}
 		}
