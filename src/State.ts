@@ -37,7 +37,7 @@ export default class State {
 				}, ANIMATION_DURATION);
 				this.game.s?.triggerAnimation("opacity", 1, 0, (val) => {
 					if (!this.game?.s) return;
-					this.game.s.alpha = val;
+					this.game.s.alphaFilter.alpha = val;
 				}, ANIMATION_DURATION);
 				break;
 			}
@@ -57,7 +57,7 @@ export default class State {
 				}, ANIMATION_DURATION);
 				this.game.s?.triggerAnimation("opacity", 0, 1, (val) => {
 					if (!this.game?.s) return;
-					this.game.s.alpha = val;
+					this.game.s.alphaFilter.alpha = val;
 				}, ANIMATION_DURATION);
 				break;
 			}
