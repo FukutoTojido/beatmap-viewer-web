@@ -1,1 +1,2 @@
-import "./Game"
+import "./Game";
+import "./Test";

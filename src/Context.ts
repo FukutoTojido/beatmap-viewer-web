@@ -10,6 +10,7 @@ export const provide = <T>(key: string, value: T): T => {
     return value;
 }
 
-export const inject = (key: string) => {
+// biome-ignore lint/suspicious/noExplicitAny: Literally any
+export const inject = <T = any>(key: string): T | undefined => {
     return _map.get(key);
 }

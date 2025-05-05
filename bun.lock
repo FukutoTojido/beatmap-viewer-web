@@ -8,6 +8,7 @@
         "@pixi/layout": "^3.0.2",
         "@tailwindcss/vite": "^4.1.4",
         "@tweenjs/tween.js": "^25.0.0",
+        "@zip.js/zip.js": "^2.7.60",
         "axios": "^1.9.0",
         "bezier-easing": "^2.1.0",
         "osu-classes": "^3.1.0",
@@ -173,6 +174,8 @@
     "@webgpu/types": ["@webgpu/types@0.1.60", "", {}, "sha512-8B/tdfRFKdrnejqmvq95ogp8tf52oZ51p3f4QD5m5Paey/qlX4Rhhy5Y8tgFMi7Ms70HzcMMw3EQjH/jdhTwlA=="],
 
     "@xmldom/xmldom": ["@xmldom/xmldom@0.8.10", "", {}, "sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw=="],
+
+    "@zip.js/zip.js": ["@zip.js/zip.js@2.7.60", "", {}, "sha512-vA3rLyqdxBrVo1FWSsbyoecaqWTV+vgPRf0QKeM7kVDG0r+lHUqd7zQDv1TO9k4BcAoNzNDSNrrel24Mk6addA=="],
 
     "asynckit": ["asynckit@0.4.0", "", {}, "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q=="],
 

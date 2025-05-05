@@ -7,6 +7,7 @@ export default class Metadata {
 			aspectRatio: 1,
 			height: "100%",
             backgroundColor: 0x181825,
+			flexShrink: 0
 		},
 	});
 }

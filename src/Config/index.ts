@@ -1,3 +1,4 @@
+import { provide } from "../Context";
 import MirrorConfig from "./MirrorConfig";
 import RendererConfig from "./RendererConfig";
 
@@ -6,7 +7,7 @@ export default class Config {
     mirror: MirrorConfig;
 
     constructor() {
-        this.renderer = new RendererConfig();
-        this.mirror = new MirrorConfig();
+        this.renderer = provide("config/renderer", new RendererConfig());
+        this.mirror = provide("config/mirror", new MirrorConfig());
     }
 }

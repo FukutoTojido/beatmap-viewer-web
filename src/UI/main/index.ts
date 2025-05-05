@@ -13,13 +13,15 @@ export default class Main {
 			flexDirection: "column",
 			gap: 10,
 			overflow: "hidden",
+			borderColor: { r: 0, g: 0, b: 0, a: 0 },
+			borderWidth: 1,
 		},
 	});
 
 	constructor() {
 		const controls = provide("ui/main/controls", new Controls());
-        const viewer = provide("ui/main/viewer", new Viewer());
+		const viewer = provide("ui/main/viewer", new Viewer());
 
-        this.container.addChild(viewer.container, controls.container);
+		this.container.addChild(viewer.container, controls.container);
 	}
 }

@@ -15,9 +15,9 @@ export default class State {
 	}
 
 	toggleSidebar() {
-		const game: Game = inject("game");
-		const app: Application = inject("ui/app");
-		const sidepanel: SidePanel = inject("ui/sidepanel");
+		const game = inject<Game>("game");
+		const app = inject<Application>("ui/app");
+		const sidepanel = inject<SidePanel>("ui/sidepanel");
 
 		if (!game || !sidepanel || !app) return;
 

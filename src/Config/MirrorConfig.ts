@@ -2,7 +2,7 @@ import ConfigSection from "./ConfigSection";
 
 export type Mirror = {
 	name: string;
-	url: string;
+	urlTemplate: string;
 };
 type MirrorConfigEvents = "mirror";
 
@@ -16,13 +16,13 @@ export default class MirrorConfig extends ConfigSection {
 		const { mirror } = defaultOptions;
 		this._mirror = mirror ?? {
 			name: "Nerinyan",
-			url: "https://api.nerinyan.moe/d/$setId",
+			urlTemplate: "https://api.nerinyan.moe/d/$setId",
 		};
 	}
 
 	private _mirror = {
 		name: "Nerinyan",
-		url: "https://api.nerinyan.moe/d/$setId",
+		urlTemplate: "https://api.nerinyan.moe/d/$setId?server=auto",
 	};
     get mirror() {
         return this._mirror;

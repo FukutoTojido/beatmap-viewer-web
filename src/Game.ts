@@ -9,6 +9,7 @@ import { frameData } from "./FPSSystem";
 import SidePanel from "./UI/sidepanel";
 import Main from "./UI/main";
 import { inject, provide } from "./Context";
+import Config from "./Config";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -17,6 +18,10 @@ export class Game {
 	app?: Application;
 	state = new State();
 	animationController = new AnimationController();
+
+	constructor() {
+		provide("config", new Config())
+	}
 
 	async initApplication() {
 		RenderTarget.defaultOptions.depth = true;
@@ -30,6 +35,7 @@ export class Game {
 			useBackBuffer: true,
 			clearBeforeRender: true,
 			depth: true,
+			autoDensity: true,
 		});
 		app.stage.layout = {
 			width: app.screen.width,
@@ -54,7 +60,7 @@ export class Game {
 	}
 
 	private resize() {
-		const app: Application = inject("ui/app");
+		const app = inject<Application>("ui/app");
 		if (!app) return;
 
 		const width = app.canvas.width;

@@ -29,6 +29,7 @@ export default class SidePanel {
 			borderRadius: 20,
 			flexDirection: "column",
 			justifyContent: "flex-start",
+			boxSizing: "border-box",
 			overflow: "hidden",
 			padding: 20,
 			gap: 20,
