@@ -1,10 +1,12 @@
+import type { Application } from "pixi.js";
+import { inject } from "./Context";
 import type { Game } from "./Game";
+import type SidePanel from "./UI/sidepanel";
 
 type SidebarState = "OPENED" | "CLOSED";
 
 export default class State {
 	sidebar: SidebarState = "OPENED";
-	game?: Game;
 
 	constructor() {
 		document
@@ -12,52 +14,45 @@ export default class State {
 			?.addEventListener("click", () => this.toggleSidebar());
 	}
 
-	setGame(game: Game) {
-		this.game = game;
-	}
-
 	toggleSidebar() {
-		if (!this.game || !this.game.s) return;
+		const game: Game = inject("game");
+		const app: Application = inject("ui/app");
+		const sidepanel: SidePanel = inject("ui/sidepanel");
+
+		if (!game || !sidepanel || !app) return;
+
 		const ANIMATION_DURATION = 200;
 
 		switch (this.sidebar) {
 			case "OPENED": {
 				this.sidebar = "CLOSED";
-				this.game.animationController.addAnimation("gap", 10, 0, (val) => {
-					if (!this.game?.app) return;
-					this.game.app.stage.layout = { gap: val }
+				game.animationController.addAnimation("gap", 10, 0, (val) => {
+					app.stage.layout = { gap: val }
 				}, ANIMATION_DURATION);
-				this.game.s?.triggerAnimation("width", 400, 0, (val) => {
-					if (!this.game?.s) return;
-					this.game.s.layout = { width: val };
+				sidepanel.container.triggerAnimation("width", sidepanel.container.layout?.computedLayout.width ?? 400, 0, (val) => {
+					sidepanel.container.layout = { width: val };
 				}, ANIMATION_DURATION);
-				this.game.s?.triggerAnimation("padding", 20, 0, (val) => {
-					if (!this.game?.s) return;
-					this.game.s.layout = { paddingInline: val };
+				sidepanel.container.triggerAnimation("padding", 20, 0, (val) => {
+					sidepanel.container.layout = { paddingInline: val };
 				}, ANIMATION_DURATION);
-				this.game.s?.triggerAnimation("opacity", 1, 0, (val) => {
-					if (!this.game?.s) return;
-					this.game.s.alphaFilter.alpha = val;
+				sidepanel.container.triggerAnimation("opacity", sidepanel.container.alphaFilter.alpha, 0, (val) => {
+					sidepanel.container.alphaFilter.alpha = val;
 				}, ANIMATION_DURATION);
 				break;
 			}
 			case "CLOSED": {
 				this.sidebar = "OPENED";
-				this.game.animationController.addAnimation("gap", 0, 10, (val) => {
-					if (!this.game?.app) return;
-					this.game.app.stage.layout = { gap: val }
+				game.animationController.addAnimation("gap", 0, 10, (val) => {
+					app.stage.layout = { gap: val }
 				}, ANIMATION_DURATION);
-				this.game.s?.triggerAnimation("width", 0, 400, (val) => {
-					if (!this.game?.s) return;
-					this.game.s.layout = { width: val };
+				sidepanel.container.triggerAnimation("width", sidepanel.container.layout?.computedLayout.width ?? 0, 400, (val) => {
+					sidepanel.container.layout = { width: val };
 				}, ANIMATION_DURATION);
-				this.game.s?.triggerAnimation("padding", 0, 20, (val) => {
-					if (!this.game?.s) return;
-					this.game.s.layout = { paddingInline: val };
+				sidepanel.container.triggerAnimation("padding", 0, 20, (val) => {
+					sidepanel.container.layout = { paddingInline: val };
 				}, ANIMATION_DURATION);
-				this.game.s?.triggerAnimation("opacity", 0, 1, (val) => {
-					if (!this.game?.s) return;
-					this.game.s.alphaFilter.alpha = val;
+				sidepanel.container.triggerAnimation("opacity", sidepanel.container.alphaFilter.alpha, 1, (val) => {
+					sidepanel.container.alphaFilter.alpha = val;
 				}, ANIMATION_DURATION);
 				break;
 			}

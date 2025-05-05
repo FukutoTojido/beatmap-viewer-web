@@ -1,5 +1,5 @@
 import { extensions, ExtensionType, type Renderer } from "pixi.js";
-import game from "./Game";
+import { inject } from "./Context";
 
 export const frameData = {
     fps: 0,
@@ -65,6 +65,7 @@ export class FPSSystem {
             }, 0) /
             ((1 / this._msQueue.length + 1) * (this._msQueue.length / 2));
 
+        const game = inject("game");
         game.update();
     }
 }
