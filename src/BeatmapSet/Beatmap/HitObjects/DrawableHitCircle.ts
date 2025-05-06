@@ -1,17 +1,17 @@
-import { StandardBeatmap, type Circle } from "osu-standard-stable";
+import { StandardBeatmap, type StandardHitObject, type Circle } from "osu-standard-stable";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
-import type { Context } from "/src/Context";
+import type { Context } from "../../../Context";
 
 export default class DrawableHitCircle extends DrawableHitObject {
 	container = new Graphics();
 
-	constructor(private hitCircle: Circle) {
+	constructor(private hitCircle: StandardHitObject) {
 		super();
 		this.container.visible = false;
 		this.container.x = hitCircle.startX;
 		this.container.y = hitCircle.startY;
-		this.container.circle(0, 0, hitCircle.radius * 0.8).fill(0x585b70).stroke({
+		this.container.circle(0, 0, hitCircle.radius * 0.8 * (236 / 256)).fill(0x585b70).stroke({
 			alignment: 0,
 			color: 0xcdd6f4,
 			width: 2,

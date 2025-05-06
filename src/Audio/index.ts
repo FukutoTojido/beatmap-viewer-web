@@ -77,7 +77,7 @@ export default class Audio {
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.1;
+		this.localGainNode.gain.value = 0.3;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {

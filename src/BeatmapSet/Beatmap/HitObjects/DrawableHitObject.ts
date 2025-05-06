@@ -1,5 +1,5 @@
 import type { Container } from "pixi.js";
-import { ScopedClass } from "/src/Context";
+import { ScopedClass } from "../../../Context";
 
 export default abstract class DrawableHitObject extends ScopedClass {
     abstract container: Container;

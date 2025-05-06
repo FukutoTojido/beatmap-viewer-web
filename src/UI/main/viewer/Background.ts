@@ -23,7 +23,7 @@ export default class Background {
 			objectPosition: "center",
 			objectFit: "cover",
 		},
-        alpha: 0.5
+        alpha: 0.3
 	});
 
 	constructor() {

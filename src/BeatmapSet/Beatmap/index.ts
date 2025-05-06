@@ -1,15 +1,15 @@
 import { BeatmapDecoder } from "osu-parsers";
 import { type StandardBeatmap, StandardRuleset } from "osu-standard-stable";
-import { inject, ScopedClass } from "/src/Context";
+import { inject, ScopedClass } from "../../Context";
 import type { Beatmap as BeatmapData } from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
-import Audio from "/src/Audio";
+import Audio from "../../Audio";
 import type { Resource } from "..";
 import { Assets, type Container } from "pixi.js";
-import type Background from "/src/UI/main/viewer/Background";
+import type Background from "../../UI/main/viewer/Background";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
