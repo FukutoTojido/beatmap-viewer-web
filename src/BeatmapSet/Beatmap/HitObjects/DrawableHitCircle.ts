@@ -6,29 +6,36 @@ import type { Context } from "../../../Context";
 export default class DrawableHitCircle extends DrawableHitObject {
 	container = new Graphics();
 
-	constructor(private hitCircle: StandardHitObject) {
-		super();
+	constructor(public object: StandardHitObject) {
+		super(object);
 		this.container.visible = false;
-		this.container.x = hitCircle.startX;
-		this.container.y = hitCircle.startY;
-		this.container.circle(0, 0, hitCircle.radius * 0.8 * (236 / 256)).fill(0x585b70).stroke({
-			alignment: 0,
+		this.container.x = object.startX;
+		this.container.y = object.startY;
+		this.container.circle(0, 0, object.radius * 0.8 * (236 / 256)).fill(0x585b70).stroke({
+			alignment: 0.5,
 			color: 0xcdd6f4,
-			width: 2,
+			width: object.radius * 0.8 * (236 / 256) * 0.128,
 		});
+	}
+
+	getTimeRange(): { start: number; end: number; } {
+		return {
+			start: this.object.startTime - this.object.timePreempt,
+			end: this.object.startTime + 800
+		}
 	}
 
 	update(time: number) {
 		const startFadeInTime =
-			this.hitCircle.startTime - this.hitCircle.timePreempt;
+			this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
-		this.container.x = this.hitCircle.startX + this.hitCircle.stackedOffset.x;
-		this.container.y = this.hitCircle.startY + this.hitCircle.stackedOffset.y;
+		this.container.x = this.object.startX + this.object.stackedOffset.x;
+		this.container.y = this.object.startY + this.object.stackedOffset.y;
 
 		if (
 			time < startFadeInTime ||
-			time > this.hitCircle.startTime + fadeOutDuration
+			time > this.object.startTime + fadeOutDuration
 		) {
 			this.container.visible = false;
 			return;
@@ -37,26 +44,26 @@ export default class DrawableHitCircle extends DrawableHitObject {
 		this.container.visible = true;
 		this.container.scale.set(1);
 
-		if (time < this.hitCircle.startTime) {
+		if (time < this.object.startTime) {
 			const opacity = Math.min(
 				1,
-				Math.max(0, (time - startFadeInTime) / this.hitCircle.timeFadeIn),
+				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
 			);
 			this.container.alpha = opacity;
 
 			return;
 		}
 
-		if (time >= this.hitCircle.startTime) {
+		if (time >= this.object.startTime) {
 			const opacity =
 				1 -
 				Math.min(
 					1,
-					Math.max(0, (time - this.hitCircle.startTime) / fadeOutDuration),
+					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
 				);
 			const scale = Math.min(
 				2,
-				1 + Math.max(0, (time - this.hitCircle.startTime) / fadeOutDuration),
+				1 + Math.max(0, (time - this.object.startTime) / fadeOutDuration),
 			);
 
 			this.container.alpha = opacity;

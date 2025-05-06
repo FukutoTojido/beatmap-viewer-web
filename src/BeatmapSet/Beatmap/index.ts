@@ -21,6 +21,7 @@ export default class Beatmap extends ScopedClass {
 	audio?: Audio;
 
 	private loaded = false;
+	private previousObjects = new Set<DrawableHitObject>();
 
 	constructor(private raw: string) {
 		super();
@@ -50,22 +51,21 @@ export default class Beatmap extends ScopedClass {
 
 		this.audio = new Audio(this.audioContext);
 		await this.audio.createBufferNode(audioFile.arrayBuffer);
-		this.audio.on("time", (time) => this.update(time));
+		// this.audio.on("time", (time) => this.update(time));
 
-		const objectContainer = inject<Container>(
-			"ui/main/viewer/gameplay/objectContainer",
-		);
-		const containers = this.objects
-			.toReversed()
-			.map((object) => object.container);
-		if (containers.length > 0) objectContainer?.addChild(...containers);
+		// const objectContainer = inject<Container>(
+		// 	"ui/main/viewer/gameplay/objectContainer",
+		// );
+		// const containers = this.objects
+		// 	.toReversed()
+		// 	.map((object) => object.container);
+		// if (containers.length > 0) objectContainer?.addChild(...containers);
 
 		const background = inject<Background>("ui/main/viewer/background");
 		const backgroundResource = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(this.data.events.backgroundPath ?? "");
 
-        console.log(backgroundResource);
 		if (backgroundResource?.blob) {
 			const url = URL.createObjectURL(backgroundResource.blob);
 			background?.updateTexture(
@@ -74,12 +74,84 @@ export default class Beatmap extends ScopedClass {
 		}
 
 		this.loaded = true;
+		requestAnimationFrame(() => this.frame());
+	}
+
+	private frame() {
+		this.update(this.audio?.currentTime ?? 0);
+		requestAnimationFrame(() => this.frame());
+	}
+
+	private inRange(val: number, start: number, end: number) {
+		if (start <= val && val <= end) return 0;
+		if (val > end) return 1;
+		if (val < start) return -1;
+		return -1;
+	}
+
+	private binarySearchNearestIndex(time: number) {
+		let start = 0;
+		let end = this.objects.length - 1;
+
+		while (end >= start) {
+			const mid = start + Math.floor((end - start) / 2);
+			const { start: midStart, end: midEnd } = this.objects[mid].getTimeRange();
+			const isInTimeRange = this.inRange(time, midStart, midEnd);
+
+			if (isInTimeRange === 0) return mid;
+			if (isInTimeRange === 1) {
+				start = mid + 1;
+				continue;
+			}
+			if (isInTimeRange === -1) {
+				end = mid - 1;
+			}
+		}
+
+		return -1;
+	}
+
+	private searchObjects(time: number) {
+		const idx = this.binarySearchNearestIndex(time);
+		if (idx === -1) return new Set<DrawableHitObject>();
+
+		const objects = new Set<DrawableHitObject>();
+		objects.add(this.objects[idx]);
+
+		let start = idx - 1;
+		while (start >= 0 && this.inRange(time, this.objects[start].getTimeRange().start, this.objects[start].getTimeRange().end) === 0) {
+			objects.add(this.objects[start]);
+			start--;
+		}
+
+		let end = idx + 1;
+		while (end <= this.objects.length - 1 && this.inRange(time, this.objects[end].getTimeRange().start, this.objects[end].getTimeRange().end) === 0) {
+			objects.add(this.objects[end]);
+			end++;
+		}
+
+		return objects;
 	}
 
 	update(time: number) {
 		if (!this.loaded)
 			throw new Error("Cannot update a beatmap that hasn't been initialized");
 
-		for (const object of this.objects) object.update(time);
+		const objectContainer = inject<Container>(
+			"ui/main/viewer/gameplay/objectContainer",
+		);
+
+		const objects = this.searchObjects(time);
+		const disposedObjects = this.previousObjects.difference(objects);
+		this.previousObjects = objects;
+
+		for (const object of disposedObjects) {
+			objectContainer?.removeChild(object.container);
+		}
+
+		for (const object of Array.from(objects).sort((a, b) => -a.object.startTime + b.object.startTime)) {
+			objectContainer?.addChild(object.container);
+			object.update(time);
+		}
 	}
 }

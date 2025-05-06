@@ -66,18 +66,18 @@ export default class DrawableSlider extends DrawableHitObject {
 
 	container = new Container();
 
-	constructor(private slider: Slider) {
-		super();
+	constructor(public object: Slider) {
+		super(object);
 
 		this.drawableCircles.push(
-			...this.slider.nestedHitObjects
+			...object.nestedHitObjects
 				.filter((object) => object instanceof StandardHitObject)
 				.map((object) => new DrawableHitCircle(object)),
 		);
 
 		this.body.state.depthTest = true;
-		this.body.x = slider.startPosition.x;
-		this.body.y = slider.startPosition.y;
+		this.body.x = object.startPosition.x + object.stackedOffset.x;
+		this.body.y = object.startPosition.y + object.stackedOffset.x;
 		this.container.visible = false;
 
 		this.container.addChild(
@@ -86,15 +86,25 @@ export default class DrawableSlider extends DrawableHitObject {
 		);
 	}
 
+	getTimeRange(): { start: number; end: number; } {
+		return {
+			start: this.object.startTime - this.object.timePreempt,
+			end: this.object.endTime + 800
+		}
+	}
+
+	private cacheHead = -1;
+	private cacheTail = -1;
+
 	updateGeometry(progressHead = 0, progressTail = 1) {
 		const path = calculateSliderProgress(
-			this.slider.path,
+			this.object.path,
 			progressHead,
 			progressTail,
 		);
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
-			this.slider.radius * 0.8,
+			this.object.radius * 0.8,
 		);
 
 		this._geometry.attributes.aPosition.buffer.data = new Float32Array(
@@ -104,11 +114,11 @@ export default class DrawableSlider extends DrawableHitObject {
 	}
 
 	private spanAt(progress: number) {
-		return Math.floor(progress * this.slider.spans);
+		return Math.floor(progress * this.object.spans);
 	}
 
 	private progressAt(progress: number) {
-		const p = (progress * this.slider.spans) % 1;
+		const p = (progress * this.object.spans) % 1;
 		if (this.spanAt(progress) % 2 === 1) return 1 - p;
 		return p;
 	}
@@ -116,12 +126,12 @@ export default class DrawableSlider extends DrawableHitObject {
 	update(time: number) {
 		for (const circle of this.drawableCircles) circle.update(time);
 
-		const startFadeInTime = this.slider.startTime - this.slider.timePreempt;
+		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
 		if (
 			time < startFadeInTime ||
-			time > this.slider.endTime + fadeOutDuration
+			time > this.object.endTime + fadeOutDuration
 		) {
 			this.container.visible = false;
 			return;
@@ -131,7 +141,7 @@ export default class DrawableSlider extends DrawableHitObject {
 
 		const completionProgress = Math.min(
 			1,
-			Math.max(0, (time - this.slider.startTime) / this.slider.duration),
+			Math.max(0, (time - this.object.startTime) / this.object.duration),
 		);
 		const span = this.spanAt(completionProgress);
 		const spanProgress = this.progressAt(completionProgress);
@@ -141,13 +151,13 @@ export default class DrawableSlider extends DrawableHitObject {
 			1,
 			Math.max(
 				0,
-				(time - (this.slider.startTime - this.slider.timePreempt)) /
-					(this.slider.timePreempt / 3),
+				(time - (this.object.startTime - this.object.timePreempt)) /
+					(this.object.timePreempt / 3),
 			),
 		);
 
-		if (span >= this.slider.spans - 1) {
-			if (Math.min(span, this.slider.spans - 1) % 2 === 1) {
+		if (span >= this.object.spans - 1) {
+			if (Math.min(span, this.object.spans - 1) % 2 === 1) {
 				start = 0;
 				end = spanProgress;
 			} else {
@@ -156,26 +166,26 @@ export default class DrawableSlider extends DrawableHitObject {
 		}
 		this.updateGeometry(start, end);
 
-		if (time < this.slider.startTime) {
+		if (time < this.object.startTime) {
 			const opacity = Math.min(
 				1,
-				Math.max(0, (time - startFadeInTime) / this.slider.timeFadeIn),
+				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
 			);
 			this._alphaFilter.alpha = opacity;
 			return;
 		}
 
-		if (time >= this.slider.startTime && time < this.slider.endTime) {
+		if (time >= this.object.startTime && time < this.object.endTime) {
 			this._alphaFilter.alpha = 1;
 			return;
 		}
 
-		if (time >= this.slider.endTime) {
+		if (time >= this.object.endTime) {
 			const opacity =
 				1 -
 				Math.min(
 					1,
-					Math.max(0, (time - this.slider.endTime) / fadeOutDuration),
+					Math.max(0, (time - this.object.endTime) / fadeOutDuration),
 				);
 			this._alphaFilter.alpha = opacity;
 			return;

@@ -19,12 +19,12 @@ export default class Audio {
 
 	constructor(private audioContext: AudioContext) {
 		this.localGainNode = audioContext.createGain();
-        setInterval(() => {
-            if (!this.audioBuffer) return;
-            if (this.state === "STOPPED") return;
+        // setInterval(() => {
+        //     if (!this.audioBuffer) return;
+        //     if (this.state === "STOPPED") return;
 
-            this.emit("time");
-        }, 0);
+        //     this.emit("time");
+        // }, 0);
 	}
 
 	get currentTime() {
@@ -77,7 +77,7 @@ export default class Audio {
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.3;
+		this.localGainNode.gain.value = 0.5;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {

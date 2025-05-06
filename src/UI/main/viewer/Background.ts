@@ -32,5 +32,8 @@ export default class Background {
 
 	updateTexture(texture: Texture) {
 		this.sprite.texture = texture;
+
+		this.container.removeChild(this.sprite);
+		this.container.addChild(this.sprite);
 	}
 }
