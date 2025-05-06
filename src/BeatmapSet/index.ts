@@ -1,23 +1,21 @@
 import { BlobReader, BlobWriter, ZipReader, type Entry } from "@zip.js/zip.js";
-import type { Beatmap } from "osu-classes";
-import { BeatmapDecoder } from "osu-parsers";
+import Beatmap from "./Beatmap";
+import { ScopedClass } from "../Context";
 
-const beatmapDecoder = new BeatmapDecoder();
+export type Resource = {
+	blob?: Blob;
+	arrayBuffer?: ArrayBuffer;
+};
 
-export default class BeatmapSet {
+export default class BeatmapSet extends ScopedClass {
 	private _isInit = false;
 	private _entries?: Entry[];
 
 	difficulties: Beatmap[] = [];
-	resources: Map<
-		string,
-		{
-			blob?: Blob;
-			arrayBuffer?: ArrayBuffer;
-		}
-	> = new Map();
 
-	constructor(private blob: Blob) {}
+	constructor(private blob: Blob) {
+		super();
+	}
 
 	async init() {
 		const blobReader = new BlobReader(this.blob);
@@ -34,16 +32,20 @@ export default class BeatmapSet {
 				(file) => file.filename.split(".").at(-1) !== "osu",
 			) ?? [];
 
+		const resources: Map<string, Resource> = new Map();
+
 		for (const file of mediaFiles) {
 			const writer = new BlobWriter();
 
 			const blob = await file.getData?.(writer);
 			const arrayBuffer = await blob?.arrayBuffer();
-			this.resources.set(file.filename, {
+			resources.set(file.filename, {
 				blob,
 				arrayBuffer,
 			});
 		}
+
+		this.context.provide("resources", resources);
 	}
 
 	async getDifficulties() {
@@ -61,7 +63,7 @@ export default class BeatmapSet {
 					const rawString = await blob?.text();
 
 					if (!rawString) return null;
-					return beatmapDecoder.decodeFromString(rawString);
+					return new Beatmap(rawString).hook(this.context);
 				}),
 			)
 		).filter((beatmap) => beatmap !== null);
