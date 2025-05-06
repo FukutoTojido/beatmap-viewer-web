@@ -32,8 +32,5 @@ export default class Background {
 
 	updateTexture(texture: Texture) {
 		this.sprite.texture = texture;
-        this.sprite.layout = {
-            width: "100%"
-        }
 	}
 }

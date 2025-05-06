@@ -1,8 +1,7 @@
-import Audio from "./Audio";
 import BeatmapSet from "./BeatmapSet";
 import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
 
-const ID = "4840379";
+const ID = new URLSearchParams(window.location.search).get("b") ?? "1307291";
 
 const blob = await getBeatmapFromId(ID);
 console.log("Download Completed!");
