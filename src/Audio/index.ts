@@ -1,4 +1,6 @@
 import type { BitmapText } from "pixi.js";
+// @ts-ignore
+import { getFileAudioBuffer } from '@soundcut/decode-audio-data-fast';
 import { inject } from "../Context";
 
 type AudioEvent = "time";
@@ -54,8 +56,8 @@ export default class Audio {
 		this.play();
 	}
 
-	async createBufferNode(buffer: ArrayBuffer) {
-		this.audioBuffer = await this.audioContext.decodeAudioData(buffer);
+	async createBufferNode(blob: Blob) {
+		this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext);
 	}
 
 	toggle() {
@@ -77,7 +79,7 @@ export default class Audio {
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.5;
+		this.localGainNode.gain.value = 0.3;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {

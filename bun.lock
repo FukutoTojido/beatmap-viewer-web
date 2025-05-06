@@ -6,6 +6,7 @@
       "dependencies": {
         "@pixi/devtools": "^2.0.1",
         "@pixi/layout": "^3.0.2",
+        "@soundcut/decode-audio-data-fast": "^2.0.1",
         "@tailwindcss/vite": "^4.1.4",
         "@tweenjs/tween.js": "^25.0.0",
         "@zip.js/zip.js": "^2.7.60",
@@ -125,6 +126,8 @@
     "@rollup/rollup-win32-ia32-msvc": ["@rollup/rollup-win32-ia32-msvc@4.40.0", "", { "os": "win32", "cpu": "ia32" }, "sha512-+m03kvI2f5syIqHXCZLPVYplP8pQch9JHyXKZ3AGMKlg8dCyr2PKHjwRLiW53LTrN/Nc3EqHOKxUxzoSPdKddA=="],
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.40.0", "", { "os": "win32", "cpu": "x64" }, "sha512-lpPE1cLfP5oPzVjKMx10pgBmKELQnFJXHgvtHCtuJWOv8MxqdEIMNtgHgBFf7Ea2/7EuVwa9fodWUfXAlXZLZQ=="],
+
+    "@soundcut/decode-audio-data-fast": ["@soundcut/decode-audio-data-fast@2.0.1", "", { "dependencies": { "mp3-parser": "^0.3.0" } }, "sha512-hijcE17lza56v2r8Fzlh1cgJLem2nODXRXkBOywV5qD4CBgdAx4tJRus0N8PWRuEqPh+PZyHVf5u2XxRCD8X9g=="],
 
     "@tailwindcss/node": ["@tailwindcss/node@4.1.4", "", { "dependencies": { "enhanced-resolve": "^5.18.1", "jiti": "^2.4.2", "lightningcss": "1.29.2", "tailwindcss": "4.1.4" } }, "sha512-MT5118zaiO6x6hNA04OWInuAiP1YISXql8Z+/Y8iisV5nuhM8VXlyhRuqc2PEviPszcXI66W44bCIk500Oolhw=="],
 
@@ -279,6 +282,8 @@
     "mime-db": ["mime-db@1.52.0", "", {}, "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="],
 
     "mime-types": ["mime-types@2.1.35", "", { "dependencies": { "mime-db": "1.52.0" } }, "sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw=="],
+
+    "mp3-parser": ["mp3-parser@0.3.0", "", {}, "sha512-gRmYQyrjkXZKQIfCpjN13SCfbBGxbY8IEPOzHAmDykSDgaSlM97PWHKg2JBz/kKKN0ATqXx6kNLTOlSoyeaI2A=="],
 
     "nanoid": ["nanoid@3.3.11", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w=="],
 

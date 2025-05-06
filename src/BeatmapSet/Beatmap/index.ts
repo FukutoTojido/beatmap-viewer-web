@@ -51,11 +51,11 @@ export default class Beatmap extends ScopedClass {
 		const audioFile = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(this.data.general.audioFilename);
-		if (!audioFile?.arrayBuffer)
+		if (!audioFile?.blob)
 			throw new Error("Cannot find audio in resource?");
 
 		this.audio = new Audio(this.audioContext);
-		await this.audio.createBufferNode(audioFile.arrayBuffer);
+		await this.audio.createBufferNode(audioFile.blob);
 		console.log(
 			`Took ${(performance.now() - start).toFixed(2)}ms to initiate audio`,
 		);
