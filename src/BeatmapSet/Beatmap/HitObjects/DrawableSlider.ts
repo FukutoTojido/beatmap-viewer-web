@@ -1,6 +1,8 @@
 import {
 	SliderHead,
+	SliderRepeat,
 	SliderTail,
+	SliderTick,
 	StandardHitObject,
 	type Slider,
 } from "osu-standard-stable";
@@ -17,14 +19,16 @@ import calculateSliderProgress from "./CalculateSliderProgress";
 import createGeometry from "./CreateSliderGeometry";
 import DrawableHitObject from "./DrawableHitObject";
 import DrawableHitCircle from "./DrawableHitCircle";
+import DrawableSliderTick from "./DrawableSliderTick";
+import DrawableSliderRepeat from "./DrawableSliderRepeat";
+import DrawableSliderTail from "./DrawableSliderTail";
+import DrawableSliderBall from "./DrawableSliderBall";
 
 const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
 // 	0.21176470588, 0.52156862745, 0.72549019607, 0,
 // ];
-const COLOR: [number, number, number, number] = [
-	0.0, 0.0, 0.0, 0,
-];
+const COLOR: [number, number, number, number] = [0.0, 0.0, 0.0, 0];
 
 export default class DrawableSlider extends DrawableHitObject {
 	private _geometry: Geometry = new Geometry({
@@ -63,6 +67,7 @@ export default class DrawableSlider extends DrawableHitObject {
 		y: 0,
 		blendMode: "none",
 	});
+	private ball: DrawableSliderBall;
 
 	container = new Container();
 
@@ -72,29 +77,40 @@ export default class DrawableSlider extends DrawableHitObject {
 		this.drawableCircles.push(
 			...object.nestedHitObjects
 				.filter((object) => object instanceof StandardHitObject)
-				.map((object) => new DrawableHitCircle(object)),
+				.map((object) => {
+					if (object instanceof SliderTick)
+						return new DrawableSliderTick(object);
+
+					if (object instanceof SliderRepeat)
+						return new DrawableSliderRepeat(object);
+
+					if (object instanceof SliderTail)
+						return new DrawableSliderTail(object);
+
+					return new DrawableHitCircle(object);
+				}),
 		);
 
 		this.body.state.depthTest = true;
 		this.body.x = object.startPosition.x + object.stackedOffset.x;
 		this.body.y = object.startPosition.y + object.stackedOffset.x;
-		this.container.visible = false;
 
+		this.ball = new DrawableSliderBall(this.object);
+
+		this.container.visible = false;
 		this.container.addChild(
 			this.body,
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
+			this.ball.container
 		);
 	}
 
-	getTimeRange(): { start: number; end: number; } {
+	getTimeRange(): { start: number; end: number } {
 		return {
 			start: this.object.startTime - this.object.timePreempt,
-			end: this.object.endTime + 800
-		}
+			end: this.object.endTime + 800,
+		};
 	}
-
-	private cacheHead = -1;
-	private cacheTail = -1;
 
 	updateGeometry(progressHead = 0, progressTail = 1) {
 		const path = calculateSliderProgress(
@@ -124,6 +140,8 @@ export default class DrawableSlider extends DrawableHitObject {
 	}
 
 	update(time: number) {
+		this.ball.update(time);
+		
 		for (const circle of this.drawableCircles) circle.update(time);
 
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;

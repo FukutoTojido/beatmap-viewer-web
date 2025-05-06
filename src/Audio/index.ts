@@ -57,7 +57,12 @@ export default class Audio {
 	}
 
 	async createBufferNode(blob: Blob) {
-		this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext);
+		try {
+			this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext);
+		} catch (e) {
+			console.warn("Cannot use fast decode for this audio. Using native instead.")
+			this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext, { native: true });
+		}
 	}
 
 	toggle() {
@@ -117,8 +122,6 @@ export default class Audio {
     private emit(eventType: AudioEvent) {
         if (!this.callbacks.get(eventType)) return;
 
-        const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
-        if (timestamp) timestamp.text = `${Math.round(this.currentTime)} ms`;
         // biome-ignore lint/style/noNonNullAssertion: Guarded
         for (const callback of this.callbacks.get(eventType)!) callback(this.currentTime);
     }

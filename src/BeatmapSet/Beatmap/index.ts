@@ -8,7 +8,7 @@ import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import Audio from "../../Audio";
 import type { Resource } from "..";
-import { Assets, type Container } from "pixi.js";
+import { Assets, BitmapText, type Container } from "pixi.js";
 import type Background from "../../UI/main/viewer/Background";
 
 const decoder = new BeatmapDecoder();
@@ -78,6 +78,10 @@ export default class Beatmap extends ScopedClass {
 
 	private frame() {
 		this.update(this.audio?.currentTime ?? 0);
+
+		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
+        if (timestamp) timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms`;
+		
 		requestAnimationFrame(() => this.frame());
 	}
 
