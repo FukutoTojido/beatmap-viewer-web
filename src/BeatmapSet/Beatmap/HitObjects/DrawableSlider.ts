@@ -23,7 +23,7 @@ const GL = { vertex, fragment };
 // 	0.21176470588, 0.52156862745, 0.72549019607, 0,
 // ];
 const COLOR: [number, number, number, number] = [
-	0.2, 0.2, 0.2, 0,
+	0.0, 0.0, 0.0, 0,
 ];
 
 export default class DrawableSlider extends DrawableHitObject {
@@ -38,8 +38,8 @@ export default class DrawableSlider extends DrawableHitObject {
 		resources: {
 			customUniforms: {
 				borderColor: { value: [1.0, 1.0, 1.0, 1.0], type: "vec4<f32>" },
-				// innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
-				innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
+				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
+				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				borderWidth: { value: 0.128, type: "f32" },
 			},
@@ -57,7 +57,7 @@ export default class DrawableSlider extends DrawableHitObject {
 		shader: this._shader,
 		filters: [
 			this._alphaFilter,
-			this._backdropBlurFilter
+			// this._backdropBlurFilter
 		],
 		x: 0,
 		y: 0,
