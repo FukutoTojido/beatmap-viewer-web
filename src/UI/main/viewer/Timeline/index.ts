@@ -6,7 +6,12 @@ export default class Timeline {
 		layout: {
 			width: "100%",
 			height: 80,
-			backgroundColor: 0x1e1e2e,
+			backgroundColor: {
+				r: 30,
+				g: 30,
+				b: 46,
+				a: 0.8,
+			},
 		},
 	});
 }

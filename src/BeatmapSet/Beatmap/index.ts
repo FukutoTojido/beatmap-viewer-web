@@ -33,6 +33,7 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	async load() {
+		let start = performance.now();
 		this.objects = this.data.hitObjects
 			.map((object) => {
 				if (object instanceof Circle)
@@ -42,7 +43,11 @@ export default class Beatmap extends ScopedClass {
 				return null;
 			})
 			.filter((object) => object !== null);
+		console.log(
+			`Took ${(performance.now() - start).toFixed(2)}ms to initiate ${this.objects.length} objects`,
+		);
 
+		start = performance.now();
 		const audioFile = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(this.data.general.audioFilename);
@@ -51,15 +56,9 @@ export default class Beatmap extends ScopedClass {
 
 		this.audio = new Audio(this.audioContext);
 		await this.audio.createBufferNode(audioFile.arrayBuffer);
-		// this.audio.on("time", (time) => this.update(time));
-
-		// const objectContainer = inject<Container>(
-		// 	"ui/main/viewer/gameplay/objectContainer",
-		// );
-		// const containers = this.objects
-		// 	.toReversed()
-		// 	.map((object) => object.container);
-		// if (containers.length > 0) objectContainer?.addChild(...containers);
+		console.log(
+			`Took ${(performance.now() - start).toFixed(2)}ms to initiate audio`,
+		);
 
 		const background = inject<Background>("ui/main/viewer/background");
 		const backgroundResource = this.context
@@ -119,13 +118,27 @@ export default class Beatmap extends ScopedClass {
 		objects.add(this.objects[idx]);
 
 		let start = idx - 1;
-		while (start >= 0 && this.inRange(time, this.objects[start].getTimeRange().start, this.objects[start].getTimeRange().end) === 0) {
+		while (
+			start >= 0 &&
+			this.inRange(
+				time,
+				this.objects[start].getTimeRange().start,
+				this.objects[start].getTimeRange().end,
+			) === 0
+		) {
 			objects.add(this.objects[start]);
 			start--;
 		}
 
 		let end = idx + 1;
-		while (end <= this.objects.length - 1 && this.inRange(time, this.objects[end].getTimeRange().start, this.objects[end].getTimeRange().end) === 0) {
+		while (
+			end <= this.objects.length - 1 &&
+			this.inRange(
+				time,
+				this.objects[end].getTimeRange().start,
+				this.objects[end].getTimeRange().end,
+			) === 0
+		) {
 			objects.add(this.objects[end]);
 			end++;
 		}
@@ -149,7 +162,9 @@ export default class Beatmap extends ScopedClass {
 			objectContainer?.removeChild(object.container);
 		}
 
-		for (const object of Array.from(objects).sort((a, b) => -a.object.startTime + b.object.startTime)) {
+		for (const object of Array.from(objects).sort(
+			(a, b) => -a.object.startTime + b.object.startTime,
+		)) {
 			objectContainer?.addChild(object.container);
 			object.update(time);
 		}
