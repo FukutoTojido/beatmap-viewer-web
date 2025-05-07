@@ -4,7 +4,7 @@ import {
 	type Circle,
 	type SliderTail,
 } from "osu-standard-stable";
-import type { HitSample as Sample } from "osu-classes";
+import type { HitSample as Sample, SamplePoint } from "osu-classes";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
@@ -49,9 +49,19 @@ export default class DrawableSliderTail extends DrawableHitObject {
 			)
 		)
 			return;
-
-		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(Math.ceil(this.object.startTime + TAIL_LENIENCY));
-		this.hitSound?.play(currentSamplePoint);
+			const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
+				Math.ceil(this.object.startTime + TAIL_LENIENCY),
+			);
+	
+			const potentialFutureSamplePoint = beatmap.data.controlPoints.samplePointAt(
+				Math.ceil(this.object.startTime + TAIL_LENIENCY + 1),
+			);
+	
+			let samplePoint: SamplePoint = currentSamplePoint;
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			if (potentialFutureSamplePoint.group!.startTime - (this.object.startTime + TAIL_LENIENCY) < 2) samplePoint = potentialFutureSamplePoint;
+	
+			this.hitSound?.play(samplePoint);
 	}
 
 	update(time: number) {

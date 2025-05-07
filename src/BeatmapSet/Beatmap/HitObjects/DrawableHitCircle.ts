@@ -56,8 +56,19 @@ export default class DrawableHitCircle
 		)
 			return;
 
-		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(this.object.startTime);
-		this.hitSound?.play(currentSamplePoint);
+			const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
+				Math.ceil(this.object.startTime),
+			);
+	
+			const potentialFutureSamplePoint = beatmap.data.controlPoints.samplePointAt(
+				Math.ceil(this.object.startTime + 1),
+			);
+	
+			let samplePoint: SamplePoint = currentSamplePoint;
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			if (potentialFutureSamplePoint.group!.startTime - this.object.startTime < 2) samplePoint = potentialFutureSamplePoint;
+	
+			this.hitSound?.play(samplePoint);
 	}
 
 	getTimeRange(): { start: number; end: number } {

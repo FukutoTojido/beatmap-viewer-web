@@ -3,7 +3,7 @@ import {
 	type StandardHitObject,
 	type Circle,
 } from "osu-standard-stable";
-import type { HitSample as Sample } from "osu-classes";
+import type { HitSample as Sample, SamplePoint } from "osu-classes";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
@@ -42,7 +42,16 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
 			Math.ceil(this.object.startTime),
 		);
-		this.hitSound?.play(currentSamplePoint);
+
+        const potentialFutureSamplePoint = beatmap.data.controlPoints.samplePointAt(
+			Math.ceil(this.object.startTime + 1),
+		);
+
+        let samplePoint: SamplePoint = currentSamplePoint;
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        if (potentialFutureSamplePoint.group!.startTime - this.object.startTime < 2) samplePoint = potentialFutureSamplePoint;
+
+		this.hitSound?.play(samplePoint);
 	}
 
 	getTimeRange(): { start: number; end: number } {
