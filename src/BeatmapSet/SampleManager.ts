@@ -122,8 +122,8 @@ export default class SampleManager {
 	}
 
 	get(sampleSet: string, hitSound: string, idx: number) {
-		const key = `${sampleSet}-hit${hitSound}${idx}`;
-		const fallbackKey = `${sampleSet}-hit${hitSound}`;
+		const key = `${sampleSet}-${hitSound}${idx}`;
+		const fallbackKey = `${sampleSet}-${hitSound}`;
 
 		if (idx === 0) return this.defaultMap.get(fallbackKey);
 		return this.map.get(key) ?? this.defaultMap.get(fallbackKey);

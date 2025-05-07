@@ -4,18 +4,25 @@ import {
 	type Circle,
 } from "osu-standard-stable";
 import { Container, Graphics } from "pixi.js";
-import DrawableHitObject, { type IHasApproachCircle } from "./DrawableHitObject";
-import type { Context } from "../../../Context";
+import DrawableHitObject, {
+	type IHasApproachCircle,
+} from "./DrawableHitObject";
 import DrawableApproachCircle from "./DrawableApproachCircle";
 import HitSample from "../../../Audio/HitSample";
+import type { SamplePoint } from "osu-classes";
 import type Beatmap from "..";
 
-export default class DrawableHitCircle extends DrawableHitObject implements IHasApproachCircle {
+export default class DrawableHitCircle
+	extends DrawableHitObject
+	implements IHasApproachCircle
+{
 	container = new Container();
 	sprite = new Graphics();
 
 	approachCircle: DrawableApproachCircle;
 	hitSound?: HitSample;
+
+	samplePoint?: SamplePoint;
 
 	constructor(public object: StandardHitObject) {
 		super(object);
@@ -35,7 +42,7 @@ export default class DrawableHitCircle extends DrawableHitObject implements IHas
 		this.approachCircle = new DrawableApproachCircle(object);
 
 		this.container.addChild(this.sprite, this.approachCircle.container);
-		this.hitSound = new HitSample().hook(this.context);
+		this.hitSound = new HitSample(object.samples).hook(this.context);
 	}
 
 	playHitSound(time: number): void {
@@ -49,7 +56,8 @@ export default class DrawableHitCircle extends DrawableHitObject implements IHas
 		)
 			return;
 
-		this.hitSound?.play();
+		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(this.object.startTime);
+		this.hitSound?.play(currentSamplePoint);
 	}
 
 	getTimeRange(): { start: number; end: number } {

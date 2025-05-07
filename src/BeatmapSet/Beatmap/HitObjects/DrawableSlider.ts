@@ -88,21 +88,25 @@ export default class DrawableSlider
 	constructor(public object: Slider) {
 		super(object);
 
+		let idx = -1;
 		this.drawableCircles.push(
 			...object.nestedHitObjects
 				.filter((object) => object instanceof StandardHitObject)
 				.map((object) => {
-					if (object instanceof SliderTick)
-						return new DrawableSliderTick(object).hook(this.context);
+					if (object instanceof SliderTick) 
+						// biome-ignore lint/style/noNonNullAssertion: <explanation>
+						return new DrawableSliderTick(object, this.object.samples.find(sample => sample.hitSound === "Normal")!).hook(this.context);
+
+					idx++;
 
 					if (object instanceof SliderRepeat)
-						return new DrawableSliderRepeat(object).hook(this.context);
+						return new DrawableSliderRepeat(object, this.object.nodeSamples[idx]).hook(this.context);
 
 					if (object instanceof SliderTail)
-						return new DrawableSliderTail(object).hook(this.context);
+						return new DrawableSliderTail(object, this.object.nodeSamples[idx]).hook(this.context);
 
 					if (object instanceof SliderHead)
-						return new DrawableSliderHead(object).hook(this.context);
+						return new DrawableSliderHead(object, this.object.nodeSamples[idx]).hook(this.context);
 
 					return null;
 				})

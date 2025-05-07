@@ -4,6 +4,7 @@ import {
 	type Circle,
 	type SliderTail,
 } from "osu-standard-stable";
+import type { HitSample as Sample } from "osu-classes";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
@@ -15,7 +16,7 @@ export default class DrawableSliderTail extends DrawableHitObject {
 	container = new Graphics();
 	hitSound?: HitSample;
 
-	constructor(public object: SliderTail) {
+	constructor(public object: SliderTail, samples: Sample[]) {
 		super(object);
 		this.container.visible = false;
 		this.container.x = object.startX;
@@ -28,7 +29,7 @@ export default class DrawableSliderTail extends DrawableHitObject {
 				color: 0xcdd6f4,
 				width: object.radius * 0.8 * (236 / 256) * 0.128,
 			});
-		this.hitSound = new HitSample().hook(this.context);
+		this.hitSound = new HitSample(samples).hook(this.context);
 	}
 
 	getTimeRange(): { start: number; end: number } {
@@ -49,7 +50,8 @@ export default class DrawableSliderTail extends DrawableHitObject {
 		)
 			return;
 
-		this.hitSound?.play();
+		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(this.object.startTime + TAIL_LENIENCY);
+		this.hitSound?.play(currentSamplePoint);
 	}
 
 	update(time: number) {

@@ -1,12 +1,24 @@
-import { StandardBeatmap, type StandardHitObject, type Circle } from "osu-standard-stable";
+import {
+	StandardBeatmap,
+	type StandardHitObject,
+	type Circle,
+	type SliderTick,
+} from "osu-standard-stable";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
+import type { HitSample as Sample } from "osu-classes";
+import HitSample from "../../../Audio/HitSample";
+import type Beatmap from "..";
 
 export default class DrawableSliderTick extends DrawableHitObject {
 	container = new Graphics();
+	hitSound?: HitSample;
 
-	constructor(public object: StandardHitObject) {
+	constructor(
+		public object: SliderTick,
+		sample: Sample,
+	) {
 		super(object);
 		this.container.visible = false;
 		this.container.x = object.startX;
@@ -16,22 +28,39 @@ export default class DrawableSliderTick extends DrawableHitObject {
 			color: 0xcdd6f4,
 			width: 2,
 		});
+
+		const clonedSample = sample.clone()
+		clonedSample.hitSound = "slidertick";
+		this.hitSound = new HitSample([clonedSample]).hook(this.context);
 	}
 
-	playHitSound(): void {
-		
+	playHitSound(time: number): void {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (!beatmap) return;
+		if (
+			!(
+				beatmap.previousTime <= this.object.startTime &&
+				this.object.startTime < time
+			)
+		)
+			return;
+
+		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
+			this.object.startTime,
+		);
+		this.hitSound?.play(currentSamplePoint);
 	}
 
-	getTimeRange(): { start: number; end: number; } {
+	getTimeRange(): { start: number; end: number } {
 		return {
 			start: this.object.startTime - this.object.timePreempt,
-			end: this.object.startTime + 800
-		}
+			end: this.object.startTime + 800,
+		};
 	}
 
 	update(time: number) {
-		const startFadeInTime =
-			this.object.startTime - this.object.timePreempt;
+		this.playHitSound(time);
+		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
 		this.container.x = this.object.startX + this.object.stackedOffset.x;

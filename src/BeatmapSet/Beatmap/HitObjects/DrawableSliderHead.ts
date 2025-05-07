@@ -4,6 +4,7 @@ import {
 	type Circle,
 	type SliderHead,
 } from "osu-standard-stable";
+import type { HitSample as Sample } from "osu-classes";
 import { Container, Graphics } from "pixi.js";
 import DrawableHitObject, { type IHasApproachCircle } from "./DrawableHitObject";
 import type { Context } from "../../../Context";
@@ -18,7 +19,7 @@ export default class DrawableSliderHead extends DrawableHitObject implements IHa
 	approachCircle: DrawableApproachCircle;
 	hitSound?: HitSample;
 
-	constructor(public object: SliderHead) {
+	constructor(public object: SliderHead, samples: Sample[]) {
 		super(object);
 		this.container.visible = false;
 		this.container.x = object.startX + object.stackedOffset.x;
@@ -36,7 +37,7 @@ export default class DrawableSliderHead extends DrawableHitObject implements IHa
 		this.approachCircle = new DrawableApproachCircle(object);
 
 		this.container.addChild(this.sprite, this.approachCircle.container);
-		this.hitSound = new HitSample().hook(this.context);
+		this.hitSound = new HitSample(samples).hook(this.context);
 	}
 
 	playHitSound(time: number): void {
@@ -50,7 +51,8 @@ export default class DrawableSliderHead extends DrawableHitObject implements IHa
 		)
 			return;
 
-		this.hitSound?.play();
+		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(this.object.startTime);
+		this.hitSound?.play(currentSamplePoint);
 	}
 
 	getTimeRange(): { start: number; end: number } {
