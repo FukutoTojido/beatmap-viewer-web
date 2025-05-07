@@ -46,7 +46,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 			return;
 
 		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
-			Math.round(this.object.startTime),
+			Math.ceil(this.object.startTime),
 		);
 		this.hitSound?.play(currentSamplePoint);
 	}
