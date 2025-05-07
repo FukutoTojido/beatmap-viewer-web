@@ -40,7 +40,7 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 			return;
 
 		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
-			this.object.startTime,
+			Math.round(this.object.startTime),
 		);
 		this.hitSound?.play(currentSamplePoint);
 	}
@@ -53,8 +53,8 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 	}
 
 	update(time: number) {
-        this.playHitSound(time);
-        
+		this.playHitSound(time);
+
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 

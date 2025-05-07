@@ -50,7 +50,7 @@ export default class DrawableSliderTail extends DrawableHitObject {
 		)
 			return;
 
-		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(this.object.startTime + TAIL_LENIENCY);
+		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(Math.round(this.object.startTime + TAIL_LENIENCY));
 		this.hitSound?.play(currentSamplePoint);
 	}
 
