@@ -17,20 +17,31 @@ import fragment from "./Shaders/sliderShader.frag?raw";
 import { darken, lighten } from "../../../utils";
 import calculateSliderProgress from "./CalculateSliderProgress";
 import createGeometry from "./CreateSliderGeometry";
-import DrawableHitObject, { type IHasApproachCircle } from "./DrawableHitObject";
-import DrawableHitCircle from "./DrawableHitCircle";
+import DrawableHitObject, {
+	type IHasApproachCircle,
+} from "./DrawableHitObject";
+import type DrawableHitCircle from "./DrawableHitCircle";
 import DrawableSliderTick from "./DrawableSliderTick";
 import DrawableSliderRepeat from "./DrawableSliderRepeat";
 import DrawableSliderTail from "./DrawableSliderTail";
 import DrawableSliderBall from "./DrawableSliderBall";
+import DrawableSliderHead from "./DrawableSliderHead";
 
 const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
 // 	0.21176470588, 0.52156862745, 0.72549019607, 0,
 // ];
-const COLOR: [number, number, number, number] = [17 / 255, 17 / 255, 27 / 255, 0];
+const COLOR: [number, number, number, number] = [
+	17 / 255,
+	17 / 255,
+	27 / 255,
+	0,
+];
 
-export default class DrawableSlider extends DrawableHitObject implements IHasApproachCircle {
+export default class DrawableSlider
+	extends DrawableHitObject
+	implements IHasApproachCircle
+{
 	private _geometry: Geometry = new Geometry({
 		attributes: {
 			aPosition: new Float32Array([]),
@@ -41,7 +52,10 @@ export default class DrawableSlider extends DrawableHitObject implements IHasApp
 		gl: GL,
 		resources: {
 			customUniforms: {
-				borderColor: { value: [205 / 255, 214 / 255, 244 / 255, 1.0], type: "vec4<f32>" },
+				borderColor: {
+					value: [205 / 255, 214 / 255, 244 / 255, 1.0],
+					type: "vec4<f32>",
+				},
 				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
 				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
@@ -87,8 +101,12 @@ export default class DrawableSlider extends DrawableHitObject implements IHasApp
 					if (object instanceof SliderTail)
 						return new DrawableSliderTail(object).hook(this.context);
 
-					return new DrawableHitCircle(object).hook(this.context);
-				}),
+					if (object instanceof SliderHead)
+						return new DrawableSliderHead(object).hook(this.context);
+
+					return null;
+				})
+				.filter((object) => object !== null),
 		);
 
 		this.body.state.depthTest = true;
@@ -101,18 +119,12 @@ export default class DrawableSlider extends DrawableHitObject implements IHasApp
 		this.container.addChild(
 			this.body,
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
-			this.ball.container
+			this.ball.container,
 		);
 	}
 
 	get approachCircle() {
 		return (this.drawableCircles[0] as DrawableHitCircle).approachCircle;
-	}
-
-	playHitSound(time: number): void {
-		for (const circle of this.drawableCircles) {
-			circle.playHitSound(time);
-		}
 	}
 
 	getTimeRange(): { start: number; end: number } {
@@ -150,7 +162,6 @@ export default class DrawableSlider extends DrawableHitObject implements IHasApp
 	}
 
 	update(time: number) {
-		this.playHitSound(time);
 		this.ball.update(time);
 
 		for (const circle of this.drawableCircles) circle.update(time);

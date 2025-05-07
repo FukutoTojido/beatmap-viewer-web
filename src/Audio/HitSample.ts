@@ -16,7 +16,7 @@ export default class HitSample extends ScopedClass {
 		src.buffer = buffer;
 
 		const localGainNode = audioContext?.createGain();
-		localGainNode.gain.value = 0.1;
+		localGainNode.gain.value = 0.3;
 
 		src.connect(localGainNode);
 		localGainNode.connect(audioContext.destination);

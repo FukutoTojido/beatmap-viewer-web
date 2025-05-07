@@ -11,7 +11,7 @@ export default class DrawableApproachCircle {
 		this.container.circle(0, 0, object.radius * 0.8 * (236 / 256)).stroke({
 			alignment: 0,
 			color: 0xcdd6f4,
-			width: object.radius * 0.8 * (236 / 256) * 0.128,
+			width: 2,
 		});
 	}
 
