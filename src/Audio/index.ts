@@ -1,10 +1,10 @@
 import type { BitmapText } from "pixi.js";
 // @ts-ignore
-import { getFileAudioBuffer } from '@soundcut/decode-audio-data-fast';
+import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 import { inject } from "../Context";
 
 type AudioEvent = "time";
-type EventCallback = (time: number) => void
+type EventCallback = (time: number) => void;
 
 export default class Audio {
 	private localGainNode: GainNode;
@@ -41,7 +41,7 @@ export default class Audio {
 	set currentTime(val: number) {
 		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
 
-		this._currentTime = val > this.audioBuffer.duration * 1000 ? 0 : val;
+		this._currentTime = val > this.audioBuffer.duration * 1000 || val < 0 ? 0 : val;
 		if (this.state === "STOPPED") return;
 
 		this.pause();
@@ -49,12 +49,9 @@ export default class Audio {
 	}
 
 	async createBufferNode(blob: Blob) {
-		try {
-			this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext);
-		} catch (e) {
-			console.warn("Cannot use fast decode for this audio. Using native instead.")
-			this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext, { native: true });
-		}
+		this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext, {
+			native: true,
+		});
 	}
 
 	toggle() {
@@ -70,14 +67,15 @@ export default class Audio {
 	}
 
 	play() {
-		if (this.state === "PLAYING") throw new Error("You cannot start an already started audio!");
+		if (this.state === "PLAYING")
+			throw new Error("You cannot start an already started audio!");
 		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
 		this.state = "PLAYING";
 
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.1;
+		this.localGainNode.gain.value = 0.4;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {
@@ -97,7 +95,8 @@ export default class Audio {
 	}
 
 	pause() {
-		if (this.state === "STOPPED") throw new Error("You cannot stop an already stopped audio!");
+		if (this.state === "STOPPED")
+			throw new Error("You cannot stop an already stopped audio!");
 		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
 		this.state = "STOPPED";
 

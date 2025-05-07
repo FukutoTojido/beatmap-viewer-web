@@ -3,12 +3,15 @@ import { ScopedClass } from "../../../Context";
 import type { StandardHitObject } from "osu-standard-stable";
 import type DrawableApproachCircle from "./DrawableApproachCircle";
 
+export interface IHasApproachCircle {
+    approachCircle: DrawableApproachCircle;
+}
+
 export default abstract class DrawableHitObject extends ScopedClass {
     abstract container: Container;
-    abstract approachCircle: DrawableApproachCircle;
     abstract update(time: number): void;
     abstract getTimeRange(): { start: number, end: number };
-    abstract playHitSound(time?: number): void;
+    playHitSound(time?: number) {};
 
     constructor(public object: StandardHitObject) {
         super();

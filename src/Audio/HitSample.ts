@@ -1,41 +1,31 @@
 import type SampleManager from "../BeatmapSet/SampleManager";
 import { type Context, ScopedClass } from "../Context";
 
-export default class HitSample extends ScopedClass{
-    localGainNode?: GainNode;
-    audioContext?: AudioContext;
+export default class HitSample extends ScopedClass {
+	play() {
+		const audioContext = this.context.consume<AudioContext>("audioContext");
+		if (!audioContext) return;
 
-    hook(context: Context) {
-        super.hook(context);
+		const sampleManager = this.context.consume<SampleManager>("sampleManager");
+		if (!sampleManager) return;
 
-        this.audioContext = this.context.consume<AudioContext>("audioContext");
-        this.localGainNode = this.audioContext?.createGain();
+		const buffer = sampleManager.get("normal", "normal", 0);
+		if (!buffer) return;
 
-        return this;
-    }
+		const src = audioContext.createBufferSource();
+		src.buffer = buffer;
 
-    play() {
-        if (!this.audioContext || !this.localGainNode) return;
-        
-        const sampleManager = this.context.consume<SampleManager>("sampleManager");
-        if (!sampleManager) return;
-        
-        const buffer = sampleManager.get("normal", "normal", 0);
-        if (!buffer) return;
+		const localGainNode = audioContext?.createGain();
+		localGainNode.gain.value = 0.1;
 
-        const src = this.audioContext.createBufferSource();
-        src.buffer = buffer;
+		src.connect(localGainNode);
+		localGainNode.connect(audioContext.destination);
 
-        this.localGainNode.gain.value = 0.1;
+		src.onended = () => {
+			src.disconnect();
+			localGainNode.disconnect();
+		};
 
-        src.connect(this.localGainNode);
-        this.localGainNode.connect(this.audioContext.destination);
-
-        src.onended = () => {
-            src.disconnect();
-            this.localGainNode?.disconnect();
-        }
-
-        src.start();
-    }
+		src.start();
+	}
 }

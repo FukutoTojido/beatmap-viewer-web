@@ -17,7 +17,7 @@ import fragment from "./Shaders/sliderShader.frag?raw";
 import { darken, lighten } from "../../../utils";
 import calculateSliderProgress from "./CalculateSliderProgress";
 import createGeometry from "./CreateSliderGeometry";
-import DrawableHitObject from "./DrawableHitObject";
+import DrawableHitObject, { type IHasApproachCircle } from "./DrawableHitObject";
 import DrawableHitCircle from "./DrawableHitCircle";
 import DrawableSliderTick from "./DrawableSliderTick";
 import DrawableSliderRepeat from "./DrawableSliderRepeat";
@@ -30,7 +30,7 @@ const GL = { vertex, fragment };
 // ];
 const COLOR: [number, number, number, number] = [17 / 255, 17 / 255, 27 / 255, 0];
 
-export default class DrawableSlider extends DrawableHitObject {
+export default class DrawableSlider extends DrawableHitObject implements IHasApproachCircle {
 	private _geometry: Geometry = new Geometry({
 		attributes: {
 			aPosition: new Float32Array([]),
@@ -79,15 +79,15 @@ export default class DrawableSlider extends DrawableHitObject {
 				.filter((object) => object instanceof StandardHitObject)
 				.map((object) => {
 					if (object instanceof SliderTick)
-						return new DrawableSliderTick(object);
+						return new DrawableSliderTick(object).hook(this.context);
 
 					if (object instanceof SliderRepeat)
-						return new DrawableSliderRepeat(object);
+						return new DrawableSliderRepeat(object).hook(this.context);
 
 					if (object instanceof SliderTail)
-						return new DrawableSliderTail(object);
+						return new DrawableSliderTail(object).hook(this.context);
 
-					return new DrawableHitCircle(object);
+					return new DrawableHitCircle(object).hook(this.context);
 				}),
 		);
 
@@ -109,8 +109,10 @@ export default class DrawableSlider extends DrawableHitObject {
 		return (this.drawableCircles[0] as DrawableHitCircle).approachCircle;
 	}
 
-	playHitSound(): void {
-		
+	playHitSound(time: number): void {
+		for (const circle of this.drawableCircles) {
+			circle.playHitSound(time);
+		}
 	}
 
 	getTimeRange(): { start: number; end: number } {
@@ -148,6 +150,7 @@ export default class DrawableSlider extends DrawableHitObject {
 	}
 
 	update(time: number) {
+		this.playHitSound(time);
 		this.ball.update(time);
 
 		for (const circle of this.drawableCircles) circle.update(time);

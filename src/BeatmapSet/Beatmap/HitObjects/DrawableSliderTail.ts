@@ -1,37 +1,57 @@
-import { StandardBeatmap, type StandardHitObject, type Circle } from "osu-standard-stable";
+import {
+	StandardBeatmap,
+	type StandardHitObject,
+	type Circle,
+} from "osu-standard-stable";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
+import type Beatmap from "..";
+import HitSample from "../../../Audio/HitSample";
 
 export default class DrawableSliderTail extends DrawableHitObject {
 	container = new Graphics();
+	hitSound?: HitSample;
 
 	constructor(public object: StandardHitObject) {
 		super(object);
 		this.container.visible = false;
 		this.container.x = object.startX;
 		this.container.y = object.startY;
-		this.container.circle(0, 0, object.radius * 0.8 * (236 / 256)).fill(0x585b70).stroke({
-			alignment: 0.5,
-			color: 0xcdd6f4,
-			width: object.radius * 0.8 * (236 / 256) * 0.128,
-		});
+		this.container
+			.circle(0, 0, object.radius * 0.8 * (236 / 256))
+			.fill(0x585b70)
+			.stroke({
+				alignment: 0.5,
+				color: 0xcdd6f4,
+				width: object.radius * 0.8 * (236 / 256) * 0.128,
+			});
+		this.hitSound = new HitSample().hook(this.context);
 	}
 
-	getTimeRange(): { start: number; end: number; } {
+	getTimeRange(): { start: number; end: number } {
 		return {
 			start: this.object.startTime - this.object.timePreempt,
-			end: this.object.startTime + 800
-		}
+			end: this.object.startTime + 800,
+		};
 	}
 
-	playHitSound(): void {
-		
+	playHitSound(time: number): void {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (!beatmap) return;
+		if (
+			!(
+				beatmap.previousTime <= this.object.startTime &&
+				this.object.startTime < time
+			)
+		)
+			return;
+
+		this.hitSound?.play();
 	}
 
 	update(time: number) {
-		const startFadeInTime =
-			this.object.startTime - this.object.timePreempt;
+		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
 		this.container.x = this.object.startX + this.object.stackedOffset.x;

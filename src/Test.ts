@@ -14,12 +14,30 @@ await bms.getDifficulties();
 console.log(bms.difficulties);
 
 await bms.loadResources();
-const beatmap = bms.difficulties.find(diff => diff.data.metadata.beatmapId === +ID) ?? bms.difficulties[0];
+const beatmap =
+	bms.difficulties.find((diff) => diff.data.metadata.beatmapId === +ID) ??
+	bms.difficulties[0];
 if (!beatmap) throw new Error("Cannot find Beatmap");
 await beatmap.load();
 
-// beatmap.update(22284);
+// beatmap.seek(15881);
 
 document
 	.querySelector<HTMLButtonElement>("#toggleAudio")
 	?.addEventListener("click", () => beatmap.toggle());
+
+document.addEventListener("keydown", (event) => {
+	switch (event.key) {
+		case "ArrowLeft": {
+			beatmap.seek((beatmap.audio?.currentTime ?? 0) - 10);
+			break;
+		}
+		case "ArrowRight": {
+			beatmap.seek((beatmap.audio?.currentTime ?? 0) + 10);
+			break;
+		}
+		case " ": {
+			beatmap.toggle();
+		}
+	}
+});

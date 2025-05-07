@@ -2,6 +2,7 @@ import { StandardBeatmap, type StandardHitObject, type Circle } from "osu-standa
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
+import type DrawableApproachCircle from "./DrawableApproachCircle";
 
 export default class DrawableSliderRepeat extends DrawableHitObject {
     container = new Graphics();
@@ -13,6 +14,10 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
         this.container.y = object.startY;
         this.container.circle(0, 0, 10).fill(0xcdd6f4);
     }
+
+    playHitSound(): void {
+		
+	}
 
     getTimeRange(): { start: number; end: number; } {
         return {

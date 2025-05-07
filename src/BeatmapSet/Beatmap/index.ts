@@ -1,5 +1,9 @@
 import { BeatmapDecoder } from "osu-parsers";
-import { type StandardBeatmap, StandardRuleset } from "osu-standard-stable";
+import {
+	Spinner,
+	type StandardBeatmap,
+	StandardRuleset,
+} from "osu-standard-stable";
 import { inject, ScopedClass } from "../../Context";
 import type { Beatmap as BeatmapData } from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
@@ -13,6 +17,7 @@ import type Background from "../../UI/main/viewer/Background";
 
 // @ts-ignore
 import ObjectsWorker from "./Worker/Objects?worker";
+import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -25,7 +30,8 @@ export default class Beatmap extends ScopedClass {
 	private worker = new ObjectsWorker();
 
 	private loaded = false;
-	private previousObjects = new Set<DrawableHitObject>();
+	// private previousObjects = new Set<DrawableHitObject>();
+	private previousObjects = new Set<number>();
 	previousTime = 0;
 
 	constructor(private raw: string) {
@@ -49,6 +55,19 @@ export default class Beatmap extends ScopedClass {
 			})
 			.filter((object) => object !== null);
 		console.timeEnd("Constructing hitObjects");
+		this.worker.postMessage({
+			type: "init",
+			objects: this.data.hitObjects
+				.map((object) => {
+					if (object instanceof Spinner) return null;
+					return {
+						startTime: object.startTime,
+						endTime: (object as Slider).endTime,
+						timePreempt: object.timePreempt,
+					};
+				})
+				.filter((object) => object !== null),
+		});
 
 		console.time("Constructing audio");
 		const audioFile = this.context
@@ -75,12 +94,13 @@ export default class Beatmap extends ScopedClass {
 			);
 		}
 
-		this.worker.onmessage = (event: { data: { type: string } }) => {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		this.worker.onmessage = (event: any) => {
 			switch (event.data.type) {
-				case "signal": {
-					const time = this.audio?.currentTime ?? 0;
-					this.update(time);
-					this.previousTime = time;
+				case "update": {
+					const { objects, currentTime, previousTime } = event.data;
+					this.previousTime = previousTime;
+					this.update(currentTime, objects);
 					break;
 				}
 			}
@@ -92,10 +112,11 @@ export default class Beatmap extends ScopedClass {
 
 	private frame() {
 		// this.update(this.audio?.currentTime ?? 0);
+		// this.previousTime = this.audio?.currentTime ?? 0;
 
 		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
 		if (timestamp)
-			timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms`;
+			timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms\n${Math.round(this.previousTime)} ms`;
 
 		requestAnimationFrame(() => this.frame());
 	}
@@ -165,7 +186,7 @@ export default class Beatmap extends ScopedClass {
 		return objects;
 	}
 
-	update(time: number) {
+	update(time: number, objects: Set<number>) {
 		if (!this.loaded)
 			throw new Error("Cannot update a beatmap that hasn't been initialized");
 
@@ -173,24 +194,36 @@ export default class Beatmap extends ScopedClass {
 			"ui/main/viewer/gameplay/objectContainer",
 		);
 
-		const objects = this.searchObjects(time);
+		// const objects = this.searchObjects(time);
 		const disposedObjects = this.previousObjects.difference(objects);
 		this.previousObjects = objects;
 
-		for (const object of disposedObjects) {
-			objectContainer?.removeChild(object.container);
-			objectContainer?.removeChild(object.approachCircle.container);
+		// (async () => console.log(disposedObjects, objects))();
+
+		for (const idx of disposedObjects) {
+			objectContainer?.removeChild(this.objects[idx].container);
+
+			if ((this.objects[idx] as unknown as IHasApproachCircle).approachCircle)
+				objectContainer?.removeChild(
+					(this.objects[idx] as unknown as IHasApproachCircle).approachCircle
+						.container,
+				);
 		}
 
 		const containers = [];
 		const approachCircleContainers = [];
+		const sorted = Array.from(objects)
+			.map((idx) => this.objects[idx])
+			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
-		for (const object of Array.from(objects).sort(
-			(a, b) => -a.object.startTime + b.object.startTime,
-		)) {
+		for (const object of sorted) {
 			object.update(time);
 			containers.push(object.container);
-			approachCircleContainers.push(object.approachCircle.container);
+
+			if ((object as unknown as IHasApproachCircle).approachCircle)
+				approachCircleContainers.push(
+					(object as unknown as IHasApproachCircle).approachCircle.container,
+				);
 		}
 
 		if (containers.length > 0)
@@ -204,5 +237,23 @@ export default class Beatmap extends ScopedClass {
 			);
 
 		this.audio?.toggle();
+
+		if (this.audio?.state === "PLAYING")
+			this.worker.postMessage({ type: "start" });
+
+		if (this.audio?.state === "STOPPED")
+			this.worker.postMessage({ type: "stop" });
+	}
+
+	seek(time: number) {
+		if (!this.loaded)
+			throw new Error(
+				"Cannot play / pause a beatmap that hasn't been initialized",
+			);
+
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		this.audio!.currentTime = time;
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		this.worker.postMessage({ type: "seek", time: this.audio!.currentTime });
 	}
 }

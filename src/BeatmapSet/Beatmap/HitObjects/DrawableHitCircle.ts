@@ -4,13 +4,13 @@ import {
 	type Circle,
 } from "osu-standard-stable";
 import { Container, Graphics } from "pixi.js";
-import DrawableHitObject from "./DrawableHitObject";
+import DrawableHitObject, { type IHasApproachCircle } from "./DrawableHitObject";
 import type { Context } from "../../../Context";
 import DrawableApproachCircle from "./DrawableApproachCircle";
-import HitSample from "/src/Audio/HitSample";
+import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 
-export default class DrawableHitCircle extends DrawableHitObject {
+export default class DrawableHitCircle extends DrawableHitObject implements IHasApproachCircle {
 	container = new Container();
 	sprite = new Graphics();
 
@@ -35,12 +35,7 @@ export default class DrawableHitCircle extends DrawableHitObject {
 		this.approachCircle = new DrawableApproachCircle(object);
 
 		this.container.addChild(this.sprite, this.approachCircle.container);
-	}
-
-	hook(context: Context) {
-		super.hook(context);
 		this.hitSound = new HitSample().hook(this.context);
-		return this;
 	}
 
 	playHitSound(time: number): void {
@@ -49,7 +44,7 @@ export default class DrawableHitCircle extends DrawableHitObject {
 		if (
 			!(
 				beatmap.previousTime <= this.object.startTime &&
-				this.object.startTime <= time
+				this.object.startTime < time
 			)
 		)
 			return;

@@ -1,24 +1,20 @@
-import { Circle, Slider, type StandardHitObject } from "osu-standard-stable";
-import type DrawableHitObject from "../HitObjects/DrawableHitObject";
+type HitObjectMini = {
+	startTime: number,
+	endTime: number,
+	timePreempt: number
+}
 
-let objects: StandardHitObject[] = [];
+let objects: HitObjectMini[] = [];
 let isPlaying = false;
 
 let currentTime = 0;
 let startTime = 0;
 let previousTime = 0;
 
-function getTimeRange(object: StandardHitObject) {
-	if (object instanceof Slider) {
-		return {
-			start: object.startTime - object.timePreempt,
-			end: object.endTime + 800,
-		};
-	}
-
+function getTimeRange(object: HitObjectMini) {
 	return {
 		start: object.startTime - object.timePreempt,
-		end: object.startTime + 800,
+		end: (object.endTime ?? object.startTime) + 800,
 	};
 }
 
@@ -132,12 +128,12 @@ onmessage = (event) => {
 	}
 };
 
-// setInterval(() => loop(), 0);
+setInterval(() => loop(), 0);
 
-function signal() {
-    postMessage({
-        type: "signal"
-    })
-}
+// function signal() {
+//     postMessage({
+//         type: "signal"
+//     })
+// }
 
-setInterval(() => signal(), 0);
+// setInterval(() => signal(), 0);
