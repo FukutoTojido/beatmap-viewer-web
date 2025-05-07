@@ -28,7 +28,7 @@ const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
 // 	0.21176470588, 0.52156862745, 0.72549019607, 0,
 // ];
-const COLOR: [number, number, number, number] = [0.0, 0.0, 0.0, 0];
+const COLOR: [number, number, number, number] = [17 / 255, 17 / 255, 27 / 255, 0];
 
 export default class DrawableSlider extends DrawableHitObject {
 	private _geometry: Geometry = new Geometry({
@@ -41,7 +41,7 @@ export default class DrawableSlider extends DrawableHitObject {
 		gl: GL,
 		resources: {
 			customUniforms: {
-				borderColor: { value: [1.0, 1.0, 1.0, 1.0], type: "vec4<f32>" },
+				borderColor: { value: [205 / 255, 214 / 255, 244 / 255, 1.0], type: "vec4<f32>" },
 				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
 				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
@@ -55,7 +55,7 @@ export default class DrawableSlider extends DrawableHitObject {
 		quality: 7,
 	});
 
-	private drawableCircles: DrawableHitCircle[] = [];
+	private drawableCircles: DrawableHitObject[] = [];
 	private body: Mesh<Geometry, Shader> = new Mesh({
 		geometry: this._geometry,
 		shader: this._shader,
@@ -105,6 +105,14 @@ export default class DrawableSlider extends DrawableHitObject {
 		);
 	}
 
+	get approachCircle() {
+		return (this.drawableCircles[0] as DrawableHitCircle).approachCircle;
+	}
+
+	playHitSound(): void {
+		
+	}
+
 	getTimeRange(): { start: number; end: number } {
 		return {
 			start: this.object.startTime - this.object.timePreempt,
@@ -141,7 +149,7 @@ export default class DrawableSlider extends DrawableHitObject {
 
 	update(time: number) {
 		this.ball.update(time);
-		
+
 		for (const circle of this.drawableCircles) circle.update(time);
 
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;

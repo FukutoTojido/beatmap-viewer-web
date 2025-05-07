@@ -22,4 +22,4 @@ await beatmap.load();
 
 document
 	.querySelector<HTMLButtonElement>("#toggleAudio")
-	?.addEventListener("click", () => beatmap.audio?.toggle());
+	?.addEventListener("click", () => beatmap.toggle());

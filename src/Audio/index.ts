@@ -15,18 +15,10 @@ export default class Audio {
 	private previousTimestamp = 0;
 	private _currentTime = 0;
 
-    private callbacks = new Map<AudioEvent, Set<EventCallback>>();
-
 	state: "PLAYING" | "STOPPED" = "STOPPED";
 
 	constructor(private audioContext: AudioContext) {
 		this.localGainNode = audioContext.createGain();
-        // setInterval(() => {
-        //     if (!this.audioBuffer) return;
-        //     if (this.state === "STOPPED") return;
-
-        //     this.emit("time");
-        // }, 0);
 	}
 
 	get currentTime() {
@@ -77,14 +69,15 @@ export default class Audio {
 		}
 	}
 
-	private play() {
+	play() {
+		if (this.state === "PLAYING") throw new Error("You cannot start an already started audio!");
 		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
 		this.state = "PLAYING";
 
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.3;
+		this.localGainNode.gain.value = 0.1;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {
@@ -103,7 +96,8 @@ export default class Audio {
 		this.src.start(this.audioContext.currentTime, this._currentTime / 1000);
 	}
 
-	private pause() {
+	pause() {
+		if (this.state === "STOPPED") throw new Error("You cannot stop an already stopped audio!");
 		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
 		this.state = "STOPPED";
 
@@ -113,16 +107,4 @@ export default class Audio {
 
 		this._currentTime += performance.now() - this.previousTimestamp;
 	}
-
-    on(eventType: AudioEvent, callback: EventCallback) {
-        if (!this.callbacks.get(eventType)) this.callbacks.set(eventType, new Set<EventCallback>());
-        this.callbacks.get(eventType)?.add(callback);
-    }
-
-    private emit(eventType: AudioEvent) {
-        if (!this.callbacks.get(eventType)) return;
-
-        // biome-ignore lint/style/noNonNullAssertion: Guarded
-        for (const callback of this.callbacks.get(eventType)!) callback(this.currentTime);
-    }
 }

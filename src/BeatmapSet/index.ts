@@ -1,20 +1,20 @@
 import { BlobReader, BlobWriter, ZipReader, type Entry } from "@zip.js/zip.js";
 import Beatmap from "./Beatmap";
 import { ScopedClass } from "../Context";
+import SampleManager from "./SampleManager";
 
-export type Resource = {
-	blob?: Blob;
-	arrayBuffer?: ArrayBuffer;
-};
+export type Resource = Blob | undefined;
 
 export default class BeatmapSet extends ScopedClass {
 	private _isInit = false;
 	private _entries?: Entry[];
 
 	difficulties: Beatmap[] = [];
+	audioContext = new AudioContext();
 
 	constructor(private blob: Blob) {
 		super();
+		this.context.provide("audioContext", this.audioContext);
 	}
 
 	async init() {
@@ -27,6 +27,7 @@ export default class BeatmapSet extends ScopedClass {
 
 	async loadResources() {
 		if (!this._isInit) throw new Error("You must init BeatmapSet!!!");
+		console.time("Load resources");
 		const mediaFiles =
 			this._entries?.filter(
 				(file) => file.filename.split(".").at(-1) !== "osu",
@@ -38,14 +39,17 @@ export default class BeatmapSet extends ScopedClass {
 			const writer = new BlobWriter();
 
 			const blob = await file.getData?.(writer);
-			const arrayBuffer = await blob?.arrayBuffer();
-			resources.set(file.filename, {
-				blob,
-				arrayBuffer,
-			});
+			resources.set(file.filename, blob);
 		}
+		console.timeEnd("Load resources");
 
 		this.context.provide("resources", resources);
+
+		console.time("Load hitSamples");
+		const sampleManager = this.context.provide("sampleManager", new SampleManager(this.audioContext, resources));
+		await sampleManager.loadDefaults();
+		await sampleManager.load();
+		console.timeEnd("Load hitSamples");
 	}
 
 	async getDifficulties() {

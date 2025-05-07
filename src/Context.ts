@@ -34,8 +34,8 @@ export class Context {
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: Literally any
-	consume<T = any>(key: string): T | undefined {
-		return this._map.get(key) ?? this.parent?._map.get(key);
+	consume<T = any>(key: string): T | undefined {	
+		return this._map.get(key) ?? this.parent?.consume(key);
 	}
 
 	hook(context: Context) {

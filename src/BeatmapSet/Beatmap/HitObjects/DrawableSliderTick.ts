@@ -18,6 +18,10 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		});
 	}
 
+	playHitSound(): void {
+		
+	}
+
 	getTimeRange(): { start: number; end: number; } {
 		return {
 			start: this.object.startTime - this.object.timePreempt,

@@ -12,7 +12,7 @@
         "@zip.js/zip.js": "^2.7.60",
         "axios": "^1.9.0",
         "bezier-easing": "^2.1.0",
-        "osu-classes": "^3.1.0",
+        "osu-classes": "npm:@fukutotojido/osu-classes",
         "osu-parsers": "^4.1.7",
         "osu-standard-stable": "^5.0.1",
         "pixi-filters": "^6.1.2",
@@ -287,7 +287,7 @@
 
     "nanoid": ["nanoid@3.3.11", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w=="],
 
-    "osu-classes": ["osu-classes@3.1.0", "", {}, "sha512-kz38FWMGnz5lr6ofovUrNaDAcs1gNpwlDc1qHjW86ILQZXG44w/+NflV7EyFomkI05XCADGfltE4FVoPwrkrmg=="],
+    "osu-classes": ["@fukutotojido/osu-classes@3.1.0", "", {}, "sha512-zJMlqCw9FRSFfNQdbBTOkLpGIEOdzl8PgxvwpsrLvZe0AiHW8oOHpUU+7vblFigEg/V92ZsU7WAfDHNySt35WQ=="],
 
     "osu-parsers": ["osu-parsers@4.1.7", "", { "dependencies": { "lzma-js-simple-v2": "^1.2.3" }, "peerDependencies": { "osu-classes": "^3.1.0" } }, "sha512-b8aYJy9vK0Yk8zVbxVN+HSChGnXufSxePb3gABG8s5YGCY+31CKJTUHDAVRST0kX4lyeI4Z3iRxsCRftHFHEug=="],
 

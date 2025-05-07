@@ -25,6 +25,10 @@ export default class DrawableSliderTail extends DrawableHitObject {
 		}
 	}
 
+	playHitSound(): void {
+		
+	}
+
 	update(time: number) {
 		const startFadeInTime =
 			this.object.startTime - this.object.timePreempt;

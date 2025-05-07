@@ -22,7 +22,7 @@
     "@zip.js/zip.js": "^2.7.60",
     "axios": "^1.9.0",
     "bezier-easing": "^2.1.0",
-    "osu-classes": "^3.1.0",
+    "osu-classes": "npm:@fukutotojido/osu-classes",
     "osu-parsers": "^4.1.7",
     "osu-standard-stable": "^5.0.1",
     "pixi-filters": "^6.1.2",

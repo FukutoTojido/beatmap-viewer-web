@@ -1,37 +1,75 @@
-import { StandardBeatmap, type StandardHitObject, type Circle } from "osu-standard-stable";
-import { Graphics } from "pixi.js";
+import {
+	StandardBeatmap,
+	type StandardHitObject,
+	type Circle,
+} from "osu-standard-stable";
+import { Container, Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
+import DrawableApproachCircle from "./DrawableApproachCircle";
+import HitSample from "/src/Audio/HitSample";
+import type Beatmap from "..";
 
 export default class DrawableHitCircle extends DrawableHitObject {
-	container = new Graphics();
+	container = new Container();
+	sprite = new Graphics();
+
+	approachCircle: DrawableApproachCircle;
+	hitSound?: HitSample;
 
 	constructor(public object: StandardHitObject) {
 		super(object);
 		this.container.visible = false;
-		this.container.x = object.startX;
-		this.container.y = object.startY;
-		this.container.circle(0, 0, object.radius * 0.8 * (236 / 256)).fill(0x585b70).stroke({
-			alignment: 0.5,
-			color: 0xcdd6f4,
-			width: object.radius * 0.8 * (236 / 256) * 0.128,
-		});
+		this.container.x = object.startX + object.stackedOffset.x;
+		this.container.y = object.startY + object.stackedOffset.y;
+
+		this.sprite
+			.circle(0, 0, object.radius * 0.8 * (236 / 256))
+			.fill(0x585b70)
+			.stroke({
+				alignment: 0.5,
+				color: 0xcdd6f4,
+				width: object.radius * 0.8 * (236 / 256) * 0.128,
+			});
+
+		this.approachCircle = new DrawableApproachCircle(object);
+
+		this.container.addChild(this.sprite, this.approachCircle.container);
 	}
 
-	getTimeRange(): { start: number; end: number; } {
+	hook(context: Context) {
+		super.hook(context);
+		this.hitSound = new HitSample().hook(this.context);
+		return this;
+	}
+
+	playHitSound(time: number): void {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (!beatmap) return;
+		if (
+			!(
+				beatmap.previousTime <= this.object.startTime &&
+				this.object.startTime <= time
+			)
+		)
+			return;
+
+		this.hitSound?.play();
+	}
+
+	getTimeRange(): { start: number; end: number } {
 		return {
 			start: this.object.startTime - this.object.timePreempt,
-			end: this.object.startTime + 800
-		}
+			end: this.object.startTime + 800,
+		};
 	}
 
 	update(time: number) {
-		const startFadeInTime =
-			this.object.startTime - this.object.timePreempt;
-		const fadeOutDuration = 200;
+		this.playHitSound(time);
+		this.approachCircle.update(time);
 
-		this.container.x = this.object.startX + this.object.stackedOffset.x;
-		this.container.y = this.object.startY + this.object.stackedOffset.y;
+		const startFadeInTime = this.object.startTime - this.object.timePreempt;
+		const fadeOutDuration = 200;
 
 		if (
 			time < startFadeInTime ||
@@ -42,14 +80,14 @@ export default class DrawableHitCircle extends DrawableHitObject {
 		}
 
 		this.container.visible = true;
-		this.container.scale.set(1);
+		this.sprite.scale.set(1);
 
 		if (time < this.object.startTime) {
 			const opacity = Math.min(
 				1,
 				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
 			);
-			this.container.alpha = opacity;
+			this.sprite.alpha = opacity;
 
 			return;
 		}
@@ -66,8 +104,8 @@ export default class DrawableHitCircle extends DrawableHitObject {
 				1 + Math.max(0, (time - this.object.startTime) / fadeOutDuration),
 			);
 
-			this.container.alpha = opacity;
-			this.container.scale.set(scale);
+			this.sprite.alpha = opacity;
+			this.sprite.scale.set(scale);
 
 			return;
 		}

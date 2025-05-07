@@ -8,20 +8,25 @@ import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import Audio from "../../Audio";
 import type { Resource } from "..";
-import { Assets, BitmapText, type Container } from "pixi.js";
+import { Assets, type BitmapText, type Container } from "pixi.js";
 import type Background from "../../UI/main/viewer/Background";
+
+// @ts-ignore
+import ObjectsWorker from "./Worker/Objects?worker";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
 
 export default class Beatmap extends ScopedClass {
 	data: StandardBeatmap;
-	audioContext: AudioContext;
 	objects: DrawableHitObject[] = [];
 	audio?: Audio;
 
+	private worker = new ObjectsWorker();
+
 	private loaded = false;
 	private previousObjects = new Set<DrawableHitObject>();
+	previousTime = 0;
 
 	constructor(private raw: string) {
 		super();
@@ -29,11 +34,11 @@ export default class Beatmap extends ScopedClass {
 			"beatmap",
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
-		this.audioContext = new AudioContext();
+		this.context.provide("beatmapObject", this);
 	}
 
 	async load() {
-		let start = performance.now();
+		console.time("Constructing hitObjects");
 		this.objects = this.data.hitObjects
 			.map((object) => {
 				if (object instanceof Circle)
@@ -43,45 +48,55 @@ export default class Beatmap extends ScopedClass {
 				return null;
 			})
 			.filter((object) => object !== null);
-		console.log(
-			`Took ${(performance.now() - start).toFixed(2)}ms to initiate ${this.objects.length} objects`,
-		);
+		console.timeEnd("Constructing hitObjects");
 
-		start = performance.now();
+		console.time("Constructing audio");
 		const audioFile = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(this.data.general.audioFilename);
-		if (!audioFile?.blob)
-			throw new Error("Cannot find audio in resource?");
+		if (!audioFile) throw new Error("Cannot find audio in resource?");
 
-		this.audio = new Audio(this.audioContext);
-		await this.audio.createBufferNode(audioFile.blob);
-		console.log(
-			`Took ${(performance.now() - start).toFixed(2)}ms to initiate audio`,
-		);
+		const audioContext = this.context.consume<AudioContext>("audioContext");
+		if (!audioContext) throw new Error("Missing audio context!");
+
+		this.audio = this.context.provide("audio", new Audio(audioContext));
+		await this.audio.createBufferNode(audioFile);
+		console.timeEnd("Constructing audio");
 
 		const background = inject<Background>("ui/main/viewer/background");
 		const backgroundResource = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(this.data.events.backgroundPath ?? "");
 
-		if (backgroundResource?.blob) {
-			const url = URL.createObjectURL(backgroundResource.blob);
+		if (backgroundResource) {
+			const url = URL.createObjectURL(backgroundResource);
 			background?.updateTexture(
 				await Assets.load({ src: url, loadParser: "loadTextures" }),
 			);
 		}
+
+		this.worker.onmessage = (event: { data: { type: string } }) => {
+			switch (event.data.type) {
+				case "signal": {
+					const time = this.audio?.currentTime ?? 0;
+					this.update(time);
+					this.previousTime = time;
+					break;
+				}
+			}
+		};
 
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
 	}
 
 	private frame() {
-		this.update(this.audio?.currentTime ?? 0);
+		// this.update(this.audio?.currentTime ?? 0);
 
 		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
-        if (timestamp) timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms`;
-		
+		if (timestamp)
+			timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms`;
+
 		requestAnimationFrame(() => this.frame());
 	}
 
@@ -164,13 +179,30 @@ export default class Beatmap extends ScopedClass {
 
 		for (const object of disposedObjects) {
 			objectContainer?.removeChild(object.container);
+			objectContainer?.removeChild(object.approachCircle.container);
 		}
+
+		const containers = [];
+		const approachCircleContainers = [];
 
 		for (const object of Array.from(objects).sort(
 			(a, b) => -a.object.startTime + b.object.startTime,
 		)) {
-			objectContainer?.addChild(object.container);
 			object.update(time);
+			containers.push(object.container);
+			approachCircleContainers.push(object.approachCircle.container);
 		}
+
+		if (containers.length > 0)
+			objectContainer?.addChild(...containers, ...approachCircleContainers);
+	}
+
+	toggle() {
+		if (!this.loaded)
+			throw new Error(
+				"Cannot play / pause a beatmap that hasn't been initialized",
+			);
+
+		this.audio?.toggle();
 	}
 }
