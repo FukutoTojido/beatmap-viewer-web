@@ -24,9 +24,9 @@ const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
 
 interface ObjectMini {
-	startTime: number,
-	endTime: number,
-	timePreempt: number
+	startTime: number;
+	endTime: number;
+	timePreempt: number;
 }
 
 export default class Beatmap extends ScopedClass {
@@ -295,7 +295,15 @@ export default class Beatmap extends ScopedClass {
 			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
 		for (const object of sorted) {
-			requestAnimationFrame(() => object.update(this.audio?.currentTime ?? 0));
+			if (object instanceof DrawableSlider)
+				requestAnimationFrame(() =>
+					object.update(this.audio?.currentTime ?? 0),
+				);
+
+			if (object instanceof DrawableHitCircle) {
+				object.update(this.audio?.currentTime ?? 0);
+			}
+			
 			object.playHitSound(time);
 			containers.push(object.container);
 

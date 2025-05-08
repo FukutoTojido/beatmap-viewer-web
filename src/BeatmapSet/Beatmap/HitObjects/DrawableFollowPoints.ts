@@ -1,11 +1,16 @@
 import type { Vector2 } from "osu-classes";
 import type { Slider, StandardHitObject } from "osu-standard-stable";
-import { Container, Graphics } from "pixi.js";
-import Easings from "/src/UI/Easings";
+import { Assets, Container, Graphics, Sprite, type Texture } from "pixi.js";
+import Easings from "../../../UI/Easings";
+
+const texture = await Assets.load<Texture>({
+	src: "/skinning/followpoint@2x.png",
+	loadParser: "loadTextures",
+});
 
 export default class DrawableFollowPoints {
 	container: Container = new Container();
-	sprites: Graphics[] = [];
+	sprites: Sprite[] = [];
 
 	startTime: number;
 	endTime: number;
@@ -45,12 +50,13 @@ export default class DrawableFollowPoints {
 		this.container.x = this.startPosition.x;
 		this.container.y = this.startPosition.y;
 		this.container.rotation = angle;
-        this.container.interactive = false;
-        this.container.interactiveChildren = false;
+		this.container.interactive = false;
+		this.container.interactiveChildren = false;
 
 		const numberOfSprites = Math.floor((this.distance - 48) / (512 / 16));
 		for (let i = 0; i < numberOfSprites; i++) {
-			const sprite = new Graphics().circle(0, 0, 5).fill(0xffffff);
+			const sprite = new Sprite(texture);
+			sprite.anchor.set(0.5);
 			sprite.x = (1.5 + i) * (512 / 16);
 
 			this.sprites.push(sprite);
@@ -83,14 +89,14 @@ export default class DrawableFollowPoints {
 				);
 
 				sprite.alpha = opacity;
-				sprite.scale.set(1.5 - 0.5 * opacity);
+				sprite.scale.set((1.5 - 0.5 * opacity) * this.startObject.scale);
 				sprite.x = (f - 0.1 * (1 - opacity)) * this.distance;
 				continue;
 			}
 
 			if (time >= fadeInTime + timeFadeIn && time < fadeOutTime) {
 				sprite.alpha = 1;
-				sprite.scale.set(1);
+				sprite.scale.set(1 * this.startObject.scale);
 				sprite.x = f * this.distance;
 				continue;
 			}
@@ -101,8 +107,8 @@ export default class DrawableFollowPoints {
 					Easings.OutQuad(
 						Math.min(1, Math.max(0, (time - fadeOutTime) / timeFadeIn)),
 					);
-                sprite.alpha = opacity;
-                sprite.scale.set(1);
+				sprite.alpha = opacity;
+				sprite.scale.set(1 * this.startObject.scale);
 				sprite.x = f * this.distance;
 			}
 		}

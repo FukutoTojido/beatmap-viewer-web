@@ -229,6 +229,10 @@ export default class DrawableSlider
 	}
 
 	update(time: number) {
+		this.ball.update(time);
+		this.followCircle.update(time);
+		for (const circle of this.drawableCircles) circle.update(time);
+
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
@@ -268,10 +272,6 @@ export default class DrawableSlider
 			}
 		}
 		this.updateGeometry(start, end);
-
-		this.ball.update(time);
-		this.followCircle.update(time);
-		for (const circle of this.drawableCircles) circle.update(time);
 
 		if (time < this.object.startTime) {
 			const opacity = Math.min(

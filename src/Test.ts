@@ -20,7 +20,7 @@ const beatmap =
 if (!beatmap) throw new Error("Cannot find Beatmap");
 await beatmap.load();
 
-// beatmap.seek(6250);
+// beatmap.seek(144405);
 
 document
 	.querySelector<HTMLButtonElement>("#toggleAudio")
