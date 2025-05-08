@@ -82,7 +82,6 @@ export default class DrawableSliderHead
 	}
 
 	update(time: number) {
-		this.playHitSound(time);
 		this.approachCircle.update(time);
 		this.defaults.update(time);
 

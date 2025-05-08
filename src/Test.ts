@@ -20,7 +20,7 @@ const beatmap =
 if (!beatmap) throw new Error("Cannot find Beatmap");
 await beatmap.load();
 
-// beatmap.seek(128420);
+// beatmap.seek(6250);
 
 document
 	.querySelector<HTMLButtonElement>("#toggleAudio")
@@ -39,5 +39,14 @@ document.addEventListener("keydown", (event) => {
 		case " ": {
 			beatmap.toggle();
 		}
+	}
+});
+
+document.addEventListener("wheel", (event) => {
+	if (event.deltaY > 0) {
+		beatmap.seek((beatmap.audio?.currentTime ?? 0) + 100);
+	}
+	if (event.deltaY < 0) {
+		beatmap.seek((beatmap.audio?.currentTime ?? 0) - 100);
 	}
 });

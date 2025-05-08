@@ -21,6 +21,9 @@ export default class HitSample extends ScopedClass {
 	}
 
 	play(samplePoint: SamplePoint, isLoop = false) {
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio || audio.state === "STOPPED") return;
+
 		const audioContext = this.context.consume<AudioContext>("audioContext");
 		if (!audioContext) return;
 
@@ -72,10 +75,10 @@ export default class HitSample extends ScopedClass {
 			for (const src of this.srcs) {
 				src.stop();
 				src.disconnect();
-			};
+			}
 
 			this.isPlaying = false;
-		}
+		};
 
 		if (inRange && !this.isPlaying && audio.state === "PLAYING") {
 			clearTimeout(this.timeout);

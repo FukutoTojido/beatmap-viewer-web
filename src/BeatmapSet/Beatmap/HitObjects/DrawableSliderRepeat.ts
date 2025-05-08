@@ -55,8 +55,6 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 	}
 
 	update(time: number) {
-		this.playHitSound(time);
-
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 

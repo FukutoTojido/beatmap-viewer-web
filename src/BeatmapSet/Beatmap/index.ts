@@ -23,6 +23,12 @@ import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
 
+interface ObjectMini {
+	startTime: number,
+	endTime: number,
+	timePreempt: number
+}
+
 export default class Beatmap extends ScopedClass {
 	data: StandardBeatmap;
 	objects: DrawableHitObject[] = [];
@@ -54,10 +60,12 @@ export default class Beatmap extends ScopedClass {
 			const endObject = this.data.hitObjects[i + 1];
 			if (endObject.isNewCombo) continue;
 
-			const distance = startObject.endPosition.add(startObject.stackedOffset).distance(endObject.startPosition.add(endObject.stackedOffset));
+			const distance = startObject.endPosition
+				.add(startObject.stackedOffset)
+				.distance(endObject.startPosition.add(endObject.stackedOffset));
 			if (distance < 80) continue;
 
-			connectors.push(new DrawableFollowPoints(startObject, endObject))
+			connectors.push(new DrawableFollowPoints(startObject, endObject));
 		}
 
 		return connectors;
@@ -92,9 +100,9 @@ export default class Beatmap extends ScopedClass {
 				return {
 					startTime: connector.startTime,
 					endTime: connector.endTime,
-					timePreempt: connector.timePreempt
-				}
-			})
+					timePreempt: connector.timePreempt,
+				};
+			}),
 		});
 
 		console.time("Constructing audio");
@@ -106,7 +114,10 @@ export default class Beatmap extends ScopedClass {
 		const audioContext = this.context.consume<AudioContext>("audioContext");
 		if (!audioContext) throw new Error("Missing audio context!");
 
-		this.audio = this.context.provide("audio", new Audio(audioContext).hook(this.context));
+		this.audio = this.context.provide(
+			"audio",
+			new Audio(audioContext).hook(this.context),
+		);
 		await this.audio.createBufferNode(audioFile);
 		console.timeEnd("Constructing audio");
 
@@ -141,6 +152,13 @@ export default class Beatmap extends ScopedClass {
 	private frame() {
 		// this.update(this.audio?.currentTime ?? 0);
 		// this.previousTime = this.audio?.currentTime ?? 0;
+		// for (const idx of this.previousObjects) {
+		// 	this.objects[idx].update(this.audio?.currentTime ?? 0);
+		// }
+
+		// for (const idx of this.previousConnectors) {
+		// 	this.connectors[idx].update(this.audio?.currentTime ?? 0)
+		// }
 
 		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
 		if (timestamp)
@@ -178,12 +196,12 @@ export default class Beatmap extends ScopedClass {
 		return -1;
 	}
 
-	private searchObjects(time: number) {
+	private searchObjects(list: ObjectMini[], time: number) {
 		const idx = this.binarySearchNearestIndex(time);
-		if (idx === -1) return new Set<DrawableHitObject>();
+		if (idx === -1) return new Set<number>();
 
-		const objects = new Set<DrawableHitObject>();
-		objects.add(this.objects[idx]);
+		const objects = new Set<number>();
+		objects.add(idx);
 
 		let start = idx - 1;
 		while (
@@ -194,7 +212,7 @@ export default class Beatmap extends ScopedClass {
 				this.objects[start].getTimeRange().end,
 			) === 0
 		) {
-			objects.add(this.objects[start]);
+			objects.add(start);
 			start--;
 		}
 
@@ -207,7 +225,7 @@ export default class Beatmap extends ScopedClass {
 				this.objects[end].getTimeRange().end,
 			) === 0
 		) {
-			objects.add(this.objects[end]);
+			objects.add(end);
 			end++;
 		}
 
@@ -252,6 +270,11 @@ export default class Beatmap extends ScopedClass {
 		for (const idx of disposedObjects) {
 			objectContainer?.removeChild(this.objects[idx].container);
 
+			// if (this.objects[idx] instanceof DrawableSlider) {
+			// 	objectContainer?.removeChild(this.objects[idx].ball.container)
+			// 	objectContainer?.removeChild(this.objects[idx].followCircle.container)
+			// }
+
 			if ((this.objects[idx] as unknown as IHasApproachCircle).approachCircle)
 				objectContainer?.removeChild(
 					(this.objects[idx] as unknown as IHasApproachCircle).approachCircle
@@ -272,8 +295,13 @@ export default class Beatmap extends ScopedClass {
 			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
 		for (const object of sorted) {
-			object.update(time);
+			requestAnimationFrame(() => object.update(this.audio?.currentTime ?? 0));
+			object.playHitSound(time);
 			containers.push(object.container);
+
+			// if (object instanceof DrawableSlider) {
+			// 	containers.push(object.ball.container, object.followCircle.container)
+			// }
 
 			if ((object as unknown as IHasApproachCircle).approachCircle)
 				approachCircleContainers.push(
@@ -282,12 +310,16 @@ export default class Beatmap extends ScopedClass {
 		}
 
 		for (const idx of connectors) {
-			this.connectors[idx].update(time);
+			this.connectors[idx].update(this.audio?.currentTime ?? 0);
 			connectorContainers.push(this.connectors[idx].container);
 		}
 
 		if (containers.length > 0)
-			objectContainer?.addChild(...connectorContainers, ...containers, ...approachCircleContainers);
+			objectContainer?.addChild(
+				...connectorContainers,
+				...containers,
+				...approachCircleContainers,
+			);
 	}
 
 	toggle() {

@@ -78,7 +78,6 @@ export default class DrawableHitCircle
 	}
 
 	update(time: number) {
-		this.playHitSound(time);
 		this.approachCircle.update(time);
 		this.defaults.update(time);
 

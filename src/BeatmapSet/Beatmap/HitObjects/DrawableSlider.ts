@@ -28,7 +28,7 @@ import DrawableSliderBall from "./DrawableSliderBall";
 import DrawableSliderHead from "./DrawableSliderHead";
 import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
 import { HitSample as Sample } from "osu-classes";
-import HitSample from "/src/Audio/HitSample";
+import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 
 const GL = { vertex, fragment };
@@ -85,8 +85,8 @@ export default class DrawableSlider
 		y: 0,
 		blendMode: "none",
 	});
-	private ball: DrawableSliderBall;
-	private followCircle: DrawableSliderFollowCircle;
+	ball: DrawableSliderBall;
+	followCircle: DrawableSliderFollowCircle;
 
 	private sliderWhistleSample: HitSample;
 	private sliderSlideSample: HitSample;
@@ -177,6 +177,10 @@ export default class DrawableSlider
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		if (!beatmap) return;
 
+		for (const object of this.drawableCircles) {
+			object.playHitSound(time);
+		}
+
 		const currentSamplePoint = beatmap.getNearestSamplePoint(
 			this.object.startTime,
 		);
@@ -202,6 +206,7 @@ export default class DrawableSlider
 			progressHead,
 			progressTail,
 		);
+
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
 			this.object.radius * (236 / 256) ** 2 * (1 / 0.96),
@@ -224,8 +229,6 @@ export default class DrawableSlider
 	}
 
 	update(time: number) {
-		this.playHitSound(time);
-		
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
