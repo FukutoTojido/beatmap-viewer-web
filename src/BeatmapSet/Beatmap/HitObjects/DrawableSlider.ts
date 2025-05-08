@@ -26,6 +26,7 @@ import DrawableSliderRepeat from "./DrawableSliderRepeat";
 import DrawableSliderTail from "./DrawableSliderTail";
 import DrawableSliderBall from "./DrawableSliderBall";
 import DrawableSliderHead from "./DrawableSliderHead";
+import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
 
 const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
@@ -82,6 +83,7 @@ export default class DrawableSlider
 		blendMode: "none",
 	});
 	private ball: DrawableSliderBall;
+	private followCircle: DrawableSliderFollowCircle;
 
 	container = new Container();
 
@@ -93,20 +95,35 @@ export default class DrawableSlider
 			...object.nestedHitObjects
 				.filter((object) => object instanceof StandardHitObject)
 				.map((object) => {
-					if (object instanceof SliderTick) 
-						// biome-ignore lint/style/noNonNullAssertion: <explanation>
-						return new DrawableSliderTick(object, this.object.samples.find(sample => sample.hitSound === "Normal")!).hook(this.context);
+					if (object instanceof SliderTick)
+						return new DrawableSliderTick(
+							object,
+							// biome-ignore lint/style/noNonNullAssertion: <explanation>
+							this.object.samples.find(
+								(sample) => sample.hitSound === "Normal",
+							)!,
+						).hook(this.context);
 
 					idx++;
 
 					if (object instanceof SliderRepeat)
-						return new DrawableSliderRepeat(object, this.object.nodeSamples[idx]).hook(this.context);
+						return new DrawableSliderRepeat(
+							object,
+							this.object.nodeSamples[idx],
+						).hook(this.context);
 
 					if (object instanceof SliderTail)
-						return new DrawableSliderTail(object, this.object.nodeSamples[idx]).hook(this.context);
+						return new DrawableSliderTail(
+							object,
+							this.object.nodeSamples[idx],
+						).hook(this.context);
 
 					if (object instanceof SliderHead)
-						return new DrawableSliderHead(object, this.object, this.object.nodeSamples[idx]).hook(this.context);
+						return new DrawableSliderHead(
+							object,
+							this.object,
+							this.object.nodeSamples[idx],
+						).hook(this.context);
 
 					return null;
 				})
@@ -118,11 +135,13 @@ export default class DrawableSlider
 		this.body.y = object.startPosition.y + object.stackedOffset.x;
 
 		this.ball = new DrawableSliderBall(this.object);
+		this.followCircle = new DrawableSliderFollowCircle(this.object);
 
 		this.container.visible = false;
 		this.container.addChild(
 			this.body,
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
+			this.followCircle.container,
 			this.ball.container,
 		);
 	}
@@ -205,7 +224,9 @@ export default class DrawableSlider
 			}
 		}
 		this.updateGeometry(start, end);
+		
 		this.ball.update(time);
+		this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);
 
 		if (time < this.object.startTime) {

@@ -64,7 +64,7 @@ export default class DrawableSliderTail extends DrawableHitObject {
 
 		const startFadeInTime =
 			this.object.startTime + TAIL_LENIENCY - this.object.timePreempt;
-		const fadeOutDuration = 200;
+		const fadeOutDuration = 240;
 
 		this.container.x = this.object.startX + this.object.stackedOffset.x;
 		this.container.y = this.object.startY + this.object.stackedOffset.y;
@@ -101,9 +101,9 @@ export default class DrawableSliderTail extends DrawableHitObject {
 					),
 				);
 			const scale = Math.min(
-				2,
+				1.5,
 				1 +
-					Math.max(
+					0.5 * Math.max(
 						0,
 						(time - this.object.startTime - TAIL_LENIENCY) / fadeOutDuration,
 					),

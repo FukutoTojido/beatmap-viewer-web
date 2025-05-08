@@ -84,7 +84,7 @@ export default class DrawableSliderHead
 		this.defaults.update(time);
 
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
-		const fadeOutDuration = 200;
+		const fadeOutDuration = 240;
 
 		if (
 			time < startFadeInTime ||
@@ -115,8 +115,8 @@ export default class DrawableSliderHead
 					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
 				);
 			const scale = Math.min(
-				2,
-				1 + Math.max(0, (time - this.object.startTime) / fadeOutDuration),
+				1.5,
+				1 + 0.5 * Math.max(0, (time - this.object.startTime) / fadeOutDuration),
 			);
 
 			this.container.alpha = opacity;

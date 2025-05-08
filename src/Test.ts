@@ -20,7 +20,7 @@ const beatmap =
 if (!beatmap) throw new Error("Cannot find Beatmap");
 await beatmap.load();
 
-// beatmap.seek(95774);
+beatmap.seek(20301);
 
 document
 	.querySelector<HTMLButtonElement>("#toggleAudio")
@@ -29,11 +29,11 @@ document
 document.addEventListener("keydown", (event) => {
 	switch (event.key) {
 		case "ArrowLeft": {
-			beatmap.seek((beatmap.audio?.currentTime ?? 0) - 100);
+			beatmap.seek((beatmap.audio?.currentTime ?? 0) - 1);
 			break;
 		}
 		case "ArrowRight": {
-			beatmap.seek((beatmap.audio?.currentTime ?? 0) + 100);
+			beatmap.seek((beatmap.audio?.currentTime ?? 0) + 1);
 			break;
 		}
 		case " ": {
