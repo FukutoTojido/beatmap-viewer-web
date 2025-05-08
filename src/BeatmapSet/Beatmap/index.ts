@@ -295,7 +295,7 @@ export default class Beatmap extends ScopedClass {
 			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
 		for (const object of sorted) {
-			object.update(this.audio?.currentTime ?? 0);
+			requestAnimationFrame(() => object.update(this.audio?.currentTime ?? 0));
 			object.playHitSound(time);
 			containers.push(object.container);
 
