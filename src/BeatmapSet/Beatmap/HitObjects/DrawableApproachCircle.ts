@@ -8,7 +8,7 @@ export default class DrawableApproachCircle {
 		this.container.visible = false;
 		this.container.x = object.startX + object.stackedOffset.x;
 		this.container.y = object.startY + object.stackedOffset.y;
-		this.container.circle(0, 0, object.radius * 0.8 * (236 / 256)).stroke({
+		this.container.circle(0, 0, object.radius * (236 / 256) ** 2).stroke({
 			alignment: 0,
 			color: 0xcdd6f4,
 			width: 2,

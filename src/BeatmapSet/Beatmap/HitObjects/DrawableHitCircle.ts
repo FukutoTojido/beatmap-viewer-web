@@ -3,7 +3,7 @@ import {
 	type StandardHitObject,
 	type Circle,
 } from "osu-standard-stable";
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
@@ -11,15 +11,22 @@ import DrawableApproachCircle from "./DrawableApproachCircle";
 import HitSample from "../../../Audio/HitSample";
 import type { SamplePoint } from "osu-classes";
 import type Beatmap from "..";
+import DrawableDefaults from "./DrawableDefaults";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
 	implements IHasApproachCircle
 {
 	container = new Container();
+
+	hitCircleSprite = new Sprite();
+	hitCircleOverlay = new Sprite();
+	
 	sprite = new Graphics();
 
 	approachCircle: DrawableApproachCircle;
+	defaults: DrawableDefaults;
+
 	hitSound?: HitSample;
 
 	samplePoint?: SamplePoint;
@@ -31,17 +38,18 @@ export default class DrawableHitCircle
 		this.container.y = object.startY + object.stackedOffset.y;
 
 		this.sprite
-			.circle(0, 0, object.radius * 0.8 * (236 / 256))
+			.circle(0, 0, object.radius * (236 / 256) ** 2)
 			.fill(0x585b70)
 			.stroke({
 				alignment: 0.5,
 				color: 0xcdd6f4,
-				width: object.radius * 0.8 * (236 / 256) * 0.128,
+				width: object.radius * (236 / 256) ** 2 * 0.128,
 			});
 
 		this.approachCircle = new DrawableApproachCircle(object);
+		this.defaults = new DrawableDefaults(object);
 
-		this.container.addChild(this.sprite, this.approachCircle.container);
+		this.container.addChild(this.sprite, this.defaults.container);
 		this.hitSound = new HitSample(object.samples).hook(this.context);
 	}
 
@@ -56,19 +64,10 @@ export default class DrawableHitCircle
 		)
 			return;
 
-			const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
-				Math.ceil(this.object.startTime),
-			);
-	
-			const potentialFutureSamplePoint = beatmap.data.controlPoints.samplePointAt(
-				Math.ceil(this.object.startTime + 1),
-			);
-	
-			let samplePoint: SamplePoint = currentSamplePoint;
-			// biome-ignore lint/style/noNonNullAssertion: <explanation>
-			if (potentialFutureSamplePoint.group!.startTime - this.object.startTime < 2) samplePoint = potentialFutureSamplePoint;
-	
-			this.hitSound?.play(samplePoint);
+		const currentSamplePoint = beatmap.getNearestSamplePoint(
+			this.object.startTime,
+		);
+		this.hitSound?.play(currentSamplePoint);
 	}
 
 	getTimeRange(): { start: number; end: number } {
@@ -81,6 +80,7 @@ export default class DrawableHitCircle
 	update(time: number) {
 		this.playHitSound(time);
 		this.approachCircle.update(time);
+		this.defaults.update(time);
 
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
@@ -101,7 +101,7 @@ export default class DrawableHitCircle
 				1,
 				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
 			);
-			this.sprite.alpha = opacity;
+			this.container.alpha = opacity;
 
 			return;
 		}
@@ -118,7 +118,7 @@ export default class DrawableHitCircle
 				1 + Math.max(0, (time - this.object.startTime) / fadeOutDuration),
 			);
 
-			this.sprite.alpha = opacity;
+			this.container.alpha = opacity;
 			this.sprite.scale.set(scale);
 
 			return;

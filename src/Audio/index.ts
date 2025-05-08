@@ -1,12 +1,13 @@
 import type { BitmapText } from "pixi.js";
 // @ts-ignore
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
-import { inject } from "../Context";
+import { inject, ScopedClass } from "../Context";
+import type Beatmap from "../BeatmapSet/Beatmap";
 
 type AudioEvent = "time";
 type EventCallback = (time: number) => void;
 
-export default class Audio {
+export default class Audio extends ScopedClass {
 	private localGainNode: GainNode;
 	private audioBuffer?: AudioBuffer;
 	private src?: AudioBufferSourceNode;
@@ -18,6 +19,7 @@ export default class Audio {
 	state: "PLAYING" | "STOPPED" = "STOPPED";
 
 	constructor(private audioContext: AudioContext) {
+		super();
 		this.localGainNode = audioContext.createGain();
 	}
 
@@ -75,7 +77,7 @@ export default class Audio {
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.;
+		this.localGainNode.gain.value = 0.4;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {
@@ -84,8 +86,10 @@ export default class Audio {
 			if (this.currentTime < this.audioBuffer?.duration * 1000) return;
 
 			console.log("Audio Ended!");
-			this.pause();
-			this.currentTime = 0;
+
+			const beatmap = this.context.consume<Beatmap>("beatmapObject");
+			beatmap?.toggle();
+			beatmap?.seek(0);
 		};
 		this.localGainNode.connect(this.audioContext.destination);
 

@@ -53,7 +53,7 @@ export default class DrawableSlider
 		resources: {
 			customUniforms: {
 				borderColor: {
-					value: [205 / 255, 214 / 255, 244 / 255, 1.0],
+					value: [127 / 255, 132 / 255, 156 / 255, 1.0],
 					type: "vec4<f32>",
 				},
 				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
@@ -106,7 +106,7 @@ export default class DrawableSlider
 						return new DrawableSliderTail(object, this.object.nodeSamples[idx]).hook(this.context);
 
 					if (object instanceof SliderHead)
-						return new DrawableSliderHead(object, this.object.nodeSamples[idx]).hook(this.context);
+						return new DrawableSliderHead(object, this.object, this.object.nodeSamples[idx]).hook(this.context);
 
 					return null;
 				})
@@ -146,7 +146,7 @@ export default class DrawableSlider
 		);
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
-			this.object.radius * 0.8,
+			this.object.radius * (236 / 256) ** 2 * (1 / 0.96),
 		);
 
 		this._geometry.attributes.aPosition.buffer.data = new Float32Array(
@@ -166,10 +166,6 @@ export default class DrawableSlider
 	}
 
 	update(time: number) {
-		this.ball.update(time);
-
-		for (const circle of this.drawableCircles) circle.update(time);
-
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
@@ -209,6 +205,8 @@ export default class DrawableSlider
 			}
 		}
 		this.updateGeometry(start, end);
+		this.ball.update(time);
+		for (const circle of this.drawableCircles) circle.update(time);
 
 		if (time < this.object.startTime) {
 			const opacity = Math.min(

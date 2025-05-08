@@ -39,19 +39,10 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 		)
 			return;
 
-		const currentSamplePoint = beatmap.data.controlPoints.samplePointAt(
-			Math.ceil(this.object.startTime),
-		);
-
-        const potentialFutureSamplePoint = beatmap.data.controlPoints.samplePointAt(
-			Math.ceil(this.object.startTime + 1),
-		);
-
-        let samplePoint: SamplePoint = currentSamplePoint;
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        if (potentialFutureSamplePoint.group!.startTime - this.object.startTime < 2) samplePoint = potentialFutureSamplePoint;
-
-		this.hitSound?.play(samplePoint);
+			const currentSamplePoint = beatmap.getNearestSamplePoint(
+				this.object.startTime,
+			);
+			this.hitSound?.play(currentSamplePoint);
 	}
 
 	getTimeRange(): { start: number; end: number } {

@@ -14,11 +14,11 @@ export default class DrawableSliderBall {
 		this.container.x = object.startX;
 		this.container.y = object.startY;
 		this.container
-			.circle(0, 0, object.radius * 0.8 * (236 / 256))
+			.circle(0, 0, object.radius * (236 / 256) ** 2)
 			.stroke({
 				alignment: 0.5,
 				color: 0xcdd6f4,
-				width: object.radius * 0.8 * (236 / 256) * 0.128,
+				width: object.radius * (236 / 256) ** 2 * 0.128,
 			});
 	}
 

@@ -1,10 +1,11 @@
 type HitObjectMini = {
-	startTime: number,
-	endTime: number,
-	timePreempt: number
-}
+	startTime: number;
+	endTime: number;
+	timePreempt: number;
+};
 
 let objects: HitObjectMini[] = [];
+let connectors: HitObjectMini[] = [];
 let isPlaying = false;
 
 let currentTime = 0;
@@ -30,7 +31,7 @@ function inRange(val: number, start: number, end: number) {
 	return -1;
 }
 
-function binarySearchNearestIndex(time: number) {
+function binarySearchNearestIndex(objects: HitObjectMini[], time: number) {
 	let start = 0;
 	let end = objects.length - 1;
 
@@ -52,8 +53,8 @@ function binarySearchNearestIndex(time: number) {
 	return -1;
 }
 
-function searchObjects(time: number) {
-	const idx = binarySearchNearestIndex(time);
+function searchObjects(objects: HitObjectMini[], time: number) {
+	const idx = binarySearchNearestIndex(objects, time);
 	if (idx === -1) return new Set<number>();
 
 	const objects_ = new Set<number>();
@@ -92,11 +93,13 @@ function loop() {
 	if (objects.length === 0) return;
 
 	const currentTime = getCurrentTime();
-	const _objects = searchObjects(currentTime);
+	const _objects = searchObjects(objects, currentTime);
+	const _connectors = searchObjects(connectors, currentTime);
 
 	postMessage({
 		type: "update",
 		objects: _objects,
+		connectors: _connectors,
 		currentTime,
 		previousTime,
 	});
@@ -109,6 +112,7 @@ onmessage = (event) => {
 	switch (event.data.type) {
 		case "init": {
 			objects = event.data.objects;
+			connectors = event.data.connectors;
 			break;
 		}
 		case "start": {
@@ -123,6 +127,7 @@ onmessage = (event) => {
 		}
 		case "seek": {
 			currentTime = event.data.time;
+			startTime = performance.now();
 			break;
 		}
 	}
