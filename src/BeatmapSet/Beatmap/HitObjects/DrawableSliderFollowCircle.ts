@@ -12,7 +12,7 @@ export default class DrawableSliderFollowCircle {
 		this.container.circle(0, 0, object.radius * 2).stroke({
 			alignment: 0.5,
 			color: 0xf9e2af,
-			width: 4,
+			width: 8,
 		});
 	}
 

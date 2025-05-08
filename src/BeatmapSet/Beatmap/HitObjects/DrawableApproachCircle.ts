@@ -13,6 +13,8 @@ export default class DrawableApproachCircle {
 			color: 0xcdd6f4,
 			width: 2,
 		});
+		this.container.interactive = false;
+        this.container.interactiveChildren = false;
 	}
 
 	update(time: number) {

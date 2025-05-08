@@ -52,6 +52,9 @@ export default class DrawableSliderHead
 
 		this.container.addChild(this.sprite, this.defaults.container);
 		this.hitSound = new HitSample(samples).hook(this.context);
+
+		this.container.interactive = false;
+        this.container.interactiveChildren = false;
 	}
 
 	playHitSound(time: number): void {

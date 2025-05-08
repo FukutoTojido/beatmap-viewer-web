@@ -45,6 +45,8 @@ export default class DrawableFollowPoints {
 		this.container.x = this.startPosition.x;
 		this.container.y = this.startPosition.y;
 		this.container.rotation = angle;
+        this.container.interactive = false;
+        this.container.interactiveChildren = false;
 
 		const numberOfSprites = Math.floor((this.distance - 48) / (512 / 16));
 		for (let i = 0; i < numberOfSprites; i++) {

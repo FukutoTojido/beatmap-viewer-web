@@ -77,7 +77,7 @@ export default class Audio extends ScopedClass {
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.4;
+		this.localGainNode.gain.value = 0.;
 
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {

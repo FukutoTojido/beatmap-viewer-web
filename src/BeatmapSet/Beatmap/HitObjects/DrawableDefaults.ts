@@ -30,6 +30,8 @@ export default class DrawableDefaults extends ScopedClass {
 		});
 
 		this.container.addChild(...this.sprites);
+		this.container.interactive = false;
+        this.container.interactiveChildren = false;
 	}
 
 	update(time: number) {

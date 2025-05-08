@@ -32,6 +32,8 @@ export default class DrawableSliderTail extends DrawableHitObject {
 				color: 0xcdd6f4,
 				width: object.radius * (236 / 256) ** 2 * 0.128,
 			});
+		this.container.interactive = false;
+		this.container.interactiveChildren = false;
 		this.hitSound = new HitSample(samples).hook(this.context);
 	}
 
@@ -103,10 +105,11 @@ export default class DrawableSliderTail extends DrawableHitObject {
 			const scale = Math.min(
 				1.5,
 				1 +
-					0.5 * Math.max(
-						0,
-						(time - this.object.startTime - TAIL_LENIENCY) / fadeOutDuration,
-					),
+					0.5 *
+						Math.max(
+							0,
+							(time - this.object.startTime - TAIL_LENIENCY) / fadeOutDuration,
+						),
 			);
 
 			this.container.alpha = opacity * 0.5;

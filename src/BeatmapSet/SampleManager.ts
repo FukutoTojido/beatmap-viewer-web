@@ -122,7 +122,7 @@ export default class SampleManager {
 	}
 
 	get(sampleSet: string, hitSound: string, idx: number) {
-		const key = `${sampleSet}-${hitSound}${idx}`;
+		const key = `${sampleSet}-${hitSound}${idx === 1 ? "" : idx}`;
 		const fallbackKey = `${sampleSet}-${hitSound}`;
 
 		if (idx === 0) return this.defaultMap.get(fallbackKey);

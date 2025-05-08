@@ -27,6 +27,9 @@ import DrawableSliderTail from "./DrawableSliderTail";
 import DrawableSliderBall from "./DrawableSliderBall";
 import DrawableSliderHead from "./DrawableSliderHead";
 import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
+import { HitSample as Sample } from "osu-classes";
+import HitSample from "/src/Audio/HitSample";
+import type Beatmap from "..";
 
 const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
@@ -84,6 +87,9 @@ export default class DrawableSlider
 	});
 	private ball: DrawableSliderBall;
 	private followCircle: DrawableSliderFollowCircle;
+
+	private sliderWhistleSample: HitSample;
+	private sliderSlideSample: HitSample;
 
 	container = new Container();
 
@@ -144,6 +150,16 @@ export default class DrawableSlider
 			this.followCircle.container,
 			this.ball.container,
 		);
+
+		const whistleSample = new Sample();
+		whistleSample.hitSound = "sliderwhistle";
+		this.sliderWhistleSample = new HitSample([whistleSample]).hook(
+			this.context,
+		);
+
+		const slideSample = new Sample();
+		slideSample.hitSound = "sliderslide";
+		this.sliderSlideSample = new HitSample([slideSample]).hook(this.context);
 	}
 
 	get approachCircle() {
@@ -155,6 +171,29 @@ export default class DrawableSlider
 			start: this.object.startTime - this.object.timePreempt,
 			end: this.object.endTime + 800,
 		};
+	}
+
+	playHitSound(time: number): void {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (!beatmap) return;
+
+		const currentSamplePoint = beatmap.getNearestSamplePoint(
+			this.object.startTime,
+		);
+
+		if (this.object.hitSound !== 0) {
+			this.sliderWhistleSample.playLoop(
+				currentSamplePoint,
+				time >= this.object.startTime && time <= this.object.endTime,
+				this.object.endTime - time,
+			);
+		}
+
+		this.sliderSlideSample.playLoop(
+			currentSamplePoint,
+			time >= this.object.startTime && time <= this.object.endTime,
+			this.object.endTime - time,
+		);
 	}
 
 	updateGeometry(progressHead = 0, progressTail = 1) {
@@ -185,6 +224,8 @@ export default class DrawableSlider
 	}
 
 	update(time: number) {
+		this.playHitSound(time);
+		
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
@@ -224,7 +265,7 @@ export default class DrawableSlider
 			}
 		}
 		this.updateGeometry(start, end);
-		
+
 		this.ball.update(time);
 		this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);

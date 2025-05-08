@@ -13,13 +13,13 @@ export default class DrawableSliderBall {
 		this.container.visible = false;
 		this.container.x = object.startX;
 		this.container.y = object.startY;
-		this.container
-			.circle(0, 0, object.radius * (236 / 256) ** 2)
-			.stroke({
-				alignment: 0.5,
-				color: 0xcdd6f4,
-				width: object.radius * (236 / 256) ** 2 * 0.128,
-			});
+		this.container.circle(0, 0, object.radius * (236 / 256) ** 2).stroke({
+			alignment: 0.5,
+			color: 0xcdd6f4,
+			width: object.radius * (236 / 256) ** 2 * 0.128,
+		});
+		this.container.interactive = false;
+		this.container.interactiveChildren = false;
 	}
 
 	update(time: number) {
@@ -28,10 +28,15 @@ export default class DrawableSliderBall {
 			Math.max(0, (time - this.object.startTime) / this.object.duration),
 		);
 
-        const position = this.object.path.curvePositionAt(completionProgress, this.object.spans);
+		const position = this.object.path.curvePositionAt(
+			completionProgress,
+			this.object.spans,
+		);
 
-		this.container.x = this.object.startX + position.x + this.object.stackedOffset.x;
-		this.container.y = this.object.startY + position.y + this.object.stackedOffset.y;
+		this.container.x =
+			this.object.startX + position.x + this.object.stackedOffset.x;
+		this.container.y =
+			this.object.startY + position.y + this.object.stackedOffset.y;
 
 		if (time < this.object.startTime || time > this.object.endTime) {
 			this.container.visible = false;

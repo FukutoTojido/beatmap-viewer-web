@@ -24,7 +24,9 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 		this.container.x = object.startX;
 		this.container.y = object.startY;
 		this.container.circle(0, 0, 10).fill(0xcdd6f4);
-
+        this.container.interactive = false;
+        this.container.interactiveChildren = false;
+		
 		this.hitSound = new HitSample(samples).hook(this.context);
 	}
 

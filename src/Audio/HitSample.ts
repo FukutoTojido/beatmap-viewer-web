@@ -7,24 +7,32 @@ import type {
 import Beatmap from "../BeatmapSet/Beatmap";
 import type SampleManager from "../BeatmapSet/SampleManager";
 import { type Context, ScopedClass } from "../Context";
+import type Audio from ".";
 
 export default class HitSample extends ScopedClass {
+	localGainNode?: GainNode;
+	srcs: AudioBufferSourceNode[] = [];
+
+	private isPlaying = false;
+	private timeout?: ReturnType<typeof setTimeout>;
+
 	constructor(private hitSamples: Sample[]) {
 		super();
 	}
 
-	play(samplePoint: SamplePoint) {
+	play(samplePoint: SamplePoint, isLoop = false) {
 		const audioContext = this.context.consume<AudioContext>("audioContext");
 		if (!audioContext) return;
 
 		const sampleManager = this.context.consume<SampleManager>("sampleManager");
 		if (!sampleManager) return;
 
+		this.srcs = [];
 		for (const hitSample of this.hitSamples) {
 			let { sampleSet, hitSound } = hitSample;
 			if (sampleSet === "None") sampleSet = samplePoint.sampleSet;
 			if (sampleSet === "None") sampleSet = "Normal";
-			if (!hitSound.includes("slider")) hitSound = `hit${hitSound}`
+			if (!hitSound.includes("slider")) hitSound = `hit${hitSound}`;
 
 			const buffer = sampleManager.get(
 				sampleSet.toLowerCase(),
@@ -38,6 +46,7 @@ export default class HitSample extends ScopedClass {
 
 			const localGainNode = audioContext?.createGain();
 			localGainNode.gain.value = 0.3;
+			this.localGainNode = localGainNode;
 
 			src.connect(localGainNode);
 			localGainNode.connect(audioContext.destination);
@@ -48,6 +57,35 @@ export default class HitSample extends ScopedClass {
 			};
 
 			src.start();
+			src.loop = isLoop;
+			this.srcs.push(src);
+		}
+
+		this.isPlaying = true;
+	}
+
+	playLoop(samplePoint: SamplePoint, inRange: boolean, remainingTime: number) {
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio) return;
+
+		const clearCurrent = () => {
+			for (const src of this.srcs) {
+				src.stop();
+				src.disconnect();
+			};
+
+			this.isPlaying = false;
+		}
+
+		if (inRange && !this.isPlaying && audio.state === "PLAYING") {
+			clearTimeout(this.timeout);
+			this.play(samplePoint, true);
+			this.timeout = setTimeout(() => clearCurrent(), remainingTime ?? 0);
+		}
+
+		if (this.isPlaying && (!inRange || audio.state === "STOPPED")) {
+			clearTimeout(this.timeout);
+			clearCurrent();
 		}
 	}
 }

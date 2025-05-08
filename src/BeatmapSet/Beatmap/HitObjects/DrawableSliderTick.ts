@@ -28,7 +28,9 @@ export default class DrawableSliderTick extends DrawableHitObject {
 			color: 0xcdd6f4,
 			width: 2,
 		});
-
+        this.container.interactive = false;
+        this.container.interactiveChildren = false;
+		
 		const clonedSample = sample.clone();
 		clonedSample.hitSound = "slidertick";
 		this.hitSound = new HitSample([clonedSample]).hook(this.context);
