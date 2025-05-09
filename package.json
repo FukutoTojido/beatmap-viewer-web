@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "vite --port 8080",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview --port 2000"
   },
   "devDependencies": {
     "@types/bun": "latest"

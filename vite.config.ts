@@ -16,5 +16,8 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(__dirname, './src'),
 		}
+	},
+	preview: {
+		allowedHosts: ["beatmap.try-z.net"]
 	}
 });
