@@ -4,7 +4,6 @@
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"target": "ESNext",
 		"module": "ESNext",
-		"jsx": "react-jsx",
 		"allowJs": true,
 
 		// Bundler mode

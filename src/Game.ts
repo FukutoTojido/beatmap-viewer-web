@@ -4,7 +4,7 @@ import AnimationController, {
 	tweenGroup,
 } from "./UI/animation/AnimationController";
 import State from "./State";
-import { frameData } from "./FPSSystem";
+import "./FPSSystem";
 import SidePanel from "./UI/sidepanel";
 import Main from "./UI/main";
 import { inject, provide } from "./Context";
@@ -37,7 +37,6 @@ export class Game {
 			clearBeforeRender: true,
 			depth: true,
 			autoDensity: true,
-			powerPreference: "high-performance",
 		});
 		app.stage.layout = {
 			width: app.screen.width,
