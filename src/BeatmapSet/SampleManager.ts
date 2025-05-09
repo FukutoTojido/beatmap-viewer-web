@@ -40,7 +40,7 @@ export default class SampleManager {
 			allFiles.map(async (filename) => {
 				try {
 					const { data } = await axios.get<Blob>(
-						`/skinning/legacy/${filename}.wav`,
+						`./skinning/legacy/${filename}.wav`,
 						{
 							responseType: "blob",
 						},

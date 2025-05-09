@@ -35,7 +35,7 @@ export async function getDefaultLegacy() {
 	await Promise.all(
 		filenames.map(async (filename) => {
 			try {
-				const { data } = await axios.get<Blob>(`/skinning/legacy/${filename}`, {
+				const { data } = await axios.get<Blob>(`./skinning/legacy/${filename}`, {
 					responseType: "blob",
 				});
 
@@ -84,7 +84,7 @@ export async function getYugen() {
 	await Promise.all(
 		filenames.map(async (filename) => {
 			try {
-				const { data } = await axios.get<Blob>(`/skinning/yugen/${filename}`, {
+				const { data } = await axios.get<Blob>(`./skinning/yugen/${filename}`, {
 					responseType: "blob",
 				});
 
