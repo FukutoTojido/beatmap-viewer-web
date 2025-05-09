@@ -87,6 +87,3 @@ export class Game {
 		tweenGroup.update();
 	}
 }
-
-const game = provide("game", new Game());
-await game.init();
