@@ -6,7 +6,7 @@ import type SidePanel from "./UI/sidepanel";
 type SidebarState = "OPENED" | "CLOSED";
 
 export default class State {
-	sidebar: SidebarState = "OPENED";
+	sidebar: SidebarState = "CLOSED";
 
 	constructor() {
 		document

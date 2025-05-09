@@ -43,7 +43,7 @@ export class Game {
 			width: app.screen.width,
 			height: app.screen.width,
 			flexDirection: "row",
-			gap: 10,
+			gap: 0,
 		};
 
 		return app;

@@ -21,7 +21,7 @@ export default class SidePanel {
 	container = new ZContainer({
 		label: "side panel",
 		layout: {
-			width: 400,
+			width: 0,
 			height: "100%",
 			backgroundColor: 0x181825,
 			borderColor: 0x585b70,
@@ -32,11 +32,13 @@ export default class SidePanel {
 			boxSizing: "border-box",
 			overflow: "hidden",
 			padding: 20,
+			paddingInline: 0,
 			gap: 20,
 		},
 	});
 
 	constructor() {
+		this.container.alphaFilter.alpha = 0;
 		const tabs = this.tabs.map(({ title }) => {
 			const container = new LayoutContainer({
 				layout: {
