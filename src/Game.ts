@@ -1,4 +1,3 @@
-import "@pixi/layout";
 import { initDevtools } from "@pixi/devtools";
 import { Application, RenderTarget } from "pixi.js";
 import AnimationController, {
@@ -10,6 +9,7 @@ import SidePanel from "./UI/sidepanel";
 import Main from "./UI/main";
 import { inject, provide } from "./Context";
 import Config from "./Config";
+import SkinManager from "./Skinning/SkinManager";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -20,6 +20,7 @@ export class Game {
 	animationController = new AnimationController();
 
 	constructor() {
+		provide("skinManager", new SkinManager())
 		provide("config", new Config())
 	}
 
@@ -49,6 +50,8 @@ export class Game {
 	}
 
 	async init() {
+		await inject<SkinManager>("skinManager")?.loadSkins();
+		
 		const app = provide("ui/app", await this.initApplication());
 		const main = provide("ui/main", new Main());
 		const sidepanel = provide("ui/sidepanel", new SidePanel());

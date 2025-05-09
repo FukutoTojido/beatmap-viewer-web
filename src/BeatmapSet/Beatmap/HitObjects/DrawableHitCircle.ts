@@ -3,15 +3,19 @@ import {
 	type StandardHitObject,
 	type Circle,
 } from "osu-standard-stable";
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Assets, Container, Graphics, Sprite } from "pixi.js";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
 import DrawableApproachCircle from "./DrawableApproachCircle";
-import HitSample from "../../../Audio/HitSample";
+import HitSample from "@/Audio/HitSample";
 import type { SamplePoint } from "osu-classes";
 import type Beatmap from "..";
 import DrawableDefaults from "./DrawableDefaults";
+import { update } from "@/Skinning/Legacy/LegacyHitCircle";
+import type Skin from "@/Skinning/Skin";
+import { inject } from "@/Context";
+import type SkinManager from "@/Skinning/SkinManager";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -19,38 +23,70 @@ export default class DrawableHitCircle
 {
 	container = new Container();
 
-	hitCircleSprite = new Sprite();
-	hitCircleOverlay = new Sprite();
-	
-	sprite = new Graphics();
+	hitCircleSprite: Sprite;
+	hitCircleOverlay: Sprite;
+
+	sprite = new Container();
 
 	approachCircle: DrawableApproachCircle;
-	defaults: DrawableDefaults;
+	defaults?: DrawableDefaults;
 
 	hitSound?: HitSample;
 
 	samplePoint?: SamplePoint;
 
-	constructor(public object: StandardHitObject) {
+	constructor(
+		public object: StandardHitObject,
+		protected hasNumber = true,
+	) {
 		super(object);
 		this.container.visible = false;
 		this.container.x = object.startX + object.stackedOffset.x;
 		this.container.y = object.startY + object.stackedOffset.y;
 
-		this.sprite
-			.circle(0, 0, object.radius * (236 / 256) ** 2)
-			.fill(0x585b70)
-			.stroke({
-				alignment: 0.5,
-				color: 0xcdd6f4,
-				width: object.radius * (236 / 256) ** 2 * 0.128,
-			});
+		this.hitCircleSprite = new Sprite();
+		this.hitCircleOverlay = new Sprite();
+
+		this.hitCircleSprite.anchor.set(0.5);
+		this.hitCircleSprite.alpha = 0.9;
+
+		// this.refreshSprite()
+
+		this.hitCircleOverlay.anchor.set(0.5);
+		this.sprite.addChild(this.hitCircleSprite, this.hitCircleOverlay);
 
 		this.approachCircle = new DrawableApproachCircle(object);
-		this.defaults = new DrawableDefaults(object);
 
-		this.container.addChild(this.sprite, this.defaults.container);
+		this.container.addChild(this.sprite);
+
+		if (this.hasNumber) {
+			this.defaults = new DrawableDefaults(object);
+			this.container.addChild(this.defaults.container);
+		}
+
+		this.container.scale.set(object.scale);
 		this.hitSound = new HitSample(object.samples).hook(this.context);
+
+		this.refreshSprite();
+		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
+	}
+
+	refreshSprite() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
+		const hitCircle = skin.getTexture("hitcircle");
+		const hitCircleOverlay = skin.getTexture("hitcircleoverlay");
+
+		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
+		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+
+		const comboIndex = this.object.comboIndex % skin.colorsLength;
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const color = (skin.config.Colours as any)[
+			`Combo${comboIndex + 1}`
+		] as string;
+		this.hitCircleSprite.tint = `rgb(${color})`;
 	}
 
 	playHitSound(time: number): void {
@@ -79,48 +115,7 @@ export default class DrawableHitCircle
 
 	update(time: number) {
 		this.approachCircle.update(time);
-		this.defaults.update(time);
-
-		const startFadeInTime = this.object.startTime - this.object.timePreempt;
-		const fadeOutDuration = 240;
-
-		if (
-			time < startFadeInTime ||
-			time > this.object.startTime + fadeOutDuration
-		) {
-			this.container.visible = false;
-			return;
-		}
-
-		this.container.visible = true;
-		this.sprite.scale.set(1);
-
-		if (time < this.object.startTime) {
-			const opacity = Math.min(
-				1,
-				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
-			);
-			this.container.alpha = opacity;
-
-			return;
-		}
-
-		if (time >= this.object.startTime) {
-			const opacity =
-				1 -
-				Math.min(
-					1,
-					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-				);
-			const scale = Math.min(
-				1.5,
-				1 + 0.5 * Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-			);
-
-			this.container.alpha = opacity;
-			this.sprite.scale.set(scale);
-
-			return;
-		}
+		this.defaults?.update(time);
+		update(this, time);
 	}
 }

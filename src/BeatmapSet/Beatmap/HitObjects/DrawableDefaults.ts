@@ -1,54 +1,93 @@
-import { BitmapText, Container, Sprite, Text } from "pixi.js";
-import { ScopedClass } from "/src/Context";
+import { Assets, BitmapText, Container, Sprite, Text } from "pixi.js";
+import { inject, ScopedClass } from "@/Context";
 import type { StandardHitObject } from "osu-standard-stable";
+import { LayoutContainer } from "@pixi/layout/components";
+import type Skin from "@/Skinning/Skin";
+import type SkinManager from "@/Skinning/SkinManager";
+import SkinnableElement from "./SkinnableElement";
 
-const SPACING = 10;
-export default class DrawableDefaults extends ScopedClass {
-	container: Container = new Container();
-	sprites: BitmapText[] = [];
+const SPACING = -2;
+
+export default class DrawableDefaults extends SkinnableElement {
+	container: Container;
+	sprites: { text: Sprite; digit: string }[] = [];
 
 	constructor(private object: StandardHitObject) {
 		super();
 		const number = object.currentComboIndex + 1;
 		const digits = number.toString().split("");
-		const middle = (digits.length - 1) / 2;
 
-		this.sprites = digits.map<BitmapText>((digit, idx) => {
-			const offset = (idx - middle) * SPACING;
-			const text = new BitmapText({
-				text: digit,
-				style: {
-					fontSize: 24,
-					fontFamily: "Rubik",
-					fill: 0xcdd6f4,
-				},
-				x: offset,
-			});
-
-			text.anchor.set(0.5);
-			return text;
+		this.container = new Container({
+			// layout: {
+			// 	position: "absolute",
+			// 	transformOrigin: "center center",
+			// 	width: 0,
+			// 	height: 0,
+			// 	flexDirection: "row",
+			// 	gap: -SPACING,
+			// 	alignItems: "center",
+			// 	justifyContent: "center",
+			// },
 		});
 
-		this.container.addChild(...this.sprites);
+		this.sprites = digits.map<{ text: Sprite; digit: string }>((digit) => {
+			const text = new Sprite();
+			text.anchor.set(0, 0.5);
+			return { text, digit };
+		});
+
+		this.refreshSprites();
+		this.container.scale.set(0.8);
+		this.container.addChild(...this.sprites.map((sprite) => sprite.text));
 		this.container.interactive = false;
-        this.container.interactiveChildren = false;
+		this.container.interactiveChildren = false;
+
+		this.skinManager?.addSkinChangeListener(() => this.refreshSprites());
+	}
+
+	refreshSprites(skin?: Skin) {
+		const s = skin ?? this.skinManager?.getCurrentSkin();
+		if (!s) return;
+
+		let width = s.config.Fonts.HitCircleOverlap;
+		for (const { text, digit } of this.sprites) {
+			width -= s.config.Fonts.HitCircleOverlap;
+			const texture = s.getTexture(`default-${digit}`);
+			text.x = width;
+
+			if (texture) {
+				text.texture = texture;
+				width += texture.width;
+			}
+		}
+		this.container.x = (-width / 2) * 0.8;
+		// this.container.x = 0;
+		this.container.y = 0;
 	}
 
 	update(time: number) {
-		const fadeOutDuration = 50;
+		const fadeOutDuration = 60;
 
-        if (time <= this.object.startTime) {
-            this.container.alpha = 1;
-            return;
-        }
+		if (time <= this.object.startTime) {
+			this.container.alpha = 1;
+			return;
+		}
 
-		if (time > this.object.startTime && time <= this.object.startTime + fadeOutDuration) {
-            const opacity = 1 - Math.min(1, Math.max(0, (time - this.object.startTime) / fadeOutDuration));
+		if (
+			time > this.object.startTime &&
+			time <= this.object.startTime + fadeOutDuration
+		) {
+			const opacity =
+				1 -
+				Math.min(
+					1,
+					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
+				);
 			this.container.alpha = opacity;
 
-            return;
-        }
+			return;
+		}
 
-        this.container.alpha = 0;
+		this.container.alpha = 0;
 	}
 }

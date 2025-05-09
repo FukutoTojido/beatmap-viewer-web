@@ -1,5 +1,5 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import { provide } from "/src/Context";
+import { provide } from "@/Context";
 import Timestamp from "./Timestamp";
 import Metadata from "./Metadata";
 

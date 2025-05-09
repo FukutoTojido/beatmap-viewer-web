@@ -36,9 +36,9 @@ const GL = { vertex, fragment };
 // 	0.21176470588, 0.52156862745, 0.72549019607, 0,
 // ];
 const COLOR: [number, number, number, number] = [
-	17 / 255,
-	17 / 255,
-	27 / 255,
+	69 / 255,
+	71 / 255,
+	90 / 255,
 	0,
 ];
 
@@ -57,7 +57,7 @@ export default class DrawableSlider
 		resources: {
 			customUniforms: {
 				borderColor: {
-					value: [127 / 255, 132 / 255, 156 / 255, 1.0],
+					value: [205 / 255, 214 / 255, 244 / 255, 1.0],
 					type: "vec4<f32>",
 				},
 				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
@@ -104,6 +104,7 @@ export default class DrawableSlider
 					if (object instanceof SliderTick)
 						return new DrawableSliderTick(
 							object,
+							this.object,
 							// biome-ignore lint/style/noNonNullAssertion: <explanation>
 							this.object.samples.find(
 								(sample) => sample.hitSound === "Normal",
@@ -121,6 +122,7 @@ export default class DrawableSlider
 					if (object instanceof SliderTail)
 						return new DrawableSliderTail(
 							object,
+							this.object,
 							this.object.nodeSamples[idx],
 						).hook(this.context);
 
@@ -160,6 +162,27 @@ export default class DrawableSlider
 		const slideSample = new Sample();
 		slideSample.hitSound = "sliderslide";
 		this.sliderSlideSample = new HitSample([slideSample]).hook(this.context);
+
+		this.refreshSprite();
+		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
+	}
+
+	refreshSprite() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
+
+		const comboIndex = this.object.comboIndex % skin.colorsLength;
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const comboColor = (skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string;
+		const trackOverride = skin.config.Colours.SliderTrackOverride;
+
+		const color = (trackOverride ?? comboColor).split(",").map(value => +value / 255);
+		const borderColor = skin.config.Colours.SliderBorder.split(",").map(value => +value / 255)
+
+		this._shader.resources.customUniforms.uniforms.borderColor = borderColor;
+		this._shader.resources.customUniforms.uniforms.innerColor = lighten([color[0], color[1], color[2]], 0.5);
+		this._shader.resources.customUniforms.uniforms.outerColor = darken([color[0], color[1], color[2]], 0.1);
 	}
 
 	get approachCircle() {
@@ -209,7 +232,7 @@ export default class DrawableSlider
 
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
-			this.object.radius * (236 / 256) ** 2 * (1 / 0.96),
+			this.object.radius * (236 / 256),
 		);
 
 		this._geometry.attributes.aPosition.buffer.data = new Float32Array(

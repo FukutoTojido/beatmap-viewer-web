@@ -5,28 +5,33 @@ import {
 	type Slider,
 } from "osu-standard-stable";
 import { Assets, Graphics, Sprite, type Texture } from "pixi.js";
+import type Skin from "@/Skinning/Skin";
+import { inject } from "@/Context";
+import type SkinManager from "@/Skinning/SkinManager";
+import SkinnableElement from "./SkinnableElement";
 
-const texture = await Assets.load<Texture>({
-	src: "/skinning/sliderb0@2x.png",
-	loadParser: "loadTextures"
-});
-
-export default class DrawableSliderBall {
-	container = new Sprite(texture);
+export default class DrawableSliderBall extends SkinnableElement {
+	container: Sprite;
 
 	constructor(public object: Slider) {
+		super();
+		this.container = new Sprite(
+			this.skinManager?.getCurrentSkin().getTexture("sliderb0"),
+		);
 		this.container.visible = false;
 		this.container.x = object.startX;
 		this.container.y = object.startY;
 		this.container.anchor.set(0.5);
 		this.container.scale.set(this.object.scale);
-		// this.container.circle(0, 0, object.radius * (236 / 256) ** 2).stroke({
-		// 	alignment: 0.5,
-		// 	color: 0xcdd6f4,
-		// 	width: object.radius * (236 / 256) ** 2 * 0.128,
-		// });
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
+
+		this.skinManager?.addSkinChangeListener((skin) => {
+			const sliderb = skin.getTexture("sliderb0");
+
+			if (!sliderb) return;
+			this.container.texture = sliderb;
+		});
 	}
 
 	update(time: number) {

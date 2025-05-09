@@ -1,8 +1,11 @@
 // @ts-ignore
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 
-import type { Resource } from ".";
+import type { Resource } from "../ZipHandler";
 import axios from "axios";
+import { inject } from "../Context";
+import type Skin from "../Skinning/Skin";
+import type SkinManager from "../Skinning/SkinManager";
 
 const HITSOUND_REGEX =
 	/(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/;
@@ -122,10 +125,13 @@ export default class SampleManager {
 	}
 
 	get(sampleSet: string, hitSound: string, idx: number) {
+		const skinManager = inject<SkinManager>("skinManager");
+
 		const key = `${sampleSet}-${hitSound}${idx === 1 ? "" : idx}`;
 		const fallbackKey = `${sampleSet}-${hitSound}`;
+		const currentSkin = skinManager?.skins[skinManager.currentSkinIdx]
 
-		if (idx === 0) return this.defaultMap.get(fallbackKey);
-		return this.map.get(key) ?? this.defaultMap.get(fallbackKey);
+		if (idx === 0) return currentSkin?.getHitsound(fallbackKey);
+		return this.map.get(key) ?? currentSkin?.getHitsound(fallbackKey);
 	}
 }

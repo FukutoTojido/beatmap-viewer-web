@@ -11,7 +11,7 @@ import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import Audio from "../../Audio";
-import type { Resource } from "..";
+import type { Resource } from "../../ZipHandler";
 import { Assets, type BitmapText, type Container } from "pixi.js";
 import type Background from "../../UI/main/viewer/Background";
 

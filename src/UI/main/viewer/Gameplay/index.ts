@@ -1,6 +1,6 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import { Container, Graphics, Rectangle } from "pixi.js";
-import { provide } from "/src/Context";
+import { provide } from "@/Context";
 
 export default class Gameplay {
 	container = new LayoutContainer({

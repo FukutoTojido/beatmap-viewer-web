@@ -1,6 +1,6 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import FPS from "./FPS";
-import { provide } from "/src/Context";
+import { provide } from "@/Context";
 import Timeline from "./Timeline";
 import Gameplay from "./Gameplay";
 import Timestamp from "./Timestamp";

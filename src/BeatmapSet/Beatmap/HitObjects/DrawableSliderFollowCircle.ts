@@ -1,26 +1,34 @@
 import type { Slider } from "osu-standard-stable";
 import { Assets, Graphics, Sprite, type Texture } from "pixi.js";
 import Easings from "../../../UI/Easings";
+import { inject } from "@/Context";
+import type Skin from "@/Skinning/Skin";
+import type SkinManager from "@/Skinning/SkinManager";
+import SkinnableElement from "./SkinnableElement";
 
-const texture = await Assets.load<Texture>({
-	src: "/skinning/sliderfollowcircle@2x.png",
-	loadParser: "loadTextures",
-});
-
-export default class DrawableSliderFollowCircle {
-	container = new Sprite(texture);
+export default class DrawableSliderFollowCircle extends SkinnableElement {
+	container;
 
 	constructor(public object: Slider) {
+		super();
+
+		this.container = new Sprite(
+			this.skinManager?.getCurrentSkin().getTexture(
+				"sliderfollowcircle",
+			),
+		);
 		this.container.visible = false;
 		this.container.x = object.startX;
 		this.container.y = object.startY;
 		this.container.anchor.set(0.5);
 		this.container.scale.set(this.object.scale);
-		// this.container.circle(0, 0, object.radius * 2).stroke({
-		// 	alignment: 0.5,
-		// 	color: 0xf9e2af,
-		// 	width: 8,
-		// });
+
+		this.skinManager?.addSkinChangeListener((skin) => {
+			const sliderFollowCircle = skin.getTexture("sliderfollowcircle");
+
+			if (!sliderFollowCircle) return;
+			this.container.texture = sliderFollowCircle;
+		});
 	}
 
 	update(time: number) {

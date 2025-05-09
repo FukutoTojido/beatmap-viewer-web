@@ -2,13 +2,12 @@ import type { Vector2 } from "osu-classes";
 import type { Slider, StandardHitObject } from "osu-standard-stable";
 import { Assets, Container, Graphics, Sprite, type Texture } from "pixi.js";
 import Easings from "../../../UI/Easings";
+import { inject } from "@/Context";
+import type Skin from "@/Skinning/Skin";
+import type SkinManager from "@/Skinning/SkinManager";
+import SkinnableElement from "./SkinnableElement";
 
-const texture = await Assets.load<Texture>({
-	src: "/skinning/followpoint@2x.png",
-	loadParser: "loadTextures",
-});
-
-export default class DrawableFollowPoints {
+export default class DrawableFollowPoints extends SkinnableElement {
 	container: Container = new Container();
 	sprites: Sprite[] = [];
 
@@ -29,6 +28,8 @@ export default class DrawableFollowPoints {
 		private startObject: StandardHitObject,
 		private endObject: StandardHitObject,
 	) {
+		super();
+
 		this.timePreempt = startObject.timePreempt;
 		this.startTime =
 			(this.startObject as unknown as Slider).endTime ??
@@ -55,7 +56,7 @@ export default class DrawableFollowPoints {
 
 		const numberOfSprites = Math.floor((this.distance - 48) / (512 / 16));
 		for (let i = 0; i < numberOfSprites; i++) {
-			const sprite = new Sprite(texture);
+			const sprite = new Sprite(this.skinManager?.getCurrentSkin().getTexture("followpoint"));
 			sprite.anchor.set(0.5);
 			sprite.x = (1.5 + i) * (512 / 16);
 
@@ -63,6 +64,15 @@ export default class DrawableFollowPoints {
 		}
 
 		this.container.addChild(...this.sprites);
+
+		this.skinManager?.addSkinChangeListener((skin) => {
+			const followpoint = skin.getTexture("followpoint");
+
+			if (!followpoint) return;
+			for (const sprite of this.sprites) {
+				sprite.texture = followpoint;
+			}
+		});
 	}
 
 	update(time: number) {

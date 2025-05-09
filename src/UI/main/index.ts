@@ -1,6 +1,6 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import Controls from "./controls";
-import { provide } from "/src/Context";
+import { provide } from "@/Context";
 import Viewer from "./viewer";
 
 export default class Main {

@@ -1,13 +1,14 @@
 import BeatmapSet from "./BeatmapSet";
 import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
+import ZipHandler from "./ZipHandler";
 
 const ID = new URLSearchParams(window.location.search).get("b") ?? "1307291";
 
 const blob = await getBeatmapFromId(ID);
 console.log("Download Completed!");
 
-const bms = new BeatmapSet(blob);
-await bms.init();
+const resources = await ZipHandler.extract(blob);
+const bms = new BeatmapSet(resources);
 console.log("Init!");
 
 await bms.getDifficulties();
@@ -20,7 +21,7 @@ const beatmap =
 if (!beatmap) throw new Error("Cannot find Beatmap");
 await beatmap.load();
 
-// beatmap.seek(144405);
+// beatmap.seek(247413);
 
 document
 	.querySelector<HTMLButtonElement>("#toggleAudio")
