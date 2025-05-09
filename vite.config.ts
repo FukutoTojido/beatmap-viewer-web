@@ -20,5 +20,5 @@ export default defineConfig({
 	preview: {
 		allowedHosts: ["beatmap.try-z.net"]
 	},
-	base: "./"
+	base: ""
 });
