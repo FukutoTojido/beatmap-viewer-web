@@ -20,9 +20,11 @@ export class Game {
 	animationController = new AnimationController();
 
 	constructor() {
-		provide("skinManager", new SkinManager())
-		provide("config", new Config())
+		provide("skinManager", new SkinManager());
+		provide("config", new Config());
 	}
+
+	private DPR = devicePixelRatio;
 
 	async initApplication() {
 		RenderTarget.defaultOptions.depth = true;
@@ -36,8 +38,8 @@ export class Game {
 			useBackBuffer: true,
 			clearBeforeRender: true,
 			depth: true,
-			autoDensity: true,
-			resolution: devicePixelRatio
+			// autoDensity: true,
+			resolution: this.DPR,
 		});
 		app.stage.layout = {
 			width: app.screen.width,
@@ -46,12 +48,14 @@ export class Game {
 			gap: 0,
 		};
 
+		app.canvas.style.transformOrigin = "top left";
+		app.canvas.style.scale = `${1 / this.DPR}`;
+
 		return app;
 	}
 
 	async init() {
 		await inject<SkinManager>("skinManager")?.loadSkins();
-		
 		const app = provide("ui/app", await this.initApplication());
 		const main = provide("ui/main", new Main());
 		const sidepanel = provide("ui/sidepanel", new SidePanel());
@@ -67,8 +71,14 @@ export class Game {
 		const app = inject<Application>("ui/app");
 		if (!app) return;
 
-		const width = app.canvas.width;
-		const height = app.canvas.height;
+		if (this.DPR !== devicePixelRatio) {
+			this.DPR = devicePixelRatio;
+			app.renderer.resolution = this.DPR;
+			app.canvas.style.scale = `${1 / this.DPR}`;
+		}
+
+		const width = app.canvas.width / this.DPR;
+		const height = app.canvas.height / this.DPR;
 
 		const _width = app.stage.layout?._computedLayout.width;
 		const _height = app.stage.layout?._computedLayout.height;
