@@ -24,8 +24,6 @@ export class Game {
 		provide("config", new Config());
 	}
 
-	private DPR = devicePixelRatio;
-
 	async initApplication() {
 		RenderTarget.defaultOptions.depth = true;
 		RenderTarget.defaultOptions.stencil = true;
@@ -39,11 +37,11 @@ export class Game {
 			clearBeforeRender: true,
 			depth: true,
 			autoDensity: true,
-			resolution: 2.0,
+			// resolution: devicePixelRatio,
 		});
 		app.stage.layout = {
-			width: app.screen.width,
-			height: app.screen.width,
+			width: app.canvas.width,
+			height: app.canvas.width,
 			flexDirection: "row",
 			gap: 0,
 		};
@@ -68,13 +66,8 @@ export class Game {
 		const app = inject<Application>("ui/app");
 		if (!app) return;
 
-		if (this.DPR !== 2.0) {
-			this.DPR = 2.0;
-			app.renderer.resolution = this.DPR;
-		}
-
-		const width = app.canvas.width / 2.0;
-		const height = app.canvas.height / 2.0;
+		const width = app.canvas.width;
+		const height = app.canvas.height;
 
 		const _width = app.stage.layout?._computedLayout.width;
 		const _height = app.stage.layout?._computedLayout.height;
