@@ -38,8 +38,7 @@ export class Game {
 			useBackBuffer: true,
 			clearBeforeRender: true,
 			depth: true,
-			// autoDensity: true,
-			resolution: this.DPR,
+			autoDensity: true,
 		});
 		app.stage.layout = {
 			width: app.screen.width,
@@ -47,9 +46,6 @@ export class Game {
 			flexDirection: "row",
 			gap: 0,
 		};
-
-		app.canvas.style.transformOrigin = "top left";
-		app.canvas.style.scale = `${1 / this.DPR}`;
 
 		return app;
 	}
@@ -74,11 +70,10 @@ export class Game {
 		if (this.DPR !== devicePixelRatio) {
 			this.DPR = devicePixelRatio;
 			app.renderer.resolution = this.DPR;
-			app.canvas.style.scale = `${1 / this.DPR}`;
 		}
 
-		const width = app.canvas.width / this.DPR;
-		const height = app.canvas.height / this.DPR;
+		const width = app.canvas.width;
+		const height = app.canvas.height;
 
 		const _width = app.stage.layout?._computedLayout.width;
 		const _height = app.stage.layout?._computedLayout.height;
