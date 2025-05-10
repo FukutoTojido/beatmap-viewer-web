@@ -37,6 +37,7 @@ export class Game {
 			clearBeforeRender: true,
 			depth: true,
 			autoDensity: true,
+			resolution: devicePixelRatio
 		});
 		app.stage.layout = {
 			width: app.screen.width,
