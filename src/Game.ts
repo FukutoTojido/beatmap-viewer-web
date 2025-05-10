@@ -37,11 +37,11 @@ export class Game {
 			clearBeforeRender: true,
 			depth: true,
 			autoDensity: true,
-			// resolution: devicePixelRatio,
+			resolution: devicePixelRatio,
 		});
 		app.stage.layout = {
-			width: app.canvas.width,
-			height: app.canvas.width,
+			width: app.screen.width,
+			height: app.screen.width,
 			flexDirection: "row",
 			gap: 0,
 		};
@@ -66,8 +66,8 @@ export class Game {
 		const app = inject<Application>("ui/app");
 		if (!app) return;
 
-		const width = app.canvas.width;
-		const height = app.canvas.height;
+		const width = app.screen.width;
+		const height = app.screen.height;
 
 		const _width = app.stage.layout?._computedLayout.width;
 		const _height = app.stage.layout?._computedLayout.height;
