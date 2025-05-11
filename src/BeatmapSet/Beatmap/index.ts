@@ -5,7 +5,11 @@ import {
 	StandardRuleset,
 } from "osu-standard-stable";
 import { inject, ScopedClass } from "../../Context";
-import type { Beatmap as BeatmapData, SamplePoint } from "osu-classes";
+import {
+	StoryboardVideo,
+	type Beatmap as BeatmapData,
+	type SamplePoint,
+} from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
@@ -130,6 +134,25 @@ export default class Beatmap extends ScopedClass {
 			const url = URL.createObjectURL(backgroundResource);
 			background?.updateTexture(
 				await Assets.load({ src: url, loadParser: "loadTextures" }),
+			);
+		}
+
+		const videoResource = this.context
+			.consume<Map<string, Resource>>("resources")
+			?.get(
+				this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+					?.filePath ?? "",
+			);
+		if (videoResource) {
+			const url = URL.createObjectURL(videoResource);
+			background?.updateVideo(
+				await Assets.load({
+					src: url,
+					data: {
+						autoPlay: false,
+					},
+					loadParser: "loadVideo",
+				}),
 			);
 		}
 
@@ -303,7 +326,7 @@ export default class Beatmap extends ScopedClass {
 			if (object instanceof DrawableHitCircle) {
 				object.update(this.audio?.currentTime ?? 0);
 			}
-			
+
 			object.playHitSound(time);
 			containers.push(object.container);
 
@@ -338,11 +361,19 @@ export default class Beatmap extends ScopedClass {
 
 		this.audio?.toggle();
 
-		if (this.audio?.state === "PLAYING")
+		if (this.audio?.state === "PLAYING") {
 			this.worker.postMessage({ type: "start" });
+			inject<Background>("ui/main/viewer/background")?.playVideo(
+				this.audio?.currentTime ?? 0,
+			);
+		}
 
-		if (this.audio?.state === "STOPPED")
+		if (this.audio?.state === "STOPPED") {
 			this.worker.postMessage({ type: "stop" });
+			inject<Background>("ui/main/viewer/background")?.pauseVideo(
+				this.audio?.currentTime ?? 0,
+			);
+		}
 	}
 
 	seek(time: number) {
@@ -355,5 +386,8 @@ export default class Beatmap extends ScopedClass {
 
 		this.audio.currentTime = time;
 		this.worker.postMessage({ type: "seek", time: this.audio.currentTime });
+		inject<Background>("ui/main/viewer/background")?.seekVideo(
+			this.audio?.currentTime ?? 0,
+		);
 	}
 }
