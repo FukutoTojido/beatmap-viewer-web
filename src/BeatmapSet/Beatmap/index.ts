@@ -137,13 +137,19 @@ export default class Beatmap extends ScopedClass {
 			);
 		}
 
+		const videoFilePath =
+			this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+				?.filePath ?? "";
 		const videoResource = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(
 				this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
 					?.filePath ?? "",
 			);
-		if (videoResource) {
+		if (
+			videoResource &&
+			!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
+		) {
 			const url = URL.createObjectURL(videoResource);
 			background?.updateVideo(
 				await Assets.load({

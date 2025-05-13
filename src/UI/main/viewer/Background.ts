@@ -1,5 +1,5 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import { Sprite, type Texture } from "pixi.js";
+import { Sprite, type VideoSource, type Texture } from "pixi.js";
 
 export default class Background {
 	container = new LayoutContainer({
@@ -66,6 +66,7 @@ export default class Background {
 
 	updateVideo(texture: Texture) {
 		this.video.texture = texture;
+		(texture.source as VideoSource).updateFPS = 60
 		this.videoElement = texture.source.resource as HTMLVideoElement;
 
 		this.videoElement.autoplay = false;
@@ -77,9 +78,8 @@ export default class Background {
 	}
 
 	seekVideo(time: number) {
-		if (this.videoElement) {
-			this.videoElement.currentTime = time / 1000;
-		}
+		if (!this.videoElement) return;
+		this.videoElement.currentTime = time / 1000;
 	}
 
 	playVideo(time: number) {
