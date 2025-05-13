@@ -23,6 +23,7 @@ import type Background from "../../UI/main/viewer/Background";
 import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
+import Video from "@/Video";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -160,6 +161,15 @@ export default class Beatmap extends ScopedClass {
 					loadParser: "loadVideo",
 				}),
 			);
+		}
+
+		if (videoResource) {
+			const demuxer = new Video();
+			try {
+				await demuxer.load(videoResource);
+			} catch (e) {
+				console.error(e);
+			}
 		}
 
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>

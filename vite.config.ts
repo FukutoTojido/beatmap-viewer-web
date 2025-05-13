@@ -11,6 +11,7 @@ export default defineConfig({
 		esbuildOptions: {
 			target: "esnext",
 		},
+		exclude: ["web-demuxer"]
 	},
 	resolve: {
 		alias: {
