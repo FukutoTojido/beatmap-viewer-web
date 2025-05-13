@@ -16,13 +16,9 @@ export default class Video {
 		await this.demuxer.load(file);
 
 		const videoDecoderConfig = await this.demuxer.getVideoDecoderConfig();
-        const videoMediaInfo = await this.demuxer.getMediaInfo();
-		const videoChunk = await this.demuxer.seekEncodedVideoChunk(-2, AVSeekFlag.AVSEEK_FLAG_ANY);
+		const videoMediaInfo = await this.demuxer.getMediaInfo();
+		const videoChunk = await this.demuxer.seekEncodedVideoChunk(0);
 
-		console.log(
-			videoDecoderConfig,
-            videoMediaInfo,
-			videoChunk
-		);
+		console.log(videoDecoderConfig, videoMediaInfo, videoChunk);
 	}
 }

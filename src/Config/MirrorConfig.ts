@@ -22,7 +22,7 @@ export default class MirrorConfig extends ConfigSection {
 
 	private _mirror = {
 		name: "Nerinyan",
-		urlTemplate: `https://api.nerinyan.moe/d/$setId?a=${Math.random(10000)}`,
+		urlTemplate: `https://api.nerinyan.moe/d/$setId?a=${Math.random()}`,
 	};
     get mirror() {
         return this._mirror;
