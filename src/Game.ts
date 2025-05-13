@@ -59,6 +59,7 @@ export class Game {
 
 		initDevtools({ app });
 
+		// 
 		document.querySelector<HTMLDivElement>("#app")?.append(app.canvas);
 	}
 
