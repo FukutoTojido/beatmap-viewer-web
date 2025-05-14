@@ -167,7 +167,8 @@ export default class Beatmap extends ScopedClass {
 		console.log(videoFilePath);
 
 		if (
-			videoResource
+			videoResource &&
+			new URLSearchParams(window.location.search).get("v") === "true"
 			// !["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
 		) {
 			this.video = new Video();

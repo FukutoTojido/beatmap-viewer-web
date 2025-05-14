@@ -72,7 +72,7 @@ export default class Background {
 
 	updateVideo(texture: Texture) {
 		this.video.texture = texture;
-		(texture.source as VideoSource).updateFPS = 60
+		(texture.source as VideoSource).updateFPS = 60;
 		this.videoElement = texture.source.resource as HTMLVideoElement;
 		this.videoElement.autoplay = false;
 		this.videoElement.currentTime = 0;
@@ -93,20 +93,20 @@ export default class Background {
 		const now = performance.now();
 		this.frameTime = now - this.lastFrameTime;
 		this.currentFrame?.close();
-		// this.currentSource?.destroy();
+		this.currentSource?.destroy();
 
-		this.video.texture.destroy();
-
-		const texture = new Texture(TextureSource.from(frame));
-		this.video.texture = texture;
+		const source = TextureSource.from(frame);
+		this.video.texture.source = source;
 		this.video.texture.update();
 
 		this.currentFrame = frame;
-		// this.currentSource = source;
+		this.currentSource = source;
 		this.lastFrameTime = now;
 
 		if (!this.init) {
-			this.video.layout?.forceUpdate();
+			this.video.texture.destroy();
+			this.video.texture = new Texture(source);
+			this.video.texture.update();
 			this.container.removeChild(this.video);
 			this.container.addChild(this.sprite, this.video, this.dim);
 			this.init = true;
