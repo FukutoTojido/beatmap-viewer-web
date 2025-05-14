@@ -34,6 +34,10 @@ async function demux(blob: Blob) {
 	const videoDecoderConfig = await demuxer.getVideoDecoderConfig();
 	const videoMediaInfo = await demuxer.getMediaInfo();
 
+	// if (videoDecoderConfig.codec === "avc1") {
+	// 	videoDecoderConfig.codec = "avc1.64001f"
+	// }
+
 	console.log(videoDecoderConfig, videoMediaInfo);
 
 	decoder.configure(videoDecoderConfig);

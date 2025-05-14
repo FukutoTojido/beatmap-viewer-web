@@ -22,4 +22,7 @@ export default defineConfig({
 		allowedHosts: ["beatmap.try-z.net"],
 	},
 	base: "",
+	server: {
+		cors: true
+	}
 });

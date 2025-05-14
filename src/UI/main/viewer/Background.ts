@@ -2,7 +2,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import {
 	ImageSource,
 	Sprite,
-	type Texture,
+	Texture,
 	TextureSource,
 	type VideoSource,
 } from "pixi.js";
@@ -81,35 +81,37 @@ export default class Background {
 		this.container.addChild(this.sprite, this.video, this.dim);
 	}
 
-	// currentFrame?: VideoFrame;
-	// lastFrameTime = 0;
-	// frameTime = 0;
+	currentFrame?: VideoFrame;
+	lastFrameTime = 0;
+	frameTime = 0;
 
-	// currentSource?: TextureSource;
+	currentSource?: TextureSource;
 
-	// init = false;
+	init = false;
 
-	// updateFrame(frame: VideoFrame) {
-	// 	const now = performance.now();
-	// 	this.frameTime = now - this.lastFrameTime;
-	// 	this.currentFrame?.close();
-	// 	this.currentSource?.destroy();
+	updateFrame(frame: VideoFrame) {
+		const now = performance.now();
+		this.frameTime = now - this.lastFrameTime;
+		this.currentFrame?.close();
+		// this.currentSource?.destroy();
 
-	// 	const source = TextureSource.from(frame);
-	// 	this.video.texture.source = source;
-	// 	this.video.texture.update();
+		this.video.texture.destroy();
 
-	// 	this.currentFrame = frame;
-	// 	this.currentSource = source;
-	// 	this.lastFrameTime = now;
+		const texture = new Texture(TextureSource.from(frame));
+		this.video.texture = texture;
+		this.video.texture.update();
 
-	// 	if (!this.init) {
-	// 		this.video.layout?.forceUpdate();
-	// 		this.container.removeChild(this.video);
-	// 		this.container.addChild(this.sprite, this.video, this.dim);
-	// 		this.init = true;
-	// 	}
-	// }
+		this.currentFrame = frame;
+		// this.currentSource = source;
+		this.lastFrameTime = now;
+
+		if (!this.init) {
+			this.video.layout?.forceUpdate();
+			this.container.removeChild(this.video);
+			this.container.addChild(this.sprite, this.video, this.dim);
+			this.init = true;
+		}
+	}
 
 	seekVideo(time: number) {
 		if (!this.videoElement) return;

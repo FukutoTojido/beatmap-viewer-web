@@ -22,7 +22,7 @@ import type Background from "../../UI/main/viewer/Background";
 import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
-// import Video from "@/Video";
+import Video from "@/Video";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -48,7 +48,7 @@ export default class Beatmap extends ScopedClass {
 	private previousObjects = new Set<number>();
 	previousTime = 0;
 
-	// video?: Video;
+	video?: Video;
 
 	constructor(private raw: string) {
 		super();
@@ -139,15 +139,15 @@ export default class Beatmap extends ScopedClass {
 			);
 		}
 
-		// const videoFilePath =
-		// 	this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-		// 		?.filePath ?? "";
-		// const videoResource = this.context
-		// 	.consume<Map<string, Resource>>("resources")
-		// 	?.get(
-		// 		this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-		// 			?.filePath ?? "",
-		// 	);
+		const videoFilePath =
+			this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+				?.filePath ?? "";
+		const videoResource = this.context
+			.consume<Map<string, Resource>>("resources")
+			?.get(
+				this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+					?.filePath ?? "",
+			);
 		// if (
 		// 	videoResource &&
 		// 	!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
@@ -164,19 +164,19 @@ export default class Beatmap extends ScopedClass {
 		// 	);
 		// }
 
-		// console.log(videoFilePath);
+		console.log(videoFilePath);
 
-		// if (
-		// 	videoResource &&
-		// 	!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
-		// ) {
-		// 	this.video = new Video();
-		// 	try {
-		// 		await this.video.load(videoResource);
-		// 	} catch (e) {
-		// 		console.error(e);
-		// 	}
-		// }
+		if (
+			videoResource
+			// !["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
+		) {
+			this.video = new Video();
+			try {
+				await this.video.load(videoResource);
+			} catch (e) {
+				console.error(e);
+			}
+		}
 
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.worker.onmessage = (event: any) => {
@@ -398,7 +398,7 @@ export default class Beatmap extends ScopedClass {
 			// inject<Background>("ui/main/viewer/background")?.playVideo(
 			// 	this.audio?.currentTime ?? 0,
 			// );
-			// this.video?.play(this.audio?.currentTime)
+			this.video?.play(this.audio?.currentTime)
 		}
 
 		if (this.audio?.state === "STOPPED") {
@@ -406,7 +406,7 @@ export default class Beatmap extends ScopedClass {
 			// inject<Background>("ui/main/viewer/background")?.pauseVideo(
 			// 	this.audio?.currentTime ?? 0,
 			// );
-			// this.video?.stop(this.audio?.currentTime)
+			this.video?.stop(this.audio?.currentTime)
 		}
 	}
 
@@ -423,6 +423,6 @@ export default class Beatmap extends ScopedClass {
 		inject<Background>("ui/main/viewer/background")?.seekVideo(
 			this.audio?.currentTime ?? 0,
 		);
-		// this.video?.seek(this.audio?.currentTime)
+		this.video?.seek(this.audio?.currentTime)
 	}
 }
