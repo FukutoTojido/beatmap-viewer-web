@@ -9,7 +9,7 @@ export default class Video {
 	constructor() {
 		this.worker.postMessage({
 			type: MessageType.Init,
-			data: window.location.origin,
+			data: import.meta.env.DEV ? window.location.origin : "https://cdn.jsdelivr.net/npm/web-demuxer@latest/dist/wasm-files/ffmpeg.min.js",
 		});
 
 		this.worker.addEventListener(
