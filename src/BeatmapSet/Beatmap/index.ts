@@ -19,7 +19,6 @@ import type { Resource } from "../../ZipHandler";
 import { Assets, type BitmapText, type Container } from "pixi.js";
 import type Background from "../../UI/main/viewer/Background";
 
-// @ts-ignore
 import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
@@ -48,6 +47,8 @@ export default class Beatmap extends ScopedClass {
 	private previousConnectors = new Set<number>();
 	private previousObjects = new Set<number>();
 	previousTime = 0;
+
+	video?: Video;
 
 	constructor(private raw: string) {
 		super();
@@ -138,39 +139,44 @@ export default class Beatmap extends ScopedClass {
 			);
 		}
 
-		const videoFilePath =
-			this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-				?.filePath ?? "";
-		const videoResource = this.context
-			.consume<Map<string, Resource>>("resources")
-			?.get(
-				this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-					?.filePath ?? "",
-			);
-		if (
-			videoResource &&
-			!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
-		) {
-			const url = URL.createObjectURL(videoResource);
-			background?.updateVideo(
-				await Assets.load({
-					src: url,
-					data: {
-						autoPlay: false,
-					},
-					loadParser: "loadVideo",
-				}),
-			);
-		}
+		// const videoFilePath =
+		// 	this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+		// 		?.filePath ?? "";
+		// const videoResource = this.context
+		// 	.consume<Map<string, Resource>>("resources")
+		// 	?.get(
+		// 		this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+		// 			?.filePath ?? "",
+		// 	);
+		// if (
+		// 	videoResource &&
+		// 	!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
+		// ) {
+		// 	const url = URL.createObjectURL(videoResource);
+		// 	background?.updateVideo(
+		// 		await Assets.load({
+		// 			src: url,
+		// 			data: {
+		// 				autoPlay: false,
+		// 			},
+		// 			loadParser: "loadVideo",
+		// 		}),
+		// 	);
+		// }
 
-		if (videoResource) {
-			const demuxer = new Video();
-			try {
-				await demuxer.load(videoResource);
-			} catch (e) {
-				console.error(e);
-			}
-		}
+		// console.log(videoFilePath);
+
+		// if (
+		// 	videoResource &&
+		// 	!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
+		// ) {
+		// 	this.video = new Video();
+		// 	try {
+		// 		await this.video.load(videoResource);
+		// 	} catch (e) {
+		// 		console.error(e);
+		// 	}
+		// }
 
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.worker.onmessage = (event: any) => {
@@ -189,6 +195,8 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	private frame() {
+		// this.video?.seek(this.audio?.currentTime ?? 0);
+
 		// this.update(this.audio?.currentTime ?? 0);
 		// this.previousTime = this.audio?.currentTime ?? 0;
 		// for (const idx of this.previousObjects) {
@@ -200,8 +208,9 @@ export default class Beatmap extends ScopedClass {
 		// }
 
 		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
+		const background = inject<Background>("ui/main/viewer/background");
 		if (timestamp)
-			timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms\n${Math.round(this.previousTime)} ms`;
+			timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms\n${Math.round(background?.frameTime ?? 0)} ms`;
 
 		requestAnimationFrame(() => this.frame());
 	}
@@ -379,16 +388,18 @@ export default class Beatmap extends ScopedClass {
 
 		if (this.audio?.state === "PLAYING") {
 			this.worker.postMessage({ type: "start" });
-			inject<Background>("ui/main/viewer/background")?.playVideo(
-				this.audio?.currentTime ?? 0,
-			);
+			// inject<Background>("ui/main/viewer/background")?.playVideo(
+			// 	this.audio?.currentTime ?? 0,
+			// );
+			this.video?.play(this.audio?.currentTime)
 		}
 
 		if (this.audio?.state === "STOPPED") {
 			this.worker.postMessage({ type: "stop" });
-			inject<Background>("ui/main/viewer/background")?.pauseVideo(
-				this.audio?.currentTime ?? 0,
-			);
+			// inject<Background>("ui/main/viewer/background")?.pauseVideo(
+			// 	this.audio?.currentTime ?? 0,
+			// );
+			this.video?.stop(this.audio?.currentTime)
 		}
 	}
 
@@ -405,5 +416,6 @@ export default class Beatmap extends ScopedClass {
 		inject<Background>("ui/main/viewer/background")?.seekVideo(
 			this.audio?.currentTime ?? 0,
 		);
+		this.video?.seek(this.audio?.currentTime)
 	}
 }

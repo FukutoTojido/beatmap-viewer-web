@@ -1,24 +1,59 @@
-import { AVSeekFlag, WebDemuxer } from "web-demuxer";
+import { inject } from "@/Context";
+import { MessageType, type WorkerPayload } from "./types";
+import VideoWorker from "./Worker.ts?worker";
+import type Background from "@/UI/main/viewer/Background";
 
 export default class Video {
-	demuxer: WebDemuxer;
+	worker = new VideoWorker();
 
 	constructor() {
-		this.demuxer = new WebDemuxer({
-			// ⚠️ you need to put the dist/wasm-files file in the npm package into a static directory like public
-			// making sure that the js and wasm in wasm-files are in the same directory
-			wasmLoaderPath: `${window.location.origin}/ffmpeg/ffmpeg.js`,
+		this.worker.postMessage({
+			type: MessageType.Init,
+			data: window.location.origin,
 		});
+
+		this.worker.addEventListener(
+			"message",
+			(event: {
+				data: WorkerPayload;
+			}) => {
+				switch (event.data.type) {
+					case MessageType.Frame: {
+						inject<Background>("ui/main/viewer/background")?.updateFrame(
+							event.data.data,
+						);
+						break;
+					}
+				}
+			},
+		);
 	}
 
 	async load(blob: Blob) {
-		const file = new File([blob], "video.avi");
-		await this.demuxer.load(file);
+		this.worker.postMessage({
+			type: MessageType.Load,
+			data: blob,
+		});
+	}
 
-		const videoDecoderConfig = await this.demuxer.getVideoDecoderConfig();
-		const videoMediaInfo = await this.demuxer.getMediaInfo();
-		const videoChunk = await this.demuxer.seekEncodedVideoChunk(0);
+	seek(timestamp: number) {
+		this.worker.postMessage({
+			type: MessageType.Seek,
+			data: timestamp,
+		});
+	}
 
-		console.log(videoDecoderConfig, videoMediaInfo, videoChunk);
+	play(timestamp: number) {
+		this.worker.postMessage({
+			type: MessageType.Play,
+			data: timestamp,
+		});
+	}
+
+	stop(timestamp: number) {
+		this.worker.postMessage({
+			type: MessageType.Stop,
+			data: timestamp,
+		});
 	}
 }

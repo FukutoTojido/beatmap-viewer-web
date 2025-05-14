@@ -9,9 +9,7 @@ import {
 import { AlphaFilter, Mesh, Geometry, Shader, Container } from "pixi.js";
 import { BackdropBlurFilter } from "pixi-filters";
 
-// @ts-ignore
 import vertex from "./Shaders/sliderShader.vert?raw";
-// @ts-ignore
 import fragment from "./Shaders/sliderShader.frag?raw";
 
 import { darken, lighten } from "../../../utils";
