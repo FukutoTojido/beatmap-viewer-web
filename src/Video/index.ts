@@ -9,7 +9,7 @@ export default class Video {
 	constructor() {
 		this.worker.postMessage({
 			type: MessageType.Init,
-			data: import.meta.env.DEV ? window.location.origin : "./",
+			data: import.meta.env.DEV ? window.location.origin : `${window.location.origin}/dev`,
 		});
 
 		this.worker.addEventListener(
