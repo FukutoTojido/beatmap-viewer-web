@@ -22,7 +22,7 @@ import type Background from "../../UI/main/viewer/Background";
 import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
-import Video from "@/Video";
+// import Video from "@/Video";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -48,7 +48,7 @@ export default class Beatmap extends ScopedClass {
 	private previousObjects = new Set<number>();
 	previousTime = 0;
 
-	video?: Video;
+	// video?: Video;
 
 	constructor(private raw: string) {
 		super();
@@ -207,10 +207,17 @@ export default class Beatmap extends ScopedClass {
 		// 	this.connectors[idx].update(this.audio?.currentTime ?? 0)
 		// }
 
+		const sorted = Array.from(this.previousObjects)
+			.map((idx) => this.objects[idx])
+			.sort((a, b) => -a.object.startTime + b.object.startTime).filter((object) => object instanceof DrawableSlider);
+
+		for (const object of sorted) {
+			object.update(this.audio?.currentTime ?? 0);
+		}
+
 		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
-		const background = inject<Background>("ui/main/viewer/background");
 		if (timestamp)
-			timestamp.text = `${Math.round(this.audio?.currentTime ?? 0)} ms\n${Math.round(background?.frameTime ?? 0)} ms`;
+			timestamp.text = `Timestamp: ${Math.round(this.audio?.currentTime ?? 0)} ms`;
 
 		requestAnimationFrame(() => this.frame());
 	}
@@ -343,10 +350,10 @@ export default class Beatmap extends ScopedClass {
 			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
 		for (const object of sorted) {
-			if (object instanceof DrawableSlider)
-				requestAnimationFrame(() =>
-					object.update(this.audio?.currentTime ?? 0),
-				);
+			// if (object instanceof DrawableSlider)
+			// 	requestAnimationFrame(() =>
+			// 		object.update(this.audio?.currentTime ?? 0),
+			// 	);
 
 			if (object instanceof DrawableHitCircle) {
 				object.update(this.audio?.currentTime ?? 0);
@@ -391,7 +398,7 @@ export default class Beatmap extends ScopedClass {
 			// inject<Background>("ui/main/viewer/background")?.playVideo(
 			// 	this.audio?.currentTime ?? 0,
 			// );
-			this.video?.play(this.audio?.currentTime)
+			// this.video?.play(this.audio?.currentTime)
 		}
 
 		if (this.audio?.state === "STOPPED") {
@@ -399,7 +406,7 @@ export default class Beatmap extends ScopedClass {
 			// inject<Background>("ui/main/viewer/background")?.pauseVideo(
 			// 	this.audio?.currentTime ?? 0,
 			// );
-			this.video?.stop(this.audio?.currentTime)
+			// this.video?.stop(this.audio?.currentTime)
 		}
 	}
 
@@ -416,6 +423,6 @@ export default class Beatmap extends ScopedClass {
 		inject<Background>("ui/main/viewer/background")?.seekVideo(
 			this.audio?.currentTime ?? 0,
 		);
-		this.video?.seek(this.audio?.currentTime)
+		// this.video?.seek(this.audio?.currentTime)
 	}
 }
