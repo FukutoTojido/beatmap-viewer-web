@@ -14,7 +14,7 @@ import fragment from "./Shaders/sliderShader.frag?raw";
 
 import { darken, lighten } from "../../../utils";
 import calculateSliderProgress from "./CalculateSliderProgress";
-import createGeometry from "./CreateSliderGeometry";
+import createGeometry, { type Vector3 } from "./CreateSliderGeometry";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
@@ -47,6 +47,7 @@ export default class DrawableSlider
 	private _geometry: Geometry = new Geometry({
 		attributes: {
 			aPosition: new Float32Array([]),
+			// isCirc: new Float32Array([]),
 		},
 		indexBuffer: [],
 	});
@@ -54,6 +55,9 @@ export default class DrawableSlider
 		gl: GL,
 		resources: {
 			customUniforms: {
+				// progressHead: { value: 0, type: "f32" },
+				// progressTail: { value: 0, type: "f32" },
+				// scale: { value: 1, type: "f32" },
 				borderColor: {
 					value: [205 / 255, 214 / 255, 244 / 255, 1.0],
 					type: "vec4<f32>",
@@ -72,6 +76,7 @@ export default class DrawableSlider
 	});
 
 	private drawableCircles: DrawableHitObject[] = [];
+	// private circle: Mesh<Geometry, Shader>;
 	private body: Mesh<Geometry, Shader> = new Mesh({
 		geometry: this._geometry,
 		shader: this._shader,
@@ -83,6 +88,12 @@ export default class DrawableSlider
 		y: 0,
 		blendMode: "none",
 	});
+	// private bodyContainer = new Container({
+	// 	filters: [
+	// 		this._alphaFilter,
+	// 		// this._backdropBlurFilter
+	// 	],
+	// });
 	ball: DrawableSliderBall;
 	followCircle: DrawableSliderFollowCircle;
 
@@ -136,6 +147,32 @@ export default class DrawableSlider
 				.filter((object) => object !== null),
 		);
 
+		// const path = calculateSliderProgress(object.path, 0, 1);
+		// const { aPosition, indexBuffer } = createGeometry(
+		// 	path,
+		// 	object.radius * (236 / 256),
+		// );
+		// this._geometry.attributes.aPosition.buffer.data = new Float32Array(
+		// 	aPosition,
+		// );
+		// this._geometry.attributes.isCirc.buffer.data = new Float32Array(isCirc);
+		// this._geometry.indexBuffer.data = new Uint32Array(indexBuffer);
+
+		// this.circle = new Mesh({
+		// 	geometry: new Geometry({
+		// 		attributes: {
+		// 			aPosition: new Float32Array(geometries.circle.aPosition),
+		// 			isCirc: new Float32Array(geometries.circle.isCirc),
+		// 		},
+		// 		indexBuffer: new Uint32Array(geometries.circle.indexBuffer),
+		// 	}),
+		// 	shader: this._shader,
+		// 	x: 0,
+		// 	y: 0,
+		// 	blendMode: "none",
+		// });
+
+		// this.circle.state.depthTest = true;
 		this.body.state.depthTest = true;
 		this.body.x = object.startPosition.x + object.stackedOffset.x;
 		this.body.y = object.startPosition.y + object.stackedOffset.x;
@@ -143,8 +180,11 @@ export default class DrawableSlider
 		this.ball = new DrawableSliderBall(this.object);
 		this.followCircle = new DrawableSliderFollowCircle(this.object);
 
+		// this.bodyContainer.addChild(this.body, this.circle);
+
 		this.container.visible = false;
 		this.container.addChild(
+			// this.bodyContainer,
 			this.body,
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
 			this.followCircle.container,
@@ -163,24 +203,47 @@ export default class DrawableSlider
 
 		this.refreshSprite();
 		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
+
+		this._shader.resources.customUniforms.uniforms.scale =
+			(object.radius / 54.4) * (236 / 256);
+
+		// if (object.startTime === 8913) {
+		// 	console.time("Calculate Slider Path");
+		// 	const p = calculateSliderProgress(this.object.path, 0, 1);
+		// 	console.timeEnd("Calculate Slider Path");
+		// 	console.time("Create Slider Geometry");
+		// 	createGeometry(p, this.object.radius * (236 / 256));
+		// 	console.timeEnd("Create Slider Geometry");
+		// }
 	}
 
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-
 		const comboIndex = this.object.comboIndex % skin.colorsLength;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const comboColor = (skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string;
+		const comboColor = (skin.config.Colours as any)[
+			`Combo${comboIndex + 1}`
+		] as string;
 		const trackOverride = skin.config.Colours.SliderTrackOverride;
 
-		const color = (trackOverride ?? comboColor).split(",").map(value => +value / 255);
-		const borderColor = skin.config.Colours.SliderBorder.split(",").map(value => +value / 255)
+		const color = (trackOverride ?? comboColor)
+			.split(",")
+			.map((value) => +value / 255);
+		const borderColor = skin.config.Colours.SliderBorder.split(",").map(
+			(value) => +value / 255,
+		);
 
 		this._shader.resources.customUniforms.uniforms.borderColor = borderColor;
-		this._shader.resources.customUniforms.uniforms.innerColor = lighten([color[0], color[1], color[2]], 0.5);
-		this._shader.resources.customUniforms.uniforms.outerColor = darken([color[0], color[1], color[2]], 0.1);
+		this._shader.resources.customUniforms.uniforms.innerColor = lighten(
+			[color[0], color[1], color[2]],
+			0.5,
+		);
+		this._shader.resources.customUniforms.uniforms.outerColor = darken(
+			[color[0], color[1], color[2]],
+			0.1,
+		);
 	}
 
 	get approachCircle() {
@@ -222,17 +285,17 @@ export default class DrawableSlider
 	}
 
 	updateGeometry(progressHead = 0, progressTail = 1) {
+		// this._shader.resources.customUniforms.uniforms.progressHead = progressHead;
+		// this._shader.resources.customUniforms.uniforms.progressTail = progressTail;
 		const path = calculateSliderProgress(
 			this.object.path,
 			progressHead,
 			progressTail,
 		);
-
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
 			this.object.radius * (236 / 256),
 		);
-
 		this._geometry.attributes.aPosition.buffer.data = new Float32Array(
 			aPosition,
 		);
@@ -293,6 +356,14 @@ export default class DrawableSlider
 			}
 		}
 		this.updateGeometry(start, end);
+
+		// const position = this.object.path.curvePositionAt(
+		// 	completionProgress,
+		// 	this.object.spans,
+		// );
+
+		// this.circle.x = position.x + this.object.stackedOffset.x;
+		// this.circle.y = position.y + this.object.stackedOffset.y;
 
 		if (time < this.object.startTime) {
 			const opacity = Math.min(
