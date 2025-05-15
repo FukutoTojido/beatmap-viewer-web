@@ -11,13 +11,23 @@ let frameTime = 1000 / 30;
 let status: "PLAY" | "STOP" = "STOP";
 let duration = 0;
 const encodedChunks: EncodedVideoChunk[] = [];
+let lastChunkTimestamp = 0;
 
 const decoder = new VideoDecoder({
 	output: (frame) => {
-		self.postMessage({
-			type: MessageType.Frame,
-			data: frame,
-		});
+		if (status === "PLAY") {
+			self.postMessage({
+				type: MessageType.Frame,
+				data: frame,
+			});
+		}
+
+		if (status !== "PLAY" && frame.timestamp === lastChunkTimestamp) {
+			self.postMessage({
+				type: MessageType.Frame,
+				data: frame,
+			});
+		}
 		frame.close();
 	},
 	error: (e) => {
@@ -33,10 +43,6 @@ async function demux(blob: Blob) {
 
 	const videoDecoderConfig = await demuxer.getVideoDecoderConfig();
 	const videoMediaInfo = await demuxer.getMediaInfo();
-
-	// if (videoDecoderConfig.codec === "avc1") {
-	// 	videoDecoderConfig.codec = "avc1.64001f"
-	// }
 
 	console.log(videoDecoderConfig, videoMediaInfo);
 
@@ -92,6 +98,7 @@ async function readFrame(index: number) {
 async function seek(timestamp: number) {
 	if (!demuxer) throw new Error("Demuxer hasn't been initialized");
 
+	// console.log(`Seeking at: ${timestamp}`);
 	try {
 		const index = binarySearch(timestamp * 1000);
 		seekToChunk(index);
@@ -131,22 +138,39 @@ function seekToChunk(index: number) {
 	let i = index;
 	for (; i > 0 && encodedChunks[i].type !== "key"; i--) {}
 
+	lastChunkTimestamp = encodedChunks[Math.max(0, index - 2)].timestamp;
+
 	for (let j = i; j < index; j++) {
 		const chunk = encodedChunks[j];
 		decoder.decode(chunk);
 	}
+
+	// decoder.decode(encodedChunks[i]);
 }
 
 async function play(startTime: number) {
 	status = "PLAY";
 	const chunkIndex = binarySearch(startTime * 1000);
 	try {
-		seekToChunk(chunkIndex);
+		// seekToChunk(chunkIndex);
+		// console.log(chunkIndex);
 		readFrame(chunkIndex);
 	} catch (e) {
 		console.error(e);
 	}
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function debounce(fn: (...args: any) => void, timeout = 100) {
+	let timer: NodeJS.Timeout;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	return (...args: any) => {
+		if (timer) clearTimeout(timer);
+		timer = setTimeout(() => fn(...args), timeout);
+	};
+}
+
+const s = debounce(seek, 200);
 
 self.addEventListener(
 	"message",
@@ -167,7 +191,7 @@ self.addEventListener(
 				break;
 			}
 			case MessageType.Seek: {
-				seek(event.data.data);
+				s(event.data.data);
 				break;
 			}
 			case MessageType.Play: {
