@@ -3,7 +3,7 @@ import {
 	ImageSource,
 	Sprite,
 	Texture,
-	type TextureSource,
+	TextureSource,
 	type VideoSource,
 } from "pixi.js";
 
@@ -93,24 +93,24 @@ export default class Background {
 		const now = performance.now();
 		this.frameTime = now - this.lastFrameTime;
 		this.currentFrame?.close();
-		// this.currentSource?.destroy();
+		this.currentSource?.destroy();
 
-		// const source = TextureSource.from(frame);
-		// this.video.texture.source = source;
-		// this.video.texture.update();
-
-		this.video.texture.destroy();
-		this.video.texture = Texture.from(frame);
+		const source = TextureSource.from(frame);
+		this.video.texture.source = source;
 		this.video.texture.update();
 
+		// this.video.texture.destroy();
+		// this.video.texture = Texture.from(frame);
+		// this.video.texture.update();
+
 		this.currentFrame = frame;
-		// this.currentSource = source;
+		this.currentSource = source;
 		this.lastFrameTime = now;
 
 		if (!this.init) {
 			// this.video.texture.destroy();
-			// this.video.texture = new Texture(source);
-			// this.video.texture.update();
+			this.video.texture = Texture.from(source);
+			this.video.texture.update();
 			this.container.removeChild(this.video);
 			this.container.addChild(this.sprite, this.video, this.dim);
 			this.init = true;

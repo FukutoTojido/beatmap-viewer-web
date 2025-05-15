@@ -1,162 +1,180 @@
-import {
-	AVMediaType,
-	AVSeekFlag,
-	WebDemuxer,
-	type WebAVPacket,
-} from "web-demuxer";
+import { AVSeekFlag, WebDemuxer } from "web-demuxer";
 import { MessageType, type WorkerPayload } from "./types";
 
-let demuxer: WebDemuxer;
-let frameTime = 1000 / 30;
-let status: "PLAY" | "STOP" = "STOP";
-let duration = 0;
-const encodedChunks: EncodedVideoChunk[] = [];
-let lastChunkTimestamp = 0;
+let engine: VideoEngine | undefined;
 
-const decoder = new VideoDecoder({
-	output: (frame) => {
-		if (status === "PLAY") {
-			self.postMessage({
-				type: MessageType.Frame,
-				data: frame,
-			});
+class VideoEngine {
+	demuxer: WebDemuxer;
+	decoder: VideoDecoder;
+
+	frameRate = 30;
+
+	encodedChunks: EncodedVideoChunk[] = [];
+
+	status: "PLAY" | "STOP" = "STOP";
+	config!: VideoDecoderConfig;
+
+	currentIndex = 0;
+
+	constructor(origin: string) {
+		this.demuxer = new WebDemuxer({
+			// ⚠️ you need to put the dist/wasm-files file in the npm package into a static directory like public
+			// making sure that the js and wasm in wasm-files are in the same directory
+			wasmLoaderPath: `${origin}/ffmpeg/ffmpeg.js`,
+		});
+
+		this.decoder = new VideoDecoder({
+			output: (frame) => {
+				this.output(frame);
+				frame.close();
+			},
+			error: (e) => {
+				console.error(e);
+			},
+		});
+	}
+
+	async demux(blob: Blob) {
+		const file = new File([blob], "video.avi");
+		await this.demuxer.load(file);
+
+		const videoDecoderConfig = await this.demuxer.getVideoDecoderConfig();
+		const videoMediaInfo = await this.demuxer.getMediaInfo();
+
+		console.log(videoDecoderConfig, videoMediaInfo);
+		this.config = videoDecoderConfig;
+		this.decoder.configure(videoDecoderConfig);
+
+		const frameRateStr = videoMediaInfo.streams[0].avg_frame_rate;
+		this.frameRate = +frameRateStr.split("/")[0] / +frameRateStr.split("/")[1];
+
+		const reader = this.demuxer
+			.readVideoPacket(undefined, undefined, AVSeekFlag.AVSEEK_FLAG_BYTE)
+			.getReader();
+
+		console.time("Reading Video Chunks");
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			this.encodedChunks.push(this.demuxer.genEncodedVideoChunk(value));
+		}
+		console.timeEnd("Reading Video Chunks");
+		await reader.cancel();
+
+		console.log(this.encodedChunks);
+	}
+
+	output(frame: VideoFrame) {
+		// console.log(`Frame Output: ${frame.timestamp}`);
+		self.postMessage({
+			type: MessageType.Frame,
+			data: frame,
+		});
+	}
+
+	async readFrame(index: number, shouldForward = true) {
+		const i = index;
+
+		if (this.status === "STOP") {
+			return;
 		}
 
-		if (status !== "PLAY" && frame.timestamp === lastChunkTimestamp) {
-			self.postMessage({
-				type: MessageType.Frame,
-				data: frame,
-			});
+		if (i >= this.encodedChunks.length) {
+			this.status = "STOP";
+			this.decoder.flush();
+			return;
 		}
-		frame.close();
-	},
-	error: (e) => {
-		console.error(e);
-	},
-});
 
-async function demux(blob: Blob) {
-	if (!demuxer) throw new Error("Demuxer hasn't been initialized");
+		this.currentIndex = i;
 
-	const file = new File([blob], "video.avi");
-	await demuxer.load(file);
+		const chunk = this.encodedChunks[i];
 
-	const videoDecoderConfig = await demuxer.getVideoDecoderConfig();
-	const videoMediaInfo = await demuxer.getMediaInfo();
+		// console.log(`Sending out for decode: ${chunk.type} ${chunk.timestamp}\nDecoder state: ${this.decoder.state}`);
+		this.decoder.decode(chunk);
 
-	console.log(videoDecoderConfig, videoMediaInfo);
+		await new Promise((resolve) => {
+			setTimeout(() => {
+				resolve("");
+			}, 1000 / this.frameRate);
+		});
 
-	decoder.configure(videoDecoderConfig);
+		if (!shouldForward) return;
 
-	const frameRate = videoMediaInfo.streams[0].avg_frame_rate;
-	frameTime = 1000 / (+frameRate.split("/")[0] / +frameRate.split("/")[1]);
-
-	duration = Math.floor(videoMediaInfo.duration);
-
-	const reader = demuxer
-		.readVideoPacket(undefined, undefined, AVSeekFlag.AVSEEK_FLAG_ANY)
-		.getReader();
-
-	console.time("Reading Video Chunks");
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) break;
-
-		encodedChunks.push(demuxer.genEncodedVideoChunk(value));
-	}
-	console.timeEnd("Reading Video Chunks");
-}
-
-async function readFrame(index: number) {
-	if (status === "STOP") {
-		// decoder.flush();
-		return;
-	}
-
-	if (index >= encodedChunks.length) {
-		status = "STOP";
-		decoder.flush();
-		return;
-	}
-
-	const chunk = encodedChunks[index];
-	decoder.decode(chunk);
-
-	await new Promise((resolve) => {
-		setTimeout(() => {
-			resolve("");
-		}, frameTime);
-	});
-
-	try {
-		await readFrame(index + 1);
-	} catch (e) {
-		console.error(e);
-	}
-}
-
-async function seek(timestamp: number) {
-	if (!demuxer) throw new Error("Demuxer hasn't been initialized");
-
-	// console.log(`Seeking at: ${timestamp}`);
-	try {
-		const index = binarySearch(timestamp * 1000);
-		seekToChunk(index);
-	} catch (e) {
-		console.error(e);
-	}
-}
-
-function binarySearch(value: number) {
-	let start = 0;
-	let end = encodedChunks.length - 1;
-
-	while (start < end) {
-		const mid = start + Math.floor((end - start) / 2);
-
-		if (encodedChunks[mid].timestamp === value) return mid;
-		if (value < encodedChunks[mid].timestamp) {
-			end = mid - 1;
-			continue;
-		}
-		if (value > encodedChunks[mid].timestamp) {
-			start = mid + 1;
+		try {
+			await this.readFrame(i + 1);
+		} catch (error) {
+			console.error(error);
 		}
 	}
 
-	const pre = encodedChunks[start].timestamp;
-	const post = encodedChunks[end].timestamp;
+	findKeyChunk(index: number) {
+		const currentChunk = this.encodedChunks[index];
 
-	return Math.abs(value - pre) < Math.abs(value - post) ? start : end;
-}
+		if (currentChunk.type === "key") return index;
 
-function seekToChunk(index: number) {
-	const currentChunk = encodedChunks[index];
+		let i = index;
+		for (; i > 0 && this.encodedChunks[i].type !== "key"; i--) {}
 
-	if (currentChunk.type === "key") return index;
-
-	let i = index;
-	for (; i > 0 && encodedChunks[i].type !== "key"; i--) {}
-
-	lastChunkTimestamp = encodedChunks[Math.max(0, index - 2)].timestamp;
-
-	for (let j = i; j < index; j++) {
-		const chunk = encodedChunks[j];
-		decoder.decode(chunk);
+		return i;
 	}
 
-	// decoder.decode(encodedChunks[i]);
-}
+	async seekToChunk(index: number) {
+		const currentChunk = this.encodedChunks[index];
 
-async function play(startTime: number) {
-	status = "PLAY";
-	const chunkIndex = binarySearch(startTime * 1000);
-	try {
-		// seekToChunk(chunkIndex);
-		// console.log(chunkIndex);
-		readFrame(chunkIndex);
-	} catch (e) {
-		console.error(e);
+		if (currentChunk.type === "key") return index;
+
+		let i = index;
+		for (; i > 0 && this.encodedChunks[i].type !== "key"; i--) {}
+
+		for (let j = i; j < index; j++) {
+			const chunk = this.encodedChunks[j];
+			this.decoder.decode(chunk);
+		}
+	}
+
+	seek(timestamp: number) {
+		try {
+			const index = this.binarySearch(timestamp * 1000);
+			this.seekToChunk(index);
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async play(timestamp: number) {
+		this.status = "PLAY";
+		const chunkIndex = this.binarySearch(timestamp * 1000);
+		try {
+			this.currentIndex = chunkIndex;
+			// console.log(chunkIndex);
+			await this.readFrame(chunkIndex);
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	binarySearch(value: number) {
+		let start = 0;
+		let end = this.encodedChunks.length - 1;
+
+		while (start < end) {
+			const mid = start + Math.floor((end - start) / 2);
+
+			if (this.encodedChunks[mid].timestamp === value) return mid;
+			if (value < this.encodedChunks[mid].timestamp) {
+				end = mid - 1;
+				continue;
+			}
+			if (value > this.encodedChunks[mid].timestamp) {
+				start = mid + 1;
+			}
+		}
+
+		const pre = this.encodedChunks[start].timestamp;
+		const post = this.encodedChunks[end].timestamp;
+
+		return Math.abs(value - pre) < Math.abs(value - post) ? start : end;
 	}
 }
 
@@ -170,8 +188,6 @@ function debounce(fn: (...args: any) => void, timeout = 100) {
 	};
 }
 
-const s = debounce(seek, 200);
-
 self.addEventListener(
 	"message",
 	(event: {
@@ -179,27 +195,32 @@ self.addEventListener(
 	}) => {
 		switch (event.data.type) {
 			case MessageType.Init: {
-				demuxer = new WebDemuxer({
-					// ⚠️ you need to put the dist/wasm-files file in the npm package into a static directory like public
-					// making sure that the js and wasm in wasm-files are in the same directory
-					wasmLoaderPath: `${event.data.data}/ffmpeg/ffmpeg.js`,
-				});
+				engine = new VideoEngine(event.data.data);
 				break;
 			}
 			case MessageType.Load: {
-				demux(event.data.data);
+				if (!engine) return;
+
+				engine.demux(event.data.data);
 				break;
 			}
 			case MessageType.Seek: {
-				s(event.data.data);
+				if (!engine) return;
+				engine.play(event.data.data);
 				break;
 			}
 			case MessageType.Play: {
-				play(event.data.data);
+				if (!engine) return;
+				// console.log("play");
+				engine.play(event.data.data);
+
 				break;
 			}
 			case MessageType.Stop: {
-				status = "STOP";
+				if (!engine) return;
+				// console.log("stop");
+				// console.log(engine.currentIndex);
+				engine.status = "STOP";
 				break;
 			}
 		}
