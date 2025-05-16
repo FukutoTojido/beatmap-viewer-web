@@ -52,7 +52,7 @@ class VideoEngine {
 		this.config = videoDecoderConfig;
 		this.decoder.configure(videoDecoderConfig);
 
-		const frameRateStr = videoMediaInfo.streams[0].avg_frame_rate;
+		const frameRateStr = videoMediaInfo.streams[0].r_frame_rate;
 		this.frameRate = +frameRateStr.split("/")[0] / +frameRateStr.split("/")[1];
 
 		const reader = this.demuxer
