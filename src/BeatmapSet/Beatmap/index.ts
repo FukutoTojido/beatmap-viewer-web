@@ -164,7 +164,7 @@ export default class Beatmap extends ScopedClass {
 		// 	);
 		// }
 
-		console.log(videoFilePath);
+		// console.log(videoFilePath, this.data.events.storyboard?.layers.get("Video")?.elements.at(0));
 
 		if (
 			videoResource &&
@@ -210,7 +210,8 @@ export default class Beatmap extends ScopedClass {
 
 		const sorted = Array.from(this.previousObjects)
 			.map((idx) => this.objects[idx])
-			.sort((a, b) => -a.object.startTime + b.object.startTime).filter((object) => object instanceof DrawableSlider);
+			.sort((a, b) => -a.object.startTime + b.object.startTime)
+			.filter((object) => object instanceof DrawableSlider);
 
 		for (const object of sorted) {
 			object.update(this.audio?.currentTime ?? 0);
@@ -218,7 +219,7 @@ export default class Beatmap extends ScopedClass {
 
 		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
 		if (timestamp)
-			timestamp.text = `Timestamp: ${Math.round(this.audio?.currentTime ?? 0)} ms`;
+			timestamp.text = `Timestamp: ${Math.round(this.audio?.currentTime ?? 0)} ms\nVideo: ${Math.round(1000 / (inject<Background>("ui/main/viewer/background")?.frameTime ?? 0))}fps`;
 
 		requestAnimationFrame(() => this.frame());
 	}
@@ -399,7 +400,7 @@ export default class Beatmap extends ScopedClass {
 			// inject<Background>("ui/main/viewer/background")?.playVideo(
 			// 	this.audio?.currentTime ?? 0,
 			// );
-			this.video?.play(this.audio?.currentTime)
+			this.video?.play(this.audio?.currentTime);
 		}
 
 		if (this.audio?.state === "STOPPED") {
@@ -407,7 +408,7 @@ export default class Beatmap extends ScopedClass {
 			// inject<Background>("ui/main/viewer/background")?.pauseVideo(
 			// 	this.audio?.currentTime ?? 0,
 			// );
-			this.video?.stop(this.audio?.currentTime)
+			this.video?.stop(this.audio?.currentTime);
 		}
 	}
 
@@ -424,6 +425,6 @@ export default class Beatmap extends ScopedClass {
 		inject<Background>("ui/main/viewer/background")?.seekVideo(
 			this.audio?.currentTime ?? 0,
 		);
-		this.video?.seek(this.audio?.currentTime)
+		this.video?.seek(this.audio?.currentTime);
 	}
 }

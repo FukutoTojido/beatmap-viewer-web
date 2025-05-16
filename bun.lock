@@ -22,7 +22,7 @@
         "pixi.js": "^8.9.2",
         "tailwindcss": "^4.1.4",
         "vite": "^6.3.5",
-        "web-demuxer": "^2.3.4",
+        "web-demuxer": "2.3.4",
       },
       "devDependencies": {
         "@types/bun": "latest",

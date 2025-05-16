@@ -70,9 +70,9 @@ export default class SampleManager {
 							},
 						);
 					} catch (e) {
-						console.warn(
-							`Cannot decode ${filename}. Default to silent sample.`,
-						);
+						// console.warn(
+						// 	`Cannot decode ${filename}. Default to silent sample.`,
+						// );
 						audioBuffer = this.audioContext.createBuffer(
 							1,
 							1,
@@ -106,9 +106,9 @@ export default class SampleManager {
 							},
 						);
 					} catch (e) {
-						console.warn(
-							`Cannot decode ${filename}. Default to silent sample.`,
-						);
+						// console.warn(
+						// 	`Cannot decode ${filename}. Default to silent sample.`,
+						// );
 						audioBuffer = this.audioContext.createBuffer(
 							1,
 							1,

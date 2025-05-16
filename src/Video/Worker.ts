@@ -16,7 +16,15 @@ class VideoEngine {
 
 	currentIndex = 0;
 
+	seek: (timestamp: number) => void;
+	pauseResolver?: (value: unknown) => void;
+
+	timer?: NodeJS.Timeout;
+	currentFrame?: VideoFrame;
+
 	constructor(origin: string) {
+		this.seek = debounce((timestamp: number) => this._seek(timestamp), 200);
+
 		this.demuxer = new WebDemuxer({
 			// ⚠️ you need to put the dist/wasm-files file in the npm package into a static directory like public
 			// making sure that the js and wasm in wasm-files are in the same directory
@@ -26,7 +34,6 @@ class VideoEngine {
 		this.decoder = new VideoDecoder({
 			output: (frame) => {
 				this.output(frame);
-				frame.close();
 			},
 			error: (e) => {
 				console.error(e);
@@ -49,7 +56,7 @@ class VideoEngine {
 		this.frameRate = +frameRateStr.split("/")[0] / +frameRateStr.split("/")[1];
 
 		const reader = this.demuxer
-			.readVideoPacket(undefined, undefined, AVSeekFlag.AVSEEK_FLAG_BYTE)
+			.readVideoPacket(0, undefined, AVSeekFlag.AVSEEK_FLAG_BACKWARD)
 			.getReader();
 
 		console.time("Reading Video Chunks");
@@ -61,56 +68,77 @@ class VideoEngine {
 		}
 		console.timeEnd("Reading Video Chunks");
 		await reader.cancel();
-
-		console.log(this.encodedChunks);
 	}
 
 	output(frame: VideoFrame) {
-		// console.log(`Frame Output: ${frame.timestamp}`);
-		self.postMessage({
-			type: MessageType.Frame,
-			data: frame,
-		});
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.currentFrame?.close();
+			this.currentFrame = undefined;
+		}
+
+		this.timer = setTimeout(() => {
+			self.postMessage({
+				type: MessageType.Frame,
+				data: frame,
+			});
+		}, 16);
+		this.currentFrame = frame;
 	}
 
-	async readFrame(index: number, shouldForward = true) {
-		const i = index;
+	frameTimer?: number;
 
-		if (this.status === "STOP") {
-			return;
+	async readFrame() {
+		const now = performance.now();
+		// if (this.last === 0) this.last = 1000 / this.frameRate - 1;
+		const frameTime = 1000 / this.frameRate;
+
+		if (this.startTime + now - this.absStartTime > this.currentIndex * frameTime) {
+
+			const i = this.currentIndex;
+
+			if (this.status === "STOP") {
+				return;
+			}
+
+			if (i >= this.encodedChunks.length) {
+				this.status = "STOP";
+				this.decoder.flush();
+				this.currentIndex = 0;
+				return;
+			}
+
+			this.currentIndex = i;
+
+			const chunk = this.encodedChunks[i];
+			this.decoder.decode(chunk);
+
+			this.currentIndex += 1;
 		}
-
-		if (i >= this.encodedChunks.length) {
-			this.status = "STOP";
-			this.decoder.flush();
-			return;
-		}
-
-		this.currentIndex = i;
-
-		const chunk = this.encodedChunks[i];
-
-		// console.log(`Sending out for decode: ${chunk.type} ${chunk.timestamp}\nDecoder state: ${this.decoder.state}`);
-		this.decoder.decode(chunk);
-
-		await new Promise((resolve) => {
-			setTimeout(() => {
-				resolve("");
-			}, 1000 / this.frameRate);
-		});
-
-		if (!shouldForward) return;
 
 		try {
-			await this.readFrame(i + 1);
+			this.frameTimer = requestAnimationFrame(() => {
+				this.readFrame();
+			});
 		} catch (error) {
 			console.error(error);
 		}
 	}
 
+	async seekToChunk(index: number) {
+		await this.decoder.flush();
+
+		const i = this.findKeyChunk(index);
+
+		for (let j = i; j < index; j++) {
+			const chunk = this.encodedChunks[j];
+			this.decoder.decode(chunk);
+		}
+		this.decoder.decode(this.encodedChunks[index]);
+	}
+
 	findKeyChunk(index: number) {
 		const currentChunk = this.encodedChunks[index];
-
 		if (currentChunk.type === "key") return index;
 
 		let i = index;
@@ -119,24 +147,24 @@ class VideoEngine {
 		return i;
 	}
 
-	async seekToChunk(index: number) {
-		const currentChunk = this.encodedChunks[index];
-
-		if (currentChunk.type === "key") return index;
-
-		let i = index;
-		for (; i > 0 && this.encodedChunks[i].type !== "key"; i--) {}
-
-		for (let j = i; j < index; j++) {
-			const chunk = this.encodedChunks[j];
-			this.decoder.decode(chunk);
-		}
-	}
-
-	seek(timestamp: number) {
+	absStartTime = 0;
+	startTime = 0;
+	async _seek(timestamp: number) {
+		console.log("Seek", timestamp);
 		try {
+			if (this.status === "PLAY") {
+				if (this.frameTimer) cancelAnimationFrame(this.frameTimer);
+				this.pauseResolver = undefined;
+			}
+
 			const index = this.binarySearch(timestamp * 1000);
-			this.seekToChunk(index);
+			this.currentIndex = index;
+
+			await this.seekToChunk(index);
+
+			if (this.status === "PLAY") {
+				this.play(timestamp);
+			}
 		} catch (e) {
 			console.error(e);
 		}
@@ -144,11 +172,11 @@ class VideoEngine {
 
 	async play(timestamp: number) {
 		this.status = "PLAY";
-		const chunkIndex = this.binarySearch(timestamp * 1000);
+
+		this.absStartTime = performance.now();
+		this.startTime = timestamp;
 		try {
-			this.currentIndex = chunkIndex;
-			// console.log(chunkIndex);
-			await this.readFrame(chunkIndex);
+			this.readFrame();
 		} catch (e) {
 			console.error(e);
 		}
@@ -206,7 +234,7 @@ self.addEventListener(
 			}
 			case MessageType.Seek: {
 				if (!engine) return;
-				engine.play(event.data.data);
+				engine.seek(event.data.data);
 				break;
 			}
 			case MessageType.Play: {
@@ -226,3 +254,26 @@ self.addEventListener(
 		}
 	},
 );
+
+// const frame = 1000 / 30;
+let last = 0;
+const SAMPLE_COUNT = 1000;
+let i = SAMPLE_COUNT;
+let sum = 0;
+let avg = 1000 / 30;
+
+const execute = () => {
+	const now = performance.now();
+	// console.log("Fire frame. Diff: ", Math.round(now - last));
+	sum += now - last;
+	last = now;
+
+	if (i-- > 0) requestAnimationFrame(() => execute());
+	if (i < 0) {
+		avg = sum / SAMPLE_COUNT;
+		console.log(avg);
+	}
+};
+
+last = performance.now();
+requestAnimationFrame(() => execute());

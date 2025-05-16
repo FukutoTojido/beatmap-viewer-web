@@ -48,7 +48,7 @@ export default class HitSample extends ScopedClass {
 			src.buffer = buffer;
 
 			const localGainNode = audioContext?.createGain();
-			localGainNode.gain.value = 0.3;
+			localGainNode.gain.value = (0.3 * samplePoint.volume) / 100;
 			this.localGainNode = localGainNode;
 
 			src.connect(localGainNode);
@@ -70,6 +70,9 @@ export default class HitSample extends ScopedClass {
 	playLoop(samplePoint: SamplePoint, inRange: boolean, remainingTime: number) {
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio) return;
+
+		if (this.localGainNode)
+			this.localGainNode.gain.value = (0.3 * samplePoint.volume) / 100;
 
 		const clearCurrent = () => {
 			for (const src of this.srcs) {
