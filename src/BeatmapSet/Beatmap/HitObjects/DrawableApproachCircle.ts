@@ -1,6 +1,7 @@
 import type { Circle } from "osu-standard-stable";
 import { Graphics, Sprite } from "pixi.js";
 import SkinnableElement from "./SkinnableElement";
+import type Beatmap from "..";
 
 export default class DrawableApproachCircle extends SkinnableElement {
 	container = new Sprite();
@@ -25,6 +26,15 @@ export default class DrawableApproachCircle extends SkinnableElement {
 
 		const approachCircle = skin.getTexture("approachcircle");
 		if (approachCircle) this.container.texture = approachCircle;
+
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (beatmap?.data.colors.comboColors.length) {
+			const colors = beatmap.data.colors.comboColors;
+			const comboIndex = this.object.comboIndex % colors.length;
+
+			this.container.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+			return;
+		}
 
 		const comboIndex = this.object.comboIndex % skin.colorsLength;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>

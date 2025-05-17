@@ -33,10 +33,22 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (beatmap?.data?.colors.comboColors.length) {
+			const colors = beatmap.data.colors.comboColors;
+			const comboIndex =
+				(this.parent ?? this.object).comboIndex % colors.length;
 
-		const comboIndex = (this.parent ?? this.object).comboIndex % skin.colorsLength;
+			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+			return;
+		}
+
+		const comboIndex =
+			(this.parent ?? this.object).comboIndex % skin.colorsLength;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const color = (skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string;
+		const color = (skin.config.Colours as any)[
+			`Combo${comboIndex + 1}`
+		] as string;
 		this.hitCircleSprite.tint = `rgb(${color})`;
 	}
 

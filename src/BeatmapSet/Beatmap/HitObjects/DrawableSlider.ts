@@ -28,6 +28,7 @@ import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
 import { HitSample as Sample } from "osu-classes";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
+import type { Context } from "@/Context";
 
 const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
@@ -217,23 +218,53 @@ export default class DrawableSlider
 		// }
 	}
 
+	hook(context: Context) {
+		super.hook(context);
+
+		for (const object of this.drawableCircles.filter(
+			(object) =>
+				object instanceof DrawableSliderHead ||
+				object instanceof DrawableSliderTail,
+		)) {
+			object.refreshSprite();
+		}
+		this.refreshSprite();
+
+		return this;
+	}
+
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const comboIndex = this.object.comboIndex % skin.colorsLength;
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const comboColor = (skin.config.Colours as any)[
-			`Combo${comboIndex + 1}`
-		] as string;
-		const trackOverride = skin.config.Colours.SliderTrackOverride;
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+
+		const comboIndex =
+			this.object.comboIndex %
+			(beatmap?.data.colors.comboColors.length ?? skin.colorsLength);
+		const colors = beatmap?.data.colors.comboColors;
+		const comboColor = colors
+			? `${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue}`
+			: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
+
+		const trackColor = beatmap?.data.colors.sliderTrackColor;
+		const trackOverride = trackColor
+			? `${trackColor.red},${trackColor.green},${trackColor.blue}`
+			: skin.config.Colours.SliderTrackOverride;
 
 		const color = (trackOverride ?? comboColor)
 			.split(",")
 			.map((value) => +value / 255);
-		const borderColor = skin.config.Colours.SliderBorder.split(",").map(
-			(value) => +value / 255,
-		);
+
+		const border = beatmap?.data.colors.sliderBorderColor
+			? Object.values(beatmap?.data.colors.sliderBorderColor)
+					.map((val) => val / 255)
+					.slice(0, 3)
+			: null;
+		const borderColor =
+			border ??
+			skin.config.Colours.SliderBorder.split(",").map((value) => +value / 255);
 
 		this._shader.resources.customUniforms.uniforms.borderColor = borderColor;
 		this._shader.resources.customUniforms.uniforms.innerColor = lighten(

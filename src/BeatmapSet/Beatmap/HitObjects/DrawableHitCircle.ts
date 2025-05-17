@@ -14,7 +14,7 @@ import type Beatmap from "..";
 import DrawableDefaults from "./DrawableDefaults";
 import { update } from "@/Skinning/Legacy/LegacyHitCircle";
 import type Skin from "@/Skinning/Skin";
-import { inject } from "@/Context";
+import { type Context, inject } from "@/Context";
 import type SkinManager from "@/Skinning/SkinManager";
 
 export default class DrawableHitCircle
@@ -55,7 +55,7 @@ export default class DrawableHitCircle
 		this.hitCircleOverlay.anchor.set(0.5);
 		this.sprite.addChild(this.hitCircleSprite, this.hitCircleOverlay);
 
-		this.approachCircle = new DrawableApproachCircle(object);
+		this.approachCircle = new DrawableApproachCircle(object).hook(this.context);
 
 		this.container.addChild(this.sprite);
 
@@ -71,6 +71,15 @@ export default class DrawableHitCircle
 		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
 	}
 
+	hook(context: Context) {
+		super.hook(context);
+
+		this.refreshSprite();
+		this.approachCircle.refreshSprite();
+
+		return this;
+	}
+
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
@@ -80,6 +89,15 @@ export default class DrawableHitCircle
 
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (beatmap?.data?.colors.comboColors.length) {
+			const colors = beatmap.data.colors.comboColors;
+			const comboIndex = this.object.comboIndex % colors.length;
+
+			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+			return;
+		}
 
 		const comboIndex = this.object.comboIndex % skin.colorsLength;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
