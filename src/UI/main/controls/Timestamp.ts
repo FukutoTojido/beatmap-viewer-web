@@ -46,7 +46,7 @@ export default class Timestamp {
 		style: {
 			fontFamily: "Rubik",
 			fontSize: 10,
-			fontWeight: "300",
+			fontWeight: "400",
 			fill: 0xcdd6f4,
 			align: "center",
 		},
@@ -96,7 +96,7 @@ export default class Timestamp {
 			style: {
 				fontFamily: "Rubik",
 				fontSize: 15,
-				fontWeight: "300",
+				fontWeight: "400",
 				fill: 0xcdd6f4,
 				align: "center",
 			},
