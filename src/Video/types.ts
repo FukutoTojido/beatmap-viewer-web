@@ -15,6 +15,7 @@ type WorkerInit = {
 type WorkerLoad = {
 	type: MessageType.Load;
 	data: Blob;
+	offset: number
 };
 
 type WorkerSeek = {

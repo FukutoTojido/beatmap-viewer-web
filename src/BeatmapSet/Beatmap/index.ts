@@ -23,6 +23,9 @@ import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 import Video from "@/Video";
+import type Timestamp from "@/UI/main/controls/Timestamp";
+import type Metadata from "@/UI/sidepanel/Metadata";
+import type Play from "@/UI/main/controls/Play";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -57,6 +60,9 @@ export default class Beatmap extends ScopedClass {
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
 		this.context.provide("beatmapObject", this);
+		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
+			this.data.metadata,
+		);
 	}
 
 	private constructConnectors() {
@@ -148,32 +154,20 @@ export default class Beatmap extends ScopedClass {
 				this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
 					?.filePath ?? "",
 			);
-		// if (
-		// 	videoResource &&
-		// 	!["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
-		// ) {
-		// 	const url = URL.createObjectURL(videoResource);
-		// 	background?.updateVideo(
-		// 		await Assets.load({
-		// 			src: url,
-		// 			data: {
-		// 				autoPlay: false,
-		// 			},
-		// 			loadParser: "loadVideo",
-		// 		}),
-		// 	);
-		// }
 
-		// console.log(videoFilePath, this.data.events.storyboard?.layers.get("Video")?.elements.at(0));
+		console.log(videoFilePath);
 
 		if (
 			videoResource &&
 			new URLSearchParams(window.location.search).get("v") === "true"
-			// !["avi", "flv"].includes(videoFilePath.split(".").at(-1) ?? "")
 		) {
 			this.video = new Video();
 			try {
-				await this.video.load(videoResource);
+				await this.video.load(
+					videoResource,
+					this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+						?.startTime ?? 0,
+				);
 			} catch (e) {
 				console.error(e);
 			}
@@ -193,21 +187,54 @@ export default class Beatmap extends ScopedClass {
 
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
+
+		const playButton = inject<Play>("ui/main/controls/play");
+		if (playButton) {
+			playButton.container.addEventListener("click", () => {
+				this.toggle();
+				switch (this.audio?.state) {
+					case "PLAYING": {
+						(async () => {
+							playButton.sprite.texture =
+								await Assets.load("./assets/pause.png");
+						})();
+						break;
+					}
+					case "STOPPED": {
+						(async () => {
+							playButton.sprite.texture =
+								await Assets.load("./assets/play.png");
+						})();
+						break;
+					}
+				}
+			});
+			playButton.container.addEventListener("tap", () => {
+				this.toggle();
+				switch (this.audio?.state) {
+					case "PLAYING": {
+						(async () => {
+							playButton.sprite.texture =
+								await Assets.load("./assets/pause.png");
+						})();
+						break;
+					}
+					case "STOPPED": {
+						(async () => {
+							playButton.sprite.texture =
+								await Assets.load("./assets/play.png");
+						})();
+						break;
+					}
+				}
+			});
+		}
 	}
 
+	cacheBPM = 0;
+	cacheSV = 0;
+
 	private frame() {
-		// this.video?.seek(this.audio?.currentTime ?? 0);
-
-		// this.update(this.audio?.currentTime ?? 0);
-		// this.previousTime = this.audio?.currentTime ?? 0;
-		// for (const idx of this.previousObjects) {
-		// 	this.objects[idx].update(this.audio?.currentTime ?? 0);
-		// }
-
-		// for (const idx of this.previousConnectors) {
-		// 	this.connectors[idx].update(this.audio?.currentTime ?? 0)
-		// }
-
 		const sorted = Array.from(this.previousObjects)
 			.map((idx) => this.objects[idx])
 			.sort((a, b) => -a.object.startTime + b.object.startTime)
@@ -217,9 +244,25 @@ export default class Beatmap extends ScopedClass {
 			object.update(this.audio?.currentTime ?? 0);
 		}
 
-		const timestamp = inject<BitmapText>("ui/main/viewer/timestamp");
-		if (timestamp)
-			timestamp.text = `Timestamp: ${Math.round(this.audio?.currentTime ?? 0)} ms\nVideo: ${Math.round(1000 / (inject<Background>("ui/main/viewer/background")?.frameTime ?? 0))}fps`;
+		const currentBPM = this.data.controlPoints.timingPointAt(
+			this.audio?.currentTime ?? 0,
+		).bpm;
+		const currentSV = this.data.controlPoints.difficultyPointAt(
+			this.audio?.currentTime ?? 0,
+		).sliderVelocity;
+
+		const timestamp = inject<Timestamp>("ui/main/controls/timestamp");
+		timestamp?.updateDigit(this.audio?.currentTime ?? 0);
+
+		if (this.cacheBPM !== currentBPM) {
+			this.cacheBPM = currentBPM;
+			timestamp?.updateBPM(currentBPM);
+		}
+
+		if (this.cacheSV !== currentSV) {
+			this.cacheSV = currentSV;
+			timestamp?.updateSliderVelocity(currentSV);
+		}
 
 		requestAnimationFrame(() => this.frame());
 	}

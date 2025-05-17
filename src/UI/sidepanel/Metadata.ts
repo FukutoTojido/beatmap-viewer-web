@@ -1,5 +1,8 @@
+import { inject } from "@/Context";
+import type ResponsiveHandler from "@/ResponsiveHandler";
 import type { LayoutOptions } from "@pixi/layout";
 import { LayoutContainer } from "@pixi/layout/components";
+import type { BeatmapMetadataSection } from "osu-classes";
 import {
 	Text,
 	type TextStyle,
@@ -25,37 +28,37 @@ export default class Metadata {
 	container: LayoutContainer;
 
 	artist = new BitmapText({
-		text: "MyGO!!!!!",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
 	artistUnicode = new BitmapText({
-		text: "MyGO!!!!!",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
 	title = new BitmapText({
-		text: "Haruhikage (MyGO!!!!! Ver.)",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
 	titleUnicode = new BitmapText({
-		text: "春日影 (MyGO!!!!! Ver.)",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
 	version = new BitmapText({
-		text: "Past",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
 	source = new BitmapText({
-		text: "BanG Dream! It's MyGO!!!!!",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
 	tags = new BitmapText({
-		text: "crychic 1st album 迷跡波 meisekiha bushiroad gbp garupa girls band party! bandori バンドリ！ ガールズバンドパーティ！ 高松燈 千早愛音 要楽奈 長崎そよ 椎名立希 羊宮妃那 立石凛 青木陽菜 小日向美香 林鼓子 tomori takamatsu anon chihaya raana kaname soyo nagasaki taki shiina hina youmiya rin tateishi hina aoki mika kohinata koko hayashi rock japanese anime jrock j-rock kalibe hey lululu hey_lululu lu^3 coco",
+		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
@@ -103,6 +106,26 @@ export default class Metadata {
 			source,
 			tags,
 		);
+
+		inject<ResponsiveHandler>("responsiveHandler")?.on(
+			"layout",
+			(direction) => {
+				switch (direction) {
+					case "landscape": {
+						this.container.layout = {
+							width: 360,
+						};
+						break;
+					}
+					case "portrait": {
+						this.container.layout = {
+							width: "100%",
+						};
+						break;
+					}
+				}
+			},
+		);
 	}
 
 	private createContainer(title: string, content: BitmapText) {
@@ -114,7 +137,7 @@ export default class Metadata {
 				fontWeight: "300",
 			},
 			layout: {
-                objectPosition: "top left",
+				objectPosition: "top left",
 				objectFit: "none",
 				width: "100%",
 			},
@@ -133,5 +156,15 @@ export default class Metadata {
 		container.addChild(titleObject, content);
 
 		return container;
+	}
+
+	updateMetadata(metadata: BeatmapMetadataSection) {
+		this.artist.text = metadata.artist;
+		this.artistUnicode.text = metadata.artistUnicode;
+		this.title.text = metadata.title;
+		this.titleUnicode.text = metadata.titleUnicode;
+		this.version.text = metadata.version;
+		this.source.text = metadata.source;
+		this.tags.text = metadata.tags.join(", ");
 	}
 }

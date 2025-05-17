@@ -22,6 +22,8 @@ class VideoEngine {
 	timer?: NodeJS.Timeout;
 	currentFrame?: VideoFrame;
 
+	offset = 0
+
 	constructor(origin: string) {
 		this.seek = debounce((timestamp: number) => this._seek(timestamp), 200);
 
@@ -41,7 +43,9 @@ class VideoEngine {
 		});
 	}
 
-	async demux(blob: Blob) {
+	async demux(blob: Blob, offset: number) {
+		this.offset = offset;
+
 		const file = new File([blob], "video.avi");
 		await this.demuxer.load(file);
 
@@ -93,7 +97,7 @@ class VideoEngine {
 		// if (this.last === 0) this.last = 1000 / this.frameRate - 1;
 		const frameTime = 1000 / this.frameRate;
 
-		if (this.startTime + now - this.absStartTime > this.currentIndex * frameTime) {
+		if (this.startTime + now - this.absStartTime - this.offset > this.currentIndex * frameTime) {
 
 			const i = this.currentIndex;
 
@@ -229,7 +233,7 @@ self.addEventListener(
 			case MessageType.Load: {
 				if (!engine) return;
 
-				engine.demux(event.data.data);
+				engine.demux(event.data.data, event.data.offset);
 				break;
 			}
 			case MessageType.Seek: {

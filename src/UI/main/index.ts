@@ -1,7 +1,8 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import Controls from "./controls";
-import { provide } from "@/Context";
+import { inject, provide } from "@/Context";
 import Viewer from "./viewer";
+import type ResponsiveHandler from "@/ResponsiveHandler";
 
 export default class Main {
 	container = new LayoutContainer({
@@ -23,5 +24,27 @@ export default class Main {
 		const viewer = provide("ui/main/viewer", new Viewer());
 
 		this.container.addChild(viewer.container, controls.container);
+
+		inject<ResponsiveHandler>("responsiveHandler")?.on(
+			"layout",
+			(direction) => {
+				switch (direction) {
+					case "landscape": {
+						this.container.layout = {
+							gap: 10,
+							borderWidth: 1,
+						};
+						break;
+					}
+					case "portrait": {
+						this.container.layout = {
+							gap: 0,
+							borderWidth: 0,
+						};
+						break;
+					}
+				}
+			},
+		);
 	}
 }

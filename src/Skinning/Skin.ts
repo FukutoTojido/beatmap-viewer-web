@@ -157,7 +157,7 @@ export default class Skin {
 						native: true,
 					});
 				} catch (e) {
-					console.warn(`Cannot decode ${filename}. Default to silent sample.`);
+					// console.warn(`Cannot decode ${filename}. Default to silent sample.`);
 					audioBuffer = audioContext.createBuffer(
 						1,
 						1,

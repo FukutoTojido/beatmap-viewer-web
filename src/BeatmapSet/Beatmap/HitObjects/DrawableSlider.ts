@@ -316,8 +316,6 @@ export default class DrawableSlider
 	}
 
 	updateGeometry(progressHead = 0, progressTail = 1) {
-		// this._shader.resources.customUniforms.uniforms.progressHead = progressHead;
-		// this._shader.resources.customUniforms.uniforms.progressTail = progressTail;
 		const path = calculateSliderProgress(
 			this.object.path,
 			progressHead,

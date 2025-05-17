@@ -1,20 +1,33 @@
 import { LayoutContainer, LayoutText } from "@pixi/layout/components";
 import Metadata from "./Metadata";
 import ZContainer from "../core/ZContainer";
-import { Text } from "pixi.js";
+import { Assets, Sprite, Text } from "pixi.js";
+import { inject, provide } from "@/Context";
+import type { Game } from "@/Game";
+import type ResponsiveHandler from "@/ResponsiveHandler";
 
 export default class SidePanel {
 	tabs = [
 		{
 			title: "Metadata",
-			content: new Metadata(),
+			content: provide("ui/sidepanel/metadata", new Metadata()),
 		},
 	];
+
+	header = new LayoutContainer({
+		label: "header",
+		layout: {
+			width: "100%",
+			alignItems: "center",
+			justifyContent: "space-between",
+		},
+	});
 
 	tabSwitcher = new LayoutContainer({
 		label: "tab switcher",
 		layout: {
 			gap: 5,
+			flex: 1,
 		},
 	});
 
@@ -43,14 +56,14 @@ export default class SidePanel {
 			const container = new LayoutContainer({
 				layout: {
 					width: "intrinsic",
-                    paddingInline: 50,
-                    height: 40,
+					paddingInline: 50,
+					height: 40,
 					backgroundColor: 0x313244,
 					borderColor: 0x585b70,
 					borderWidth: 1,
 					borderRadius: 10,
-                    alignItems: "center",
-                    flexShrink: 0
+					alignItems: "center",
+					flexShrink: 0,
 				},
 			});
 			const text = new Text({
@@ -62,9 +75,9 @@ export default class SidePanel {
 					fontWeight: "400",
 					align: "center",
 				},
-                layout: {
-                    objectFit: "none"
-                }
+				layout: {
+					objectFit: "none",
+				},
 			});
 
 			container.addChild(text);
@@ -72,7 +85,62 @@ export default class SidePanel {
 		});
 		this.tabSwitcher.addChild(...tabs);
 
-		// biome-ignore lint/style/noNonNullAssertion: Troll
-		this.container.addChild(this.tabSwitcher, this.tabs[0]!.content.container);
+		const closeButton = new Sprite({
+			width: 20,
+			height: 20,
+			layout: {
+				width: 20,
+				height: 20,
+			},
+			interactive: true,
+		});
+
+		(async () => {
+			closeButton.texture = await Assets.load({
+				src: "./assets/x.png",
+				loadParser: "loadTextures",
+			});
+		})();
+
+		closeButton.cursor = "pointer";
+		closeButton.addEventListener("click", () => this.closeSidePanel());
+		closeButton.addEventListener("tap", () => this.closeSidePanel());
+
+		this.header.addChild(this.tabSwitcher, closeButton);
+		this.container.addChild(this.header, this.tabs[0].content.container);
+
+		inject<ResponsiveHandler>("responsiveHandler")?.on(
+			"layout",
+			(direction) => {
+				switch (direction) {
+					case "landscape": {
+						this.container.layout = {
+							position: "relative",
+							width: inject<Game>("game")?.state.sidebar === "CLOSED" ? 0 : 400,
+							height: "100%",
+							padding: 20,
+						};
+						break;
+					}
+					case "portrait": {
+						this.container.layout = {
+							position: "absolute",
+							bottom: 0,
+							width: "100%",
+							height:
+								inject<Game>("game")?.state.sidebar === "CLOSED" ? 0 : "70%",
+							padding:
+								inject<Game>("game")?.state.sidebar === "CLOSED" ? 1 : 20,
+						};
+						break;
+					}
+				}
+			},
+		);
+	}
+
+	closeSidePanel() {
+		const game = inject<Game>("game");
+		game?.state.toggleSidebar("CLOSED");
 	}
 }

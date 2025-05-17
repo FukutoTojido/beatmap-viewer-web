@@ -10,6 +10,7 @@ import Main from "./UI/main";
 import { inject, provide } from "./Context";
 import Config from "./Config";
 import SkinManager from "./Skinning/SkinManager";
+import ResponsiveHandler from "./ResponsiveHandler";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -18,6 +19,7 @@ export class Game {
 	app?: Application;
 	state = new State();
 	animationController = new AnimationController();
+	responsiveHandler = provide("responsiveHandler", new ResponsiveHandler());
 
 	constructor() {
 		provide("skinManager", new SkinManager());
@@ -50,17 +52,32 @@ export class Game {
 	}
 
 	async init() {
-		await inject<SkinManager>("skinManager")?.loadSkins();
 		const app = provide("ui/app", await this.initApplication());
 		const main = provide("ui/main", new Main());
 		const sidepanel = provide("ui/sidepanel", new SidePanel());
 
 		app.stage.addChild(main.container, sidepanel.container);
+		this.responsiveHandler.on("layout", (direction) => {
+			switch (direction) {
+				case "landscape": {
+					app.stage.layout = {
+						flexDirection: "row",
+					};
+					break;
+				}
+				case "portrait": {
+					app.stage.layout = {
+						flexDirection: "column",
+					};
+					break;
+				}
+			}
+		});
 
 		initDevtools({ app });
 
-		// 
 		document.querySelector<HTMLDivElement>("#app")?.append(app.canvas);
+		await inject<SkinManager>("skinManager")?.loadSkins();
 	}
 
 	private resize() {
@@ -72,6 +89,8 @@ export class Game {
 
 		const _width = app.stage.layout?._computedLayout.width;
 		const _height = app.stage.layout?._computedLayout.height;
+
+		this.responsiveHandler.responsive();
 
 		if (_width === width && _height === height) return;
 

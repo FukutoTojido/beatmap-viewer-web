@@ -29,10 +29,11 @@ export default class Video {
 		);
 	}
 
-	async load(blob: Blob) {
+	async load(blob: Blob, offset: number) {
 		this.worker.postMessage({
 			type: MessageType.Load,
 			data: blob,
+			offset
 		});
 	}
 
