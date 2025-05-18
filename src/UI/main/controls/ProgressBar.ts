@@ -22,7 +22,17 @@ export default class ProgressBar {
 		},
 	});
 
-	thumb = new Graphics().roundRect(-2, -15, 4, 30, 4).fill(0xcdd6f4);
+	thumb = new Graphics()
+		.rect(-0.5, -30, 1, 60)
+		.moveTo(-6, -30)
+		.lineTo(0, -24)
+		.lineTo(6, -30)
+		.lineTo(-6, -30)
+		.moveTo(-6, 30)
+		.lineTo(0, 24)
+		.lineTo(6, 30)
+		.lineTo(-6, 30)
+		.fill(0xcdd6f4);
 
 	currentPercentage = 0;
 
