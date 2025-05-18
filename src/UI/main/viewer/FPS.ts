@@ -31,7 +31,6 @@ export default class FPS {
 					objectFit: "none",
 					objectPosition: "center right",
 				},
-				resolution: devicePixelRatio,
 			}),
 		);
 
@@ -51,7 +50,6 @@ export default class FPS {
 					objectFit: "none",
 					objectPosition: "center right",
 				},
-				resolution: devicePixelRatio,
 			}),
 		);
 

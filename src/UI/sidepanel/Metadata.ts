@@ -30,43 +30,44 @@ export default class Metadata {
 	artist = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2,
 		layout: defaultLayout,
 	});
 	artistUnicode = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2,
+
 		layout: defaultLayout,
 	});
 	title = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2,
 		layout: defaultLayout,
 	});
 	titleUnicode = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2,
 		layout: defaultLayout,
 	});
 	version = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2,
 		layout: defaultLayout,
 	});
 	source = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2,
 		layout: defaultLayout,
 	});
 	tags = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: devicePixelRatio,
+		resolution: 2
 		layout: defaultLayout,
 	});
 
@@ -143,7 +144,7 @@ export default class Metadata {
 				fontSize: 14,
 				fontWeight: "300",
 			},
-			resolution: devicePixelRatio,
+			resolution: 2,
 			layout: {
 				objectPosition: "top left",
 				objectFit: "none",
