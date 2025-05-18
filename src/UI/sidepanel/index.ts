@@ -85,6 +85,16 @@ export default class SidePanel {
 		});
 		this.tabSwitcher.addChild(...tabs);
 
+		const closeButtonContainer = new LayoutContainer({
+			layout: {
+				width: 30,
+				height: 30,
+				alignItems: "center",
+				justifyContent: "center",
+				backgroundColor: "rgba(0, 0, 0, 0)"
+			}
+		})
+
 		const closeButton = new Sprite({
 			width: 20,
 			height: 20,
@@ -92,7 +102,6 @@ export default class SidePanel {
 				width: 20,
 				height: 20,
 			},
-			interactive: true,
 		});
 
 		(async () => {
@@ -102,11 +111,13 @@ export default class SidePanel {
 			});
 		})();
 
-		closeButton.cursor = "pointer";
-		closeButton.addEventListener("click", () => this.closeSidePanel());
-		closeButton.addEventListener("tap", () => this.closeSidePanel());
+		closeButtonContainer.cursor = "pointer";
+		closeButtonContainer.addEventListener("click", () => this.closeSidePanel());
+		closeButtonContainer.addEventListener("tap", () => this.closeSidePanel());
 
-		this.header.addChild(this.tabSwitcher, closeButton);
+		closeButtonContainer.addChild(closeButton);
+
+		this.header.addChild(this.tabSwitcher, closeButtonContainer);
 		this.container.addChild(this.header, this.tabs[0].content.container);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
