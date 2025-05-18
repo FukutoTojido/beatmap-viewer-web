@@ -67,7 +67,7 @@ export default class Metadata {
 	tags = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
-		resolution: 2
+		resolution: 2,
 		layout: defaultLayout,
 	});
 
