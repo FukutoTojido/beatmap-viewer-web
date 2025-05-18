@@ -16,7 +16,12 @@ import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import Audio from "../../Audio";
 import type { Resource } from "../../ZipHandler";
-import { Assets, type BitmapText, type Container } from "pixi.js";
+import {
+	Assets,
+	type FederatedPointerEvent,
+	type BitmapText,
+	type Container,
+} from "pixi.js";
 import type Background from "../../UI/main/viewer/Background";
 
 import ObjectsWorker from "./Worker/Objects?worker";
@@ -187,61 +192,39 @@ export default class Beatmap extends ScopedClass {
 		};
 
 		const playButton = inject<Play>("ui/main/controls/play");
-		if (playButton) {
-			playButton.container.addEventListener("click", () => {
-				this.toggle();
-				switch (this.audio?.state) {
-					case "PLAYING": {
-						(async () => {
-							playButton.sprite.texture =
-								await Assets.load("./assets/pause.png");
-						})();
-						break;
-					}
-					case "STOPPED": {
-						(async () => {
-							playButton.sprite.texture =
-								await Assets.load("./assets/play.png");
-						})();
-						break;
-					}
-				}
-			});
-			playButton.container.addEventListener("tap", () => {
-				this.toggle();
-				switch (this.audio?.state) {
-					case "PLAYING": {
-						(async () => {
-							playButton.sprite.texture =
-								await Assets.load("./assets/pause.png");
-						})();
-						break;
-					}
-					case "STOPPED": {
-						(async () => {
-							playButton.sprite.texture =
-								await Assets.load("./assets/play.png");
-						})();
-						break;
-					}
-				}
-			});
-		}
+		playButton?.container.addEventListener("pointertap", () => this.toggle());
 
-		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
-		if (progressBar) {
-			progressBar.container.addEventListener("click", (event) => {
-				const percentage = progressBar.getPercentage(event);
-				this.seek(percentage * (this.audio?.src?.buffer?.duration ?? 0) * 1000);
-			});
-			progressBar.container.addEventListener("tap", (event) => {
-				const percentage = progressBar.getPercentage(event);
-				this.seek(percentage * (this.audio?.src?.buffer?.duration ?? 0) * 1000);
-			});
-		}
+		this.handleEvent();
 
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
+	}
+
+	handleEvent() {
+		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
+		if (progressBar) {
+			let isSeeking = false;
+
+			const seekByPercentage = (event: FederatedPointerEvent) => {
+				const percentage = progressBar.getPercentage(event);
+				this.seek(percentage * (this.audio?.src?.buffer?.duration ?? 0) * 1000);
+			};
+
+			progressBar.container.addEventListener("pointerdown", (event) => {
+				isSeeking = true;
+				seekByPercentage(event);
+			});
+
+			progressBar.container.addEventListener("pointermove", (event) => {
+				if (!isSeeking) return;
+				seekByPercentage(event);
+			});
+
+			progressBar.container.addEventListener("pointerup", (event) => {
+				isSeeking = false;
+				// seekByPercentage(event);
+			});
+		}
 	}
 
 	cacheBPM = 0;
@@ -465,6 +448,24 @@ export default class Beatmap extends ScopedClass {
 		if (this.audio?.state === "STOPPED") {
 			this.worker.postMessage({ type: "stop" });
 			this.video?.stop(this.audio?.currentTime);
+		}
+
+		const playButton = inject<Play>("ui/main/controls/play");
+		if (playButton) {
+			switch (this.audio?.state) {
+				case "PLAYING": {
+					(async () => {
+						playButton.sprite.texture = await Assets.load("./assets/pause.png");
+					})();
+					break;
+				}
+				case "STOPPED": {
+					(async () => {
+						playButton.sprite.texture = await Assets.load("./assets/play.png");
+					})();
+					break;
+				}
+			}
 		}
 	}
 
