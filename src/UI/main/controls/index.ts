@@ -4,6 +4,7 @@ import Timestamp from "./Timestamp";
 import Metadata from "./Metadata";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import Play from "./Play";
+import ProgressBar from "./ProgressBar";
 
 export default class Controls {
 	container = new LayoutContainer({
@@ -25,6 +26,7 @@ export default class Controls {
 		const timestamp = provide("ui/main/controls/timestamp", new Timestamp());
 		const metadata = provide("ui/main/controls/metadata", new Metadata());
 		const play = provide("ui/main/controls/play", new Play());
+		const progressBar = provide("ui/main/controls/progress", new ProgressBar());
 
 		const restContainer = provide(
 			"ui/main/controls/rest",
@@ -35,7 +37,7 @@ export default class Controls {
 				},
 			}),
 		);
-		restContainer.addChild(metadata.container, play.container);
+		restContainer.addChild(metadata.container, play.container, progressBar.container);
 
 		this.container.addChild(timestamp.container, restContainer);
 

@@ -70,17 +70,6 @@ export default class Background {
 		this.container.addChild(this.sprite, this.video, this.dim);
 	}
 
-	updateVideo(texture: Texture) {
-		this.video.texture = texture;
-		(texture.source as VideoSource).updateFPS = 60;
-		this.videoElement = texture.source.resource as HTMLVideoElement;
-		this.videoElement.autoplay = false;
-		this.videoElement.currentTime = 0;
-		this.videoElement.pause();
-		this.container.removeChild(this.video);
-		this.container.addChild(this.sprite, this.video, this.dim);
-	}
-
 	currentFrame?: VideoFrame;
 	lastFrameTime = 0;
 	frameTime = 0;
@@ -123,22 +112,5 @@ export default class Background {
 		}, 15);
 
 		this.lastFrame = frame;
-	}
-
-	seekVideo(time: number) {
-		if (!this.videoElement) return;
-		this.videoElement.currentTime = time / 1000;
-	}
-
-	playVideo(time: number) {
-		if (!this.videoElement) return;
-		this.videoElement.currentTime = time / 1000;
-		this.videoElement.play();
-	}
-
-	pauseVideo(time: number) {
-		if (!this.videoElement) return;
-		this.videoElement.currentTime = time / 1000;
-		this.videoElement.pause();
 	}
 }

@@ -10,7 +10,7 @@ type EventCallback = (time: number) => void;
 export default class Audio extends ScopedClass {
 	private localGainNode: GainNode;
 	private audioBuffer?: AudioBuffer;
-	private src?: AudioBufferSourceNode;
+	src?: AudioBufferSourceNode;
 
 	private startTime = 0;
 	private previousTimestamp = 0;
@@ -42,18 +42,28 @@ export default class Audio extends ScopedClass {
 
 	set currentTime(val: number) {
 		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
+		const previousState = this.state;
 
-		this._currentTime = val > this.audioBuffer.duration * 1000 || val < 0 ? 0 : val;
-		if (this.state === "STOPPED") return;
+		if (previousState === "PLAYING") {
+			this.pause();
+		}
 
-		this.pause();
-		this.play();
+		this._currentTime =
+			val > this.audioBuffer.duration * 1000 || val < 0 ? 0 : val;
+
+		if (previousState === "PLAYING") {
+			this.play();
+		}
 	}
 
 	async createBufferNode(blob: Blob) {
 		this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext, {
 			native: true,
 		});
+
+		this.src = this.audioContext.createBufferSource();
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		this.src.buffer = this.audioBuffer!;
 	}
 
 	toggle() {

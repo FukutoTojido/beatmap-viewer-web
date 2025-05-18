@@ -26,6 +26,7 @@ import Video from "@/Video";
 import type Timestamp from "@/UI/main/controls/Timestamp";
 import type Metadata from "@/UI/sidepanel/Metadata";
 import type Play from "@/UI/main/controls/Play";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -185,9 +186,6 @@ export default class Beatmap extends ScopedClass {
 			}
 		};
 
-		this.loaded = true;
-		requestAnimationFrame(() => this.frame());
-
 		const playButton = inject<Play>("ui/main/controls/play");
 		if (playButton) {
 			playButton.container.addEventListener("click", () => {
@@ -229,6 +227,21 @@ export default class Beatmap extends ScopedClass {
 				}
 			});
 		}
+
+		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
+		if (progressBar) {
+			progressBar.container.addEventListener("click", (event) => {
+				const percentage = progressBar.getPercentage(event);
+				this.seek(percentage * (this.audio?.src?.buffer?.duration ?? 0) * 1000);
+			});
+			progressBar.container.addEventListener("tap", (event) => {
+				const percentage = progressBar.getPercentage(event);
+				this.seek(percentage * (this.audio?.src?.buffer?.duration ?? 0) * 1000);
+			});
+		}
+
+		this.loaded = true;
+		requestAnimationFrame(() => this.frame());
 	}
 
 	cacheBPM = 0;
@@ -263,6 +276,12 @@ export default class Beatmap extends ScopedClass {
 			this.cacheSV = currentSV;
 			timestamp?.updateSliderVelocity(currentSV);
 		}
+
+		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
+		progressBar?.setPercentage(
+			(this.audio?.currentTime ?? 0) /
+				((this.audio?.src?.buffer?.duration ?? 1) * 1000),
+		);
 
 		requestAnimationFrame(() => this.frame());
 	}
@@ -440,17 +459,11 @@ export default class Beatmap extends ScopedClass {
 
 		if (this.audio?.state === "PLAYING") {
 			this.worker.postMessage({ type: "start" });
-			// inject<Background>("ui/main/viewer/background")?.playVideo(
-			// 	this.audio?.currentTime ?? 0,
-			// );
 			this.video?.play(this.audio?.currentTime);
 		}
 
 		if (this.audio?.state === "STOPPED") {
 			this.worker.postMessage({ type: "stop" });
-			// inject<Background>("ui/main/viewer/background")?.pauseVideo(
-			// 	this.audio?.currentTime ?? 0,
-			// );
 			this.video?.stop(this.audio?.currentTime);
 		}
 	}
@@ -465,9 +478,6 @@ export default class Beatmap extends ScopedClass {
 
 		this.audio.currentTime = time;
 		this.worker.postMessage({ type: "seek", time: this.audio.currentTime });
-		inject<Background>("ui/main/viewer/background")?.seekVideo(
-			this.audio?.currentTime ?? 0,
-		);
 		this.video?.seek(this.audio?.currentTime);
 	}
 }

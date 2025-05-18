@@ -22,12 +22,6 @@ export const runTest = async () => {
 	if (!beatmap) throw new Error("Cannot find Beatmap");
 	await beatmap.load();
 
-	// beatmap.seek(247413);
-
-	document
-		.querySelector<HTMLButtonElement>("#toggleAudio")
-		?.addEventListener("click", () => beatmap.toggle());
-
 	document.addEventListener("keydown", (event) => {
 		switch (event.key) {
 			case "ArrowLeft": {

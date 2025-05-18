@@ -18,3 +18,13 @@ export function darken(color: [number, number, number, number?], amount: number)
 
 	return ret;
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function debounce(fn: (...args: any) => void, timeout = 100) {
+	let timer: NodeJS.Timeout;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	return (...args: any) => {
+		if (timer) clearTimeout(timer);
+		timer = setTimeout(() => fn(...args), timeout);
+	};
+}

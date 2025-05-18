@@ -1,5 +1,6 @@
 import { AVSeekFlag, WebDemuxer } from "web-demuxer";
 import { MessageType, type WorkerPayload } from "./types";
+import { debounce } from "@/utils";
 
 let engine: VideoEngine | undefined;
 
@@ -154,7 +155,6 @@ class VideoEngine {
 	absStartTime = 0;
 	startTime = 0;
 	async _seek(timestamp: number) {
-		console.log("Seek", timestamp);
 		try {
 			if (this.status === "PLAY") {
 				if (this.frameTimer) cancelAnimationFrame(this.frameTimer);
@@ -210,16 +210,6 @@ class VideoEngine {
 	}
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-function debounce(fn: (...args: any) => void, timeout = 100) {
-	let timer: NodeJS.Timeout;
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	return (...args: any) => {
-		if (timer) clearTimeout(timer);
-		timer = setTimeout(() => fn(...args), timeout);
-	};
-}
-
 self.addEventListener(
 	"message",
 	(event: {
@@ -259,25 +249,25 @@ self.addEventListener(
 	},
 );
 
-// const frame = 1000 / 30;
-let last = 0;
-const SAMPLE_COUNT = 1000;
-let i = SAMPLE_COUNT;
-let sum = 0;
-let avg = 1000 / 30;
+// // const frame = 1000 / 30;
+// let last = 0;
+// const SAMPLE_COUNT = 1000;
+// let i = SAMPLE_COUNT;
+// let sum = 0;
+// let avg = 1000 / 30;
 
-const execute = () => {
-	const now = performance.now();
-	// console.log("Fire frame. Diff: ", Math.round(now - last));
-	sum += now - last;
-	last = now;
+// const execute = () => {
+// 	const now = performance.now();
+// 	// console.log("Fire frame. Diff: ", Math.round(now - last));
+// 	sum += now - last;
+// 	last = now;
 
-	if (i-- > 0) requestAnimationFrame(() => execute());
-	if (i < 0) {
-		avg = sum / SAMPLE_COUNT;
-		console.log(avg);
-	}
-};
+// 	if (i-- > 0) requestAnimationFrame(() => execute());
+// 	if (i < 0) {
+// 		avg = sum / SAMPLE_COUNT;
+// 		console.log(avg);
+// 	}
+// };
 
-last = performance.now();
-requestAnimationFrame(() => execute());
+// last = performance.now();
+// requestAnimationFrame(() => execute());
