@@ -27,37 +27,37 @@ const defaultLayout: Omit<LayoutOptions, "target"> | null | undefined = {
 export default class Metadata {
 	container: LayoutContainer;
 
-	artist = new Text({
+	artist = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
-	artistUnicode = new Text({
+	artistUnicode = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
-	title = new Text({
+	title = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
-	titleUnicode = new Text({
+	titleUnicode = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
-	version = new Text({
+	version = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
-	source = new Text({
+	source = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
 	});
-	tags = new Text({
+	tags = new BitmapText({
 		text: "",
 		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
 		layout: defaultLayout,
@@ -128,8 +128,8 @@ export default class Metadata {
 		);
 	}
 
-	private createContainer(title: string, content: Text) {
-		const titleObject = new Text({
+	private createContainer(title: string, content: BitmapText) {
+		const titleObject = new BitmapText({
 			text: title,
 			style: {
 				...defaultStyle,
