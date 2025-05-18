@@ -9,7 +9,9 @@ export default class Video {
 	constructor() {
 		this.worker.postMessage({
 			type: MessageType.Init,
-			data: import.meta.env.DEV ? window.location.origin : `${window.location.origin}/dev`,
+			data: import.meta.env.DEV
+				? window.location.origin
+				: `${window.location.origin}/dev`,
 		});
 
 		this.worker.addEventListener(
@@ -19,9 +21,11 @@ export default class Video {
 			}) => {
 				switch (event.data.type) {
 					case MessageType.Frame: {
-						inject<Background>("ui/main/viewer/background")?.updateFrame(
-							event.data.data,
-						);
+						requestAnimationFrame(() => {
+							inject<Background>("ui/main/viewer/background")?.updateFrame(
+								event.data.data as VideoFrame,
+							);
+						});
 						break;
 					}
 				}
@@ -33,7 +37,7 @@ export default class Video {
 		this.worker.postMessage({
 			type: MessageType.Load,
 			data: blob,
-			offset
+			offset,
 		});
 	}
 
