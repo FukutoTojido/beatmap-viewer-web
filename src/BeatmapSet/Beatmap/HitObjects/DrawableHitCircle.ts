@@ -113,7 +113,8 @@ export default class DrawableHitCircle
 		if (
 			!(
 				beatmap.previousTime <= this.object.startTime &&
-				this.object.startTime < time
+				this.object.startTime < time &&
+				time - beatmap.previousTime < 30
 			)
 		)
 			return;

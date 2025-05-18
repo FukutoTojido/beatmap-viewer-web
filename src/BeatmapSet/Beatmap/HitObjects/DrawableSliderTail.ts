@@ -58,7 +58,8 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 		if (
 			!(
 				beatmap.previousTime <= this.object.startTime + TAIL_LENIENCY &&
-				this.object.startTime + TAIL_LENIENCY < time
+				this.object.startTime + TAIL_LENIENCY < time &&
+				time - beatmap.previousTime < 30
 			)
 		)
 			return;
