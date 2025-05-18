@@ -29,6 +29,7 @@ export default class Timestamp {
 	});
 	bpm = new BitmapText({
 		text: "0BPM",
+		resolution: devicePixelRatio,
 		style: {
 			fontFamily: "Rubik",
 			fontSize: 12,
@@ -43,6 +44,7 @@ export default class Timestamp {
 	});
 	sliderVelocity = new BitmapText({
 		text: "x0.00",
+		resolution: devicePixelRatio,
 		style: {
 			fontFamily: "Rubik",
 			fontSize: 10,
@@ -100,6 +102,7 @@ export default class Timestamp {
 				fill: 0xcdd6f4,
 				align: "center",
 			},
+			resolution: devicePixelRatio,
 			layout: {
 				width,
 				objectFit: "none",

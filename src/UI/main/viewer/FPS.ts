@@ -27,10 +27,11 @@ export default class FPS {
 					align: "right",
 				},
 				layout: {
-                    width: "100%",
+					width: "100%",
 					objectFit: "none",
 					objectPosition: "center right",
 				},
+				resolution: devicePixelRatio,
 			}),
 		);
 
@@ -46,10 +47,11 @@ export default class FPS {
 					align: "right",
 				},
 				layout: {
-                    width: "100%",
+					width: "100%",
 					objectFit: "none",
 					objectPosition: "center right",
 				},
+				resolution: devicePixelRatio,
 			}),
 		);
 
