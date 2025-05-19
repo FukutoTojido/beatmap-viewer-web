@@ -30,6 +30,9 @@ import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import type { Context } from "@/Context";
 
+// import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
+// await init();
+
 const GL = { vertex, fragment };
 // const COLOR: [number, number, number, number] = [
 // 	0.21176470588, 0.52156862745, 0.72549019607, 0,
@@ -48,7 +51,6 @@ export default class DrawableSlider
 	private _geometry: Geometry = new Geometry({
 		attributes: {
 			aPosition: new Float32Array([]),
-			// isCirc: new Float32Array([]),
 		},
 		indexBuffer: [],
 	});
@@ -139,17 +141,6 @@ export default class DrawableSlider
 				.filter((object) => object !== null),
 		);
 
-		const path = calculateSliderProgress(object.path, 0, 1);
-		const { aPosition, indexBuffer } = createGeometry(
-			path,
-			object.radius * (236 / 256),
-		);
-
-		this._geometry.attributes.aPosition.buffer.data = new Float32Array(
-			aPosition,
-		);
-		this._geometry.indexBuffer.data = new Uint32Array(indexBuffer);
-
 		this.body.state.depthTest = true;
 		this.body.x = object.startPosition.x + object.stackedOffset.x;
 		this.body.y = object.startPosition.y + object.stackedOffset.x;
@@ -239,6 +230,14 @@ export default class DrawableSlider
 			[color[0], color[1], color[2]],
 			0.1,
 		);
+		// this._shader.resources.customUniforms.uniforms.innerColor = darken(
+		// 	[color[0], color[1], color[2]],
+		// 	0.1,
+		// );
+		// this._shader.resources.customUniforms.uniforms.outerColor = darken(
+		// 	[color[0], color[1], color[2]],
+		// 	0.1,
+		// );
 	}
 
 	get approachCircle() {
@@ -348,7 +347,6 @@ export default class DrawableSlider
 				start = spanProgress;
 			}
 		}
-
 
 		(async () => this.updateGeometry(start, end))();
 

@@ -1,17 +1,22 @@
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import { inject } from "@/Context";
 import { LayoutContainer } from "@pixi/layout/components";
-import { Graphics, type FederatedPointerEvent } from "pixi.js";
+import {
+	Graphics,
+	type ColorSource,
+	type FederatedPointerEvent,
+} from "pixi.js";
 
 export default class ProgressBar {
 	container = new LayoutContainer({
 		layout: {
 			flex: 1,
 			height: "100%",
-			backgroundColor: 0x181825,
+			backgroundColor: 0x11111b,
 			alignItems: "center",
 			justifyContent: "center",
 			paddingInline: 30,
+			overflow: "hidden"
 		},
 	});
 
@@ -25,26 +30,40 @@ export default class ProgressBar {
 	});
 
 	thumb = new Graphics()
-		.rect(-0.5, -30, 1, 60)
+		.rect(-1, -30, 2, 60)
 		.moveTo(-6, -30)
-		.lineTo(0, -24)
+		.lineTo(-1, -26)
+		.lineTo(1, -26)
 		.lineTo(6, -30)
 		.lineTo(-6, -30)
 		.moveTo(-6, 30)
-		.lineTo(0, 24)
+		.lineTo(-1, 26)
+		.lineTo(1, 26)
 		.lineTo(6, 30)
 		.lineTo(-6, 30)
 		.fill(0xcdd6f4);
 
-	currentPercentage = 0;
+	timeline: Graphics;
 
 	constructor() {
-		this.container.addChild(this.line, this.thumb);
+		this.timeline = new Graphics();
+		this.timeline.interactive = false;
+
+		this.container.addChild(this.line, this.thumb, this.timeline);
 		this.thumb.x = 30;
 		this.thumb.y = 30;
 
+		this.timeline.x = 30;
+		this.timeline.y = 20;
+
 		this.container.on("layout", () => {
 			this.thumb.y = (this.container.layout?.computedLayout.height ?? 0) / 2;
+
+			this.timeline.scale.set(
+				(this.container.layout?.computedLayout.width ?? 60) - 60,
+				1,
+			);
+			this.timeline.y = (this.container.layout?.computedLayout.height ?? 0) / 2 - 10;
 		});
 
 		this.addEventHandler();
@@ -87,10 +106,25 @@ export default class ProgressBar {
 	}
 
 	setPercentage(percentage: number) {
-		this.currentPercentage = percentage;
 		const width = (this.container.layout?.computedLayout.width ?? 60) - 60;
 		if (!width) return;
 
-		this.thumb.x = 30 + width * Math.min(1, Math.max(0, percentage));
+		this.thumb.x = Math.round(30 + width * Math.min(1, Math.max(0, percentage)));
+	}
+
+	drawTimeline(
+		points: {
+			position: number;
+			color: ColorSource;
+		}[],
+	) {
+		this.timeline.clear();
+		for (const { position, color } of points) {
+			this.timeline
+				.moveTo(position, 0)
+				.lineTo(position, -12)
+				.stroke({ color, alpha: 0.7, pixelLine: true });
+		}
+		this.container.addChild(this.line, this.thumb);
 	}
 }

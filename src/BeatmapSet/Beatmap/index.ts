@@ -6,9 +6,11 @@ import {
 } from "osu-standard-stable";
 import { inject, provide, ScopedClass } from "../../Context";
 import {
+	DifficultyPoint,
+	SamplePoint,
 	StoryboardVideo,
+	TimingPoint,
 	type Beatmap as BeatmapData,
-	type SamplePoint,
 } from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
@@ -95,6 +97,8 @@ export default class Beatmap extends ScopedClass {
 			this.loadVideo(),
 		]);
 
+		this.loadTimingPoints();
+
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
 
@@ -115,6 +119,32 @@ export default class Beatmap extends ScopedClass {
 				}
 			}
 		};
+	}
+
+	loadTimingPoints() {
+		const points = this.data.controlPoints.groups.map((group) => {
+			const hasTimingPoint = group.controlPoints.some(
+				(point) => point instanceof TimingPoint,
+			);
+			const hasDifficultyPoint = group.controlPoints.some(
+				(point) => point instanceof DifficultyPoint,
+			);
+			const hasSamplePoint = group.controlPoints.some(
+				(point) => point instanceof SamplePoint,
+			);
+
+			return {
+				position:
+					group.startTime / ((this.audio?.src?.buffer?.duration ?? 1) * 1000),
+				color:
+					hasTimingPoint && !hasDifficultyPoint
+						? 0xff1749
+						: hasTimingPoint && hasDifficultyPoint
+							? 0xff9717
+							: 0x17ff51,
+			};
+		});
+		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(points);
 	}
 
 	loadHitObjects() {
