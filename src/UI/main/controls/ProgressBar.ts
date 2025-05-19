@@ -1,3 +1,5 @@
+import type Beatmap from "@/BeatmapSet/Beatmap";
+import { inject } from "@/Context";
 import { LayoutContainer } from "@pixi/layout/components";
 import { Graphics, type FederatedPointerEvent } from "pixi.js";
 
@@ -43,6 +45,36 @@ export default class ProgressBar {
 
 		this.container.on("layout", () => {
 			this.thumb.y = (this.container.layout?.computedLayout.height ?? 0) / 2;
+		});
+
+		this.addEventHandler();
+	}
+
+	addEventHandler() {
+		let isSeeking = false;
+
+		const seekByPercentage = (event: FederatedPointerEvent) => {
+			const beatmap = inject<Beatmap>("beatmap");
+
+			const percentage = this.getPercentage(event);
+			beatmap?.seek(
+				percentage * (beatmap?.audio?.src?.buffer?.duration ?? 0) * 1000,
+			);
+		};
+
+		this.container.addEventListener("pointerdown", (event) => {
+			isSeeking = true;
+			seekByPercentage(event);
+		});
+
+		this.container.addEventListener("pointermove", (event) => {
+			if (!isSeeking) return;
+			seekByPercentage(event);
+		});
+
+		this.container.addEventListener("pointerup", (event) => {
+			isSeeking = false;
+			// seekByPercentage(event);
 		});
 	}
 

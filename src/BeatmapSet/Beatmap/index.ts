@@ -4,7 +4,7 @@ import {
 	type StandardBeatmap,
 	StandardRuleset,
 } from "osu-standard-stable";
-import { inject, ScopedClass } from "../../Context";
+import { inject, provide, ScopedClass } from "../../Context";
 import {
 	StoryboardVideo,
 	type Beatmap as BeatmapData,
@@ -66,9 +66,12 @@ export default class Beatmap extends ScopedClass {
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
 		this.context.provide("beatmapObject", this);
+
 		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
 			this.data.metadata,
 		);
+
+		provide("beatmap", this);
 	}
 
 	private constructConnectors() {
@@ -191,40 +194,8 @@ export default class Beatmap extends ScopedClass {
 			}
 		};
 
-		const playButton = inject<Play>("ui/main/controls/play");
-		playButton?.container.addEventListener("pointertap", () => this.toggle());
-
-		this.handleEvent();
-
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
-	}
-
-	handleEvent() {
-		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
-		if (progressBar) {
-			let isSeeking = false;
-
-			const seekByPercentage = (event: FederatedPointerEvent) => {
-				const percentage = progressBar.getPercentage(event);
-				this.seek(percentage * (this.audio?.src?.buffer?.duration ?? 0) * 1000);
-			};
-
-			progressBar.container.addEventListener("pointerdown", (event) => {
-				isSeeking = true;
-				seekByPercentage(event);
-			});
-
-			progressBar.container.addEventListener("pointermove", (event) => {
-				if (!isSeeking) return;
-				seekByPercentage(event);
-			});
-
-			progressBar.container.addEventListener("pointerup", (event) => {
-				isSeeking = false;
-				// seekByPercentage(event);
-			});
-		}
 	}
 
 	cacheBPM = 0;
