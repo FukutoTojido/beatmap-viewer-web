@@ -39,7 +39,12 @@ export default class Gameplays {
 			const container = deserialized[i];
 			container.container.layout = {
 				top: `${Math.floor(i / 2) * h}%`,
-				left: i % 2 === 0 ? "0%" : "50%",
+				left:
+					i % 2 === 0
+						? i > 0 && i === deserialized.length - 1
+							? "25%"
+							: "0%"
+						: "50%",
 				width: `${w}%`,
 				height: `${h}%`,
 			};
