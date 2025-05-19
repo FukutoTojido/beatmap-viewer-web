@@ -100,7 +100,6 @@ export default class Timestamp {
 				fill: 0xcdd6f4,
 				align: "center",
 			},
-			resolution: devicePixelRatio,
 			layout: {
 				width,
 				objectFit: "none",

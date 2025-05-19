@@ -2,7 +2,7 @@ import "@pixi/layout";
 import { runTest } from "./Test";
 import { Game } from "./Game";
 import { provide } from "./Context";
-import { Assets, BitmapFontManager, TextureSource } from "pixi.js";
+import { Assets, BitmapFontManager } from "pixi.js";
 
 (async () => {
 	await Promise.all([
