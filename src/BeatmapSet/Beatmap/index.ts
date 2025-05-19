@@ -35,6 +35,7 @@ import type Metadata from "@/UI/sidepanel/Metadata";
 import type Play from "@/UI/main/controls/Play";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Audio from "@/Audio";
+import Gameplay from "@/UI/main/viewer/Gameplay";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -59,7 +60,7 @@ export default class Beatmap extends ScopedClass {
 	private previousObjects = new Set<number>();
 	previousTime = 0;
 
-	objectContainer: Container;
+	container: Gameplay;
 
 	constructor(private raw: string) {
 		super();
@@ -68,9 +69,7 @@ export default class Beatmap extends ScopedClass {
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
 		this.context.provide("beatmapObject", this);
-		this.objectContainer = new Container({
-			boundsArea: new Rectangle(0, 0, 512, 384),
-		});
+		this.container = new Gameplay();
 	}
 
 	private constructConnectors() {
@@ -303,7 +302,7 @@ export default class Beatmap extends ScopedClass {
 
 		const audio = this.context.consume<Audio>("audio");
 
-		const objectContainer = this.objectContainer;
+		const objectContainer = this.container.objectsContainer;
 
 		// const objects = this.searchObjects(time);
 		const disposedObjects = this.previousObjects.difference(objects);

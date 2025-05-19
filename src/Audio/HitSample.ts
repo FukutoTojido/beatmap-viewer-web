@@ -6,8 +6,9 @@ import type {
 } from "osu-classes";
 import Beatmap from "../BeatmapSet/Beatmap";
 import type SampleManager from "../BeatmapSet/SampleManager";
-import { type Context, ScopedClass } from "../Context";
+import { type Context, inject, ScopedClass } from "../Context";
 import type Audio from ".";
+import type BeatmapSet from "@/BeatmapSet";
 
 export default class HitSample extends ScopedClass {
 	localGainNode?: GainNode;
@@ -22,6 +23,9 @@ export default class HitSample extends ScopedClass {
 
 	play(samplePoint: SamplePoint, isLoop = false) {
 		const audio = this.context.consume<Audio>("audio");
+		const beatmapset = inject<BeatmapSet>("beatmapset");
+		const clientLength = 1 + (beatmapset?.slaves.size ?? 0);
+
 		if (!audio || audio.state === "STOPPED") return;
 
 		const audioContext = this.context.consume<AudioContext>("audioContext");
@@ -48,7 +52,8 @@ export default class HitSample extends ScopedClass {
 			src.buffer = buffer;
 
 			const localGainNode = audioContext?.createGain();
-			localGainNode.gain.value = (0.3 * samplePoint.volume) / 100;
+			localGainNode.gain.value =
+				(0.3 * samplePoint.volume) / clientLength / 100;
 			this.localGainNode = localGainNode;
 
 			src.connect(localGainNode);
@@ -71,8 +76,12 @@ export default class HitSample extends ScopedClass {
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio) return;
 
+		const beatmapset = inject<BeatmapSet>("beatmapset");
+		const clientLength = 1 + (beatmapset?.slaves.size ?? 0);
+
 		if (this.localGainNode)
-			this.localGainNode.gain.value = (0.3 * samplePoint.volume) / 100;
+			this.localGainNode.gain.value =
+				(0.3 * samplePoint.volume) / clientLength / 100;
 
 		const clearCurrent = () => {
 			for (const src of this.srcs) {

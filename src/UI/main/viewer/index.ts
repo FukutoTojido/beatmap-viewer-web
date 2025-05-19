@@ -5,6 +5,7 @@ import Timeline from "./Timeline";
 import Gameplay from "./Gameplay";
 import Background from "./Background";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import Gameplays from "./Gameplay/Gameplays";
 
 export default class Viewer {
 	container = new LayoutContainer({
@@ -24,13 +25,13 @@ export default class Viewer {
 	constructor() {
 		const fps = new FPS();
 		const timeline = provide("ui/main/viewer/timeline", new Timeline());
-		const gameplay = provide("ui/main/viewer/gameplay", new Gameplay());
+		const gameplays = provide("ui/main/viewer/gameplays", new Gameplays());
 		const background = provide("ui/main/viewer/background", new Background());
 
 		this.container.addChild(
 			background.container,
 			// timeline.container,
-			gameplay.container,
+			gameplays.container,
 			fps.container,
 		);
 

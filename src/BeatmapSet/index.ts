@@ -11,6 +11,7 @@ import { Assets } from "pixi.js";
 import Video from "@/Video";
 import type Background from "@/UI/main/viewer/Background";
 import type Gameplay from "@/UI/main/viewer/Gameplay";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -148,22 +149,22 @@ export default class BeatmapSet extends ScopedClass {
 		);
 
 		this.master = beatmap;
-		inject<Gameplay>("ui/main/viewer/gameplay")?.addContainer(
-			beatmap.objectContainer,
+		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
+			beatmap.container,
 		);
 	}
 
 	loadSlave(idx: number) {
 		const beatmap = this.difficulties[idx];
 		if (!beatmap) return;
-		if (beatmap === this.master) return;
+		if (beatmap === this.master || this.slaves.has(beatmap)) return;
 
 		beatmap.loadHitObjects();
 		beatmap.load();
 
 		this.slaves.add(beatmap);
-		inject<Gameplay>("ui/main/viewer/gameplay")?.addContainer(
-			beatmap.objectContainer,
+		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
+			beatmap.container,
 		);
 	}
 
