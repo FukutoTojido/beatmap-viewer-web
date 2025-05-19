@@ -24,7 +24,7 @@ export default class Viewer {
 	constructor() {
 		const fps = new FPS();
 		const timeline = provide("ui/main/viewer/timeline", new Timeline());
-		const gameplay = new Gameplay();
+		const gameplay = provide("ui/main/viewer/gameplay", new Gameplay());
 		const background = provide("ui/main/viewer/background", new Background());
 
 		this.container.addChild(

@@ -16,24 +16,25 @@ import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
-import Audio from "../../Audio";
 import type { Resource } from "../../ZipHandler";
 import {
 	Assets,
+	Container,
 	type FederatedPointerEvent,
 	type BitmapText,
-	type Container,
+	Rectangle,
 } from "pixi.js";
 import type Background from "../../UI/main/viewer/Background";
 
 import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
-import Video from "@/Video";
+
 import type Timestamp from "@/UI/main/controls/Timestamp";
 import type Metadata from "@/UI/sidepanel/Metadata";
 import type Play from "@/UI/main/controls/Play";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import type Audio from "@/Audio";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -48,7 +49,6 @@ export default class Beatmap extends ScopedClass {
 	data: StandardBeatmap;
 	objects: DrawableHitObject[] = [];
 	connectors: DrawableFollowPoints[] = [];
-	audio?: Audio;
 
 	private worker = new ObjectsWorker();
 
@@ -59,7 +59,7 @@ export default class Beatmap extends ScopedClass {
 	private previousObjects = new Set<number>();
 	previousTime = 0;
 
-	video?: Video;
+	objectContainer: Container;
 
 	constructor(private raw: string) {
 		super();
@@ -68,6 +68,9 @@ export default class Beatmap extends ScopedClass {
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
 		this.context.provide("beatmapObject", this);
+		this.objectContainer = new Container({
+			boundsArea: new Rectangle(0, 0, 512, 384),
+		});
 	}
 
 	private constructConnectors() {
@@ -88,37 +91,9 @@ export default class Beatmap extends ScopedClass {
 		return connectors;
 	}
 
-	async load() {
-		this.loadHitObjects();
-
-		await Promise.all([
-			this.loadAudio(),
-			this.loadBackground(),
-			this.loadVideo(),
-		]);
-
-		this.loadTimingPoints();
-
+	load() {
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
-
-		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
-			this.data.metadata,
-		);
-
-		provide("beatmap", this);
-
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		this.worker.onmessage = (event: any) => {
-			switch (event.data.type) {
-				case "update": {
-					const { objects, connectors, currentTime, previousTime } = event.data;
-					this.previousTime = previousTime;
-					this.update(currentTime, objects, connectors);
-					break;
-				}
-			}
-		};
 	}
 
 	loadTimingPoints() {
@@ -133,9 +108,10 @@ export default class Beatmap extends ScopedClass {
 				(point) => point instanceof SamplePoint,
 			);
 
+			const audio = this.context.consume<Audio>("audio");
 			return {
 				position:
-					group.startTime / ((this.audio?.src?.buffer?.duration ?? 1) * 1000),
+					group.startTime / ((audio?.src?.buffer?.duration ?? 1) * 1000),
 				color:
 					hasTimingPoint && !hasDifficultyPoint
 						? 0xff1749
@@ -180,92 +156,44 @@ export default class Beatmap extends ScopedClass {
 				};
 			}),
 		});
-	}
 
-	async loadAudio() {
-		console.time("Constructing audio");
-		const audioFile = this.context
-			.consume<Map<string, Resource>>("resources")
-			?.get(this.data.general.audioFilename);
-		if (!audioFile) throw new Error("Cannot find audio in resource?");
-
-		const audioContext = this.context.consume<AudioContext>("audioContext");
-		if (!audioContext) throw new Error("Missing audio context!");
-
-		this.audio = this.context.provide(
-			"audio",
-			new Audio(audioContext).hook(this.context),
-		);
-		await this.audio.createBufferNode(audioFile);
-		console.timeEnd("Constructing audio");
-	}
-
-	async loadBackground() {
-		const background = inject<Background>("ui/main/viewer/background");
-		const backgroundResource = this.context
-			.consume<Map<string, Resource>>("resources")
-			?.get(this.data.events.backgroundPath ?? "");
-
-		if (backgroundResource) {
-			const url = URL.createObjectURL(backgroundResource);
-			background?.updateTexture(
-				await Assets.load({ src: url, loadParser: "loadTextures" }),
-			);
-		}
-	}
-
-	async loadVideo() {
-		const videoFilePath =
-			this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-				?.filePath ?? "";
-		const videoResource = this.context
-			.consume<Map<string, Resource>>("resources")
-			?.get(
-				this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-					?.filePath ?? "",
-			);
-
-		console.log(videoFilePath);
-
-		if (
-			videoResource &&
-			new URLSearchParams(window.location.search).get("v") === "true"
-		) {
-			this.video = new Video();
-			try {
-				await this.video.load(
-					videoResource,
-					this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-						?.startTime ?? 0,
-				);
-			} catch (e) {
-				console.error(e);
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		this.worker.onmessage = (event: any) => {
+			switch (event.data.type) {
+				case "update": {
+					const { objects, connectors, currentTime, previousTime } = event.data;
+					this.previousTime = previousTime;
+					this.update(currentTime, objects, connectors);
+					break;
+				}
 			}
-		}
+		};
 	}
 
 	cacheBPM = 0;
 	cacheSV = 0;
 
 	private frame() {
+		const audio = this.context.consume<Audio>("audio");
+
 		const sorted = Array.from(this.previousObjects)
 			.map((idx) => this.objects[idx])
 			.sort((a, b) => -a.object.startTime + b.object.startTime)
 			.filter((object) => object instanceof DrawableSlider);
 
 		for (const object of sorted) {
-			object.update(this.audio?.currentTime ?? 0);
+			object.update(audio?.currentTime ?? 0);
 		}
 
 		const currentBPM = this.data.controlPoints.timingPointAt(
-			this.audio?.currentTime ?? 0,
+			audio?.currentTime ?? 0,
 		).bpm;
 		const currentSV = this.data.controlPoints.difficultyPointAt(
-			this.audio?.currentTime ?? 0,
+			audio?.currentTime ?? 0,
 		).sliderVelocity;
 
 		const timestamp = inject<Timestamp>("ui/main/controls/timestamp");
-		timestamp?.updateDigit(this.audio?.currentTime ?? 0);
+		timestamp?.updateDigit(audio?.currentTime ?? 0);
 
 		if (this.cacheBPM !== currentBPM) {
 			this.cacheBPM = currentBPM;
@@ -279,8 +207,7 @@ export default class Beatmap extends ScopedClass {
 
 		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
 		progressBar?.setPercentage(
-			(this.audio?.currentTime ?? 0) /
-				((this.audio?.src?.buffer?.duration ?? 1) * 1000),
+			(audio?.currentTime ?? 0) / ((audio?.src?.buffer?.duration ?? 1) * 1000),
 		);
 
 		requestAnimationFrame(() => this.frame());
@@ -374,9 +301,9 @@ export default class Beatmap extends ScopedClass {
 		if (!this.loaded)
 			throw new Error("Cannot update a beatmap that hasn't been initialized");
 
-		const objectContainer = inject<Container>(
-			"ui/main/viewer/gameplay/objectContainer",
-		);
+		const audio = this.context.consume<Audio>("audio");
+
+		const objectContainer = this.objectContainer;
 
 		// const objects = this.searchObjects(time);
 		const disposedObjects = this.previousObjects.difference(objects);
@@ -420,7 +347,7 @@ export default class Beatmap extends ScopedClass {
 			// 	);
 
 			if (object instanceof DrawableHitCircle) {
-				object.update(this.audio?.currentTime ?? 0);
+				object.update(audio?.currentTime ?? 0);
 			}
 
 			object.playHitSound(time);
@@ -437,7 +364,7 @@ export default class Beatmap extends ScopedClass {
 		}
 
 		for (const idx of connectors) {
-			this.connectors[idx].update(this.audio?.currentTime ?? 0);
+			this.connectors[idx].update(audio?.currentTime ?? 0);
 			connectorContainers.push(this.connectors[idx].container);
 		}
 
@@ -455,34 +382,14 @@ export default class Beatmap extends ScopedClass {
 				"Cannot play / pause a beatmap that hasn't been initialized",
 			);
 
-		this.audio?.toggle();
+		const audio = this.context.consume<Audio>("audio");
 
-		if (this.audio?.state === "PLAYING") {
+		if (audio?.state === "PLAYING") {
 			this.worker.postMessage({ type: "start" });
-			this.video?.play(this.audio?.currentTime);
 		}
 
-		if (this.audio?.state === "STOPPED") {
+		if (audio?.state === "STOPPED") {
 			this.worker.postMessage({ type: "stop" });
-			this.video?.stop(this.audio?.currentTime);
-		}
-
-		const playButton = inject<Play>("ui/main/controls/play");
-		if (playButton) {
-			switch (this.audio?.state) {
-				case "PLAYING": {
-					(async () => {
-						playButton.sprite.texture = await Assets.load("./assets/pause.png");
-					})();
-					break;
-				}
-				case "STOPPED": {
-					(async () => {
-						playButton.sprite.texture = await Assets.load("./assets/play.png");
-					})();
-					break;
-				}
-			}
 		}
 	}
 
@@ -492,10 +399,6 @@ export default class Beatmap extends ScopedClass {
 				"Cannot play / pause a beatmap that hasn't been initialized",
 			);
 
-		if (!this.audio) throw new Error("Audio hasn't been initialized");
-
-		this.audio.currentTime = time;
-		this.worker.postMessage({ type: "seek", time: this.audio.currentTime });
-		this.video?.seek(this.audio?.currentTime);
+		this.worker.postMessage({ type: "seek", time });
 	}
 }

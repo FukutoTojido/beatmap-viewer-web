@@ -3,6 +3,7 @@ import type { BitmapText } from "pixi.js";
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 import { inject, ScopedClass } from "../Context";
 import type Beatmap from "../BeatmapSet/Beatmap";
+import type BeatmapSet from "@/BeatmapSet";
 
 type AudioEvent = "time";
 type EventCallback = (time: number) => void;
@@ -97,9 +98,9 @@ export default class Audio extends ScopedClass {
 
 			console.log("Audio Ended!");
 
-			const beatmap = this.context.consume<Beatmap>("beatmapObject");
-			beatmap?.toggle();
-			beatmap?.seek(0);
+			const beatmapset = inject<BeatmapSet>("beatmapset");
+			beatmapset?.toggle();
+			beatmapset?.seek(0);
 		};
 		this.localGainNode.connect(this.audioContext.destination);
 

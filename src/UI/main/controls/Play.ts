@@ -1,3 +1,4 @@
+import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import { inject } from "@/Context";
 import { LayoutContainer } from "@pixi/layout/components";
@@ -35,7 +36,7 @@ export default class Play {
 		this.container.cursor = "pointer";
 
 		this.container.addEventListener("pointertap", () =>
-			inject<Beatmap>("beatmap")?.toggle(),
+			inject<BeatmapSet>("beatmapset")?.toggle(),
 		);
 	}
 }

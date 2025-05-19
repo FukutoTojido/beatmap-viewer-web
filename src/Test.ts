@@ -1,11 +1,15 @@
 import BeatmapSet from "./BeatmapSet";
 import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
+import { inject } from "./Context";
+import type Audio from "./Audio";
 import ZipHandler from "./ZipHandler";
 
 export const runTest = async () => {
-	const ID = new URLSearchParams(window.location.search).get("b") ?? "1307291";
+	const IDs = new URLSearchParams(window.location.search).getAll("b") ?? [
+		"1307291",
+	];
 
-	const blob = await getBeatmapFromId(ID);
+	const blob = await getBeatmapFromId(IDs[0]);
 	console.log("Download Completed!");
 
 	const resources = await ZipHandler.extract(blob);
@@ -16,34 +20,46 @@ export const runTest = async () => {
 	console.log(bms.difficulties);
 
 	await bms.loadResources();
-	const beatmap =
-		bms.difficulties.find((diff) => diff.data.metadata.beatmapId === +ID) ??
-		bms.difficulties[0];
-	if (!beatmap) throw new Error("Cannot find Beatmap");
-	await beatmap.load();
+
+	for (let i = 0; i < IDs.length; i++) {
+		const ID = IDs[i];
+
+		const idx = bms.difficulties.findIndex(
+			(diff) => diff.data.metadata.beatmapId === +ID,
+		);
+
+		if (idx === -1) continue;
+
+		if (i === 0) await bms.loadMaster(idx);
+		if (i !== 0) bms.loadSlave(idx);
+	}
 
 	document.addEventListener("keydown", (event) => {
+		const audio = bms.context.consume<Audio>("audio");
+
 		switch (event.key) {
 			case "ArrowLeft": {
-				beatmap.seek((beatmap.audio?.currentTime ?? 0) - 1);
+				bms.seek((audio?.currentTime ?? 0) - 1);
 				break;
 			}
 			case "ArrowRight": {
-				beatmap.seek((beatmap.audio?.currentTime ?? 0) + 1);
+				bms.seek((audio?.currentTime ?? 0) + 1);
 				break;
 			}
 			case " ": {
-				beatmap.toggle();
+				bms.toggle();
 			}
 		}
 	});
 
 	document.addEventListener("wheel", (event) => {
+		const audio = bms.context.consume<Audio>("audio");
+
 		if (event.deltaY > 0) {
-			beatmap.seek((beatmap.audio?.currentTime ?? 0) + 100);
+			bms.seek((audio?.currentTime ?? 0) + 100);
 		}
 		if (event.deltaY < 0) {
-			beatmap.seek((beatmap.audio?.currentTime ?? 0) - 100);
+			bms.seek((audio?.currentTime ?? 0) - 100);
 		}
 	});
 };

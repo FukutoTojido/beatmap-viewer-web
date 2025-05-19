@@ -1,5 +1,7 @@
+import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import { inject } from "@/Context";
+import type Audio from "@/Audio";
 import { LayoutContainer } from "@pixi/layout/components";
 import {
 	Graphics,
@@ -16,7 +18,7 @@ export default class ProgressBar {
 			alignItems: "center",
 			justifyContent: "center",
 			paddingInline: 30,
-			overflow: "hidden"
+			overflow: "hidden",
 		},
 	});
 
@@ -63,7 +65,8 @@ export default class ProgressBar {
 				(this.container.layout?.computedLayout.width ?? 60) - 60,
 				1,
 			);
-			this.timeline.y = (this.container.layout?.computedLayout.height ?? 0) / 2 - 10;
+			this.timeline.y =
+				(this.container.layout?.computedLayout.height ?? 0) / 2 - 10;
 		});
 
 		this.addEventHandler();
@@ -73,12 +76,11 @@ export default class ProgressBar {
 		let isSeeking = false;
 
 		const seekByPercentage = (event: FederatedPointerEvent) => {
-			const beatmap = inject<Beatmap>("beatmap");
+			const beatmapset = inject<BeatmapSet>("beatmapset");
+			const audio = beatmapset?.context.consume<Audio>("audio");
 
 			const percentage = this.getPercentage(event);
-			beatmap?.seek(
-				percentage * (beatmap?.audio?.src?.buffer?.duration ?? 0) * 1000,
-			);
+			beatmapset?.seek(percentage * (audio?.src?.buffer?.duration ?? 0) * 1000);
 		};
 
 		this.container.addEventListener("pointerdown", (event) => {
@@ -109,7 +111,9 @@ export default class ProgressBar {
 		const width = (this.container.layout?.computedLayout.width ?? 60) - 60;
 		if (!width) return;
 
-		this.thumb.x = Math.round(30 + width * Math.min(1, Math.max(0, percentage)));
+		this.thumb.x = Math.round(
+			30 + width * Math.min(1, Math.max(0, percentage)),
+		);
 	}
 
 	drawTimeline(
