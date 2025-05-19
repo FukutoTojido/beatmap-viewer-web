@@ -93,6 +93,31 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	async load() {
+		this.loadHitObjects();
+
+		await Promise.all([
+			this.loadAudio(),
+			this.loadBackground(),
+			this.loadVideo(),
+		]);
+
+		this.loaded = true;
+		requestAnimationFrame(() => this.frame());
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		this.worker.onmessage = (event: any) => {
+			switch (event.data.type) {
+				case "update": {
+					const { objects, connectors, currentTime, previousTime } = event.data;
+					this.previousTime = previousTime;
+					this.update(currentTime, objects, connectors);
+					break;
+				}
+			}
+		};
+	}
+
+	loadHitObjects() {
 		console.time("Constructing hitObjects");
 		this.objects = this.data.hitObjects
 			.map((object) => {
@@ -125,7 +150,9 @@ export default class Beatmap extends ScopedClass {
 				};
 			}),
 		});
+	}
 
+	async loadAudio() {
 		console.time("Constructing audio");
 		const audioFile = this.context
 			.consume<Map<string, Resource>>("resources")
@@ -141,7 +168,9 @@ export default class Beatmap extends ScopedClass {
 		);
 		await this.audio.createBufferNode(audioFile);
 		console.timeEnd("Constructing audio");
+	}
 
+	async loadBackground() {
 		const background = inject<Background>("ui/main/viewer/background");
 		const backgroundResource = this.context
 			.consume<Map<string, Resource>>("resources")
@@ -153,7 +182,9 @@ export default class Beatmap extends ScopedClass {
 				await Assets.load({ src: url, loadParser: "loadTextures" }),
 			);
 		}
+	}
 
+	async loadVideo() {
 		const videoFilePath =
 			this.data.events.storyboard?.layers.get("Video")?.elements.at(0)
 				?.filePath ?? "";
@@ -181,21 +212,6 @@ export default class Beatmap extends ScopedClass {
 				console.error(e);
 			}
 		}
-
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		this.worker.onmessage = (event: any) => {
-			switch (event.data.type) {
-				case "update": {
-					const { objects, connectors, currentTime, previousTime } = event.data;
-					this.previousTime = previousTime;
-					this.update(currentTime, objects, connectors);
-					break;
-				}
-			}
-		};
-
-		this.loaded = true;
-		requestAnimationFrame(() => this.frame());
 	}
 
 	cacheBPM = 0;
