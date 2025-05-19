@@ -9,20 +9,24 @@ export type Vector3 = {
 	t: number;
 };
 
-const VECS = 4;
+const VECS = 3;
 
-export default function createGeometry(path: Vector2[], radius = RADIUS) {
+export default function createGeometry(
+	// path: Vector3[], 
+	path: Vector2[], 
+	radius = RADIUS
+) {
 	const vertices: number[] = [];
 	const indices: number[] = [];
 	// const isCirc: number[] = [];
 
-	vertices.push(path[0].x, path[0].y, 0, 0);
+	vertices.push(path[0].x, path[0].y, 0);
 	// isCirc.push(0);
 
 	const pointsCount = path.length - 1;
 	for (let i = 1; i <= pointsCount; i++) {
-		const { x, y } = path[i];
-		const { x: _x, y: _y } = path[i - 1];
+		const { x, y, /* t */ } = path[i];
+		const { x: _x, y: _y, /* t: _t */ } = path[i - 1];
 
 		const dx = x - _x;
 		const dy = y - _y;
@@ -36,27 +40,27 @@ export default function createGeometry(path: Vector2[], radius = RADIUS) {
 			_y + oy,
 			1,
 			// _t,
-			0,
+			// 0,
 			_x - ox,
 			_y - oy,
 			1,
 			// _t,
-			0,
+			// 0,
 			x + ox,
 			y + oy,
 			1,
 			// t,
-			0,
+			// 0,
 			x - ox,
 			y - oy,
 			1,
 			// t,
-			0,
+			// 0,
 			x,
 			y,
 			0,
 			// t,
-			0,
+			// 0,
 		);
 		// isCirc.push(0, 0, 0, 0, 0);
 
@@ -101,7 +105,7 @@ export default function createGeometry(path: Vector2[], radius = RADIUS) {
 				vertices[VECS * c + 1] + radius * Math.sin(theta1 + i * theta),
 				1,
 				// t,
-				0,
+				// 0,
 			);
 			// isCirc.push(0);
 

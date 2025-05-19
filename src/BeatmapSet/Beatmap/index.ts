@@ -66,12 +66,6 @@ export default class Beatmap extends ScopedClass {
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
 		this.context.provide("beatmapObject", this);
-
-		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
-			this.data.metadata,
-		);
-
-		provide("beatmap", this);
 	}
 
 	private constructConnectors() {
@@ -103,6 +97,12 @@ export default class Beatmap extends ScopedClass {
 
 		this.loaded = true;
 		requestAnimationFrame(() => this.frame());
+
+		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
+			this.data.metadata,
+		);
+
+		provide("beatmap", this);
 
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.worker.onmessage = (event: any) => {

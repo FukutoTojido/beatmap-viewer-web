@@ -56,9 +56,6 @@ export default class DrawableSlider
 		gl: GL,
 		resources: {
 			customUniforms: {
-				// progressHead: { value: 0, type: "f32" },
-				// progressTail: { value: 0, type: "f32" },
-				// scale: { value: 1, type: "f32" },
 				borderColor: {
 					value: [205 / 255, 214 / 255, 244 / 255, 1.0],
 					type: "vec4<f32>",
@@ -77,7 +74,6 @@ export default class DrawableSlider
 	});
 
 	private drawableCircles: DrawableHitObject[] = [];
-	// private circle: Mesh<Geometry, Shader>;
 	private body: Mesh<Geometry, Shader> = new Mesh({
 		geometry: this._geometry,
 		shader: this._shader,
@@ -89,12 +85,7 @@ export default class DrawableSlider
 		y: 0,
 		blendMode: "none",
 	});
-	// private bodyContainer = new Container({
-	// 	filters: [
-	// 		this._alphaFilter,
-	// 		// this._backdropBlurFilter
-	// 	],
-	// });
+
 	ball: DrawableSliderBall;
 	followCircle: DrawableSliderFollowCircle;
 
@@ -148,32 +139,17 @@ export default class DrawableSlider
 				.filter((object) => object !== null),
 		);
 
-		// const path = calculateSliderProgress(object.path, 0, 1);
-		// const { aPosition, indexBuffer } = createGeometry(
-		// 	path,
-		// 	object.radius * (236 / 256),
-		// );
-		// this._geometry.attributes.aPosition.buffer.data = new Float32Array(
-		// 	aPosition,
-		// );
-		// this._geometry.attributes.isCirc.buffer.data = new Float32Array(isCirc);
-		// this._geometry.indexBuffer.data = new Uint32Array(indexBuffer);
+		const path = calculateSliderProgress(object.path, 0, 1);
+		const { aPosition, indexBuffer } = createGeometry(
+			path,
+			object.radius * (236 / 256),
+		);
 
-		// this.circle = new Mesh({
-		// 	geometry: new Geometry({
-		// 		attributes: {
-		// 			aPosition: new Float32Array(geometries.circle.aPosition),
-		// 			isCirc: new Float32Array(geometries.circle.isCirc),
-		// 		},
-		// 		indexBuffer: new Uint32Array(geometries.circle.indexBuffer),
-		// 	}),
-		// 	shader: this._shader,
-		// 	x: 0,
-		// 	y: 0,
-		// 	blendMode: "none",
-		// });
+		this._geometry.attributes.aPosition.buffer.data = new Float32Array(
+			aPosition,
+		);
+		this._geometry.indexBuffer.data = new Uint32Array(indexBuffer);
 
-		// this.circle.state.depthTest = true;
 		this.body.state.depthTest = true;
 		this.body.x = object.startPosition.x + object.stackedOffset.x;
 		this.body.y = object.startPosition.y + object.stackedOffset.x;
@@ -181,11 +157,8 @@ export default class DrawableSlider
 		this.ball = new DrawableSliderBall(this.object);
 		this.followCircle = new DrawableSliderFollowCircle(this.object);
 
-		// this.bodyContainer.addChild(this.body, this.circle);
-
 		this.container.visible = false;
 		this.container.addChild(
-			// this.bodyContainer,
 			this.body,
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
 			this.followCircle.container,
@@ -207,15 +180,6 @@ export default class DrawableSlider
 
 		this._shader.resources.customUniforms.uniforms.scale =
 			(object.radius / 54.4) * (236 / 256);
-
-		// if (object.startTime === 8913) {
-		// 	console.time("Calculate Slider Path");
-		// 	const p = calculateSliderProgress(this.object.path, 0, 1);
-		// 	console.timeEnd("Calculate Slider Path");
-		// 	console.time("Create Slider Geometry");
-		// 	createGeometry(p, this.object.radius * (236 / 256));
-		// 	console.timeEnd("Create Slider Geometry");
-		// }
 	}
 
 	hook(context: Context) {
@@ -384,7 +348,9 @@ export default class DrawableSlider
 				start = spanProgress;
 			}
 		}
-		this.updateGeometry(start, end);
+
+
+		(async () => this.updateGeometry(start, end))();
 
 		// const position = this.object.path.curvePositionAt(
 		// 	completionProgress,
