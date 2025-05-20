@@ -10,8 +10,6 @@ export default class Gameplays {
 			width: "100%",
 			flex: 1,
 		},
-		interactive: false,
-		interactiveChildren: false,
 	});
 
 	containers: Set<Gameplay> = new Set();
@@ -27,6 +25,7 @@ export default class Gameplays {
 	constructor() {
 		this.separator.x = 0;
 		this.separator.y = 0;
+		this.separator.interactive = false;
 
 		this.container.addChild(this.separator);
 		this.container.on("layout", () => this.reLayoutChildren());
@@ -40,8 +39,6 @@ export default class Gameplays {
 
 		const w = 100 / columnsCount;
 		const h = 100 / heightDenominator;
-
-		// console.log(columnsCount, heightDenominator, w, h);
 
 		const containerWidth = this.container.layout?.computedLayout.width ?? 0;
 		const containerHeight = this.container.layout?.computedLayout.height ?? 0;

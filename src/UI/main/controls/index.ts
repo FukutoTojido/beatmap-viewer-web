@@ -37,7 +37,11 @@ export default class Controls {
 				},
 			}),
 		);
-		restContainer.addChild(metadata.container, play.container, progressBar.container);
+		restContainer.addChild(
+			metadata.container,
+			play.container,
+			progressBar.container,
+		);
 
 		this.container.addChild(timestamp.container, restContainer);
 
