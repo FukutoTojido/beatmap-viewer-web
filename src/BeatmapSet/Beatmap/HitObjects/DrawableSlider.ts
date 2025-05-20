@@ -198,9 +198,9 @@ export default class DrawableSlider
 
 		const comboIndex =
 			this.object.comboIndex %
-			(beatmap?.data.colors.comboColors.length ?? skin.colorsLength);
+			(beatmap?.data.colors.comboColors.length ? beatmap?.data.colors.comboColors.length : skin.colorsLength);
 		const colors = beatmap?.data.colors.comboColors;
-		const comboColor = colors
+		const comboColor = colors?.length
 			? `${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue}`
 			: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
