@@ -10,9 +10,9 @@ export default class Gameplay {
 			width: "100%",
 			height: "100%",
 			flex: 1,
-			borderWidth: 1,
-			borderColor: 0xcdd6f4
 		},
+		interactive: false,
+		interactiveChildren: false
 	});
 
 	objectsContainer: Container;
