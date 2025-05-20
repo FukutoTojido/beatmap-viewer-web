@@ -121,14 +121,23 @@ export default class ProgressBar {
 			position: number;
 			color: ColorSource;
 		}[],
+		kiai: {
+			start: number;
+			end: number;
+		}[],
 	) {
 		this.timeline.clear();
+
+		for (const { start, end } of kiai) {
+			this.timeline.rect(start, 8, end - start, 4).fill({ color: 0xffd978, alpha: 0.7 });
+		}
+
 		for (const { position, color } of points) {
 			this.timeline
 				.moveTo(position, 0)
 				.lineTo(position, -12)
 				.stroke({ color, alpha: 0.7, pixelLine: true });
 		}
-		this.container.addChild(this.line, this.thumb);
+		this.container.addChild(this.line, this.timeline, this.thumb);
 	}
 }

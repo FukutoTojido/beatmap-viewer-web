@@ -96,6 +96,8 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	loadTimingPoints() {
+		const audio = this.context.consume<Audio>("audio");
+
 		const points = this.data.controlPoints.groups.map((group) => {
 			const hasTimingPoint = group.controlPoints.some(
 				(point) => point instanceof TimingPoint,
@@ -107,10 +109,8 @@ export default class Beatmap extends ScopedClass {
 				(point) => point instanceof SamplePoint,
 			);
 
-			const audio = this.context.consume<Audio>("audio");
 			return {
-				position:
-					group.startTime / (audio?.duration ?? 1),
+				position: group.startTime / (audio?.duration ?? 1),
 				color:
 					hasTimingPoint && !hasDifficultyPoint
 						? 0xff1749
@@ -119,7 +119,25 @@ export default class Beatmap extends ScopedClass {
 							: 0x17ff51,
 			};
 		});
-		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(points);
+
+		const kiaiSections: {
+			start: number;
+			end: number;
+		}[] = [];
+		const effectPoints = this.data.controlPoints.effectPoints;
+		for (let i = 0; i < effectPoints.length; i += 2) {
+			const startPoint = effectPoints[i];
+			const endPoint = effectPoints[i + 1];
+
+			kiaiSections.push({
+				start: startPoint.startTime / (audio?.duration ?? 1),
+				end: endPoint
+					? endPoint.startTime / (audio?.duration ?? 1)
+					: 1,
+			});
+		}
+
+		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(points, kiaiSections);
 	}
 
 	loadHitObjects() {
