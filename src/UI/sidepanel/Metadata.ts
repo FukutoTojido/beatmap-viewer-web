@@ -160,7 +160,7 @@ export default class Metadata {
 
 	updateMetadata(metadata: BeatmapMetadataSection) {
 		this.artist.text = metadata.artist;
-		this.artistUnicode.text = metadata.artistUnicode;
+		this.artistUnicode.text = metadata.artistUnicode.replaceAll("、", ", ");
 		this.title.text = metadata.title;
 		this.titleUnicode.text = metadata.titleUnicode;
 		this.version.text = metadata.version;

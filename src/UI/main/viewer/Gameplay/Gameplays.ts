@@ -1,10 +1,10 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import { type Container, Graphics, Rectangle } from "pixi.js";
+import { Container, Graphics, Rectangle } from "pixi.js";
 import { provide } from "@/Context";
 import type Gameplay from ".";
 
 export default class Gameplays {
-	container = new LayoutContainer({
+	container = new Container({
 		label: "gameplays",
 		layout: {
 			width: "100%",
@@ -12,14 +12,22 @@ export default class Gameplays {
 		},
 	});
 
-	containers: Set<Gameplay> = new Set();
+	gameplays: Set<Gameplay> = new Set();
 	separator: Graphics = new Graphics();
 
-	addGameplay(container: Gameplay) {
-		this.containers.add(container);
-		this.container.addChildAt(container.container, 0);
+	addGameplay(gameplay: Gameplay) {
+		this.gameplays.add(gameplay);
+		this.container.addChildAt(gameplay.container, 0);
 
 		this.reLayoutChildren();
+	}
+
+	removeGameplay(gameplay: Gameplay) {
+		this.gameplays.delete(gameplay);
+		this.container.removeChild(gameplay.container);
+
+		this.reLayoutChildren();
+		this.container.addChild(this.separator);
 	}
 
 	constructor() {
@@ -34,8 +42,8 @@ export default class Gameplays {
 	reLayoutChildren() {
 		this.separator.clear();
 
-		const columnsCount = Math.ceil(Math.sqrt(this.containers.size));
-		const heightDenominator = Math.ceil(this.containers.size / columnsCount);
+		const columnsCount = Math.ceil(Math.sqrt(this.gameplays.size));
+		const heightDenominator = Math.ceil(this.gameplays.size / columnsCount);
 
 		const w = 100 / columnsCount;
 		const h = 100 / heightDenominator;
@@ -43,10 +51,10 @@ export default class Gameplays {
 		const containerWidth = this.container.layout?.computedLayout.width ?? 0;
 		const containerHeight = this.container.layout?.computedLayout.height ?? 0;
 
-		const deserialized = Array(...this.containers);
+		const deserialized = Array(...this.gameplays);
 		for (let i = 0; i < deserialized.length; i++) {
-			const container = deserialized[i];
-			container.container.layout = {
+			const gameplay = deserialized[i];
+			gameplay.container.layout = {
 				top: `${Math.floor(i / columnsCount) * h}%`,
 				left: `${(i % columnsCount) * w}%`,
 				width: `${w}%`,

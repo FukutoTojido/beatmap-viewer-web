@@ -21,6 +21,8 @@ export const runTest = async () => {
 
 	await bms.loadResources();
 
+	let baseIdx = 0;
+
 	for (let i = 0; i < IDs.length; i++) {
 		const ID = IDs[i];
 
@@ -29,7 +31,8 @@ export const runTest = async () => {
 		);
 
 		if (idx === -1) continue;
-
+		
+		if (i === 0) baseIdx = i;
 		if (i === 0) await bms.loadMaster(idx);
 		if (i !== 0) bms.loadSlave(idx);
 	}
@@ -62,4 +65,16 @@ export const runTest = async () => {
 			bms.seek((audio?.currentTime ?? 0) - 100);
 		}
 	});
+
+	if (IDs.length > 1) {
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		document.querySelector<HTMLButtonElement>("#toggleBeatmap")!.style.display = "none";
+	} else {
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		document.querySelector<HTMLButtonElement>("#toggleBeatmap")!.style.display = "block";
+		document.querySelector<HTMLButtonElement>("#toggleBeatmap")?.addEventListener("click", () => {
+			baseIdx = (baseIdx + 1) % bms.difficulties.length;
+			bms.loadMaster(baseIdx);
+		})
+	}
 };

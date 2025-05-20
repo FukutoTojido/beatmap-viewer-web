@@ -92,7 +92,7 @@ export default class Beatmap extends ScopedClass {
 
 	load() {
 		this.loaded = true;
-		requestAnimationFrame(() => this.frame());
+		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());
 	}
 
 	loadTimingPoints() {
@@ -172,6 +172,8 @@ export default class Beatmap extends ScopedClass {
 	cacheBPM = 0;
 	cacheSV = 0;
 
+	private currentAnimationFrame?: number;
+
 	private frame() {
 		const audio = this.context.consume<Audio>("audio");
 
@@ -209,7 +211,7 @@ export default class Beatmap extends ScopedClass {
 			(audio?.currentTime ?? 0) / ((audio?.src?.buffer?.duration ?? 1) * 1000),
 		);
 
-		requestAnimationFrame(() => this.frame());
+		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());
 	}
 
 	private inRange(val: number, start: number, end: number) {
@@ -297,8 +299,7 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	update(time: number, objects: Set<number>, connectors: Set<number>) {
-		if (!this.loaded)
-			throw new Error("Cannot update a beatmap that hasn't been initialized");
+		if (!this.loaded) return;
 
 		const audio = this.context.consume<Audio>("audio");
 
@@ -399,5 +400,15 @@ export default class Beatmap extends ScopedClass {
 			);
 
 		this.worker.postMessage({ type: "seek", time });
+	}
+
+	destroy() {
+		this.worker.postMessage({ type: "destroy" });
+		this.loaded = false;
+
+		this.container.objectsContainer.removeChildren();
+
+		if (this.currentAnimationFrame)
+			cancelAnimationFrame(this.currentAnimationFrame);
 	}
 }

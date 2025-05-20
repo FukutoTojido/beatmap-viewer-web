@@ -132,6 +132,14 @@ export default class BeatmapSet extends ScopedClass {
 	async loadMaster(idx: number) {
 		const beatmap = this.difficulties[idx];
 		if (!beatmap) return;
+		if (this.master === beatmap) return;
+
+		if (this.master) {
+			this.master.destroy();
+			inject<Gameplays>("ui/main/viewer/gameplays")?.removeGameplay(
+				this.master.container,
+			);
+		}
 
 		await Promise.all([
 			this.loadAudio(beatmap),
@@ -148,10 +156,14 @@ export default class BeatmapSet extends ScopedClass {
 			beatmap.data.metadata,
 		);
 
-		this.master = beatmap;
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 			beatmap.container,
 		);
+
+		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
+		beatmap.toggle();
+
+		this.master = beatmap;
 	}
 
 	loadSlave(idx: number) {

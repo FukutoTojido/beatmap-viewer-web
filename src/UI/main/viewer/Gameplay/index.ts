@@ -3,19 +3,18 @@ import { Container, Graphics, Rectangle } from "pixi.js";
 import { provide } from "@/Context";
 
 export default class Gameplay {
-	container = new LayoutContainer({
-		label: "gameplay",
-		layout: {
-			position: "absolute",
-			width: "100%",
-			height: "100%",
-			flex: 1,
-		},
-	});
-
+	container: Container;
 	objectsContainer: Container;
 
 	constructor() {
+		this.container = new Container({
+			label: "gameplay",
+			layout: {
+				position: "absolute",
+				width: 0,
+				height: 0,
+			},
+		});
 		this.objectsContainer = new Container({
 			boundsArea: new Rectangle(0, 0, 512, 384),
 		});

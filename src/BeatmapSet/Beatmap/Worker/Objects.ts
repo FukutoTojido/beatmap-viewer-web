@@ -130,6 +130,12 @@ onmessage = (event) => {
 			startTime = performance.now();
 			break;
 		}
+		case "destroy": {
+			objects = [];
+			connectors = [];
+			isPlaying = false;
+			break;
+		}
 	}
 };
 

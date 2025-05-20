@@ -65,7 +65,7 @@ export async function getYugen() {
 	);
 
 	const filenames = [
-		"approachcircle@2x.png",
+		"approachcircle.png",
 		...defaults,
 		...hitSounds.reduce((accm, curr) => {
 			accm.push(...curr);
