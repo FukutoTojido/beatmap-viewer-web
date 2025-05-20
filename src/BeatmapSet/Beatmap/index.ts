@@ -110,7 +110,7 @@ export default class Beatmap extends ScopedClass {
 			const audio = this.context.consume<Audio>("audio");
 			return {
 				position:
-					group.startTime / ((audio?.src?.buffer?.duration ?? 1) * 1000),
+					group.startTime / (audio?.duration ?? 1),
 				color:
 					hasTimingPoint && !hasDifficultyPoint
 						? 0xff1749
@@ -208,7 +208,7 @@ export default class Beatmap extends ScopedClass {
 
 		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
 		progressBar?.setPercentage(
-			(audio?.currentTime ?? 0) / ((audio?.src?.buffer?.duration ?? 1) * 1000),
+			(audio?.currentTime ?? 0) / (audio?.duration ?? 1),
 		);
 
 		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());

@@ -11,7 +11,7 @@ type EventCallback = (time: number) => void;
 export default class Audio extends ScopedClass {
 	private localGainNode: GainNode;
 	private audioBuffer?: AudioBuffer;
-	src?: AudioBufferSourceNode;
+	private src?: AudioBufferSourceNode;
 
 	private startTime = 0;
 	private previousTimestamp = 0;
@@ -120,5 +120,9 @@ export default class Audio extends ScopedClass {
 		this.localGainNode.disconnect();
 
 		this._currentTime += performance.now() - this.previousTimestamp;
+	}
+
+	get duration() {
+		return (this.src?.buffer?.duration ?? 0) * 1000
 	}
 }

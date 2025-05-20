@@ -80,7 +80,7 @@ export default class ProgressBar {
 			const audio = beatmapset?.context.consume<Audio>("audio");
 
 			const percentage = this.getPercentage(event);
-			beatmapset?.seek(percentage * (audio?.src?.buffer?.duration ?? 0) * 1000);
+			beatmapset?.seek(percentage * (audio?.duration ?? 0));
 		};
 
 		this.container.addEventListener("pointerdown", (event) => {
