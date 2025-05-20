@@ -42,7 +42,9 @@ export default class DrawableDefaults extends SkinnableElement {
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
 
-		this.skinManager?.addSkinChangeListener(() => this.refreshSprites());
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
+			this.refreshSprites(),
+		);
 	}
 
 	refreshSprites(skin?: Skin) {
@@ -89,5 +91,15 @@ export default class DrawableDefaults extends SkinnableElement {
 		}
 
 		this.container.alpha = 0;
+	}
+
+	destroy() {
+		for (const { text } of this.sprites) {
+			text.destroy();
+		}
+
+		this.container.destroy();
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

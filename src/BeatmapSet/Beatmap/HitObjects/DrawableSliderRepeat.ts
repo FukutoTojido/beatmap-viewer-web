@@ -101,4 +101,8 @@ export default class DrawableSliderRepeat extends DrawableHitObject {
 			return;
 		}
 	}
+
+	destroy() {
+		this.container.destroy();
+	}
 }

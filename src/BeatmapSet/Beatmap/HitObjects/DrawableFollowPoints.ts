@@ -65,7 +65,7 @@ export default class DrawableFollowPoints extends SkinnableElement {
 
 		this.container.addChild(...this.sprites);
 
-		this.skinManager?.addSkinChangeListener((skin) => {
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
 			const followpoint = skin.getTexture("followpoint");
 
 			if (!followpoint) return;
@@ -122,5 +122,15 @@ export default class DrawableFollowPoints extends SkinnableElement {
 				sprite.x = f * this.distance;
 			}
 		}
+	}
+
+	destroy() {
+		for (const sprite of this.sprites) {
+			sprite.destroy();
+		}
+
+		this.container.destroy();
+
+		if (this.skinEventCallback) this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

@@ -167,7 +167,9 @@ export default class DrawableSlider
 		this.sliderSlideSample = new HitSample([slideSample]).hook(this.context);
 
 		this.refreshSprite();
-		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
+			this.refreshSprite(),
+		);
 
 		this._shader.resources.customUniforms.uniforms.scale =
 			(object.radius / 54.4) * (236 / 256);
@@ -382,5 +384,19 @@ export default class DrawableSlider
 			this._alphaFilter.alpha = opacity;
 			return;
 		}
+	}
+
+	destroy() {
+		for (const object of this.drawableCircles) {
+			object.destroy();
+		}
+
+		this.ball.destroy();
+		this.followCircle.destroy();
+		this.body.destroy();
+		this.container.destroy();
+
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

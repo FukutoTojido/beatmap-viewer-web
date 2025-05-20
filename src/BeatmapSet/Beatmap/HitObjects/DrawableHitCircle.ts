@@ -68,7 +68,9 @@ export default class DrawableHitCircle
 		this.hitSound = new HitSample(object.samples).hook(this.context);
 
 		this.refreshSprite();
-		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
+			this.refreshSprite(),
+		);
 	}
 
 	hook(context: Context) {
@@ -136,5 +138,15 @@ export default class DrawableHitCircle
 		this.approachCircle.update(time);
 		this.defaults?.update(time);
 		update(this, time);
+	}
+
+	destroy() {
+		this.hitCircleOverlay.destroy();
+		this.hitCircleSprite.destroy();
+		this.defaults?.destroy();
+		this.approachCircle.destroy();
+
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

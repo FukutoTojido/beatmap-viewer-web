@@ -17,7 +17,9 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		this.container.interactiveChildren = false;
 
 		this.refreshSprite();
-		this.skinManager?.addSkinChangeListener(() => this.refreshSprite());
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
+			this.refreshSprite(),
+		);
 	}
 
 	refreshSprite() {
@@ -88,5 +90,11 @@ export default class DrawableApproachCircle extends SkinnableElement {
 			this.container.scale.set(1 * this.object.scale);
 			return;
 		}
+	}
+
+	destroy() {
+		this.container.destroy();
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

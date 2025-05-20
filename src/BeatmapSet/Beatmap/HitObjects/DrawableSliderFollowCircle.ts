@@ -23,7 +23,7 @@ export default class DrawableSliderFollowCircle extends SkinnableElement {
 		this.container.anchor.set(0.5);
 		this.container.scale.set(this.object.scale);
 
-		this.skinManager?.addSkinChangeListener((skin) => {
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
 			const sliderFollowCircle = skin.getTexture("sliderfollowcircle");
 
 			if (!sliderFollowCircle) return;
@@ -108,5 +108,10 @@ export default class DrawableSliderFollowCircle extends SkinnableElement {
 
 			return;
 		}
+	}
+
+	destroy() {
+		this.container.destroy();
+		if (this.skinEventCallback) this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

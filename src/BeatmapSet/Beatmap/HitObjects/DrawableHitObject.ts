@@ -22,4 +22,6 @@ export default abstract class DrawableHitObject extends SkinnableElement {
     disable() {
         this.container.visible = false;
     };
+
+    abstract destroy(): void;
 }

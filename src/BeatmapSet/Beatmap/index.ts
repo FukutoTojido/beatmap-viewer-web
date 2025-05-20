@@ -408,6 +408,20 @@ export default class Beatmap extends ScopedClass {
 
 		this.container.objectsContainer.removeChildren();
 
+		for (const object of this.objects) {
+			object.destroy();
+		}
+
+		for (const connector of this.connectors) {
+			connector.destroy();
+		}
+
+		this.objects = [];
+		this.connectors = [];
+
+		this.previousConnectors.clear();
+		this.previousObjects.clear();
+
 		if (this.currentAnimationFrame)
 			cancelAnimationFrame(this.currentAnimationFrame);
 	}

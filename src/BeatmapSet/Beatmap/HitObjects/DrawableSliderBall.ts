@@ -26,7 +26,7 @@ export default class DrawableSliderBall extends SkinnableElement {
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
 
-		this.skinManager?.addSkinChangeListener((skin) => {
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
 			const sliderb = skin.getTexture("sliderb0");
 
 			if (!sliderb) return;
@@ -56,5 +56,10 @@ export default class DrawableSliderBall extends SkinnableElement {
 		}
 
 		this.container.visible = true;
+	}
+
+	destroy() {
+		this.container.destroy();
+		if (this.skinEventCallback) this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

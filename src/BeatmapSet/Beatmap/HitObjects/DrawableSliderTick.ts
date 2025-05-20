@@ -25,9 +25,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 	) {
 		super(object);
 		this.container = new Sprite(
-			this.skinManager?.getCurrentSkin().getTexture(
-				"sliderscorepoint",
-			),
+			this.skinManager?.getCurrentSkin().getTexture("sliderscorepoint"),
 		);
 		this.container.x = object.startX + object.stackedOffset.x;
 		this.container.y = object.startY + object.stackedOffset.x;
@@ -47,7 +45,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		clonedSample.hitSound = "slidertick";
 		this.hitSound = new HitSample([clonedSample]).hook(this.context);
 
-		this.skinManager?.addSkinChangeListener((skin) => {
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
 			const sliderTick = skin.getTexture("sliderscorepoint");
 
 			if (!sliderTick) return;
@@ -116,5 +114,11 @@ export default class DrawableSliderTick extends DrawableHitObject {
 
 			return;
 		}
+	}
+
+	destroy() {
+		this.container.destroy();
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }
