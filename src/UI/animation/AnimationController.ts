@@ -20,6 +20,7 @@ export default class AnimationController {
 		callback: (value: number) => void,
 		duration = 200,
 		easing?: (t: number) => number,
+		onComplete?: () => void
 	) {
 		this.animations.get(key)?.stop();
 
@@ -39,10 +40,13 @@ export default class AnimationController {
 			.onComplete(() => {
 				this.animations.delete(key);
 				tweenGroup.remove(tween);
+				onComplete?.();
 			})
 			.start();
 
 		this.animations.set(key, tween);
 		tweenGroup.add(tween);
+
+		return tween;
 	}
 }

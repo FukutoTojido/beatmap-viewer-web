@@ -3,6 +3,7 @@ import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
 import { inject } from "./Context";
 import type Audio from "./Audio";
 import ZipHandler from "./ZipHandler";
+import type Main from "./UI/main";
 
 export const runTest = async () => {
 	const IDs = new URLSearchParams(window.location.search).getAll("b") ?? [
@@ -55,7 +56,7 @@ export const runTest = async () => {
 		}
 	});
 
-	document.addEventListener("wheel", (event) => {
+	inject<Main>("ui/main")?.container.addEventListener("wheel", (event) => {
 		const audio = bms.context.consume<Audio>("audio");
 
 		if (event.deltaY > 0) {

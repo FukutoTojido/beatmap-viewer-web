@@ -5,6 +5,7 @@ import { Assets, Sprite, Text } from "pixi.js";
 import { inject, provide } from "@/Context";
 import type { Game } from "@/Game";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import Timing from "./Timing";
 
 export default class SidePanel {
 	tabs = [
@@ -12,6 +13,10 @@ export default class SidePanel {
 			title: "Metadata",
 			content: provide("ui/sidepanel/metadata", new Metadata()),
 		},
+		{
+			title: "Timing",
+			content: provide("ui/sidepanel/timing", new Timing())
+		}
 	];
 
 	header = new LayoutContainer({
@@ -118,7 +123,7 @@ export default class SidePanel {
 		closeButtonContainer.addChild(closeButton);
 
 		this.header.addChild(this.tabSwitcher, closeButtonContainer);
-		this.container.addChild(this.header, this.tabs[0].content.container);
+		this.container.addChild(this.header, this.tabs[1].content.container);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",

@@ -117,10 +117,10 @@ export default class ProgressBar {
 	}
 
 	drawTimeline(
-		points: {
+		points: ({
 			position: number;
 			color: ColorSource;
-		}[],
+		} | null)[],
 		kiai: {
 			start: number;
 			end: number;
@@ -129,10 +129,14 @@ export default class ProgressBar {
 		this.timeline.clear();
 
 		for (const { start, end } of kiai) {
-			this.timeline.rect(start, 8, end - start, 4).fill({ color: 0xffd978, alpha: 0.7 });
+			this.timeline
+				.rect(start, 8, end - start, 4)
+				.fill({ color: 0xffd978, alpha: 0.7 });
 		}
 
-		for (const { position, color } of points) {
+		for (const point of points) {
+			if (!point) continue;
+			const { position, color } = point;
 			this.timeline
 				.moveTo(position, 0)
 				.lineTo(position, -12)

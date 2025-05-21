@@ -6,6 +6,7 @@ import {
 } from "osu-standard-stable";
 import { inject, provide, ScopedClass } from "../../Context";
 import {
+	type ControlPointGroup,
 	DifficultyPoint,
 	SamplePoint,
 	StoryboardVideo,
@@ -36,6 +37,8 @@ import type Play from "@/UI/main/controls/Play";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Audio from "@/Audio";
 import Gameplay from "@/UI/main/viewer/Gameplay";
+import type Timing from "@/UI/sidepanel/Timing";
+import { binarySearch } from "@/utils";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -109,6 +112,10 @@ export default class Beatmap extends ScopedClass {
 				(point) => point instanceof SamplePoint,
 			);
 
+			if (!hasTimingPoint && !hasDifficultyPoint && hasSamplePoint) {
+				return null;
+			}
+
 			return {
 				position: group.startTime / (audio?.duration ?? 1),
 				color:
@@ -131,13 +138,36 @@ export default class Beatmap extends ScopedClass {
 
 			kiaiSections.push({
 				start: startPoint.startTime / (audio?.duration ?? 1),
-				end: endPoint
-					? endPoint.startTime / (audio?.duration ?? 1)
-					: 1,
+				end: endPoint ? endPoint.startTime / (audio?.duration ?? 1) : 1,
 			});
 		}
 
-		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(points, kiaiSections);
+		const timingPoints = [
+			...this.data.controlPoints.timingPoints,
+			...this.data.controlPoints.difficultyPoints,
+			...this.data.controlPoints.samplePoints,
+		].sort((a, b) => {
+			if (a.startTime === b.startTime) {
+				const getPointRank = (
+					t: TimingPoint | DifficultyPoint | SamplePoint,
+				) => {
+					if (t instanceof TimingPoint) return 0;
+					if (t instanceof DifficultyPoint) return 1;
+					if (t instanceof SamplePoint) return 2;
+					return 0;
+				};
+
+				return getPointRank(a) - getPointRank(b);
+			}
+
+			return a.startTime - b.startTime;
+		});
+
+		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(
+			points,
+			kiaiSections,
+		);
+		inject<Timing>("ui/sidepanel/timing")?.updateTimingPoints(timingPoints);
 	}
 
 	loadHitObjects() {
@@ -187,8 +217,9 @@ export default class Beatmap extends ScopedClass {
 		};
 	}
 
-	cacheBPM = 0;
-	cacheSV = 0;
+	cacheBPM?: TimingPoint;
+	cacheSV?: DifficultyPoint;
+	cacheSample?: SamplePoint;
 
 	private currentAnimationFrame?: number;
 
@@ -206,22 +237,42 @@ export default class Beatmap extends ScopedClass {
 
 		const currentBPM = this.data.controlPoints.timingPointAt(
 			audio?.currentTime ?? 0,
-		).bpm;
+		);
 		const currentSV = this.data.controlPoints.difficultyPointAt(
 			audio?.currentTime ?? 0,
-		).sliderVelocity;
+		);
+		const currentSample = this.data.controlPoints.samplePointAt(
+			audio?.currentTime ?? 0,
+		);
 
 		const timestamp = inject<Timestamp>("ui/main/controls/timestamp");
 		timestamp?.updateDigit(audio?.currentTime ?? 0);
 
+		if (
+			this.cacheBPM !== currentBPM ||
+			this.cacheSV !== currentSV ||
+			this.cacheSample !== currentSample
+		) {
+			const time = Math.max(
+				currentBPM.startTime,
+				currentSV.startTime,
+				currentSample.startTime,
+			);
+			inject<Timing>("ui/sidepanel/timing")?.scrollToTimingPoint(time);
+		}
+
 		if (this.cacheBPM !== currentBPM) {
 			this.cacheBPM = currentBPM;
-			timestamp?.updateBPM(currentBPM);
+			timestamp?.updateBPM(currentBPM.bpm);
 		}
 
 		if (this.cacheSV !== currentSV) {
 			this.cacheSV = currentSV;
-			timestamp?.updateSliderVelocity(currentSV);
+			timestamp?.updateSliderVelocity(currentSV.sliderVelocity);
+		}
+
+		if (this.cacheSample !== currentSample) {
+			this.cacheSample = currentSample;
 		}
 
 		const progressBar = inject<ProgressBar>("ui/main/controls/progress");

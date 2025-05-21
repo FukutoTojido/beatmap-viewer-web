@@ -12,8 +12,9 @@ export default class State {
 		const game = inject<Game>("game");
 		const app = inject<Application>("ui/app");
 		const sidepanel = inject<SidePanel>("ui/sidepanel");
+		const timing = inject<SidePanel>("ui/sidepanel/timing");
 
-		if (!game || !sidepanel || !app) return;
+		if (!game || !sidepanel || !app || !timing) return;
 
 		const ANIMATION_DURATION = 200;
 		if (force) this.sidebar = force === "CLOSED" ? "OPENED" : "CLOSED";
@@ -30,6 +31,8 @@ export default class State {
 					},
 					ANIMATION_DURATION,
 				);
+
+				timing.container.visible = false;
 
 				if (game.responsiveHandler.direction === "landscape") {
 					sidepanel.container.triggerAnimation(
@@ -95,6 +98,8 @@ export default class State {
 					},
 					ANIMATION_DURATION,
 				);
+
+				timing.container.visible = true;
 
 				if (game.responsiveHandler.direction === "landscape") {
 					sidepanel.container.triggerAnimation(
