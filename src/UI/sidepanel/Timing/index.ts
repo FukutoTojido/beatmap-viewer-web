@@ -7,6 +7,7 @@ import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { binarySearch } from "@/utils";
 import AnimationController from "@/UI/animation/AnimationController";
 import type { Tween } from "@tweenjs/tween.js";
+import Easings from "@/UI/Easings";
 
 const DECAY_RATE = 0.99;
 const LN0_9 = Math.log(DECAY_RATE);
@@ -75,7 +76,7 @@ export default class Timing {
 
 		this.container.on("wheel", (event) => {
 			const deltaY = event.deltaY;
-			this.scrollTo(this._scrollOffset + deltaY);
+			this.scrollTo(this._scrollOffset + deltaY * 1.5);
 		});
 
 		this.container.on("pointerdown", (event) => this.handleDragStart(event));
@@ -174,15 +175,18 @@ export default class Timing {
 			return;
 		}
 
-		this.animationControler.addAnimation(
+		const tween = this.animationControler.addAnimation(
 			"offset",
 			this._scrollOffset,
 			boundOffset,
 			(value) => {
 				this._scrollTo(value);
+				if (this.bounceBack()) {
+					tween.stop();
+				}
 			},
-			240,
-			undefined,
+			200,
+			Easings.OutCubic,
 			() => {
 				if (boundOffset < 0) {
 					this.scrollTo(0);
@@ -286,7 +290,7 @@ export default class Timing {
 			return;
 		}
 
-		this._currentVelocity *= 0.75;
+		this._currentVelocity *= 0.85;
 		this._currentLoop = requestAnimationFrame(() => this.handleVelocity());
 	}
 }

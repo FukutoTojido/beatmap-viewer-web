@@ -1,7 +1,14 @@
 import { millisecondsToMinutesString } from "@/utils";
 import { LayoutContainer } from "@pixi/layout/components";
-import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
-import { BitmapText, Container, Graphics, Rectangle, Text } from "pixi.js";
+import { DifficultyPoint, type SamplePoint, TimingPoint } from "osu-classes";
+import {
+	BitmapText,
+	Container,
+	Graphics,
+	Rectangle,
+	Text,
+	type ColorSource,
+} from "pixi.js";
 
 export default class Point {
 	container: LayoutContainer;
@@ -10,7 +17,17 @@ export default class Point {
 	private content1: Text;
 	private content2: Text;
 
+	private accent: ColorSource;
+	private bg = 0x181825;
+
 	constructor(public data: TimingPoint | DifficultyPoint | SamplePoint) {
+		this.accent =
+			data instanceof TimingPoint
+				? 0xf38ba8
+				: data instanceof DifficultyPoint
+					? 0xa6e3a1
+					: 0xcdd6f4;
+
 		this.container = new LayoutContainer({
 			layout: {
 				position: "absolute",
@@ -20,14 +37,10 @@ export default class Point {
 				borderRadius: 10,
 				paddingInline: 20,
 				alignItems: "center",
-				backgroundColor:
-					data instanceof TimingPoint
-						? 0xf38ba8
-						: data instanceof DifficultyPoint
-							? 0xa6e3a1
-							: 0x181825,
+				backgroundColor: this.bg,
 				borderWidth: 2,
 			},
+			alpha: 0.5,
 		});
 
 		this.timestamp = new Text({
@@ -35,7 +48,7 @@ export default class Point {
 			style: {
 				fontSize: 14,
 				fontFamily: "Rubik",
-				fill: data instanceof SamplePoint ? 0xcdd6f4 : 0x11111b,
+				fill: this.accent,
 				align: "left",
 			},
 			layout: {
@@ -55,7 +68,7 @@ export default class Point {
 			style: {
 				fontSize: 14,
 				fontFamily: "Rubik",
-				fill: data instanceof SamplePoint ? 0xcdd6f4 : 0x11111b,
+				fill: this.accent,
 				align: "left",
 				fontWeight: "500",
 			},
@@ -76,7 +89,7 @@ export default class Point {
 			style: {
 				fontSize: 14,
 				fontFamily: "Rubik",
-				fill: data instanceof SamplePoint ? 0xcdd6f4 : 0x11111b,
+				fill: this.accent,
 				align: "left",
 			},
 			layout: {
@@ -90,13 +103,19 @@ export default class Point {
 			.lineTo(0, 10)
 			.lineTo(5, 5)
 			.lineTo(0, 0)
-			.fill(data instanceof SamplePoint ? 0xcdd6f4 : 0x11111b);
+			.fill(0xffffff);
+		this.indicator.tint = this.accent;
 
 		this.indicator.x = 10;
 		this.indicator.y = 15;
 		this.indicator.visible = false;
 
-		this.container.addChild(this.timestamp, this.content1, this.content2, this.indicator);
+		this.container.addChild(
+			this.timestamp,
+			this.content1,
+			this.content2,
+			this.indicator,
+		);
 		this.container.visible = false;
 		this.container.interactiveChildren = false;
 	}
@@ -119,10 +138,30 @@ export default class Point {
 	}
 
 	select() {
+		this.container.alpha = 1;
+
+		this.container.layout = {
+			backgroundColor: this.accent,
+		};
+		this.timestamp.style.fill = this.bg;
+		this.content1.style.fill = this.bg;
+		this.content2.style.fill = this.bg;
+		this.indicator.tint = this.bg;
+
 		this.indicator.visible = true;
 	}
 
 	unselect() {
+		this.container.alpha = 0.5;
+
+		this.container.layout = {
+			backgroundColor: this.bg,
+		};
+		this.timestamp.style.fill = this.accent;
+		this.content1.style.fill = this.accent;
+		this.content2.style.fill = this.accent;
+		this.indicator.tint = this.accent;
+
 		this.indicator.visible = false;
 	}
 

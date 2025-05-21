@@ -15,8 +15,8 @@ export default class SidePanel {
 		},
 		{
 			title: "Timing",
-			content: provide("ui/sidepanel/timing", new Timing())
-		}
+			content: provide("ui/sidepanel/timing", new Timing()),
+		},
 	];
 
 	header = new LayoutContainer({
@@ -55,21 +55,22 @@ export default class SidePanel {
 		},
 	});
 
+	headers: LayoutContainer[];
+
 	constructor() {
 		this.container.alphaFilter.alpha = 0;
-		const tabs = this.tabs.map(({ title }) => {
+		this.headers = this.tabs.map(({ title }, idx) => {
 			const container = new LayoutContainer({
 				layout: {
 					width: "intrinsic",
 					paddingInline: 50,
 					height: 40,
-					backgroundColor: 0x313244,
-					borderColor: 0x585b70,
-					borderWidth: 1,
-					borderRadius: 10,
 					alignItems: "center",
 					flexShrink: 0,
+					borderWidth: 1,
+					borderRadius: 10,
 				},
+				cursor: "pointer"
 			});
 			const text = new Text({
 				text: title,
@@ -86,9 +87,12 @@ export default class SidePanel {
 			});
 
 			container.addChild(text);
+			container.addEventListener("pointertap", () => {
+				this.switchTab(idx);
+			});
 			return container;
 		});
-		this.tabSwitcher.addChild(...tabs);
+		this.tabSwitcher.addChild(...this.headers);
 
 		const closeButtonContainer = new LayoutContainer({
 			layout: {
@@ -96,9 +100,9 @@ export default class SidePanel {
 				height: 30,
 				alignItems: "center",
 				justifyContent: "center",
-				backgroundColor: "rgba(0, 0, 0, 0)"
-			}
-		})
+				backgroundColor: "rgba(0, 0, 0, 0)",
+			},
+		});
 
 		const closeButton = new Sprite({
 			width: 20,
@@ -123,7 +127,10 @@ export default class SidePanel {
 		closeButtonContainer.addChild(closeButton);
 
 		this.header.addChild(this.tabSwitcher, closeButtonContainer);
-		this.container.addChild(this.header, this.tabs[1].content.container);
+		this.container.addChild(this.header);
+		this.index = 0;
+
+		this.switchTab(0);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
@@ -158,5 +165,21 @@ export default class SidePanel {
 	closeSidePanel() {
 		const game = inject<Game>("game");
 		game?.state.toggleSidebar("CLOSED");
+	}
+
+	private index: number;
+	switchTab(index: number) {
+		this.container.removeChild(this.tabs[this.index].content.container);
+		this.headers[this.index].layout = {
+			backgroundColor: undefined,
+			borderColor: undefined,
+		};
+		this.index = index;
+
+		this.container.addChild(this.tabs[this.index].content.container);
+		this.headers[this.index].layout = {
+			backgroundColor: 0x313244,
+			borderColor: 0x585b70,
+		};
 	}
 }
