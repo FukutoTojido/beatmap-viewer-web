@@ -69,8 +69,9 @@ export default class SidePanel {
 					flexShrink: 0,
 					borderWidth: 1,
 					borderRadius: 10,
+					backgroundColor: 0x181825,
 				},
-				cursor: "pointer"
+				cursor: "pointer",
 			});
 			const text = new Text({
 				text: title,
@@ -171,7 +172,7 @@ export default class SidePanel {
 	switchTab(index: number) {
 		this.container.removeChild(this.tabs[this.index].content.container);
 		this.headers[this.index].layout = {
-			backgroundColor: undefined,
+			backgroundColor: 0x181825,
 			borderColor: undefined,
 		};
 		this.index = index;
