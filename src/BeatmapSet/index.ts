@@ -12,6 +12,9 @@ import Video from "@/Video";
 import type Background from "@/UI/main/viewer/Background";
 import type Gameplay from "@/UI/main/viewer/Gameplay";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
+import type Timeline from "@/UI/main/viewer/Timeline";
+import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
+import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -126,6 +129,8 @@ export default class BeatmapSet extends ScopedClass {
 			background?.updateTexture(
 				await Assets.load({ src: url, loadParser: "loadTextures" }),
 			);
+
+			document.body.style.backgroundImage = `url("${url}")`;
 		}
 	}
 
@@ -159,6 +164,8 @@ export default class BeatmapSet extends ScopedClass {
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 			beatmap.container,
 		);
+
+		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(beatmap.objects as (DrawableHitCircle | DrawableSlider)[]);
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
 		beatmap.toggle();

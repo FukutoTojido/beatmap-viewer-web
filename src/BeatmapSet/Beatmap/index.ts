@@ -4,41 +4,24 @@ import {
 	type StandardBeatmap,
 	StandardRuleset,
 } from "osu-standard-stable";
-import { inject, provide, ScopedClass } from "../../Context";
-import {
-	type ControlPointGroup,
-	DifficultyPoint,
-	SamplePoint,
-	StoryboardVideo,
-	TimingPoint,
-	type Beatmap as BeatmapData,
-} from "osu-classes";
+import { inject, ScopedClass } from "../../Context";
+import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
-import type { Resource } from "../../ZipHandler";
-import {
-	Assets,
-	Container,
-	type FederatedPointerEvent,
-	type BitmapText,
-	Rectangle,
-} from "pixi.js";
-import type Background from "../../UI/main/viewer/Background";
 
 import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 
 import type Timestamp from "@/UI/main/controls/Timestamp";
-import type Metadata from "@/UI/sidepanel/Metadata";
-import type Play from "@/UI/main/controls/Play";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Audio from "@/Audio";
 import Gameplay from "@/UI/main/viewer/Gameplay";
 import type Timing from "@/UI/sidepanel/Timing";
 import { binarySearch } from "@/utils";
+import type Timeline from "@/UI/main/viewer/Timeline";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -264,6 +247,7 @@ export default class Beatmap extends ScopedClass {
 		if (this.cacheBPM !== currentBPM) {
 			this.cacheBPM = currentBPM;
 			timestamp?.updateBPM(currentBPM.bpm);
+			inject<Timeline>("ui/main/viewer/timeline")?.updateTimingPoint(currentBPM);
 		}
 
 		if (this.cacheSV !== currentSV) {
@@ -278,6 +262,10 @@ export default class Beatmap extends ScopedClass {
 		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
 		progressBar?.setPercentage(
 			(audio?.currentTime ?? 0) / (audio?.duration ?? 1),
+		);
+
+		inject<Timeline>("ui/main/viewer/timeline")?.draw(
+			audio?.currentTime ?? 0,
 		);
 
 		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());
@@ -412,7 +400,7 @@ export default class Beatmap extends ScopedClass {
 		for (const object of sorted) {
 			// if (object instanceof DrawableSlider)
 			// 	requestAnimationFrame(() =>
-			// 		object.update(this.audio?.currentTime ?? 0),
+			// 		// object.update(this.audio?.currentTime ?? 0),
 			// 	);
 
 			if (object instanceof DrawableHitCircle) {
@@ -443,6 +431,10 @@ export default class Beatmap extends ScopedClass {
 				...containers,
 				...approachCircleContainers,
 			);
+
+		inject<Timeline>("ui/main/viewer/timeline")?.update(
+			audio?.currentTime ?? 0,
+		);
 	}
 
 	toggle() {

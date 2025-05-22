@@ -36,22 +36,23 @@ export function debounce(fn: (...args: any) => void, timeout = 100) {
 }
 
 export function binarySearch<T>(
-	value: Partial<T>,
+	value: number,
 	list: T[],
-	compareFn: (a: Partial<T>, b: Partial<T>) => number,
+	compareFn: (mid: T, value: number) => number,
 ) {
 	let start = 0;
 	let end = list.length - 1;
+	let mid = start + Math.floor((end - start) / 2);
 
 	while (end >= start) {
-		const mid = Math.floor((end - start) / 2);
+		mid = start + Math.floor((end - start) / 2);
 		const compareValue = compareFn(list[mid], value);
 		if (compareValue === 0) return mid;
 		if (compareValue > 0) end = mid - 1;
 		if (compareValue < 0) start = mid + 1;
 	}
 
-	return -1;
+	return mid;
 }
 
 export function millisecondsToMinutesString(timestamp: number) {
@@ -60,4 +61,11 @@ export function millisecondsToMinutesString(timestamp: number) {
 	const milliseconds = Math.floor(timestamp % 1000);
 
 	return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(3, "0")}`;
+}
+
+export function gcd(m: number, n: number) {
+	let [a, b] = [m, n];
+	if (a < b) [a, b] = [b, a];
+	while (a % b !== 0) [a, b] = [b, a % b];
+	return b;
 }

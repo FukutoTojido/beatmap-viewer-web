@@ -17,8 +17,9 @@ RenderTarget.defaultOptions.stencil = true;
 
 export class Game {
 	app?: Application;
-	state = new State();
 	animationController = new AnimationController();
+	
+	state = provide("state", new State());
 	responsiveHandler = provide("responsiveHandler", new ResponsiveHandler());
 
 	constructor() {
@@ -33,8 +34,8 @@ export class Game {
 		await app.init({
 			// biome-ignore lint/style/noNonNullAssertion: It should be there already lol
 			resizeTo: document.querySelector<HTMLDivElement>("#app")!,
-			antialias: false,
-			powerPreference: "high-performance",
+			// antialias: false,
+			// powerPreference: "high-performance",
 			backgroundAlpha: 0,
 			useBackBuffer: true,
 			clearBeforeRender: true,
@@ -58,6 +59,7 @@ export class Game {
 		const sidepanel = provide("ui/sidepanel", new SidePanel());
 
 		app.stage.addChild(main.container, sidepanel.container);
+
 		this.responsiveHandler.on("layout", (direction) => {
 			switch (direction) {
 				case "landscape": {
@@ -70,6 +72,36 @@ export class Game {
 					app.stage.layout = {
 						flexDirection: "column",
 					};
+					break;
+				}
+			}
+		});
+
+		this.state.on("sidebar", (newState) => {
+			const ANIMATION_DURATION = 200;
+			switch (newState) {
+				case "OPENED": {
+					this.animationController.addAnimation(
+						"gap",
+						0,
+						10,
+						(val) => {
+							app.stage.layout = { gap: val };
+						},
+						ANIMATION_DURATION,
+					);
+					break;
+				}
+				case "CLOSED": {
+					this.animationController.addAnimation(
+						"gap",
+						10,
+						0,
+						(val) => {
+							app.stage.layout = { gap: val };
+						},
+						ANIMATION_DURATION,
+					);
 					break;
 				}
 			}

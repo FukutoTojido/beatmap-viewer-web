@@ -8,6 +8,7 @@ import { binarySearch } from "@/utils";
 import AnimationController from "@/UI/animation/AnimationController";
 import type { Tween } from "@tweenjs/tween.js";
 import Easings from "@/UI/Easings";
+import type State from "@/State";
 
 const DECAY_RATE = 0.99;
 const LN0_9 = Math.log(DECAY_RATE);
@@ -73,6 +74,16 @@ export default class Timing {
 				}
 			},
 		);
+
+		inject<State>("state")?.on("sidebar", (newState) => {
+			if (newState === "OPENED") {
+				this.container.visible = true;
+			}
+
+			if (newState === "CLOSED") {
+				this.container.visible = false;
+			}
+		})
 
 		this.container.on("wheel", (event) => {
 			const deltaY = event.deltaY;

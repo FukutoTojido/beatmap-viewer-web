@@ -98,8 +98,13 @@ export default class Skin {
 			"hitcircle",
 			"hitcircleoverlay",
 			"sliderb0",
+			"sliderstartcircle",
+			"sliderstartcircleoverlay",
+			"sliderendcircle",
+			"sliderendcircleoverlay",
 			"sliderfollowcircle",
 			"sliderscorepoint",
+			"reversearrow",
 		];
 
 		await Promise.all(

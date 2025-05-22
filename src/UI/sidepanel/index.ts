@@ -6,6 +6,8 @@ import { inject, provide } from "@/Context";
 import type { Game } from "@/Game";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import Timing from "./Timing";
+import type State from "@/State";
+import type { SidebarState } from "@/State";
 
 export default class SidePanel {
 	tabs = [
@@ -161,6 +163,132 @@ export default class SidePanel {
 				}
 			},
 		);
+
+		inject<State>("state")?.on("sidebar", (newState) =>
+			this.handleState(newState),
+		);
+	}
+
+	handleState(state: SidebarState) {
+		const direction =
+			inject<ResponsiveHandler>("responsiveHandler")?.direction ?? "landscape";
+
+		const ANIMATION_DURATION = 200;
+
+		switch (state) {
+			case "OPENED": {
+				if (direction === "landscape") {
+					this.container.triggerAnimation(
+						"width",
+						this.container.layout?.computedLayout.width ?? 0,
+						400,
+						(val) => {
+							this.container.layout = { width: val };
+						},
+						ANIMATION_DURATION,
+					);
+				}
+
+				if (direction === "portrait") {
+					this.container.triggerAnimation(
+						"height",
+						0,
+						70,
+						(val) => {
+							this.container.layout = { height: `${val}%` };
+						},
+						ANIMATION_DURATION,
+					);
+					this.container.triggerAnimation(
+						"paddingAll",
+						0,
+						20,
+						(val) => {
+							this.container.layout = { padding: val };
+						},
+						ANIMATION_DURATION,
+					);
+				}
+
+				this.container.triggerAnimation(
+					"padding",
+					0,
+					20,
+					(val) => {
+						this.container.layout = { paddingInline: val };
+					},
+					ANIMATION_DURATION,
+				);
+
+				this.container.triggerAnimation(
+					"opacity",
+					this.container.alphaFilter.alpha,
+					1,
+					(val) => {
+						this.container.alphaFilter.alpha = val;
+					},
+					ANIMATION_DURATION,
+				);
+
+				break;
+			}
+			case "CLOSED": {
+				if (direction === "landscape") {
+					this.container.triggerAnimation(
+						"width",
+						this.container.layout?.computedLayout.width ?? 400,
+						0,
+						(val) => {
+							this.container.layout = { width: val };
+						},
+						ANIMATION_DURATION,
+					);
+				}
+
+				if (direction === "portrait") {
+					this.container.triggerAnimation(
+						"height",
+						70,
+						0,
+						(val) => {
+							this.container.layout = { height: `${val}%` };
+						},
+						ANIMATION_DURATION,
+					);
+					this.container.triggerAnimation(
+						"paddingAll",
+						20,
+						0,
+						(val) => {
+							this.container.layout = { padding: val };
+						},
+						ANIMATION_DURATION,
+					);
+				}
+
+				this.container.triggerAnimation(
+					"padding",
+					20,
+					0,
+					(val) => {
+						this.container.layout = { paddingInline: val };
+					},
+					ANIMATION_DURATION,
+				);
+
+				this.container.triggerAnimation(
+					"opacity",
+					this.container.alphaFilter.alpha,
+					0,
+					(val) => {
+						this.container.alphaFilter.alpha = val;
+					},
+					ANIMATION_DURATION,
+				);
+
+				break;
+			}
+		}
 	}
 
 	closeSidePanel() {

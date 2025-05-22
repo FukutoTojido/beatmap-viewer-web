@@ -7,8 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="w-full h-[50px] bg-black/20"></div>
-    <div id="app" class="relative w-full h-full"></div>
+    <div class="absolute top-0 left-0 w-full h-full bg-black/50 backdrop-blur-lg"></div>
+    <div class="relative w-full h-[50px] bg-black/20 shrink-0"></div>
+    <div id="app" class="relative w-full flex-1"></div>
     <button class="absolute top-0 left-0 p-5 rounded-xl bg-gray-600" id="toggleSkin">Cycle Skin</button>
     <button class="absolute top-0 left-[150px] p-5 rounded-xl bg-gray-600 hidden" id="toggleBeatmap">Cycle Beatmap</button>
     <script type="module" src="/src/index.ts"></script>

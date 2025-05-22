@@ -29,6 +29,7 @@ import { HitSample as Sample } from "osu-classes";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import type { Context } from "@/Context";
+import TimelineSlider from "../Timeline/TimelineSlider";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
@@ -96,6 +97,8 @@ export default class DrawableSlider
 
 	container = new Container();
 
+	timelineObject: TimelineSlider;
+
 	constructor(public object: Slider) {
 		super(object);
 
@@ -119,6 +122,7 @@ export default class DrawableSlider
 					if (object instanceof SliderRepeat)
 						return new DrawableSliderRepeat(
 							object,
+							this.object,
 							this.object.nodeSamples[idx],
 						).hook(this.context);
 
@@ -173,6 +177,8 @@ export default class DrawableSlider
 
 		this._shader.resources.customUniforms.uniforms.scale =
 			(object.radius / 54.4) * (236 / 256);
+
+		this.timelineObject = new TimelineSlider(object).hook(this.context);
 	}
 
 	hook(context: Context) {
@@ -181,7 +187,8 @@ export default class DrawableSlider
 		for (const object of this.drawableCircles.filter(
 			(object) =>
 				object instanceof DrawableSliderHead ||
-				object instanceof DrawableSliderTail,
+				object instanceof DrawableSliderTail ||
+				object instanceof DrawableSliderRepeat,
 		)) {
 			object.refreshSprite();
 		}
@@ -189,6 +196,10 @@ export default class DrawableSlider
 
 		return this;
 	}
+
+	trackColor: number[] = [0, 0, 0];
+	borderColor: number[] = [0, 0, 0];
+	color = "0,0,0";
 
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
@@ -198,7 +209,9 @@ export default class DrawableSlider
 
 		const comboIndex =
 			this.object.comboIndex %
-			(beatmap?.data.colors.comboColors.length ? beatmap?.data.colors.comboColors.length : skin.colorsLength);
+			(beatmap?.data.colors.comboColors.length
+				? beatmap?.data.colors.comboColors.length
+				: skin.colorsLength);
 		const colors = beatmap?.data.colors.comboColors;
 		const comboColor = colors?.length
 			? `${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue}`
@@ -213,6 +226,8 @@ export default class DrawableSlider
 		const color = (trackOverride ?? comboColor)
 			.split(",")
 			.map((value) => +value / 255);
+		this.trackColor = color;
+		this.color = comboColor;
 
 		const border = beatmap?.data.colors.sliderBorderColor
 			? Object.values(beatmap?.data.colors.sliderBorderColor)
@@ -222,6 +237,7 @@ export default class DrawableSlider
 		const borderColor =
 			border ??
 			skin.config.Colours.SliderBorder.split(",").map((value) => +value / 255);
+		this.borderColor = borderColor;
 
 		this._shader.resources.customUniforms.uniforms.borderColor = borderColor;
 		this._shader.resources.customUniforms.uniforms.innerColor = lighten(
@@ -240,6 +256,8 @@ export default class DrawableSlider
 		// 	[color[0], color[1], color[2]],
 		// 	0.1,
 		// );
+
+		this.timelineObject?.refreshSprite();
 	}
 
 	get approachCircle() {
@@ -307,10 +325,6 @@ export default class DrawableSlider
 	}
 
 	update(time: number) {
-		this.ball.update(time);
-		this.followCircle.update(time);
-		for (const circle of this.drawableCircles) circle.update(time);
-
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 200;
 
@@ -321,6 +335,10 @@ export default class DrawableSlider
 			this.container.visible = false;
 			return;
 		}
+
+		this.ball.update(time);
+		this.followCircle.update(time);
+		for (const circle of this.drawableCircles) circle.update(time);
 
 		this.container.visible = true;
 
@@ -350,7 +368,7 @@ export default class DrawableSlider
 			}
 		}
 
-		(async () => this.updateGeometry(start, end))();
+		this.updateGeometry(start, end);
 
 		// const position = this.object.path.curvePositionAt(
 		// 	completionProgress,

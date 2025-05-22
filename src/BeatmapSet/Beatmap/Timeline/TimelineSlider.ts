@@ -1,0 +1,156 @@
+import { AlphaFilter, Color, Container, FillGradient, Graphics } from "pixi.js";
+import TimelineHitObject from "./TimelineHitObject";
+import type TimelineHitCircle from "./TimelineHitCircle";
+import {
+	SliderHead,
+	SliderRepeat,
+	SliderTail,
+	type Slider,
+} from "osu-standard-stable";
+import { type Context, inject } from "@/Context";
+import type TimelineConfig from "@/Config/TimelineConfig";
+import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
+import type DrawableSlider from "../HitObjects/DrawableSlider";
+import { darken } from "@/utils";
+import TimelineSliderHead from "./TimelineSliderHead";
+import TimelineSliderTail from "./TimelineSliderTail";
+import TimelineSliderRepeat from "./TimelineSliderRepeat";
+
+const gradient = new FillGradient({
+	start: { x: 0, y: 0 },
+	end: { x: 0, y: 1 },
+	colorStops: [
+		{ offset: 0, color: 0xffffff },
+		{
+			offset: 0.5,
+			color: Color.shared.setValue(darken([1, 1, 1, 1], 0.1)).toHex(),
+		},
+		{ offset: 1, color: 0xffffff },
+	],
+	textureSpace: "local",
+	type: "linear",
+	textureSize: 256,
+	wrapMode: "clamp-to-edge",
+});
+
+const radialGradient = new FillGradient({
+	type: "radial",
+	colorStops: [
+		{
+			offset: 0,
+			color: Color.shared.setValue(darken([1, 1, 1, 1], 0.1)).toHex(),
+		},
+		{ offset: 1, color: 0xffffff },
+	],
+});
+
+export default class TimelineSlider extends TimelineHitObject {
+	circles: TimelineHitCircle[] = [];
+	body: Graphics = new Graphics({
+		filters: [
+			new AlphaFilter({
+				alpha: 0.7,
+			}),
+		],
+	});
+
+	length = 0;
+
+	constructor(object: Slider) {
+		super(object);
+
+		this.length =
+			object.duration /
+			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
+
+		for (const object of this.object.nestedHitObjects
+			.filter(
+				(object) =>
+					object instanceof SliderHead ||
+					object instanceof SliderTail ||
+					object instanceof SliderRepeat,
+			)
+			.map((object) => {
+				const obj = object.clone();
+				obj.startTime = obj.startTime - this.object.startTime;
+				return obj;
+			})
+			.toReversed()) {
+			const obj =
+				object instanceof SliderHead
+					? new TimelineSliderHead(object, this.object as Slider).hook(
+							this.context,
+						)
+					: object instanceof SliderTail
+						? new TimelineSliderTail(object).hook(this.context)
+						: new TimelineSliderRepeat(object).hook(this.context);
+
+			obj.container.y = 0;
+			obj.container.visible = true;
+
+			this.circles.push(obj);
+		}
+
+		this.container.addChild(
+			this.body,
+			...this.circles.map((circle) => circle.container),
+		);
+
+		this.refreshSprite();
+	}
+
+	refreshSprite() {
+		this.length =
+			(this.object as Slider).duration /
+			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
+
+		this.body
+			.clear()
+			.circle(0, 0, (30 * 236) / 256)
+			.fill(radialGradient)
+			.circle(this.length, 0, (30 * 236) / 256)
+			.fill(radialGradient)
+			.rect(0, -((30 * 236) / 256), this.length, (60 * 236) / 256)
+			.fill(gradient);
+
+		this.body.tint = `rgb(${
+			this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"
+		})`;
+
+		for (const object of this.circles) {
+			object.refreshSprite();
+		}
+	}
+
+	hook(context: Context) {
+		super.hook(context);
+
+		for (const object of this.circles) {
+			object.refreshSprite();
+		}
+		this.refreshSprite();
+
+		return this;
+	}
+
+	getTimeRange(): { start: number; end: number } {
+		return {
+			start: this.object.startTime - 30 * 5,
+			end: (this.object as Slider).endTime + 30 * 5,
+		};
+	}
+
+	update(timestamp: number) {
+		super.update(timestamp);
+		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
+
+		for (const object of this.circles.filter(
+			(object) => object instanceof TimelineSliderTail || TimelineSliderRepeat,
+		)) {
+			object.container.x =
+				(object.object.startTime +
+					(object instanceof TimelineSliderTail ? 36 : 0)) /
+				(DEFAULT_SCALE / scale);
+		}
+	}
+}

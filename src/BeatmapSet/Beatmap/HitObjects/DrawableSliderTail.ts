@@ -33,6 +33,15 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
+		const hitCircle =
+			skin.getTexture("sliderendcircle") ?? skin.getTexture("hitcircle");
+		const hitCircleOverlay =
+			skin.getTexture("sliderendcircleoverlay") ??
+			skin.getTexture("hitcircleoverlay");
+
+		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
+		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		if (beatmap?.data?.colors.comboColors.length) {
 			const colors = beatmap.data.colors.comboColors;

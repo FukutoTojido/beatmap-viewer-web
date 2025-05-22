@@ -82,7 +82,7 @@ export default class Point {
 		this.content2 = new Text({
 			text:
 				data instanceof TimingPoint
-					? `Measurement ${data.timeSignature}/4`
+					? `Signature ${data.timeSignature}/4`
 					: data instanceof DifficultyPoint
 						? ""
 						: `Volume ${data.volume}%`,

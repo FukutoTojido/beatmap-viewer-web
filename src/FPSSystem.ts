@@ -68,10 +68,10 @@ export class FPSSystem {
 		const game = inject("game");
 		game.update();
 
-		const fps = inject<BitmapText>("ui/main/viewer/fps");
+		const fps = inject<BitmapText>("ui/main/viewer/gameplays/fps");
 		if (fps) fps.text = `${Math.round(frameData.fps)} fps`;
 
-		const frameTime = inject<BitmapText>("ui/main/viewer/frametime");
+		const frameTime = inject<BitmapText>("ui/main/viewer/gameplays/frametime");
 		if (frameTime) frameTime.text = `${(frameData.deltaMS).toFixed(2)} ms`;
 	}
 }

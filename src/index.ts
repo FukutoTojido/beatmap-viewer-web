@@ -15,6 +15,17 @@ import { Assets, BitmapFontManager } from "pixi.js";
 		Assets.load({ src: "./assets/x.png", loadParser: "loadTextures" }),
 	]);
 
+	document.addEventListener(
+		"wheel",
+		(e) => {
+			if (e.ctrlKey) e.preventDefault();
+		},
+		{
+			capture: true,
+			passive: false,
+		},
+	);
+
 	const game = provide("game", new Game());
 	await game.init();
 	runTest();

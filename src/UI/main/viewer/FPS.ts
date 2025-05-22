@@ -16,7 +16,7 @@ export default class FPS {
 
 	constructor() {
 		const fps = provide(
-			"ui/main/viewer/fps",
+			"ui/main/viewer/gameplays/fps",
 			new BitmapText({
 				text: "0 fps",
 				style: {
@@ -35,7 +35,7 @@ export default class FPS {
 		);
 
 		const frameTime = provide(
-			"ui/main/viewer/frametime",
+			"ui/main/viewer/gameplays/frametime",
 			new BitmapText({
 				text: "0 ms",
 				style: {

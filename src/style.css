@@ -37,11 +37,7 @@ body {
 
 	overflow: hidden;
 
-	background-image: linear-gradient(
-			to top,
-			rgba(0 0 0 / 0.5),
-			rgba(0 0 0 / 0.5)
-		), url("/anon.jpg");
+	background-image: url("/anon.jpg");
 
 	background-position: center;
 	background-size: cover;

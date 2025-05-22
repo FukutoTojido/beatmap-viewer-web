@@ -23,16 +23,14 @@ export default class Viewer {
 	});
 
 	constructor() {
-		const fps = new FPS();
 		const timeline = provide("ui/main/viewer/timeline", new Timeline());
 		const gameplays = provide("ui/main/viewer/gameplays", new Gameplays());
 		const background = provide("ui/main/viewer/background", new Background());
 
 		this.container.addChild(
 			background.container,
-			// timeline.container,
+			timeline.container,
 			gameplays.container,
-			fps.container,
 		);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
@@ -53,7 +51,7 @@ export default class Viewer {
 							borderWidth: 0,
 							borderRadius: 0,
 							flex: undefined,
-							aspectRatio: 4 / 3,
+							// aspectRatio: 4 / 3,
 						};
 						break;
 					}

@@ -2,107 +2,72 @@ import {
 	StandardBeatmap,
 	type StandardHitObject,
 	type Circle,
+	type Slider,
+	type SliderRepeat,
 } from "osu-standard-stable";
 import type { HitSample as Sample, SamplePoint } from "osu-classes";
-import { Graphics } from "pixi.js";
+import { Graphics, Sprite } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
 import type { Context } from "../../../Context";
 import type DrawableApproachCircle from "./DrawableApproachCircle";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
+import DrawableSliderHead from "./DrawableSliderHead";
 
-export default class DrawableSliderRepeat extends DrawableHitObject {
-	container = new Graphics();
-	hitSound?: HitSample;
+export default class DrawableSliderRepeat extends DrawableSliderHead {
+	reverseArrow = new Sprite({
+		anchor: 0.5,
+	});
 
 	constructor(
-		public object: StandardHitObject,
+		public object: SliderRepeat,
+		parent: Slider,
 		samples: Sample[],
 	) {
-		super(object);
-		this.container.visible = false;
-		this.container.x = object.startX;
-		this.container.y = object.startY;
-		this.container.circle(0, 0, 10).fill(0xcdd6f4);
-        this.container.interactive = false;
-        this.container.interactiveChildren = false;
-		
-		this.hitSound = new HitSample(samples).hook(this.context);
+		super(object, parent, samples, false);
+
+		this.reverseArrow.interactive = false;
+		this.reverseArrow.interactiveChildren = false;
+
+		this.container.addChild(this.reverseArrow);
+		this.refreshSprite();
+		this.updateRotation();
 	}
 
-	playHitSound(time: number): void {
-		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (!beatmap) return;
-		if (
-			!(
-				beatmap.previousTime <= this.object.startTime &&
-				this.object.startTime < time &&
-				time - beatmap.previousTime < 30
-			)
-		)
-			return;
+	refreshSprite(): void {
+		super.refreshSprite();
 
-			const currentSamplePoint = beatmap.getNearestSamplePoint(
-				this.object.startTime,
-			);
-			this.hitSound?.play(currentSamplePoint);
+		if (!this.reverseArrow) return;
+
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+		const reverseArrow = skin.getTexture("reversearrow");
+		if (reverseArrow) this.reverseArrow.texture = reverseArrow;
 	}
 
-	getTimeRange(): { start: number; end: number } {
-		return {
-			start: this.object.startTime - this.object.timePreempt,
-			end: this.object.startTime + 800,
-		};
-	}
+	updateRotation() {
+		const isAtEnd = this.object.repeatIndex % 2 === 0;
 
-	update(time: number) {
-		const startFadeInTime = this.object.startTime - this.object.timePreempt;
-		const fadeOutDuration = 200;
+		const first = isAtEnd ? this.parent.path.calculatedPath.length - 1 : 0;
+		let next = first;
 
-		this.container.x = this.object.startX + this.object.stackedOffset.x;
-		this.container.y = this.object.startY + this.object.stackedOffset.y;
-
-		if (
-			time < startFadeInTime ||
-			time > this.object.startTime + fadeOutDuration
+		while (
+			this.parent.path.calculatedPath[first].distance(
+				this.parent.path.calculatedPath[next],
+			) < 0.01
 		) {
-			this.container.visible = false;
-			return;
+			if (isAtEnd) {
+				next--;
+				continue;
+			}
+
+			next++;
 		}
 
-		this.container.visible = true;
-		this.container.scale.set(1);
+		const startVec = this.parent.path.calculatedPath[first];
+		const endVec = this.parent.path.calculatedPath[next];
 
-		if (time < this.object.startTime) {
-			const opacity = Math.min(
-				1,
-				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
-			);
-			this.container.alpha = opacity;
-
-			return;
-		}
-
-		if (time >= this.object.startTime) {
-			const opacity =
-				1 -
-				Math.min(
-					1,
-					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-				);
-			const scale = Math.min(
-				2,
-				1 + Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-			);
-
-			this.container.alpha = opacity;
-			this.container.scale.set(scale);
-
-			return;
-		}
-	}
-
-	destroy() {
-		this.container.destroy();
+		const rotation = Math.atan2(endVec.y - startVec.y, endVec.x - startVec.x);
+		this.reverseArrow.rotation = rotation;
 	}
 }

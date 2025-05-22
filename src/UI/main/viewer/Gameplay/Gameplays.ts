@@ -1,7 +1,9 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import { Container, Graphics, Rectangle } from "pixi.js";
-import { provide } from "@/Context";
+import { inject, provide } from "@/Context";
 import type Gameplay from ".";
+import FPS from "../FPS";
+import type ResponsiveHandler from "@/ResponsiveHandler";
 
 export default class Gameplays {
 	container = new Container({
@@ -31,12 +33,36 @@ export default class Gameplays {
 	}
 
 	constructor() {
+		const fps = new FPS();
+
 		this.separator.x = 0;
 		this.separator.y = 0;
 		this.separator.interactive = false;
 
-		this.container.addChild(this.separator);
+		this.container.addChild(this.separator, fps.container);
 		this.container.on("layout", () => this.reLayoutChildren());
+
+		inject<ResponsiveHandler>("responsiveHandler")?.on(
+			"layout",
+			(direction) => {
+				switch (direction) {
+					case "landscape": {
+						this.container.layout = {
+							flex: 1,
+							aspectRatio: undefined,
+						};
+						break;
+					}
+					case "portrait": {
+						this.container.layout = {
+							flex: undefined,
+							aspectRatio: 4 / 3,
+						};
+						break;
+					}
+				}
+			},
+		);
 	}
 
 	reLayoutChildren() {

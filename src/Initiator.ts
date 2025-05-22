@@ -28,6 +28,7 @@ export async function getDefaultLegacy() {
         "skin.ini",
 		"sliderb0@2x.png",
 		"sliderfollowcircle@2x.png",
+		"reversearrow@2x.png",
 		"sliderscorepoint@2x.png",
 	];
 
@@ -77,6 +78,7 @@ export async function getYugen() {
         "skin.ini",
 		"sliderb0@2x.png",
 		"sliderfollowcircle@2x.png",
+		"reversearrow@2x.png",
 		"sliderscorepoint.png",
 	];
 

@@ -21,11 +21,9 @@ export default class Video {
 			}) => {
 				switch (event.data.type) {
 					case MessageType.Frame: {
-						requestAnimationFrame(() => {
-							inject<Background>("ui/main/viewer/background")?.updateFrame(
-								event.data.data as VideoFrame,
-							);
-						});
+						inject<Background>("ui/main/viewer/background")?.updateFrame(
+							event.data.data as VideoFrame,
+						);
 						break;
 					}
 				}

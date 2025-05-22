@@ -1,9 +1,4 @@
-import {
-	StandardBeatmap,
-	type StandardHitObject,
-	type Circle,
-} from "osu-standard-stable";
-import { Assets, Container, Graphics, Sprite } from "pixi.js";
+import { Container, Sprite, type ColorSource } from "pixi.js";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
@@ -13,9 +8,9 @@ import type { SamplePoint } from "osu-classes";
 import type Beatmap from "..";
 import DrawableDefaults from "./DrawableDefaults";
 import { update } from "@/Skinning/Legacy/LegacyHitCircle";
-import type Skin from "@/Skinning/Skin";
-import { type Context, inject } from "@/Context";
-import type SkinManager from "@/Skinning/SkinManager";
+import type { Context } from "@/Context";
+import TimelineHitCircle from "../Timeline/TimelineHitCircle";
+import type { StandardHitObject } from "osu-standard-stable";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -35,6 +30,8 @@ export default class DrawableHitCircle
 
 	samplePoint?: SamplePoint;
 
+	timelineObject?: TimelineHitCircle;
+
 	constructor(
 		public object: StandardHitObject,
 		protected hasNumber = true,
@@ -49,8 +46,6 @@ export default class DrawableHitCircle
 
 		this.hitCircleSprite.anchor.set(0.5);
 		this.hitCircleSprite.alpha = 0.9;
-
-		// this.refreshSprite()
 
 		this.hitCircleOverlay.anchor.set(0.5);
 		this.sprite.addChild(this.hitCircleSprite, this.hitCircleOverlay);
@@ -71,6 +66,8 @@ export default class DrawableHitCircle
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
 		);
+
+		this.timelineObject = new TimelineHitCircle(object).hook(this.context);
 	}
 
 	hook(context: Context) {
@@ -82,6 +79,7 @@ export default class DrawableHitCircle
 		return this;
 	}
 
+	color: ColorSource = "rgb(0, 0, 0)";
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
@@ -98,6 +96,10 @@ export default class DrawableHitCircle
 			const comboIndex = this.object.comboIndex % colors.length;
 
 			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+
+			this.color = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+			this.timelineObject?.refreshSprite();
+
 			return;
 		}
 
@@ -106,7 +108,11 @@ export default class DrawableHitCircle
 		const color = (skin.config.Colours as any)[
 			`Combo${comboIndex + 1}`
 		] as string;
+
+		this.color = `rgb(${color})`;
 		this.hitCircleSprite.tint = `rgb(${color})`;
+
+		this.timelineObject?.refreshSprite();
 	}
 
 	playHitSound(time: number): void {

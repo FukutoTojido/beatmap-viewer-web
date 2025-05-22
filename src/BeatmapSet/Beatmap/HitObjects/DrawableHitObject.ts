@@ -17,6 +17,7 @@ export default abstract class DrawableHitObject extends SkinnableElement {
 
     constructor(public object: StandardHitObject) {
         super();
+        this.context.provide("object", this);
     };
 
     disable() {
