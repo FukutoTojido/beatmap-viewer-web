@@ -88,7 +88,7 @@ export const runTest = async () => {
 
 				if (event.deltaY > 0) {
 					timelineConfig.divisor = Math.max(
-						0,
+						1,
 						timelineConfig.divisor === 16
 							? 12
 							: timelineConfig.divisor === 12
