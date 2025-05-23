@@ -203,7 +203,7 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	frame(time: number) {
-			const sorted = Array.from(this.previousObjects)
+		const sorted = Array.from(this.previousObjects)
 			.map((idx) => this.objects[idx])
 			.sort((a, b) => -a.object.startTime + b.object.startTime)
 			.filter((object) => object instanceof DrawableSlider);
