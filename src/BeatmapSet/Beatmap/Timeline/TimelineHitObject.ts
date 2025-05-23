@@ -12,6 +12,7 @@ export default abstract class TimelineHitObject extends SkinnableElement {
 	});
 	constructor(public object: StandardHitObject) {
 		super();
+		this.container.y = 40;
 	}
 
 	abstract getTimeRange(): { start: number; end: number };
@@ -21,7 +22,6 @@ export default abstract class TimelineHitObject extends SkinnableElement {
 		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
 		this.container.x =
 			(this.object.startTime - timestamp) / (DEFAULT_SCALE / scale);
-		this.container.y = 40;
 	}
 
 	destroy() {
