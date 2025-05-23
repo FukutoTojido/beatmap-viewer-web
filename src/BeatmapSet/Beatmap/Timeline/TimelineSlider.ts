@@ -105,7 +105,13 @@ export default class TimelineSlider extends TimelineHitObject {
 			...this.circles.map((circle) => circle.container),
 		);
 
+		this.updateCircles();
 		this.refreshSprite();
+
+		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newValue) => {
+			this.updateCircles();
+			this.refreshSprite();
+		});
 	}
 
 	updateVelocity() {
@@ -174,10 +180,8 @@ export default class TimelineSlider extends TimelineHitObject {
 		};
 	}
 
-	update(timestamp: number) {
-		super.update(timestamp);
+	updateCircles() {
 		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
-
 		for (const object of this.circles.filter(
 			(object) => object instanceof TimelineSliderTail || TimelineSliderRepeat,
 		)) {

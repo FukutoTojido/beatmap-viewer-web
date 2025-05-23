@@ -60,18 +60,11 @@ export const runTest = async () => {
 	inject<Main>("ui/main")?.container.addEventListener(
 		"wheel",
 		(event) => {
-			if (!event.ctrlKey) {
-				const audio = bms.context.consume<Audio>("audio");
-
-				if (event.deltaY > 0) {
-					bms.seek((audio?.currentTime ?? 0) + (event.shiftKey ? 1 : 100));
-				}
-				if (event.deltaY < 0) {
-					bms.seek((audio?.currentTime ?? 0) - (event.shiftKey ? 1 : 100));
-				}
+			if (event.altKey) {
+				return;
 			}
 
-			if (event.ctrlKey) {			
+			if (event.ctrlKey) {
 				const timelineConfig = inject<TimelineConfig>("config/timeline");
 				if (!timelineConfig) return;
 
@@ -96,6 +89,17 @@ export const runTest = async () => {
 								: timelineConfig.divisor - 1,
 					);
 				}
+
+				return;
+			}
+
+			const audio = bms.context.consume<Audio>("audio");
+
+			if (event.deltaY > 0) {
+				bms.seek((audio?.currentTime ?? 0) + (event.shiftKey ? 1 : 100));
+			}
+			if (event.deltaY < 0) {
+				bms.seek((audio?.currentTime ?? 0) - (event.shiftKey ? 1 : 100));
 			}
 		},
 		{

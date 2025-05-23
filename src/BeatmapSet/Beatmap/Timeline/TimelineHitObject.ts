@@ -12,17 +12,19 @@ export default abstract class TimelineHitObject extends SkinnableElement {
 	});
 	constructor(public object: StandardHitObject) {
 		super();
+
+		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
+
+		this.container.x = this.object.startTime / (DEFAULT_SCALE / scale);
 		this.container.y = 40;
+
+		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newValue) => {
+			this.container.x = this.object.startTime / (DEFAULT_SCALE / newValue);
+		});
 	}
 
 	abstract getTimeRange(): { start: number; end: number };
 	abstract refreshSprite(): void;
-
-	update(timestamp: number) {
-		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
-		this.container.x =
-			(this.object.startTime - timestamp) / (DEFAULT_SCALE / scale);
-	}
 
 	destroy() {
 		if (this.skinEventCallback)

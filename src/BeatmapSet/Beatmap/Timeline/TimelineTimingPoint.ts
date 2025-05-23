@@ -41,13 +41,15 @@ export default class TimelineTimingPoint {
 			});
 
 		this.container.addChild(graphics, text);
-		this.container.y = 40;
-	}
 
-	update(timestamp: number) {
 		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
-		this.container.x =
-			(this.data.startTime - timestamp) / (DEFAULT_SCALE / scale);
+		
+		this.container.x = this.data.startTime / (DEFAULT_SCALE / scale);
+		this.container.y = 40;
+
+		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newValue) => {
+			this.container.x = this.data.startTime / (DEFAULT_SCALE / newValue);
+		});
 	}
 
 	destroy() {

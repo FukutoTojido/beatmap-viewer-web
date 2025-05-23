@@ -35,6 +35,7 @@ export default class Timeline {
 				b: 46,
 				a: 0.8,
 			},
+			overflow: "hidden",
 		},
 	});
 
@@ -49,17 +50,19 @@ export default class Timeline {
 
 	constructor() {
 		const thumb = new Graphics()
-			.rect(-1, -40, 2, 80)
-			.moveTo(-6, -40)
-			.lineTo(-1, -36)
-			.lineTo(1, -36)
-			.lineTo(6, -40)
-			.lineTo(-6, -40)
-			.moveTo(-6, 40)
-			.lineTo(-1, 36)
-			.lineTo(1, 36)
-			.lineTo(6, 40)
-			.lineTo(-6, 40)
+			.moveTo(0, -40)
+			.lineTo(0, 40)
+			.stroke(0xcdd6f4)
+			.moveTo(-2, -(80 / 2))
+			.lineTo(0, -(80 / 2 - 2))
+			.lineTo(2, -(80 / 2 - 2))
+			.lineTo(4, -(80 / 2))
+			.lineTo(-2, -(80 / 2))
+			.moveTo(-2, 80 / 2)
+			.lineTo(-0, 80 / 2 - 2)
+			.lineTo(2, 80 / 2 - 2)
+			.lineTo(4, 80 / 2)
+			.lineTo(-2, 80 / 2)
 			.fill(0xcdd6f4);
 
 		this.container.addChild(this._ruler, this._objectsContainer, thumb);
@@ -76,20 +79,23 @@ export default class Timeline {
 
 			this._ruler.x = width / 2;
 
-			thumb
-				.clear()
-				.rect(0, -(height / 2), 1, height)
-				.moveTo(-2, -(height / 2))
-				.lineTo(0, -(height / 2 - 2))
-				.lineTo(2, -(height / 2 - 2))
-				.lineTo(4, -(height / 2))
-				.lineTo(-2, -(height / 2))
-				.moveTo(-2, height / 2)
-				.lineTo(-0, height / 2 - 2)
-				.lineTo(2, height / 2 - 2)
-				.lineTo(4, height / 2)
-				.lineTo(-2, height / 2)
+			const thumbContext = new GraphicsContext()
+				.moveTo(0, -height / 2)
+				.lineTo(0, height / 2)
+				.stroke(0xcdd6f4)
+				//
+				.moveTo(-3, -(height / 2))
+				.lineTo(0, -(height / 2 - 3))
+				.lineTo(3, -(height / 2))
+				.lineTo(-3, -(height / 2))
+				//
+				.moveTo(-3, height / 2)
+				.lineTo(0, height / 2 - 3)
+				.lineTo(3, height / 2)
+				.lineTo(-3, height / 2)
 				.fill(0xcdd6f4);
+
+			thumb.context = thumbContext;
 		});
 
 		// inject<ResponsiveHandler>("responsiveHandler")?.on(
@@ -112,6 +118,36 @@ export default class Timeline {
 		// 		}
 		// 	},
 		// );
+
+		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newScale) => {
+			const width = this.container.layout?.computedLayout.width ?? 0;
+			this._range = (width / 2) * (DEFAULT_SCALE / newScale) + 120;
+		});
+
+		this.container.addEventListener(
+			"wheel",
+			(event) => {
+				if (!event.altKey) return;
+
+				event.preventDefault();
+				const timeline = inject<TimelineConfig>("config/timeline");
+				if (timeline === undefined) return;
+
+				if (event.deltaY > 0) {
+					timeline.scale = Math.max(0.5, timeline.scale - 0.1);
+					return;
+				}
+
+				if (event.deltaY < 0) {
+					timeline.scale = Math.min(1.5, timeline.scale + 0.1);
+					return;
+				}
+			},
+			{
+				capture: true,
+				passive: false,
+			},
+		);
 	}
 
 	loadObjects(objects: (DrawableHitCircle | DrawableSlider)[]) {
@@ -243,14 +279,17 @@ export default class Timeline {
 	}
 
 	draw(timestamp: number) {
+		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
+		const width = this.container.layout?.computedLayout.width ?? 0;
+		this._objectsContainer.x = width / 2 + -timestamp / (DEFAULT_SCALE / scale);
+		this._ruler.x = width / 2 + -timestamp / (DEFAULT_SCALE / scale);
+
 		for (const idx of [...this._previousTiming].sort((a, b) => b - a)) {
 			this._timingPoints[idx].container.visible = true;
-			this._timingPoints[idx].update(timestamp);
 		}
 
 		for (const idx of [...this._previous].sort((a, b) => b - a)) {
 			this._objects[idx].container.visible = true;
-			this._objects[idx].update(timestamp);
 		}
 
 		this.drawRuler(timestamp);
@@ -308,14 +347,8 @@ export default class Timeline {
 			}
 
 			context
-				.moveTo(
-					(currentPoint - timestamp) / (DEFAULT_SCALE / scale),
-					isDominant ? 0 : 10,
-				)
-				.lineTo(
-					(currentPoint - timestamp) / (DEFAULT_SCALE / scale),
-					isDominant ? 80 : 70,
-				)
+				.moveTo(currentPoint / (DEFAULT_SCALE / scale), isDominant ? 0 : 10)
+				.lineTo(currentPoint / (DEFAULT_SCALE / scale), isDominant ? 80 : 70)
 				.stroke({
 					color,
 					pixelLine: true,
