@@ -78,7 +78,6 @@ export default class Beatmap extends ScopedClass {
 
 	load() {
 		this.loaded = true;
-		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());
 	}
 
 	loadTimingPoints() {
@@ -203,78 +202,15 @@ export default class Beatmap extends ScopedClass {
 		};
 	}
 
-	cacheBPM?: TimingPoint;
-	cacheSV?: DifficultyPoint;
-	cacheSample?: SamplePoint;
-
-	private currentAnimationFrame?: number;
-
-	private frame() {
-		const audio = this.context.consume<Audio>("audio");
-
-		const sorted = Array.from(this.previousObjects)
+	frame(time: number) {
+			const sorted = Array.from(this.previousObjects)
 			.map((idx) => this.objects[idx])
 			.sort((a, b) => -a.object.startTime + b.object.startTime)
 			.filter((object) => object instanceof DrawableSlider);
 
 		for (const object of sorted) {
-			object.update(audio?.currentTime ?? 0);
+			object.update(time);
 		}
-
-		const currentBPM = this.data.controlPoints.timingPointAt(
-			audio?.currentTime ?? 0,
-		);
-		const currentSV = this.data.controlPoints.difficultyPointAt(
-			audio?.currentTime ?? 0,
-		);
-		const currentSample = this.data.controlPoints.samplePointAt(
-			audio?.currentTime ?? 0,
-		);
-
-		const timestamp = inject<Timestamp>("ui/main/controls/timestamp");
-		timestamp?.updateDigit(audio?.currentTime ?? 0);
-
-		if (
-			this.cacheBPM !== currentBPM ||
-			this.cacheSV !== currentSV ||
-			this.cacheSample !== currentSample
-		) {
-			const time = Math.max(
-				currentBPM.startTime,
-				currentSV.startTime,
-				currentSample.startTime,
-			);
-			inject<Timing>("ui/sidepanel/timing")?.scrollToTimingPoint(time);
-		}
-
-		if (this.cacheBPM !== currentBPM) {
-			this.cacheBPM = currentBPM;
-			timestamp?.updateBPM(currentBPM.bpm);
-			inject<Timeline>("ui/main/viewer/timeline")?.updateTimingPoint(
-				currentBPM,
-			);
-		}
-
-		if (this.cacheSV !== currentSV) {
-			this.cacheSV = currentSV;
-			timestamp?.updateSliderVelocity(currentSV.sliderVelocity);
-		}
-
-		if (this.cacheSample !== currentSample) {
-			this.cacheSample = currentSample;
-		}
-
-		const progressBar = inject<ProgressBar>("ui/main/controls/progress");
-		progressBar?.setPercentage(
-			(audio?.currentTime ?? 0) / (audio?.duration ?? 1),
-		);
-
-		inject<Timeline>("ui/main/viewer/timeline")?.update(
-			audio?.currentTime ?? 0,
-		);
-		inject<Timeline>("ui/main/viewer/timeline")?.draw(audio?.currentTime ?? 0);
-
-		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());
 	}
 
 	private inRange(val: number, start: number, end: number) {
@@ -484,8 +420,5 @@ export default class Beatmap extends ScopedClass {
 
 		this.previousConnectors.clear();
 		this.previousObjects.clear();
-
-		if (this.currentAnimationFrame)
-			cancelAnimationFrame(this.currentAnimationFrame);
 	}
 }

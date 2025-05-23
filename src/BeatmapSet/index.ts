@@ -15,6 +15,10 @@ import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Timeline from "@/UI/main/viewer/Timeline";
 import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import type Timing from "@/UI/sidepanel/Timing";
+import type Timestamp from "@/UI/main/controls/Timestamp";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -26,6 +30,7 @@ export default class BeatmapSet extends ScopedClass {
 		this.context.provide("resources", resources);
 
 		provide("beatmapset", this);
+		requestAnimationFrame(() => this.frame());
 	}
 
 	async loadResources() {
@@ -165,7 +170,9 @@ export default class BeatmapSet extends ScopedClass {
 			beatmap.container,
 		);
 
-		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(beatmap.objects as (DrawableHitCircle | DrawableSlider)[]);
+		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
+			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
+		);
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
 		beatmap.toggle();
@@ -235,5 +242,66 @@ export default class BeatmapSet extends ScopedClass {
 
 		audio.currentTime = time;
 		this.context.consume<Video>("video")?.seek(audio?.currentTime);
+	}
+
+	cacheBPM?: TimingPoint;
+	cacheSV?: DifficultyPoint;
+	cacheSample?: SamplePoint;
+
+	frame() {
+		if (!this.master) return requestAnimationFrame(() => this.frame());
+
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio) return requestAnimationFrame(() => this.frame());
+
+		const time = audio.currentTime;
+
+		this.master?.frame(time);
+		for (const slave of this.slaves) {
+			slave.frame(time);
+		}
+
+		const timestamp = inject<Timestamp>("ui/main/controls/timestamp");
+		timestamp?.updateDigit(time);
+
+		const currentBPM = this.master.data.controlPoints.timingPointAt(time);
+		const currentSV = this.master.data.controlPoints.difficultyPointAt(time);
+		const currentSample = this.master.data.controlPoints.samplePointAt(time);
+
+		if (
+			this.cacheBPM !== currentBPM ||
+			this.cacheSV !== currentSV ||
+			this.cacheSample !== currentSample
+		) {
+			const time = Math.max(
+				currentBPM.startTime,
+				currentSV.startTime,
+				currentSample.startTime,
+			);
+			inject<Timing>("ui/sidepanel/timing")?.scrollToTimingPoint(time);
+		}
+
+		if (this.cacheBPM !== currentBPM) {
+			this.cacheBPM = currentBPM;
+			timestamp?.updateBPM(currentBPM.bpm);
+			inject<Timeline>("ui/main/viewer/timeline")?.updateTimingPoint(
+				currentBPM,
+			);
+		}
+
+		if (this.cacheSV !== currentSV) {
+			this.cacheSV = currentSV;
+			timestamp?.updateSliderVelocity(currentSV.sliderVelocity);
+		}
+
+		if (this.cacheSample !== currentSample) {
+			this.cacheSample = currentSample;
+		}
+
+		inject<ProgressBar>("ui/main/controls/progress")?.setPercentage(time / audio.duration);
+		inject<Timeline>("ui/main/viewer/timeline")?.update(time);
+		inject<Timeline>("ui/main/viewer/timeline")?.draw(time);
+
+		requestAnimationFrame(() => this.frame());
 	}
 }
