@@ -3,6 +3,9 @@ import Controls from "./controls";
 import { inject, provide } from "@/Context";
 import Viewer from "./viewer";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import type TimelineConfig from "@/Config/TimelineConfig";
+import type BeatmapSet from "@/BeatmapSet";
+import type Audio from "@/Audio";
 
 export default class Main {
 	container = new LayoutContainer({
@@ -44,6 +47,26 @@ export default class Main {
 						break;
 					}
 				}
+			},
+		);
+
+		this.container.addEventListener(
+			"wheel",
+			(event) => {
+				if (event.altKey) {
+					return;
+				}
+
+				if (event.ctrlKey) {
+					inject<TimelineConfig>("config/timeline")?.handleWheel(event);
+					return;
+				}
+
+				inject<BeatmapSet>("beatmapset")?.handleWheel(event);
+			},
+			{
+				capture: true,
+				passive: false,
 			},
 		);
 	}

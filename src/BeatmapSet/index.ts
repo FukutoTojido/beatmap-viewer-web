@@ -7,7 +7,7 @@ import Audio from "@/Audio";
 import type { Resource } from "../ZipHandler";
 import type Metadata from "@/UI/sidepanel/Metadata";
 import type Play from "@/UI/main/controls/Play";
-import { Assets } from "pixi.js";
+import { Assets, type FederatedWheelEvent } from "pixi.js";
 import Video from "@/Video";
 import type Background from "@/UI/main/viewer/Background";
 import type Gameplay from "@/UI/main/viewer/Gameplay";
@@ -19,6 +19,10 @@ import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import type Timing from "@/UI/sidepanel/Timing";
 import type Timestamp from "@/UI/main/controls/Timestamp";
+import type TimelineConfig from "@/Config/TimelineConfig";
+import type { Tween } from "@tweenjs/tween.js";
+import Easings from "@/UI/Easings";
+import { tweenGroup } from "@/UI/animation/AnimationController";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -298,10 +302,54 @@ export default class BeatmapSet extends ScopedClass {
 			this.cacheSample = currentSample;
 		}
 
-		inject<ProgressBar>("ui/main/controls/progress")?.setPercentage(time / audio.duration);
+		inject<ProgressBar>("ui/main/controls/progress")?.setPercentage(
+			time / audio.duration,
+		);
 		inject<Timeline>("ui/main/viewer/timeline")?.update(time);
 		inject<Timeline>("ui/main/viewer/timeline")?.draw(time);
 
 		requestAnimationFrame(() => this.frame());
+	}
+
+	private _currentNextTick?: number;
+	private _currentTween?: Tween;
+	handleWheel(event: FederatedWheelEvent) {
+		if (this._currentTween) {
+			this._currentTween.stop();
+		}
+
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio) return;
+
+		const direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
+		if (direction === 0) return;
+
+		if (!this._currentNextTick) this._currentNextTick = audio.currentTime;
+
+		const nextTick = this.getNextStep(direction);
+		this._currentNextTick = Math.max(0, nextTick);
+
+		this.seek(nextTick);
+	}
+
+	getNextStep(direction: -1 | 1, from?: number) {
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio || !this.master) return 0;
+
+		const currentTime = from ?? audio.currentTime;
+		const timingPoint =
+			this.master.data.controlPoints.timingPointAt(currentTime);
+		const divisor = inject<TimelineConfig>("config/timeline")?.divisor ?? 1;
+
+		const beatLength = timingPoint.beatLength / divisor;
+
+		const nextTick =
+			timingPoint.startTime +
+			(direction +
+				Math.floor((currentTime - timingPoint.startTime) / beatLength) +
+				0.00000001) *
+				beatLength;
+
+		return nextTick;
 	}
 }

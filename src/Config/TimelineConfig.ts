@@ -1,3 +1,4 @@
+import type { FederatedEvent, FederatedWheelEvent } from "pixi.js";
 import ConfigSection from "./ConfigSection";
 
 type TimelineConfigEvents = "scale" | "divisor";
@@ -41,5 +42,21 @@ export default class TimelineConfig extends ConfigSection {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	onChange(key: TimelineConfigEvents, callback: (newValue: any) => void): void {
 		super.onChange(key, callback);
+	}
+
+	handleWheel(event: FederatedWheelEvent) {
+		if (event.deltaY < 0) {
+			this.divisor = Math.min(
+				16,
+				this.divisor === 9 ? 12 : this.divisor === 12 ? 16 : this.divisor + 1,
+			);
+		}
+
+		if (event.deltaY > 0) {
+			this.divisor = Math.max(
+				1,
+				this.divisor === 16 ? 12 : this.divisor === 12 ? 9 : this.divisor - 1,
+			);
+		}
 	}
 }

@@ -94,27 +94,6 @@ export default class Timeline {
 			thumb.context = thumbContext;
 		});
 
-		// inject<ResponsiveHandler>("responsiveHandler")?.on(
-		// 	"layout",
-		// 	(direction) => {
-		// 		if (direction === "landscape") {
-		// 			this.container.layout = {
-		// 				height: 80,
-		// 			};
-		// 			this.objectsContainer.scale.set(1);
-		// 			this._ruler.scale.set(1);
-		// 		}
-
-		// 		if (direction === "portrait") {
-		// 			this.container.layout = {
-		// 				height: 60,
-		// 			};
-		// 			this.objectsContainer.scale.set(3 / 4);
-		// 			this._ruler.scale.set(3 / 4);
-		// 		}
-		// 	},
-		// );
-
 		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newScale) => {
 			const width = this.container.layout?.computedLayout.width ?? 0;
 			this._range = (width / 2) * (DEFAULT_SCALE / newScale) + 120;
