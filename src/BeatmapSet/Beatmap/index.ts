@@ -151,7 +151,9 @@ export default class Beatmap extends ScopedClass {
 			kiaiSections,
 		);
 		inject<Timing>("ui/sidepanel/timing")?.updateTimingPoints(timingPoints);
-		inject<Timeline>("ui/main/viewer/timeline")?.loadTimingPoints(this.data.controlPoints.timingPoints);
+		inject<Timeline>("ui/main/viewer/timeline")?.loadTimingPoints(
+			this.data.controlPoints.timingPoints,
+		);
 	}
 
 	loadHitObjects() {
@@ -248,7 +250,9 @@ export default class Beatmap extends ScopedClass {
 		if (this.cacheBPM !== currentBPM) {
 			this.cacheBPM = currentBPM;
 			timestamp?.updateBPM(currentBPM.bpm);
-			inject<Timeline>("ui/main/viewer/timeline")?.updateTimingPoint(currentBPM);
+			inject<Timeline>("ui/main/viewer/timeline")?.updateTimingPoint(
+				currentBPM,
+			);
 		}
 
 		if (this.cacheSV !== currentSV) {
@@ -265,9 +269,10 @@ export default class Beatmap extends ScopedClass {
 			(audio?.currentTime ?? 0) / (audio?.duration ?? 1),
 		);
 
-		inject<Timeline>("ui/main/viewer/timeline")?.draw(
+		inject<Timeline>("ui/main/viewer/timeline")?.update(
 			audio?.currentTime ?? 0,
 		);
+		inject<Timeline>("ui/main/viewer/timeline")?.draw(audio?.currentTime ?? 0);
 
 		this.currentAnimationFrame = requestAnimationFrame(() => this.frame());
 	}
@@ -432,10 +437,6 @@ export default class Beatmap extends ScopedClass {
 				...containers,
 				...approachCircleContainers,
 			);
-
-		inject<Timeline>("ui/main/viewer/timeline")?.update(
-			audio?.currentTime ?? 0,
-		);
 	}
 
 	toggle() {
