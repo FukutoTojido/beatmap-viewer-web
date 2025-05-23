@@ -151,6 +151,7 @@ export default class Beatmap extends ScopedClass {
 			kiaiSections,
 		);
 		inject<Timing>("ui/sidepanel/timing")?.updateTimingPoints(timingPoints);
+		inject<Timeline>("ui/main/viewer/timeline")?.loadTimingPoints(this.data.controlPoints.timingPoints);
 	}
 
 	loadHitObjects() {

@@ -23,7 +23,7 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		this.hitCircle.anchor.set(0.5);
 		this.hitCircleOverlay.anchor.set(0.5);
 
-		this.container.scale.set(60 / 128);
+		this.container.scale.set(50 / 128);
 
 		this.container.addChild(
 			this.hitCircle,

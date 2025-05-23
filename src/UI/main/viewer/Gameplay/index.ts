@@ -14,6 +14,7 @@ export default class Gameplay {
 				width: 0,
 				height: 0,
 			},
+			isRenderGroup: true,
 		});
 		this.objectsContainer = new Container({
 			boundsArea: new Rectangle(0, 0, 512, 384),

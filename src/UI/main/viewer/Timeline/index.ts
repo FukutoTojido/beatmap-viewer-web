@@ -1,13 +1,14 @@
 import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type TimelineHitObject from "@/BeatmapSet/Beatmap/Timeline/TimelineHitObject";
+import TimelineTimingPoint from "@/BeatmapSet/Beatmap/Timeline/TimelineTimingPoint";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { binarySearch, gcd } from "@/utils";
 import { LayoutContainer } from "@pixi/layout/components";
 import type { TimingPoint } from "osu-classes";
-import { Container, Graphics, Rectangle } from "pixi.js";
+import { Container, Graphics, GraphicsContext, Rectangle } from "pixi.js";
 
 export const DEFAULT_SCALE = 1;
 const BEAT_LINE_COLOR = {
@@ -27,7 +28,7 @@ export default class Timeline {
 		label: "timeline",
 		layout: {
 			width: "100%",
-			height: 60,
+			height: 80,
 			backgroundColor: {
 				r: 30,
 				g: 30,
@@ -37,7 +38,10 @@ export default class Timeline {
 		},
 	});
 
-	objectsContainer = new Container();
+	private _objectsContainer = new Container({
+		isRenderGroup: true,
+	});
+	private _timingPoints: TimelineTimingPoint[] = [];
 	private _objects: TimelineHitObject[] = [];
 	private _range = 0;
 
@@ -58,14 +62,14 @@ export default class Timeline {
 			.lineTo(-6, 40)
 			.fill(0xcdd6f4);
 
-		this.container.addChild(this.objectsContainer, thumb, this._ruler);
+		this.container.addChild(this._ruler, this._objectsContainer, thumb);
 		this.container.on("layout", (layout) => {
 			const { width, height } = layout.computedLayout;
 
 			const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
 			this._range = (width / 2) * (DEFAULT_SCALE / scale) + 120;
 
-			this.objectsContainer.x = width / 2;
+			this._objectsContainer.x = width / 2;
 
 			thumb.x = width / 2;
 			thumb.y = height / 2;
@@ -88,37 +92,50 @@ export default class Timeline {
 				.fill(0xcdd6f4);
 		});
 
-		inject<ResponsiveHandler>("responsiveHandler")?.on(
-			"layout",
-			(direction) => {
-				if (direction === "landscape") {
-					this.container.layout = {
-						height: 60,
-					};
-					this.objectsContainer.scale.set(1);
-					this._ruler.scale.set(1);
-				}
+		// inject<ResponsiveHandler>("responsiveHandler")?.on(
+		// 	"layout",
+		// 	(direction) => {
+		// 		if (direction === "landscape") {
+		// 			this.container.layout = {
+		// 				height: 80,
+		// 			};
+		// 			this.objectsContainer.scale.set(1);
+		// 			this._ruler.scale.set(1);
+		// 		}
 
-				if (direction === "portrait") {
-					this.container.layout = {
-						height: 40,
-					};
-					this.objectsContainer.scale.set(2 / 3);
-					this._ruler.scale.set(2 / 3);
-				}
-			},
-		);
+		// 		if (direction === "portrait") {
+		// 			this.container.layout = {
+		// 				height: 60,
+		// 			};
+		// 			this.objectsContainer.scale.set(3 / 4);
+		// 			this._ruler.scale.set(3 / 4);
+		// 		}
+		// 	},
+		// );
 	}
 
 	loadObjects(objects: (DrawableHitCircle | DrawableSlider)[]) {
 		if (this._objects.length > 0) {
+			this._objectsContainer.removeChild(
+				...this._objects.map((object) => object.container),
+			);
 			this._objects = [];
-			this.objectsContainer.removeChildren();
 		}
 
 		this._objects = objects
 			.map((object) => object.timelineObject)
 			.filter((object) => object !== undefined);
+	}
+
+	loadTimingPoints(points: TimingPoint[]) {
+		if (this._timingPoints.length > 0) {
+			this._objectsContainer.removeChild(
+				...this._timingPoints.map((point) => point.container),
+			);
+			this._timingPoints = [];
+		}
+
+		this._timingPoints = points.map((point) => new TimelineTimingPoint(point));
 	}
 
 	private _inRange(val: number, start: number, end: number) {
@@ -130,6 +147,8 @@ export default class Timeline {
 
 	private _previous = new Set<number>();
 	update(timestamp: number) {
+		this.updateTiming(timestamp);
+
 		const idx = binarySearch(timestamp, this._objects, (mid, value) =>
 			this._inRange(value, mid.getTimeRange().start, mid.getTimeRange().end),
 		);
@@ -166,7 +185,7 @@ export default class Timeline {
 		const removed = this._previous.difference(set);
 		for (const idx of removed) {
 			this._objects[idx].container.visible = false;
-			this.objectsContainer.removeChild(this._objects[idx].container);
+			this._objectsContainer.removeChild(this._objects[idx].container);
 		}
 
 		this._previous = set;
@@ -175,10 +194,60 @@ export default class Timeline {
 			objs.push(this._objects[idx].container);
 		}
 
-		this.objectsContainer.addChild(...objs);
+		this._objectsContainer.addChild(...objs);
+	}
+
+	private _previousTiming = new Set<number>();
+	updateTiming(timestamp: number) {
+		const idx = binarySearch(
+			timestamp,
+			this._timingPoints,
+			(mid, value) => mid.data.startTime - value,
+		);
+
+		const set = new Set<number>();
+		set.add(idx);
+
+		let start = idx - 1;
+		while (
+			start >= 0 &&
+			this._timingPoints[start].data.startTime > timestamp - this._range
+		) {
+			set.add(start);
+			start--;
+		}
+
+		let end = idx + 1;
+		while (
+			this._timingPoints[end] &&
+			end < this._objects.length &&
+			this._timingPoints[end].data.startTime < timestamp + this._range
+		) {
+			set.add(end);
+			end++;
+		}
+
+		const removed = this._previousTiming.difference(set);
+		for (const idx of removed) {
+			this._timingPoints[idx].container.visible = false;
+			this._objectsContainer.removeChild(this._timingPoints[idx].container);
+		}
+
+		this._previousTiming = set;
+		const objs: Container[] = [];
+		for (const idx of [...set].sort()) {
+			objs.push(this._timingPoints[idx].container);
+		}
+
+		this._objectsContainer.addChild(...objs);
 	}
 
 	draw(timestamp: number) {
+		for (const idx of [...this._previousTiming].sort((a, b) => b - a)) {
+			this._timingPoints[idx].container.visible = true;
+			this._timingPoints[idx].update(timestamp);
+		}
+
 		for (const idx of [...this._previous].sort((a, b) => b - a)) {
 			this._objects[idx].container.visible = true;
 			this._objects[idx].update(timestamp);
@@ -206,7 +275,7 @@ export default class Timeline {
 		const nearestBeat =
 			startTime + beatLength * Math.ceil((timestamp - startTime) / beatLength);
 
-		this._ruler.clear();
+		const context = new GraphicsContext();
 
 		let currentPoint = nearestBeat;
 
@@ -238,11 +307,14 @@ export default class Timeline {
 					0x929292;
 			}
 
-			this._ruler
-				.moveTo((currentPoint - timestamp) / (DEFAULT_SCALE / scale), 60)
+			context
+				.moveTo(
+					(currentPoint - timestamp) / (DEFAULT_SCALE / scale),
+					isDominant ? 0 : 10,
+				)
 				.lineTo(
 					(currentPoint - timestamp) / (DEFAULT_SCALE / scale),
-					isDominant ? 30 : 50,
+					isDominant ? 80 : 70,
 				)
 				.stroke({
 					color,
@@ -260,5 +332,7 @@ export default class Timeline {
 			drawAtPoint(currentPoint, timestamp);
 			currentPoint -= beatLength / divisor;
 		}
+
+		this._ruler.context = context;
 	}
 }

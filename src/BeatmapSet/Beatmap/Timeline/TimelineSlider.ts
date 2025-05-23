@@ -1,4 +1,11 @@
-import { AlphaFilter, Color, Container, FillGradient, Graphics } from "pixi.js";
+import {
+	AlphaFilter,
+	Color,
+	Container,
+	FillGradient,
+	Graphics,
+	Text,
+} from "pixi.js";
 import TimelineHitObject from "./TimelineHitObject";
 import type TimelineHitCircle from "./TimelineHitCircle";
 import {
@@ -15,6 +22,8 @@ import { darken } from "@/utils";
 import TimelineSliderHead from "./TimelineSliderHead";
 import TimelineSliderTail from "./TimelineSliderTail";
 import TimelineSliderRepeat from "./TimelineSliderRepeat";
+import { LayoutText } from "@pixi/layout/components";
+import type Beatmap from "..";
 
 const gradient = new FillGradient({
 	start: { x: 0, y: 0 },
@@ -99,6 +108,31 @@ export default class TimelineSlider extends TimelineHitObject {
 		this.refreshSprite();
 	}
 
+	updateVelocity() {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (!beatmap) return;
+
+		const difficultyPoint = beatmap.data.controlPoints.difficultyPointAt(
+			this.object.startTime,
+		);
+		const velocity = new Text({
+			text: `${difficultyPoint.sliderVelocity.toFixed(2)}x`,
+			style: {
+				fontFamily: "Rubik",
+				fontSize: 10,
+				fill: 0xa6e3a1,
+			},
+			anchor: {
+				x: 0,
+				y: 0.5,
+			},
+			x: 5,
+			y: -32,
+		});
+
+		this.container.addChild(velocity);
+	}
+
 	refreshSprite() {
 		this.length =
 			(this.object as Slider).duration /
@@ -106,11 +140,11 @@ export default class TimelineSlider extends TimelineHitObject {
 
 		this.body
 			.clear()
-			.circle(0, 0, (30 * 236) / 256)
+			.circle(0, 0, (25 * 236) / 256)
 			.fill(radialGradient)
-			.circle(this.length, 0, (30 * 236) / 256)
+			.circle(this.length, 0, (25 * 236) / 256)
 			.fill(radialGradient)
-			.rect(0, -((30 * 236) / 256), this.length, (60 * 236) / 256)
+			.rect(0, -((25 * 236) / 256), this.length, (50 * 236) / 256)
 			.fill(gradient);
 
 		this.body.tint = `rgb(${

@@ -193,6 +193,7 @@ export default class DrawableSlider
 			object.refreshSprite();
 		}
 		this.refreshSprite();
+		this.timelineObject.updateVelocity();
 
 		return this;
 	}
@@ -298,7 +299,7 @@ export default class DrawableSlider
 		);
 	}
 
-	updateGeometry(progressHead = 0, progressTail = 1) {
+	updateGeometry(progressHead = 0, progressTail = 0) {
 		const path = calculateSliderProgress(
 			this.object.path,
 			progressHead,
