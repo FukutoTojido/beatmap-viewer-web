@@ -72,12 +72,8 @@ export default class Timeline {
 			const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
 			this._range = (width / 2) * (DEFAULT_SCALE / scale) + 120;
 
-			this._objectsContainer.x = width / 2;
-
 			thumb.x = width / 2;
 			thumb.y = height / 2;
-
-			this._ruler.x = width / 2;
 
 			const thumbContext = new GraphicsContext()
 				.moveTo(0, -height / 2)
