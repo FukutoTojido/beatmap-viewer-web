@@ -275,6 +275,7 @@ export default class Timeline {
 		this._currentTimingPoint = timingPoint;
 	}
 
+	private _currentContext?: GraphicsContext;
 	private drawRuler(timestamp: number) {
 		if (!this._currentTimingPoint) return;
 
@@ -341,6 +342,8 @@ export default class Timeline {
 			currentPoint -= beatLength / divisor;
 		}
 
+		this._currentContext?.destroy();
+		this._currentContext = context;
 		this._ruler.context = context;
 	}
 }
