@@ -11,6 +11,7 @@ import { inject, provide } from "./Context";
 import Config from "./Config";
 import SkinManager from "./Skinning/SkinManager";
 import ResponsiveHandler from "./ResponsiveHandler";
+import Loading from "./UI/loading";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -57,6 +58,7 @@ export class Game {
 		const app = provide("ui/app", await this.initApplication());
 		const main = provide("ui/main", new Main());
 		const sidepanel = provide("ui/sidepanel", new SidePanel());
+		provide("ui/loading", new Loading());
 
 		app.stage.addChild(main.container, sidepanel.container);
 

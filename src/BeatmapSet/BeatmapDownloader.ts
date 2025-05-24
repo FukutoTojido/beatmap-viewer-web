@@ -1,3 +1,4 @@
+import type Loading from "@/UI/loading";
 import type MirrorConfig from "../Config/MirrorConfig";
 import { inject } from "../Context";
 import axios from "axios";
@@ -25,6 +26,8 @@ async function getBeatmapsetId(beatmapId: string) {
 }
 
 export async function getBeatmapFromId(beatmapId: string) {
+	inject<Loading>("ui/loading")?.on();
+
 	const mirrorConfig = inject<MirrorConfig>("config/mirror");
 	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
 
@@ -42,8 +45,13 @@ export async function getBeatmapFromId(beatmapId: string) {
 			{
 				responseType: "blob",
 				headers: { Accept: "application/x-osu-beatmap-archive" },
+				onDownloadProgress(progressEvent) {
+					inject<Loading>("ui/loading")?.setText(`Downloading map: ${(100 * (progressEvent.progress ?? 0)).toFixed(2)}%`);
+				},
 			},
 		);
+
+		inject<Loading>("ui/loading")?.off();
 		return blob;
 	} catch (e) {
 		console.error(e);

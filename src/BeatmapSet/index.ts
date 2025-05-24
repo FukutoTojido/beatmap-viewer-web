@@ -23,6 +23,7 @@ import type TimelineConfig from "@/Config/TimelineConfig";
 import type { Tween } from "@tweenjs/tween.js";
 import Easings from "@/UI/Easings";
 import { tweenGroup } from "@/UI/animation/AnimationController";
+import type Loading from "@/UI/loading";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -38,6 +39,9 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	async loadResources() {
+		inject<Loading>("ui/loading")?.setText("Loading hitSamples");
+		inject<Loading>("ui/loading")?.on();
+		
 		console.time("Load hitSamples");
 		const sampleManager = this.context.provide(
 			"sampleManager",
@@ -46,6 +50,7 @@ export default class BeatmapSet extends ScopedClass {
 		await sampleManager.loadDefaults();
 		await sampleManager.load();
 		console.timeEnd("Load hitSamples");
+		inject<Loading>("ui/loading")?.off();
 	}
 
 	async getDifficulties() {
@@ -81,6 +86,8 @@ export default class BeatmapSet extends ScopedClass {
 
 		if (!audioFile) throw new Error("Cannot find audio in resource?");
 
+		inject<Loading>("ui/loading")?.setText("Loading audio");
+
 		const audio = this.context.provide(
 			"audio",
 			new Audio(this.audioContext).hook(this.context),
@@ -107,19 +114,24 @@ export default class BeatmapSet extends ScopedClass {
 			);
 
 		if (
-			videoResource &&
-			new URLSearchParams(window.location.search).get("v") === "true"
-		) {
-			const video = this.context.provide("video", new Video());
-			try {
-				await video.load(
-					videoResource,
-					beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-						?.startTime ?? 0,
-				);
-			} catch (e) {
-				console.error(e);
-			}
+			!(
+				videoResource &&
+				new URLSearchParams(window.location.search).get("v") === "true"
+			)
+		)
+			return;
+
+		inject<Loading>("ui/loading")?.setText("Loading video");
+
+		const video = this.context.provide("video", new Video());
+		try {
+			await video.load(
+				videoResource,
+				beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+					?.startTime ?? 0,
+			);
+		} catch (e) {
+			console.error(e);
 		}
 	}
 
@@ -133,20 +145,24 @@ export default class BeatmapSet extends ScopedClass {
 			.consume<Map<string, Resource>>("resources")
 			?.get(beatmap.data.events.backgroundPath ?? "");
 
-		if (backgroundResource) {
-			const url = URL.createObjectURL(backgroundResource);
-			background?.updateTexture(
-				await Assets.load({ src: url, loadParser: "loadTextures" }),
-			);
+		if (!backgroundResource) return;
 
-			document.body.style.backgroundImage = `url("${url}")`;
-		}
+		inject<Loading>("ui/loading")?.setText("Loading background");
+
+		const url = URL.createObjectURL(backgroundResource);
+		background?.updateTexture(
+			await Assets.load({ src: url, loadParser: "loadTextures" }),
+		);
+
+		document.body.style.backgroundImage = `url("${url}")`;
 	}
 
 	async loadMaster(idx: number) {
 		const beatmap = this.difficulties[idx];
 		if (!beatmap) return;
 		if (this.master === beatmap) return;
+
+		inject<Loading>("ui/loading")?.on();
 
 		if (this.master) {
 			this.master.destroy();
@@ -160,6 +176,8 @@ export default class BeatmapSet extends ScopedClass {
 			this.loadVideo(beatmap),
 			this.loadBackground(beatmap),
 		]);
+
+		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
 		beatmap.loadTimingPoints();
 		beatmap.loadHitObjects();
@@ -182,6 +200,7 @@ export default class BeatmapSet extends ScopedClass {
 		beatmap.toggle();
 
 		this.master = beatmap;
+		inject<Loading>("ui/loading")?.off();
 	}
 
 	loadSlave(idx: number) {

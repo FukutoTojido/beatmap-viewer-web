@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="/src/style.css">
     <title>Document</title>
 </head>
+
 <body>
     <div class="absolute top-0 left-0 w-full h-full bg-black/50 backdrop-blur-lg"></div>
     <div class="relative w-full h-[50px] bg-black/20 shrink-0"></div>
     <div id="app" class="relative w-full flex-1 overflow-hidden"></div>
     <button class="absolute top-0 left-0 p-5 rounded-xl bg-gray-600" id="toggleSkin">Cycle Skin</button>
-    <button class="absolute top-0 left-[150px] p-5 rounded-xl bg-gray-600 hidden" id="toggleBeatmap">Cycle Beatmap</button>
+    <button class="absolute top-0 left-[150px] p-5 rounded-xl bg-gray-600 hidden" id="toggleBeatmap">Cycle
+        Beatmap</button>
     <script type="module" src="/src/index.ts"></script>
+    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50" id="loading">
+        <span class="loader scale-50"></span>
+        <div class="flex flex-col">
+            <div class="font-medium text-lg">JoSu! is loading</div>
+            <div id="loadingText" class="text-sm">
+                Initiating
+            </div>
+        </div>
+
+    </div>
 </body>
+
 </html>
