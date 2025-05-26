@@ -209,8 +209,7 @@ export default class Beatmap extends ScopedClass {
 			.filter((object) => object instanceof DrawableSlider);
 
 		for (const object of sorted) {
-			object.ball.update(time);
-			object.followCircle.update(time);
+			object.update(time);
 		}
 	}
 
@@ -341,9 +340,9 @@ export default class Beatmap extends ScopedClass {
 			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
 		for (const object of sorted) {
-			if (object instanceof DrawableSlider) {
-				object.update(audio?.currentTime ?? 0);
-			}
+			// if (object instanceof DrawableSlider) {
+			// 	object.update(audio?.currentTime ?? 0);
+			// }
 
 			if (object instanceof DrawableHitCircle) {
 				object.update(audio?.currentTime ?? 0);

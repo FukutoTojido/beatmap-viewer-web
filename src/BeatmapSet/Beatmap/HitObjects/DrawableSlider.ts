@@ -152,7 +152,7 @@ export default class DrawableSlider
 		this.ball = new DrawableSliderBall(this.object);
 		this.followCircle = new DrawableSliderFollowCircle(this.object);
 
-		this.container.visible = false;
+		// this.container.visible = false;
 		this.container.addChild(
 			this.body,
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
@@ -332,26 +332,18 @@ export default class DrawableSlider
 		if (
 			time < startFadeInTime ||
 			time > this.object.endTime + fadeOutDuration
-		) {
-			if (time < startFadeInTime) {
-				this.updateGeometry(0, 0);
-			}
-
-			if (time > this.object.endTime + fadeOutDuration) {
-				this.updateGeometry(1, 1);
-			}
-
+		) {		
 			this._alphaFilter.alpha = 0;
-			this.container.visible = false;
+			// this.container.visible = false;
 
 			return;
 		}
 
-		// this.ball.update(time);
-		// this.followCircle.update(time);
+		this.ball.update(time);
+		this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);
 
-		this.container.visible = true;
+		// this.container.visible = true;
 
 		const completionProgress = Math.min(
 			1,
