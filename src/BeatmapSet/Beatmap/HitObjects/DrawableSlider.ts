@@ -339,8 +339,8 @@ export default class DrawableSlider
 			return;
 		}
 
-		// this.ball.update(time);
-		// this.followCircle.update(time);
+		this.ball.update(time);
+		this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);
 
 		this.container.visible = true;

@@ -206,15 +206,12 @@ export default class Beatmap extends ScopedClass {
 						.container,
 				);
 
-			if (!(this.objects[idx] instanceof DrawableSlider)) continue;
-
-			(this.objects[idx] as DrawableSlider).update(time);
-			(this.objects[idx] as DrawableSlider).ball.update(time);
-			(this.objects[idx] as DrawableSlider).followCircle.update(time);
+			this.objects[idx].update(time);
 		}
 
 		for (const idx of this.previousConnectors) {
 			connectorContainers.push(this.connectors[idx].container);
+			this.connectors[idx].update(time);
 		}
 
 		if (containers.length > 0)
@@ -270,15 +267,7 @@ export default class Beatmap extends ScopedClass {
 		}
 
 		for (const idx of objects) {
-			if (!(this.objects[idx] instanceof DrawableSlider)) {
-				this.objects[idx].update(audio?.currentTime ?? 0);
-			}
-
 			this.objects[idx].playHitSound(time);
-		}
-
-		for (const idx of connectors) {
-			this.connectors[idx].update(audio?.currentTime ?? 0);
 		}
 	}
 
