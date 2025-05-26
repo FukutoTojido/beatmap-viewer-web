@@ -15,22 +15,14 @@ import ObjectsWorker from "./Worker/Objects?worker";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 
-import type Timestamp from "@/UI/main/controls/Timestamp";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Audio from "@/Audio";
 import Gameplay from "@/UI/main/viewer/Gameplay";
 import type Timing from "@/UI/sidepanel/Timing";
-import { binarySearch } from "@/utils";
 import type Timeline from "@/UI/main/viewer/Timeline";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
-
-interface ObjectMini {
-	startTime: number;
-	endTime: number;
-	timePreempt: number;
-}
 
 export default class Beatmap extends ScopedClass {
 	data: StandardBeatmap;
@@ -40,7 +32,6 @@ export default class Beatmap extends ScopedClass {
 	private worker = new ObjectsWorker();
 
 	private loaded = false;
-	// private previousObjects = new Set<DrawableHitObject>();
 
 	private previousConnectors = new Set<number>();
 	private previousObjects = new Set<number>();
@@ -203,10 +194,35 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	frame(time: number) {
-		for (const idx of [...this.previousObjects]) {
-			(this.objects[idx] as DrawableSlider).ball?.update(time);
-			(this.objects[idx] as DrawableSlider).followCircle?.update(time);
+		const containers = [];
+		const approachCircleContainers = [];
+		const connectorContainers = [];
+
+		for (const idx of [...this.previousObjects].sort().toReversed()) {
+			containers.push(this.objects[idx].container);
+			if ((this.objects[idx] as unknown as IHasApproachCircle).approachCircle)
+				approachCircleContainers.push(
+					(this.objects[idx] as unknown as IHasApproachCircle).approachCircle
+						.container,
+				);
+
+			if (!(this.objects[idx] instanceof DrawableSlider)) continue;
+
+			(this.objects[idx] as DrawableSlider).update(time);
+			(this.objects[idx] as DrawableSlider).ball.update(time);
+			(this.objects[idx] as DrawableSlider).followCircle.update(time);
 		}
+
+		for (const idx of this.previousConnectors) {
+			connectorContainers.push(this.connectors[idx].container);
+		}
+
+		if (containers.length > 0)
+			this.container.objectsContainer?.addChild(
+				...connectorContainers,
+				...containers,
+				...approachCircleContainers,
+			);
 	}
 
 	getNearestSamplePoint(time: number) {
@@ -253,42 +269,17 @@ export default class Beatmap extends ScopedClass {
 			objectContainer?.removeChild(this.connectors[idx].container);
 		}
 
-		const containers = [];
-		const approachCircleContainers = [];
-		const connectorContainers = [];
-
-		const sorted = Array.from(objects)
-			.map((idx) => this.objects[idx])
-			.sort((a, b) => -a.object.startTime + b.object.startTime);
-
-		for (const object of sorted) {
-			if (object instanceof DrawableSlider)
-				object.update(audio?.currentTime ?? 0);
-
-			if (object instanceof DrawableHitCircle) {
-				object.update(audio?.currentTime ?? 0);
+		for (const idx of objects) {
+			if (!(this.objects[idx] instanceof DrawableSlider)) {
+				this.objects[idx].update(audio?.currentTime ?? 0);
 			}
 
-			object.playHitSound(time);
-			containers.push(object.container);
-
-			if ((object as unknown as IHasApproachCircle).approachCircle)
-				approachCircleContainers.push(
-					(object as unknown as IHasApproachCircle).approachCircle.container,
-				);
+			this.objects[idx].playHitSound(time);
 		}
 
 		for (const idx of connectors) {
 			this.connectors[idx].update(audio?.currentTime ?? 0);
-			connectorContainers.push(this.connectors[idx].container);
 		}
-
-		if (containers.length > 0)
-			objectContainer?.addChild(
-				...connectorContainers,
-				...containers,
-				...approachCircleContainers,
-			);
 	}
 
 	toggle() {
