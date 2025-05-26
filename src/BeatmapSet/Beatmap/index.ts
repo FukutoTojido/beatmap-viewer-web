@@ -203,79 +203,10 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	frame(time: number) {
-		const sorted = Array.from(this.previousObjects)
-			.map((idx) => this.objects[idx])
-			.sort((a, b) => -a.object.startTime + b.object.startTime)
-			.filter((object) => object instanceof DrawableSlider);
-
-		for (const object of sorted) {
-			object.update(time);
+		for (const idx of [...this.previousObjects]) {
+			(this.objects[idx] as DrawableSlider).ball?.update(time);
+			(this.objects[idx] as DrawableSlider).followCircle?.update(time);
 		}
-	}
-
-	private inRange(val: number, start: number, end: number) {
-		if (start <= val && val <= end) return 0;
-		if (val > end) return 1;
-		if (val < start) return -1;
-		return -1;
-	}
-
-	private binarySearchNearestIndex(time: number) {
-		let start = 0;
-		let end = this.objects.length - 1;
-
-		while (end >= start) {
-			const mid = start + Math.floor((end - start) / 2);
-			const { start: midStart, end: midEnd } = this.objects[mid].getTimeRange();
-			const isInTimeRange = this.inRange(time, midStart, midEnd);
-
-			if (isInTimeRange === 0) return mid;
-			if (isInTimeRange === 1) {
-				start = mid + 1;
-				continue;
-			}
-			if (isInTimeRange === -1) {
-				end = mid - 1;
-			}
-		}
-
-		return -1;
-	}
-
-	private searchObjects(list: ObjectMini[], time: number) {
-		const idx = this.binarySearchNearestIndex(time);
-		if (idx === -1) return new Set<number>();
-
-		const objects = new Set<number>();
-		objects.add(idx);
-
-		let start = idx - 1;
-		while (
-			start >= 0 &&
-			this.inRange(
-				time,
-				this.objects[start].getTimeRange().start,
-				this.objects[start].getTimeRange().end,
-			) === 0
-		) {
-			objects.add(start);
-			start--;
-		}
-
-		let end = idx + 1;
-		while (
-			end <= this.objects.length - 1 &&
-			this.inRange(
-				time,
-				this.objects[end].getTimeRange().start,
-				this.objects[end].getTimeRange().end,
-			) === 0
-		) {
-			objects.add(end);
-			end++;
-		}
-
-		return objects;
 	}
 
 	getNearestSamplePoint(time: number) {
@@ -301,24 +232,15 @@ export default class Beatmap extends ScopedClass {
 		if (!this.loaded) return;
 
 		const audio = this.context.consume<Audio>("audio");
-
 		const objectContainer = this.container.objectsContainer;
 
-		// const objects = this.searchObjects(time);
 		const disposedObjects = this.previousObjects.difference(objects);
 		const disposedConnectors = this.previousConnectors.difference(connectors);
 		this.previousObjects = objects;
 		this.previousConnectors = connectors;
 
-		// (async () => console.log(disposedObjects, objects))();
-
 		for (const idx of disposedObjects) {
 			objectContainer?.removeChild(this.objects[idx].container);
-
-			// if (this.objects[idx] instanceof DrawableSlider) {
-			// 	objectContainer?.removeChild(this.objects[idx].ball.container)
-			// 	objectContainer?.removeChild(this.objects[idx].followCircle.container)
-			// }
 
 			if ((this.objects[idx] as unknown as IHasApproachCircle).approachCircle)
 				objectContainer?.removeChild(
@@ -340,9 +262,8 @@ export default class Beatmap extends ScopedClass {
 			.sort((a, b) => -a.object.startTime + b.object.startTime);
 
 		for (const object of sorted) {
-			// if (object instanceof DrawableSlider) {
-			// 	object.update(audio?.currentTime ?? 0);
-			// }
+			if (object instanceof DrawableSlider)
+				object.update(audio?.currentTime ?? 0);
 
 			if (object instanceof DrawableHitCircle) {
 				object.update(audio?.currentTime ?? 0);
@@ -350,10 +271,6 @@ export default class Beatmap extends ScopedClass {
 
 			object.playHitSound(time);
 			containers.push(object.container);
-
-			// if (object instanceof DrawableSlider) {
-			// 	containers.push(object.ball.container, object.followCircle.container)
-			// }
 
 			if ((object as unknown as IHasApproachCircle).approachCircle)
 				approachCircleContainers.push(
