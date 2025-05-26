@@ -167,6 +167,7 @@ export default class Timeline {
 
 		const removed = this._previous.difference(set);
 		for (const idx of removed) {
+			if (!this._objects[idx]) continue;
 			this._objects[idx].container.visible = false;
 			this._objectsContainer.removeChild(this._objects[idx].container);
 		}
