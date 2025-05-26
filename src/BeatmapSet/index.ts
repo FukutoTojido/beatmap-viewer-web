@@ -258,13 +258,14 @@ export default class BeatmapSet extends ScopedClass {
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio) throw new Error("Audio hasn't been initialized");
 
-		this.master?.seek(time);
+		audio.currentTime = time;
+
+		this.master?.seek(audio.currentTime);
 		for (const slave of this.slaves) {
-			slave.seek(time);
+			slave.seek(audio.currentTime);
 		}
 
-		audio.currentTime = time;
-		this.context.consume<Video>("video")?.seek(audio?.currentTime);
+		this.context.consume<Video>("video")?.seek(audio.currentTime);
 	}
 
 	cacheBPM?: TimingPoint;

@@ -333,12 +333,22 @@ export default class DrawableSlider
 			time < startFadeInTime ||
 			time > this.object.endTime + fadeOutDuration
 		) {
+			if (time < startFadeInTime) {
+				this.updateGeometry(0, 0);
+			}
+
+			if (time > this.object.endTime + fadeOutDuration) {
+				this.updateGeometry(1, 1);
+			}
+
+			this._alphaFilter.alpha = 0;
 			this.container.visible = false;
+
 			return;
 		}
 
-		this.ball.update(time);
-		this.followCircle.update(time);
+		// this.ball.update(time);
+		// this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);
 
 		this.container.visible = true;

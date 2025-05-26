@@ -38,6 +38,14 @@ export default class Audio extends ScopedClass {
 			console.warn(`Audio desynced: ${offset.toFixed(2)}ms`);
 		}
 
+		if (
+			this._currentTime + (performance.now() - this.previousTimestamp) >
+			this.duration
+		) {
+			this.pause();
+			return this.duration;
+		}
+
 		return this._currentTime + (performance.now() - this.previousTimestamp);
 	}
 
@@ -123,6 +131,6 @@ export default class Audio extends ScopedClass {
 	}
 
 	get duration() {
-		return (this.src?.buffer?.duration ?? 0) * 1000
+		return (this.src?.buffer?.duration ?? 0) * 1000;
 	}
 }
