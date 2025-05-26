@@ -6,6 +6,7 @@ import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { binarySearch, gcd } from "@/utils";
+import IntervalTree from "@flatten-js/interval-tree";
 import { LayoutContainer } from "@pixi/layout/components";
 import type { TimingPoint } from "osu-classes";
 import { Container, Graphics, GraphicsContext, Rectangle } from "pixi.js";
@@ -125,17 +126,24 @@ export default class Timeline {
 		);
 	}
 
+	private _tree = new IntervalTree<number>();
 	loadObjects(objects: (DrawableHitCircle | DrawableSlider)[]) {
 		if (this._objects.length > 0) {
 			this._objectsContainer.removeChild(
 				...this._objects.map((object) => object.container),
 			);
 			this._objects = [];
+			this._tree.clear();
 		}
 
 		this._objects = objects
 			.map((object) => object.timelineObject)
 			.filter((object) => object !== undefined);
+
+		for (let i = 0; i < this._objects.length; i++) {
+			const { start, end } = this._objects[i].getTimeRange();
+			this._tree.insert([start, end], i);
+		}
 	}
 
 	loadTimingPoints(points: TimingPoint[]) {
@@ -149,49 +157,13 @@ export default class Timeline {
 		this._timingPoints = points.map((point) => new TimelineTimingPoint(point));
 	}
 
-	private _inRange(val: number, start: number, end: number) {
-		if (start <= val && val <= end) return 0;
-		if (val > end) return -1;
-		if (val < start) return 1;
-		return 1;
-	}
-
 	private _previous = new Set<number>();
 	update(timestamp: number) {
 		this.updateTiming(timestamp);
 
-		const idx = binarySearch(timestamp, this._objects, (mid, value) =>
-			this._inRange(value, mid.getTimeRange().start, mid.getTimeRange().end),
+		const set = new Set<number>(
+			this._tree.search([timestamp - this._range, timestamp + this._range]) as Array<number>,
 		);
-
-		const set = new Set<number>();
-		set.add(idx);
-
-		let start = idx - 1;
-		while (
-			start >= 0 &&
-			this._inRange(
-				timestamp - this._range,
-				this._objects[start].getTimeRange().start,
-				this._objects[start].getTimeRange().end,
-			) >= 0
-		) {
-			set.add(start);
-			start--;
-		}
-
-		let end = idx + 1;
-		while (
-			end < this._objects.length &&
-			this._inRange(
-				timestamp + this._range,
-				this._objects[end].getTimeRange().start,
-				this._objects[end].getTimeRange().end,
-			) <= 0
-		) {
-			set.add(end);
-			end++;
-		}
 
 		const removed = this._previous.difference(set);
 		for (const idx of removed) {
@@ -205,7 +177,7 @@ export default class Timeline {
 			objs.push(this._objects[idx].container);
 		}
 
-		this._objectsContainer.addChild(...objs);
+		if (objs.length > 0) this._objectsContainer.addChild(...objs);
 	}
 
 	private _previousTiming = new Set<number>();

@@ -1,8 +1,13 @@
+import IntervalTree from "@flatten-js/interval-tree";
+
 type HitObjectMini = {
 	startTime: number;
 	endTime: number;
 	timePreempt: number;
 };
+
+const objectsTree = new IntervalTree<number>();
+const connectorsTree = new IntervalTree<number>();
 
 let objects: HitObjectMini[] = [];
 let connectors: HitObjectMini[] = [];
@@ -24,77 +29,16 @@ function getCurrentTime() {
 	return currentTime + (performance.now() - startTime);
 }
 
-function inRange(val: number, start: number, end: number) {
-	if (start <= val && val <= end) return 0;
-	if (val > end) return 1;
-	if (val < start) return -1;
-	return -1;
-}
-
-function binarySearchNearestIndex(objects: HitObjectMini[], time: number) {
-	let start = 0;
-	let end = objects.length - 1;
-
-	while (end >= start) {
-		const mid = start + Math.floor((end - start) / 2);
-		const { start: midStart, end: midEnd } = getTimeRange(objects[mid]);
-		const isInTimeRange = inRange(time, midStart, midEnd);
-
-		if (isInTimeRange === 0) return mid;
-		if (isInTimeRange === 1) {
-			start = mid + 1;
-			continue;
-		}
-		if (isInTimeRange === -1) {
-			end = mid - 1;
-		}
-	}
-
-	return -1;
-}
-
-function searchObjects(objects: HitObjectMini[], time: number) {
-	const idx = binarySearchNearestIndex(objects, time);
-	if (idx === -1) return new Set<number>();
-
-	const objects_ = new Set<number>();
-	objects_.add(idx);
-
-	let start = idx - 1;
-	while (
-		start >= 0 &&
-		inRange(
-			time,
-			getTimeRange(objects[start]).start,
-			getTimeRange(objects[start]).end,
-		) === 0
-	) {
-		objects_.add(start);
-		start--;
-	}
-
-	let end = idx + 1;
-	while (
-		end <= objects.length - 1 &&
-		inRange(
-			time,
-			getTimeRange(objects[end]).start,
-			getTimeRange(objects[end]).end,
-		) === 0
-	) {
-		objects_.add(end);
-		end++;
-	}
-
-	return objects_;
+function searchObjects(tree: IntervalTree, time: number) {
+	return findRange(tree, time);
 }
 
 function loop() {
 	if (objects.length === 0) return;
 
 	const currentTime = getCurrentTime();
-	const _objects = searchObjects(objects, currentTime);
-	const _connectors = searchObjects(connectors, currentTime);
+	const _objects = searchObjects(objectsTree, currentTime);
+	const _connectors = searchObjects(connectorsTree, currentTime);
 
 	postMessage({
 		type: "update",
@@ -107,12 +51,29 @@ function loop() {
 	previousTime = currentTime;
 }
 
+function findRange(tree: IntervalTree, time: number) {
+	const res = tree.search([time - 1, time + 1]);
+	return new Set<number>(res as Array<number>);
+}
+
+function initTree(tree: IntervalTree, objects: HitObjectMini[]) {
+	tree.clear();
+
+	for (let i = 0; i < objects.length; i++) {
+		const { start, end } = getTimeRange(objects[i]);
+		tree.insert([start, end], i);
+	}
+}
+
 // biome-ignore lint/suspicious/noGlobalAssign: Shut!
 onmessage = (event) => {
 	switch (event.data.type) {
 		case "init": {
 			objects = event.data.objects;
 			connectors = event.data.connectors;
+
+			initTree(objectsTree, objects);
+			initTree(connectorsTree, connectors);
 			break;
 		}
 		case "start": {
@@ -134,6 +95,8 @@ onmessage = (event) => {
 			objects = [];
 			connectors = [];
 			isPlaying = false;
+			objectsTree.clear();
+			connectorsTree.clear();
 			break;
 		}
 	}
