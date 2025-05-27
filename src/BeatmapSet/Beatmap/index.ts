@@ -39,7 +39,7 @@ export default class Beatmap extends ScopedClass {
 
 	container: Gameplay;
 
-	constructor(private raw: string) {
+	constructor(public raw: string) {
 		super();
 		this.data = this.context.provide(
 			"beatmap",

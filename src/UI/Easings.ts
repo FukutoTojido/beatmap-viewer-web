@@ -21,7 +21,7 @@ const QuintIn = (x: number) => x * x * x * x * x;
 const QuintOut = (x: number) => Reverse(QuintIn, x);
 const QuintInOut = (x: number) => ToInOut(QuintIn, x);
 
-const SineIn = (x: number) => Math.cos(x * (Math.PI / 2));
+const SineIn = (x: number) => 1 - Math.cos(x * (Math.PI / 2));
 const SineOut = (x: number) => Reverse(SineIn, x);
 const SineInOut = (x: number) => ToInOut(SineIn, x);
 
@@ -114,4 +114,53 @@ const Easings = {
 	InOutBounce: BounceInOut,
 };
 
+const EasingsMap = [
+	Linear,
+	QuadIn,
+	QuadOut,
+
+	QuadIn,
+	QuadOut,
+	QuadInOut,
+
+	CubicIn,
+	CubicOut,
+	CubicInOut,
+
+	QuartIn,
+	QuartOut,
+	QuartInOut,
+
+	QuintIn,
+	QuintOut,
+	QuintInOut,
+
+	SineIn,
+	SineOut,
+	SineInOut,
+
+	ExpoIn,
+	ExpoOut,
+	ExpoInOut,
+
+	CircIn,
+	CircOut,
+	CircInOut,
+
+	ElasticIn,
+	ElasticOut,
+	ElasticOutHalf,
+	ElasticOutQuarter,
+	ElasticInOut,
+
+	BackIn,
+	BackOut,
+	BackInOut,
+
+	BounceIn,
+	BounceOut,
+	BounceInOut,
+];
+
 export default Easings;
+export { EasingsMap };

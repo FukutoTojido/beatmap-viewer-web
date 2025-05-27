@@ -162,7 +162,10 @@ export default class Timeline {
 		this.updateTiming(timestamp);
 
 		const set = new Set<number>(
-			this._tree.search([timestamp - this._range, timestamp + this._range]) as Array<number>,
+			this._tree.search([
+				timestamp - this._range,
+				timestamp + this._range,
+			]) as Array<number>,
 		);
 
 		const removed = this._previous.difference(set);
@@ -213,6 +216,7 @@ export default class Timeline {
 
 		const removed = this._previousTiming.difference(set);
 		for (const idx of removed) {
+			if (!this._timingPoints[idx]) continue;
 			this._timingPoints[idx].container.visible = false;
 			this._objectsContainer.removeChild(this._timingPoints[idx].container);
 		}
@@ -220,10 +224,11 @@ export default class Timeline {
 		this._previousTiming = set;
 		const objs: Container[] = [];
 		for (const idx of [...set].sort()) {
+			if (!this._timingPoints[idx]) continue;
 			objs.push(this._timingPoints[idx].container);
 		}
 
-		this._objectsContainer.addChild(...objs);
+		if (objs.length > 0) this._objectsContainer.addChild(...objs);
 	}
 
 	draw(timestamp: number) {

@@ -24,6 +24,7 @@ import type { Tween } from "@tweenjs/tween.js";
 import Easings from "@/UI/Easings";
 import { tweenGroup } from "@/UI/animation/AnimationController";
 import type Loading from "@/UI/loading";
+import Storyboard from "./Beatmap/Storyboard";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -33,6 +34,7 @@ export default class BeatmapSet extends ScopedClass {
 		super();
 		this.context.provide("audioContext", this.audioContext);
 		this.context.provide("resources", resources);
+		this.context.provide("beatmapset", this);
 
 		provide("beatmapset", this);
 		requestAnimationFrame(() => this.frame());
@@ -41,7 +43,7 @@ export default class BeatmapSet extends ScopedClass {
 	async loadResources() {
 		inject<Loading>("ui/loading")?.setText("Loading hitSamples");
 		inject<Loading>("ui/loading")?.on();
-		
+
 		console.time("Load hitSamples");
 		const sampleManager = this.context.provide(
 			"sampleManager",
@@ -51,6 +53,8 @@ export default class BeatmapSet extends ScopedClass {
 		await sampleManager.load();
 		console.timeEnd("Load hitSamples");
 		inject<Loading>("ui/loading")?.off();
+
+		await this.loadStoryboard();
 	}
 
 	async getDifficulties() {
@@ -157,6 +161,30 @@ export default class BeatmapSet extends ScopedClass {
 		document.body.style.backgroundImage = `url("${url}")`;
 	}
 
+	async loadStoryboard() {
+		const storyboardKey = this.context
+			.consume<Map<string, Resource>>("resources")
+			?.keys()
+			.find((key) => key.includes(".osb"));
+		if (!storyboardKey) return;
+
+		const storyboardFile = this.context
+			.consume<Map<string, Resource>>("resources")
+			?.get(storyboardKey);
+
+		const storyboard = this.context.provide(
+			"storyboard",
+			// biome-ignore lint/style/noNonNullAssertion: I found it already cmon!
+			new Storyboard(storyboardFile!),
+		);
+		storyboard.hook(this.context);
+		await storyboard.loadTextures();
+		inject<Background>("ui/main/viewer/background")?.injectStoryboardContainer(
+			storyboard.container,
+		);
+		await storyboard.loadCurrent();
+	}
+
 	async loadMaster(idx: number) {
 		const beatmap = this.difficulties[idx];
 		if (!beatmap) return;
@@ -171,11 +199,16 @@ export default class BeatmapSet extends ScopedClass {
 			);
 		}
 
+		const storyboard = this.context.consume<Storyboard>("storyboard");
+
 		await Promise.all([
 			this.loadAudio(beatmap),
 			this.loadVideo(beatmap),
 			this.loadBackground(beatmap),
+			storyboard?.loadMaster(beatmap.raw),
 		]);
+
+		storyboard?.checkRemoveBG();
 
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
@@ -327,6 +360,8 @@ export default class BeatmapSet extends ScopedClass {
 		);
 		inject<Timeline>("ui/main/viewer/timeline")?.update(time);
 		inject<Timeline>("ui/main/viewer/timeline")?.draw(time);
+
+		this.context.consume<Storyboard>("storyboard")?.update(time);
 
 		requestAnimationFrame(() => this.frame());
 	}
