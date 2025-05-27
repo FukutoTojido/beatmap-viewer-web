@@ -12,6 +12,7 @@ import {
 	Container,
 	Graphics,
 	GraphicsContext,
+	Rectangle,
 	type Texture,
 } from "pixi.js";
 import IntervalTree from "@flatten-js/interval-tree";
@@ -27,6 +28,7 @@ export default class Storyboard extends ScopedClass {
 	private masterSprites!: StoryboardSprite[];
 	container: Container = new Container({
 		label: "storyboard",
+		isRenderGroup: true,
 	});
 
 	backgroundLayer = new Container({
@@ -34,18 +36,21 @@ export default class Storyboard extends ScopedClass {
 		interactive: false,
 		interactiveChildren: false,
 		isRenderGroup: true,
+		sortableChildren: false,
 	});
 	foregroundLayer = new Container({
 		label: "foregroundLayer",
 		interactive: false,
 		interactiveChildren: false,
 		isRenderGroup: true,
+		sortableChildren: false,
 	});
 	overlayLayer = new Container({
 		label: "overlayLayer",
 		interactive: false,
 		interactiveChildren: false,
 		isRenderGroup: true,
+		sortableChildren: false,
 	});
 
 	fill: Graphics;
@@ -60,22 +65,28 @@ export default class Storyboard extends ScopedClass {
 				alpha: 0.01,
 			});
 
-		this.fill = new Graphics().rect(-2000, -1500, 4000, 3000).fill({
-			color: 0x0,
-			alpha: 0,
-		});
+		this.fill = new Graphics()
+			.rect(-106.666666667, 0, 853.333333333, 480)
+			.fill({
+				color: 0x0,
+				alpha: 0,
+			});
 
-		const layer = new Container({
+		this.container.addChild(
 			mask,
-			children: [
-				mask,
-				this.backgroundLayer,
-				this.foregroundLayer,
-				this.overlayLayer,
-			],
-		});
+			this.fill,
+			this.backgroundLayer,
+			this.foregroundLayer,
+			this.overlayLayer,
+		);
 
-		this.container.addChild(this.fill, layer);
+		this.container.boundsArea = new Rectangle(
+			-106.666666667,
+			0,
+			853.333333333,
+			480,
+		);
+		this.container.mask = mask;
 	}
 
 	async loadTextures() {
@@ -122,8 +133,8 @@ export default class Storyboard extends ScopedClass {
 				.map((element) => {
 					const ele = (
 						element instanceof StoryboardAnimationData
-							? new StoryboardAnimation(element, StoryboardLayerType.background)
-							: new StoryboardSprite(element, StoryboardLayerType.background)
+							? new StoryboardAnimation(element, StoryboardLayerType.foreground)
+							: new StoryboardSprite(element, StoryboardLayerType.foreground)
 					).hook(this.context);
 					ele.loadTexture();
 
@@ -134,8 +145,8 @@ export default class Storyboard extends ScopedClass {
 				.map((element) => {
 					const ele = (
 						element instanceof StoryboardAnimationData
-							? new StoryboardAnimation(element, StoryboardLayerType.background)
-							: new StoryboardSprite(element, StoryboardLayerType.background)
+							? new StoryboardAnimation(element, StoryboardLayerType.overlay)
+							: new StoryboardSprite(element, StoryboardLayerType.overlay)
 					).hook(this.context);
 					ele.loadTexture();
 
@@ -198,33 +209,33 @@ export default class Storyboard extends ScopedClass {
 		this.masterSprites = sprites;
 		this._masterTree = tree;
 
-		const bgs = [];
-		const fgs = [];
-		const os = [];
+		// const bgs = [];
+		// const fgs = [];
+		// const os = [];
 
-		for (const sprite of this.masterSprites) {
-			switch (sprite.layerType) {
-				case StoryboardLayerType.background: {
-					bgs.push(sprite.container);
-					break;
-				}
-				case StoryboardLayerType.foreground: {
-					fgs.push(sprite.container);
-					break;
-				}
-				case StoryboardLayerType.overlay: {
-					os.push(sprite.container);
-					break;
-				}
-			}
-		}
+		// for (const sprite of this.masterSprites) {
+		// 	switch (sprite.layerType) {
+		// 		case StoryboardLayerType.background: {
+		// 			bgs.push(sprite.container);
+		// 			break;
+		// 		}
+		// 		case StoryboardLayerType.foreground: {
+		// 			fgs.push(sprite.container);
+		// 			break;
+		// 		}
+		// 		case StoryboardLayerType.overlay: {
+		// 			os.push(sprite.container);
+		// 			break;
+		// 		}
+		// 	}
+		// }
 
-		if (bgs.length > 0)
-			this.backgroundLayer.addChild(...bgs, ...this.backgroundLayer.children);
-		if (fgs.length > 0)
-			this.foregroundLayer.addChild(...fgs, ...this.foregroundLayer.children);
-		if (os.length > 0)
-			this.overlayLayer.addChild(...os, ...this.overlayLayer.children);
+		// if (bgs.length > 0)
+		// 	this.backgroundLayer.addChild(...bgs, ...this.backgroundLayer.children);
+		// if (fgs.length > 0)
+		// 	this.foregroundLayer.addChild(...fgs, ...this.foregroundLayer.children);
+		// if (os.length > 0)
+		// 	this.overlayLayer.addChild(...os, ...this.overlayLayer.children);
 	}
 
 	private _tree?: IntervalTree;
@@ -236,36 +247,36 @@ export default class Storyboard extends ScopedClass {
 		this.sprites = sprites;
 		this._tree = tree;
 
-		const bgs = [];
-		const fgs = [];
-		const os = [];
+		// const bgs = [];
+		// const fgs = [];
+		// const os = [];
 
-		for (const sprite of this.sprites) {
-			switch (sprite.layerType) {
-				case StoryboardLayerType.background: {
-					bgs.push(sprite.container);
-					break;
-				}
-				case StoryboardLayerType.foreground: {
-					fgs.push(sprite.container);
-					break;
-				}
-				case StoryboardLayerType.overlay: {
-					os.push(sprite.container);
-					break;
-				}
-			}
-		}
+		// for (const sprite of this.sprites) {
+		// 	switch (sprite.layerType) {
+		// 		case StoryboardLayerType.background: {
+		// 			bgs.push(sprite.container);
+		// 			break;
+		// 		}
+		// 		case StoryboardLayerType.foreground: {
+		// 			fgs.push(sprite.container);
+		// 			break;
+		// 		}
+		// 		case StoryboardLayerType.overlay: {
+		// 			os.push(sprite.container);
+		// 			break;
+		// 		}
+		// 	}
+		// }
 
-		if (bgs.length > 0) this.backgroundLayer.addChild(...bgs);
-		if (fgs.length > 0) this.foregroundLayer.addChild(...fgs);
-		if (os.length > 0) this.overlayLayer.addChild(...os);
-
-		console.log(sprites.filter((sprite) => sprite.data.path.includes("0053")));
+		// if (bgs.length > 0) this.backgroundLayer.addChild(...bgs);
+		// if (fgs.length > 0) this.foregroundLayer.addChild(...fgs);
+		// if (os.length > 0) this.overlayLayer.addChild(...os);
 	}
 
 	private _previous = new Set<number>();
 	private _previousMaster = new Set<number>();
+	private _previousTimestamp = -1;
+
 	update(timestamp: number) {
 		const set = new Set<number>(
 			this._tree?.search([timestamp - 1, timestamp + 1]) as Array<number>,
@@ -280,25 +291,122 @@ export default class Storyboard extends ScopedClass {
 		for (const idx of disposed) {
 			const sprite = this.sprites[idx];
 			sprite.off();
+
+			switch (sprite.layerType) {
+				case StoryboardLayerType.background: {
+					this.backgroundLayer.removeChild(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.foreground: {
+					this.foregroundLayer.removeChild(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.overlay: {
+					this.overlayLayer.removeChild(sprite.container);
+					break;
+				}
+			}
 		}
 
 		for (const idx of disposedMaster) {
 			const sprite = this.masterSprites[idx];
 			sprite?.off();
+
+			if (!sprite) continue;
+			switch (sprite.layerType) {
+				case StoryboardLayerType.background: {
+					this.backgroundLayer.removeChild(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.foreground: {
+					this.foregroundLayer.removeChild(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.overlay: {
+					this.overlayLayer.removeChild(sprite.container);
+					break;
+				}
+			}
 		}
+
+		const added = set.difference(this._previous);
+		const addedMaster = setMaster.difference(this._previousMaster);
 
 		this._previous = set;
 		this._previousMaster = setMaster;
 
+		const bgs = [];
+		const fgs = [];
+		const os = [];
+
+		for (const idx of [...addedMaster].toSorted((a, b) => this.masterSprites[a].order - this.masterSprites[b].order)) {
+			const sprite = this.masterSprites[idx];
+
+			if (!sprite) continue;
+			switch (sprite.layerType) {
+				case StoryboardLayerType.background: {
+					bgs.push(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.foreground: {
+					fgs.push(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.overlay: {
+					os.push(sprite.container);
+					break;
+				}
+			}
+		}
+
+		for (const idx of [...added].toSorted((a, b) => this.sprites[a]?.order - this.sprites[b]?.order)) {
+			const sprite = this.sprites[idx];
+
+			switch (sprite.layerType) {
+				case StoryboardLayerType.background: {
+					bgs.push(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.foreground: {
+					fgs.push(sprite.container);
+					break;
+				}
+				case StoryboardLayerType.overlay: {
+					os.push(sprite.container);
+					break;
+				}
+			}
+		}
+
 		for (const idx of setMaster) {
 			const sprite = this.masterSprites[idx];
-			sprite.update(timestamp);
+			sprite?.update(timestamp);
 		}
 
 		for (const idx of set) {
 			const sprite = this.sprites[idx];
 			sprite.update(timestamp);
 		}
+
+		if (this._previousTimestamp < timestamp) {
+			if (bgs.length > 0) this.backgroundLayer.addChild(...bgs);
+			if (fgs.length > 0) this.foregroundLayer.addChild(...fgs);
+			if (os.length > 0) this.overlayLayer.addChild(...os);
+		}
+
+		if (this._previousTimestamp > timestamp) {
+			for (const container of bgs.toReversed()) {
+				this.backgroundLayer.addChildAt(container, 0);
+			}
+			for (const container of fgs.toReversed()) {
+				this.foregroundLayer.addChildAt(container, 0);
+			}
+			for (const container of os.toReversed()) {
+				this.overlayLayer.addChildAt(container, 0);
+			}
+		}
+
+		this._previousTimestamp = timestamp;
 	}
 
 	checkRemoveBG() {
@@ -308,10 +416,12 @@ export default class Storyboard extends ScopedClass {
 				this.context.consume<BeatmapSet>("beatmapset")?.backgroundKey,
 		);
 
-		const context = new GraphicsContext().rect(-2000, -1500, 4000, 3000).fill({
-			color: 0x0,
-			alpha: hasBG ? 1 : 0,
-		});
+		const context = new GraphicsContext()
+			.rect(-106.666666667, 0, 853.333333333, 480)
+			.fill({
+				color: 0x0,
+				alpha: hasBG ? 1 : 0,
+			});
 
 		this.fill.context.destroy();
 		this.fill.context = context;
