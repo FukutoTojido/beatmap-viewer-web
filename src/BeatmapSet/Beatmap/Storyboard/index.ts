@@ -13,6 +13,7 @@ import {
 	Graphics,
 	GraphicsContext,
 	Rectangle,
+	RenderLayer,
 	type Texture,
 } from "pixi.js";
 import IntervalTree from "@flatten-js/interval-tree";
@@ -36,7 +37,7 @@ export default class Storyboard extends ScopedClass {
 		interactive: false,
 		interactiveChildren: false,
 		isRenderGroup: true,
-		sortableChildren: false,
+		sortableChildren: true,
 	});
 	foregroundLayer = new Container({
 		label: "foregroundLayer",
@@ -186,15 +187,15 @@ export default class Storyboard extends ScopedClass {
 				// Destroy
 				switch (sprite.layerType) {
 					case StoryboardLayerType.background: {
-						this.backgroundLayer.removeChild(sprite.container);
+						this.container.removeChild(sprite.container);
 						break;
 					}
 					case StoryboardLayerType.foreground: {
-						this.foregroundLayer.removeChild(sprite.container);
+						this.container.removeChild(sprite.container);
 						break;
 					}
 					case StoryboardLayerType.overlay: {
-						this.overlayLayer.removeChild(sprite.container);
+						this.container.removeChild(sprite.container);
 						break;
 					}
 				}
@@ -208,34 +209,6 @@ export default class Storyboard extends ScopedClass {
 		this.masterData = data;
 		this.masterSprites = sprites;
 		this._masterTree = tree;
-
-		// const bgs = [];
-		// const fgs = [];
-		// const os = [];
-
-		// for (const sprite of this.masterSprites) {
-		// 	switch (sprite.layerType) {
-		// 		case StoryboardLayerType.background: {
-		// 			bgs.push(sprite.container);
-		// 			break;
-		// 		}
-		// 		case StoryboardLayerType.foreground: {
-		// 			fgs.push(sprite.container);
-		// 			break;
-		// 		}
-		// 		case StoryboardLayerType.overlay: {
-		// 			os.push(sprite.container);
-		// 			break;
-		// 		}
-		// 	}
-		// }
-
-		// if (bgs.length > 0)
-		// 	this.backgroundLayer.addChild(...bgs, ...this.backgroundLayer.children);
-		// if (fgs.length > 0)
-		// 	this.foregroundLayer.addChild(...fgs, ...this.foregroundLayer.children);
-		// if (os.length > 0)
-		// 	this.overlayLayer.addChild(...os, ...this.overlayLayer.children);
 	}
 
 	private _tree?: IntervalTree;
@@ -246,36 +219,10 @@ export default class Storyboard extends ScopedClass {
 		this.data = data;
 		this.sprites = sprites;
 		this._tree = tree;
-
-		// const bgs = [];
-		// const fgs = [];
-		// const os = [];
-
-		// for (const sprite of this.sprites) {
-		// 	switch (sprite.layerType) {
-		// 		case StoryboardLayerType.background: {
-		// 			bgs.push(sprite.container);
-		// 			break;
-		// 		}
-		// 		case StoryboardLayerType.foreground: {
-		// 			fgs.push(sprite.container);
-		// 			break;
-		// 		}
-		// 		case StoryboardLayerType.overlay: {
-		// 			os.push(sprite.container);
-		// 			break;
-		// 		}
-		// 	}
-		// }
-
-		// if (bgs.length > 0) this.backgroundLayer.addChild(...bgs);
-		// if (fgs.length > 0) this.foregroundLayer.addChild(...fgs);
-		// if (os.length > 0) this.overlayLayer.addChild(...os);
 	}
 
 	private _previous = new Set<number>();
 	private _previousMaster = new Set<number>();
-	private _previousTimestamp = -1;
 
 	update(timestamp: number) {
 		const set = new Set<number>(
@@ -337,12 +284,12 @@ export default class Storyboard extends ScopedClass {
 
 		const bgs = [];
 		const fgs = [];
-		const os = [];
+		const ovs = [];
 
-		for (const idx of [...addedMaster].toSorted((a, b) => this.masterSprites[a].order - this.masterSprites[b].order)) {
+		for (const idx of addedMaster) {
 			const sprite = this.masterSprites[idx];
-
 			if (!sprite) continue;
+
 			switch (sprite.layerType) {
 				case StoryboardLayerType.background: {
 					bgs.push(sprite.container);
@@ -353,13 +300,13 @@ export default class Storyboard extends ScopedClass {
 					break;
 				}
 				case StoryboardLayerType.overlay: {
-					os.push(sprite.container);
+					ovs.push(sprite.container);
 					break;
 				}
 			}
 		}
 
-		for (const idx of [...added].toSorted((a, b) => this.sprites[a]?.order - this.sprites[b]?.order)) {
+		for (const idx of added) {
 			const sprite = this.sprites[idx];
 
 			switch (sprite.layerType) {
@@ -372,7 +319,7 @@ export default class Storyboard extends ScopedClass {
 					break;
 				}
 				case StoryboardLayerType.overlay: {
-					os.push(sprite.container);
+					ovs.push(sprite.container);
 					break;
 				}
 			}
@@ -388,25 +335,16 @@ export default class Storyboard extends ScopedClass {
 			sprite.update(timestamp);
 		}
 
-		if (this._previousTimestamp < timestamp) {
-			if (bgs.length > 0) this.backgroundLayer.addChild(...bgs);
-			if (fgs.length > 0) this.foregroundLayer.addChild(...fgs);
-			if (os.length > 0) this.overlayLayer.addChild(...os);
-		}
+		if (bgs.length > 0) this.backgroundLayer.addChild(...bgs);
+		if (fgs.length > 0) this.foregroundLayer.addChild(...fgs);
+		if (ovs.length > 0) this.overlayLayer.addChild(...ovs);
+	}
 
-		if (this._previousTimestamp > timestamp) {
-			for (const container of bgs.toReversed()) {
-				this.backgroundLayer.addChildAt(container, 0);
-			}
-			for (const container of fgs.toReversed()) {
-				this.foregroundLayer.addChildAt(container, 0);
-			}
-			for (const container of os.toReversed()) {
-				this.overlayLayer.addChildAt(container, 0);
-			}
+	sortChildren() {
+		const arr = [...this.masterSprites, ...this.sprites];
+		for (let i = 0; i < arr.length; i++) {
+			arr[i].container.zIndex = i;
 		}
-
-		this._previousTimestamp = timestamp;
 	}
 
 	checkRemoveBG() {

@@ -6,12 +6,28 @@ import ZipHandler from "./ZipHandler";
 import type Main from "./UI/main";
 import type TimelineConfig from "./Config/TimelineConfig";
 import { gcd } from "./utils";
+import axios from "axios";
 
 export const runTest = async () => {
 	const queries = new URLSearchParams(window.location.search).getAll("b");
-	const IDs = queries.length !== 0 ? queries : ["1307291"];
+	const IDs = queries.length !== 0 ? queries : [];
 
-	const blob = await getBeatmapFromId(IDs[0]);
+	let blob: Blob;
+	try {
+		blob =
+			queries.length !== 0
+				? await getBeatmapFromId(IDs[0])
+				: (
+						await axios.get("./beatmapsets/test.osz", {
+							responseType: "blob",
+							headers: { Accept: "application/x-osu-beatmap-archive" },
+						})
+					).data;
+	} catch (e) {
+		console.error(e);
+		return;
+	}
+
 	console.log("Download Completed!");
 
 	const resources = await ZipHandler.extract(blob);
@@ -24,6 +40,10 @@ export const runTest = async () => {
 	await bms.loadResources();
 
 	let baseIdx = 0;
+
+	if (IDs.length === 0) {
+		await bms.loadMaster(4);
+	}
 
 	for (let i = 0; i < IDs.length; i++) {
 		const ID = IDs[i];

@@ -209,6 +209,7 @@ export default class BeatmapSet extends ScopedClass {
 		]);
 
 		storyboard?.checkRemoveBG();
+		storyboard?.sortChildren();
 
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
