@@ -44,6 +44,7 @@ export async function getBeatmapFromId(beatmapId: string) {
 			urlTemplate.replaceAll("$setId", beatmapsetId.toString()),
 			{
 				responseType: "blob",
+				headers: { Accept: "application/x-osu-beatmap-archive" },
 				onDownloadProgress(progressEvent) {
 					inject<Loading>("ui/loading")?.setText(`Downloading map: ${(100 * (progressEvent.progress ?? 0)).toFixed(2)}%`);
 				},
