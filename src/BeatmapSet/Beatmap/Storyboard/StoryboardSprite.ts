@@ -521,12 +521,21 @@ export default class StoryboardSprite extends ScopedClass {
 		commandGroup: CommandTimeline<T>,
 	) {
 		let idx = 0;
+		let holdIdx = 0;
 		for (let i = 0; i < commandGroup.commands.length; i++) {
-			if (commandGroup.commands[i].startTime > timestamp) break;
+			if (commandGroup.commands[i].startTime >= timestamp) break;
+			if (
+				commandGroup.commands[i].startTime !==
+					commandGroup.commands[holdIdx].startTime ||
+				commandGroup.commands[i].endTime !==
+					commandGroup.commands[holdIdx].endTime
+			) {
+				holdIdx = i;
+			}
 			idx = i;
 		}
 
-		return commandGroup.commands[idx];
+		return commandGroup.commands[holdIdx];
 	}
 
 	private lerp(progress: number, start: number, end: number) {

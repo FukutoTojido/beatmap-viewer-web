@@ -97,7 +97,7 @@ export default class Storyboard extends ScopedClass {
 			...this.context.consume<Map<string, Resource>>("resources")!,
 		].map(async ([key, resource]) => {
 			// biome-ignore lint/style/noNonNullAssertion: Always have extension
-			if (!["png", "jpg", "jpeg"].includes(key.split(".").at(-1)!)) return;
+			if (!["png", "jpg", "jpeg"].includes(key.split(".").at(-1)!.toLowerCase())) return;
 
 			const texture = await Assets.load<Texture>({
 				// biome-ignore lint/style/noNonNullAssertion: Should be able to be found
@@ -187,15 +187,15 @@ export default class Storyboard extends ScopedClass {
 				// Destroy
 				switch (sprite.layerType) {
 					case StoryboardLayerType.background: {
-						this.container.removeChild(sprite.container);
+						this.backgroundLayer.removeChild(sprite.container);
 						break;
 					}
 					case StoryboardLayerType.foreground: {
-						this.container.removeChild(sprite.container);
+						this.foregroundLayer.removeChild(sprite.container);
 						break;
 					}
 					case StoryboardLayerType.overlay: {
-						this.container.removeChild(sprite.container);
+						this.overlayLayer.removeChild(sprite.container);
 						break;
 					}
 				}
