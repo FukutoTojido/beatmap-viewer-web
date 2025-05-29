@@ -1,4 +1,4 @@
-import axios from "axios";
+import ky from "ky";
 import type { Resource } from "./ZipHandler";
 
 export async function getDefaultLegacy() {
@@ -36,10 +36,7 @@ export async function getDefaultLegacy() {
 	await Promise.all(
 		filenames.map(async (filename) => {
 			try {
-				const { data } = await axios.get<Blob>(`./skinning/legacy/${filename}`, {
-					responseType: "blob",
-				});
-
+				const data = await ky.get<Blob>(`./skinning/legacy/${filename}`).blob();
 				resources.set(filename, data);
 			} catch (e) {
 				return;
@@ -86,10 +83,7 @@ export async function getYugen() {
 	await Promise.all(
 		filenames.map(async (filename) => {
 			try {
-				const { data } = await axios.get<Blob>(`./skinning/yugen/${filename}`, {
-					responseType: "blob",
-				});
-
+				const data = await ky.get<Blob>(`./skinning/yugen/${filename}`).blob();
 				resources.set(filename, data);
 			} catch (e) {
 				return;

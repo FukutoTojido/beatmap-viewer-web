@@ -1,7 +1,7 @@
 import type Loading from "@/UI/loading";
 import type MirrorConfig from "../Config/MirrorConfig";
 import { inject } from "../Context";
-import axios from "axios";
+import ky from "ky";
 
 type BeatmapData = {
 	beatmapset_id: number;
@@ -11,11 +11,9 @@ type BeatmapData = {
 async function getBeatmapsetId(beatmapId: string) {
 	try {
 		if (!/\d+/g.test(beatmapId)) throw new Error("beatmapId is not a number!");
-		const {
-			data: { beatmaps },
-		}: { data: { beatmaps: BeatmapData[] } } = await axios.get(
-			`https://api.try-z.net/beatmaps?ids=${beatmapId}`,
-		);
+		const { beatmaps }: { beatmaps: BeatmapData[] } = await ky
+			.get(`https://api.try-z.net/beatmaps?ids=${beatmapId}`)
+			.json();
 
 		if (beatmaps.length === 0) return null;
 		return beatmaps[0]?.beatmapset_id ?? null;
@@ -40,16 +38,16 @@ export async function getBeatmapFromId(beatmapId: string) {
 		throw new Error(`Map with id ${beatmapId} does not exist!!!`);
 
 	try {
-		const { data: blob } = await axios.get(
-			urlTemplate.replaceAll("$setId", beatmapsetId.toString()),
-			{
-				responseType: "blob",
+		const blob = await ky
+			.get(urlTemplate.replaceAll("$setId", beatmapsetId.toString()), {
 				headers: { Accept: "application/x-osu-beatmap-archive" },
 				onDownloadProgress(progressEvent) {
-					inject<Loading>("ui/loading")?.setText(`Downloading map: ${(100 * (progressEvent.progress ?? 0)).toFixed(2)}%`);
+					inject<Loading>("ui/loading")?.setText(
+						`Downloading map: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,
+					);
 				},
-			},
-		);
+			})
+			.blob();
 
 		inject<Loading>("ui/loading")?.off();
 		return blob;

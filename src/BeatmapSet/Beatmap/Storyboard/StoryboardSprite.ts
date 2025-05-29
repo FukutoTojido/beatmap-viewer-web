@@ -444,38 +444,14 @@ export default class StoryboardSprite extends ScopedClass {
 
 	processBlending(timestamp: number, command: Command<BlendingParameters>) {
 		const nearestCommand = command;
-		const { startValue, endValue, startTime, endTime, duration } =
-			nearestCommand;
+		const { startTime } = nearestCommand;
 
-		if (timestamp <= endTime) {
-			switch (startValue.rgbEquation) {
-				case BlendingEquation.add: {
-					this.container.blendMode = "add";
-					break;
-				}
-				default: {
-					this.container.blendMode = "normal";
-					break;
-				}
-			}
-
+		if (timestamp < startTime) {
+			this.container.blendMode = "normal";
 			return;
 		}
 
-		if (timestamp > endTime) {
-			switch (endValue.rgbEquation) {
-				case BlendingEquation.add: {
-					this.container.blendMode = "add";
-					break;
-				}
-				default: {
-					this.container.blendMode = "normal";
-					break;
-				}
-			}
-
-			return;
-		}
+		this.container.blendMode = "add";
 	}
 
 	processFlipHorizontal(timestamp: number, command: Command<boolean>) {
@@ -510,9 +486,8 @@ export default class StoryboardSprite extends ScopedClass {
 		const { startTime, endTime, totalIterations } = command;
 		const duration = (endTime - startTime) / totalIterations;
 
-		if (timestamp < startTime) return;
-
-		const t = (Math.min(timestamp, endTime - 1) - startTime) % duration;
+		const t =
+			(Math.max(0, Math.min(timestamp, endTime - 1)) - startTime) % duration;
 		this.processGroups(command, t);
 	}
 

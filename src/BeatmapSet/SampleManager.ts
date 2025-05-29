@@ -2,7 +2,7 @@
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 
 import type { Resource } from "../ZipHandler";
-import axios from "axios";
+import ky from "ky";
 import { inject } from "../Context";
 import type Skin from "../Skinning/Skin";
 import type SkinManager from "../Skinning/SkinManager";
@@ -39,12 +39,9 @@ export default class SampleManager {
 		const blobs: [string, Blob | undefined][] = await Promise.all(
 			allFiles.map(async (filename) => {
 				try {
-					const { data } = await axios.get<Blob>(
-						`./skinning/legacy/${filename}.wav`,
-						{
-							responseType: "blob",
-						},
-					);
+					const data = await ky
+						.get<Blob>(`./skinning/legacy/${filename}.wav`)
+						.blob();
 					return [filename, data];
 				} catch (e) {
 					console.error(e);
@@ -129,7 +126,7 @@ export default class SampleManager {
 
 		const key = `${sampleSet}-${hitSound}${idx === 1 ? "" : idx}`;
 		const fallbackKey = `${sampleSet}-${hitSound}`;
-		const currentSkin = skinManager?.skins[skinManager.currentSkinIdx]
+		const currentSkin = skinManager?.skins[skinManager.currentSkinIdx];
 
 		if (idx === 0) return currentSkin?.getHitsound(fallbackKey);
 		return this.map.get(key) ?? currentSkin?.getHitsound(fallbackKey);

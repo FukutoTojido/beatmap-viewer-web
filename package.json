@@ -28,6 +28,7 @@
     "bezier-easing": "^2.1.0",
     "ini": "^5.0.0",
     "js-ini": "^1.6.0",
+    "ky": "^1.8.1",
     "osu-classes": "npm:@fukutotojido/osu-classes",
     "osu-parsers": "^4.1.7",
     "osu-standard-stable": "^5.0.1",

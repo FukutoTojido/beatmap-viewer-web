@@ -6,7 +6,7 @@ import ZipHandler from "./ZipHandler";
 import type Main from "./UI/main";
 import type TimelineConfig from "./Config/TimelineConfig";
 import { gcd } from "./utils";
-import axios from "axios";
+import ky from "ky";
 
 export const runTest = async () => {
 	const queries = new URLSearchParams(window.location.search).getAll("b");
@@ -18,11 +18,10 @@ export const runTest = async () => {
 			queries.length !== 0
 				? await getBeatmapFromId(IDs[0])
 				: (
-						await axios.get("./beatmapsets/test.osz", {
-							responseType: "blob",
+						await ky.get("./beatmapsets/test.osz", {
 							headers: { Accept: "application/x-osu-beatmap-archive" },
 						})
-					).data;
+					).blob();
 	} catch (e) {
 		console.error(e);
 		return;

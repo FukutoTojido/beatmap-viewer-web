@@ -116,8 +116,8 @@ const Easings = {
 
 const EasingsMap = [
 	Linear,
-	QuadIn,
-	QuadOut,
+	SineOut,
+	SineIn,
 
 	QuadIn,
 	QuadOut,
