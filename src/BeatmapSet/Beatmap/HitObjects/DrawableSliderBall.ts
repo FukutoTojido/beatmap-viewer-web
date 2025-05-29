@@ -9,6 +9,7 @@ import type Skin from "@/Skinning/Skin";
 import { inject } from "@/Context";
 import type SkinManager from "@/Skinning/SkinManager";
 import SkinnableElement from "./SkinnableElement";
+import { update } from "@/Skinning/Legacy/LegacySliderBall";
 
 export default class DrawableSliderBall extends SkinnableElement {
 	container: Sprite;
@@ -35,27 +36,7 @@ export default class DrawableSliderBall extends SkinnableElement {
 	}
 
 	update(time: number) {
-		const completionProgress = Math.min(
-			1,
-			Math.max(0, (time - this.object.startTime) / this.object.duration),
-		);
-
-		const position = this.object.path.curvePositionAt(
-			completionProgress,
-			this.object.spans,
-		);
-
-		this.container.x =
-			this.object.startX + position.x + this.object.stackedOffset.x;
-		this.container.y =
-			this.object.startY + position.y + this.object.stackedOffset.y;
-
-		if (time < this.object.startTime || time > this.object.endTime) {
-			this.container.visible = false;
-			return;
-		}
-
-		this.container.visible = true;
+		update(this, time);
 	}
 
 	destroy() {

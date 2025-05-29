@@ -6,6 +6,7 @@ import { inject } from "@/Context";
 import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import SkinnableElement from "./SkinnableElement";
+import { update } from "@/Skinning/Shared/FollowPoints";
 
 export default class DrawableFollowPoints extends SkinnableElement {
 	container: Container = new Container();
@@ -25,8 +26,8 @@ export default class DrawableFollowPoints extends SkinnableElement {
 	}
 
 	constructor(
-		private startObject: StandardHitObject,
-		private endObject: StandardHitObject,
+		public startObject: StandardHitObject,
+		public endObject: StandardHitObject,
 	) {
 		super();
 
@@ -56,7 +57,9 @@ export default class DrawableFollowPoints extends SkinnableElement {
 
 		const numberOfSprites = Math.floor((this.distance - 48) / (512 / 16));
 		for (let i = 0; i < numberOfSprites; i++) {
-			const sprite = new Sprite(this.skinManager?.getCurrentSkin().getTexture("followpoint"));
+			const sprite = new Sprite(
+				this.skinManager?.getCurrentSkin().getTexture("followpoint"),
+			);
 			sprite.anchor.set(0.5);
 			sprite.x = (1.5 + i) * (512 / 16);
 
@@ -76,52 +79,7 @@ export default class DrawableFollowPoints extends SkinnableElement {
 	}
 
 	update(time: number) {
-		const timeFadeIn = this.startObject.timeFadeIn;
-		const preempt = this.startObject.timePreempt;
-
-		if (time < this.startTime - preempt) {
-			this.container.visible = false;
-			return;
-		}
-
-		this.container.visible = true;
-
-		for (const [idx, sprite] of Object.entries(this.sprites)) {
-			const d = 32 * 1.5 + 32 * +idx;
-			const f = d / this.distance;
-
-			const fadeOutTime = this.startTime + f * this.duration;
-			const fadeInTime = fadeOutTime - preempt;
-
-			if (time < fadeInTime + timeFadeIn) {
-				const opacity = Easings.OutQuad(
-					Math.min(1, Math.max(0, (time - fadeInTime) / timeFadeIn)),
-				);
-
-				sprite.alpha = opacity;
-				sprite.scale.set((1.5 - 0.5 * opacity) * this.startObject.scale);
-				sprite.x = (f - 0.1 * (1 - opacity)) * this.distance;
-				continue;
-			}
-
-			if (time >= fadeInTime + timeFadeIn && time < fadeOutTime) {
-				sprite.alpha = 1;
-				sprite.scale.set(1 * this.startObject.scale);
-				sprite.x = f * this.distance;
-				continue;
-			}
-
-			if (time > fadeOutTime) {
-				const opacity =
-					1 -
-					Easings.OutQuad(
-						Math.min(1, Math.max(0, (time - fadeOutTime) / timeFadeIn)),
-					);
-				sprite.alpha = opacity;
-				sprite.scale.set(1 * this.startObject.scale);
-				sprite.x = f * this.distance;
-			}
-		}
+		update(this, time);
 	}
 
 	destroy() {
@@ -131,6 +89,7 @@ export default class DrawableFollowPoints extends SkinnableElement {
 
 		this.container.destroy();
 
-		if (this.skinEventCallback) this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

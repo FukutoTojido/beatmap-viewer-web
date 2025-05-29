@@ -6,7 +6,14 @@ import {
 	StandardHitObject,
 	type Slider,
 } from "osu-standard-stable";
-import { AlphaFilter, Mesh, Geometry, Shader, Container } from "pixi.js";
+import {
+	AlphaFilter,
+	Mesh,
+	Geometry,
+	Shader,
+	Container,
+	RenderLayer,
+} from "pixi.js";
 import { BackdropBlurFilter } from "pixi-filters";
 
 import vertex from "./Shaders/sliderShader.vert?raw";
@@ -30,6 +37,7 @@ import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import type { Context } from "@/Context";
 import TimelineSlider from "../Timeline/TimelineSlider";
+import { update } from "@/Skinning/Legacy/LegacySlider";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
@@ -70,7 +78,7 @@ export default class DrawableSlider
 			},
 		},
 	});
-	private _alphaFilter = new AlphaFilter();
+	_alphaFilter = new AlphaFilter();
 	private _backdropBlurFilter = new BackdropBlurFilter({
 		strength: 10,
 		quality: 7,
@@ -98,6 +106,8 @@ export default class DrawableSlider
 	container = new Container();
 
 	timelineObject: TimelineSlider;
+
+	private layer = new RenderLayer();
 
 	constructor(public object: Slider) {
 		super(object);
@@ -158,7 +168,20 @@ export default class DrawableSlider
 			...this.drawableCircles.toReversed().map((circle) => circle.container),
 			this.followCircle.container,
 			this.ball.container,
+			this.layer,
 		);
+
+		for (const drawable of this.drawableCircles.toReversed()) {
+			const d = drawable as DrawableHitCircle;
+
+			if (d instanceof DrawableSliderRepeat) {
+				this.layer.attach(d.reverseArrow);
+			}
+
+			if (d instanceof DrawableSliderHead && d.defaults) {
+				this.layer.attach(d.defaults.container);
+			}
+		}
 
 		const whistleSample = new Sample();
 		whistleSample.hitSound = "sliderwhistle";
@@ -209,7 +232,7 @@ export default class DrawableSlider
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 
 		const comboIndex =
-			this.object.comboIndex %
+			this.object.comboIndexWithOffsets %
 			(beatmap?.data.colors.comboColors.length
 				? beatmap?.data.colors.comboColors.length
 				: skin.colorsLength);
@@ -315,96 +338,22 @@ export default class DrawableSlider
 		this._geometry.indexBuffer.data = new Uint32Array(indexBuffer);
 	}
 
-	private spanAt(progress: number) {
+	spanAt(progress: number) {
 		return Math.floor(progress * this.object.spans);
 	}
 
-	private progressAt(progress: number) {
+	progressAt(progress: number) {
 		const p = (progress * this.object.spans) % 1;
 		if (this.spanAt(progress) % 2 === 1) return 1 - p;
 		return p;
 	}
 
 	update(time: number) {
-		const startFadeInTime = this.object.startTime - this.object.timePreempt;
-		const fadeOutDuration = 200;
-
-		if (
-			time < startFadeInTime ||
-			time > this.object.endTime + fadeOutDuration
-		) {		
-			this._alphaFilter.alpha = 0;
-			this.container.visible = false;
-
-			return;
-		}
-
 		this.ball.update(time);
 		this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);
 
-		this.container.visible = true;
-
-		const completionProgress = Math.min(
-			1,
-			Math.max(0, (time - this.object.startTime) / this.object.duration),
-		);
-		const span = this.spanAt(completionProgress);
-		const spanProgress = this.progressAt(completionProgress);
-
-		let start = 0;
-		let end = Math.min(
-			1,
-			Math.max(
-				0,
-				(time - (this.object.startTime - this.object.timePreempt)) /
-					(this.object.timePreempt / 3),
-			),
-		);
-
-		if (span >= this.object.spans - 1) {
-			if (Math.min(span, this.object.spans - 1) % 2 === 1) {
-				start = 0;
-				end = spanProgress;
-			} else {
-				start = spanProgress;
-			}
-		}
-
-		this.updateGeometry(start, end);
-
-		// const position = this.object.path.curvePositionAt(
-		// 	completionProgress,
-		// 	this.object.spans,
-		// );
-
-		// this.circle.x = position.x + this.object.stackedOffset.x;
-		// this.circle.y = position.y + this.object.stackedOffset.y;
-
-		if (time < this.object.startTime) {
-			const opacity = Math.min(
-				1,
-				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
-			);
-			this._alphaFilter.alpha = opacity;
-			return;
-		}
-
-		if (time >= this.object.startTime && time < this.object.endTime) {
-			this._alphaFilter.alpha = 1;
-			return;
-		}
-
-		if (time >= this.object.endTime) {
-			const opacity =
-				1 -
-				Math.min(
-					1,
-					Math.max(0, (time - this.object.endTime) / fadeOutDuration),
-				);
-			this._alphaFilter.alpha = opacity;
-			return;
-		}
+		update(this, time);
 	}
 
 	destroy() {

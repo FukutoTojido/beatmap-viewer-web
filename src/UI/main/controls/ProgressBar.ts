@@ -93,9 +93,12 @@ export default class ProgressBar {
 			seekByPercentage(event);
 		});
 
-		this.container.addEventListener("pointerup", (event) => {
+		this.container.addEventListener("pointerup", () => {
 			isSeeking = false;
-			// seekByPercentage(event);
+		});
+
+		this.container.addEventListener("pointerupoutside", () => {
+			isSeeking = false;
 		});
 	}
 

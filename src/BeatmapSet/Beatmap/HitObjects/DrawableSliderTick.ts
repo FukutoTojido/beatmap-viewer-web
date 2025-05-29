@@ -13,6 +13,7 @@ import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
+import { update } from "@/Skinning/Legacy/LegacySliderTick";
 
 export default class DrawableSliderTick extends DrawableHitObject {
 	container: Sprite;
@@ -79,41 +80,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 	}
 
 	update(time: number) {
-		const startFadeInTime = this.object.startTime - this.object.timePreempt;
-		const fadeOutDuration = 200;
-
-		this.container.x = this.object.startX + this.object.stackedOffset.x;
-		this.container.y = this.object.startY + this.object.stackedOffset.y;
-
-		this.container.scale.set(1 * this.object.scale);
-
-		if (time < this.object.startTime) {
-			const opacity = Math.min(
-				1,
-				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
-			);
-			this.container.alpha = opacity;
-
-			return;
-		}
-
-		if (time >= this.object.startTime) {
-			const opacity =
-				1 -
-				Math.min(
-					1,
-					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-				);
-			const scale = Math.min(
-				2,
-				1 + Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-			);
-
-			this.container.alpha = opacity;
-			this.container.scale.set(scale * this.object.scale);
-
-			return;
-		}
+		update(this, time);
 	}
 
 	destroy() {

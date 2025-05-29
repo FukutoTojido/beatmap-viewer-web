@@ -93,7 +93,7 @@ export default class DrawableHitCircle
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		if (beatmap?.data?.colors.comboColors.length) {
 			const colors = beatmap.data.colors.comboColors;
-			const comboIndex = this.object.comboIndex % colors.length;
+			const comboIndex = this.object.comboIndexWithOffsets % colors.length;
 
 			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
 
@@ -103,7 +103,7 @@ export default class DrawableHitCircle
 			return;
 		}
 
-		const comboIndex = this.object.comboIndex % skin.colorsLength;
+		const comboIndex = this.object.comboIndexWithOffsets % skin.colorsLength;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const color = (skin.config.Colours as any)[
 			`Combo${comboIndex + 1}`

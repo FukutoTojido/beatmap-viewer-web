@@ -5,6 +5,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import SkinnableElement from "./SkinnableElement";
+import { update } from "@/Skinning/Legacy/LegacyDefaults";
 
 const SPACING = -2;
 
@@ -12,7 +13,7 @@ export default class DrawableDefaults extends SkinnableElement {
 	container: Container;
 	sprites: { text: Sprite; digit: string }[] = [];
 
-	constructor(private object: StandardHitObject) {
+	constructor(public object: StandardHitObject) {
 		super();
 		const number = object.currentComboIndex + 1;
 		const digits = number.toString().split("");
@@ -68,29 +69,7 @@ export default class DrawableDefaults extends SkinnableElement {
 	}
 
 	update(time: number) {
-		const fadeOutDuration = 60;
-
-		if (time <= this.object.startTime) {
-			this.container.alpha = 1;
-			return;
-		}
-
-		if (
-			time > this.object.startTime &&
-			time <= this.object.startTime + fadeOutDuration
-		) {
-			const opacity =
-				1 -
-				Math.min(
-					1,
-					Math.max(0, (time - this.object.startTime) / fadeOutDuration),
-				);
-			this.container.alpha = opacity;
-
-			return;
-		}
-
-		this.container.alpha = 0;
+		update(this, time);
 	}
 
 	destroy() {

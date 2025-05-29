@@ -12,16 +12,18 @@ export const runTest = async () => {
 	const queries = new URLSearchParams(window.location.search).getAll("b");
 	const IDs = queries.length !== 0 ? queries : [];
 
-	let blob: Blob;
+	let blob: Blob | null;
 	try {
 		blob =
 			queries.length !== 0
 				? await getBeatmapFromId(IDs[0])
-				: (
+				: await (
 						await ky.get("./beatmapsets/test.osz", {
 							headers: { Accept: "application/x-osu-beatmap-archive" },
 						})
 					).blob();
+
+		if (blob === null) throw new Error("Cannot download beatmap");
 	} catch (e) {
 		console.error(e);
 		return;
