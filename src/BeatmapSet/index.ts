@@ -239,16 +239,6 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	async loadPeripherals(beatmap: Beatmap) {
-		beatmap.loadTimingPoints();
-
-		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
-			beatmap.data.metadata,
-		);
-
-		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
-			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
-		);
-
 		const storyboard = this.context.consume<Storyboard>("storyboard");
 		await Promise.all([
 			this.loadAudio(beatmap),
@@ -258,6 +248,16 @@ export default class BeatmapSet extends ScopedClass {
 		]);
 		storyboard?.checkRemoveBG();
 		storyboard?.sortChildren();
+
+		beatmap.loadTimingPoints();
+
+		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
+			beatmap.data.metadata,
+		);
+
+		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
+			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
+		);
 
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
 		if (el) {
