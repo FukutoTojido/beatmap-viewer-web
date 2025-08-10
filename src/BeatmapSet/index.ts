@@ -22,7 +22,8 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 
-import extraMode from "/assets/extra-mode.svg?raw"
+import extraMode from "/assets/extra-mode.svg?raw";
+import { getDiffColour } from "@/utils";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -71,18 +72,30 @@ export default class BeatmapSet extends ScopedClass {
 					return new Beatmap(rawString).hook(this.context);
 				}),
 			)
-		).filter((beatmap) => beatmap !== null);
+		)
+			.filter((beatmap) => beatmap !== null)
+			.sort(
+				(a, b) =>
+					-a.difficultyAttributes.starRating +
+					b.difficultyAttributes.starRating,
+			);
 
 		const el = document.querySelector<HTMLDivElement>("#diffsContainer");
+		if (el) el.innerHTML = "";
 		for (let i = 0; i < this.difficulties.length; i++) {
 			const difficulty = this.difficulties[i];
 			const div = document.createElement("div");
-			div.className = "flex gap-2.5";
+			div.className = "flex gap-2.5 items-center";
 
 			const button = document.createElement("button");
 			button.className =
 				"flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-text";
-			button.innerHTML = `${extraMode} ${difficulty.data.metadata.version}`;
+			const color = getDiffColour(
+				this.difficulties[i].difficultyAttributes.starRating,
+			);
+			button.innerHTML = `${extraMode.replace('stroke="white"', `stroke="${color}"`).replace('fill="white"', `fill="${color}"`)}
+			<span class="flex-1 text-left">${difficulty.data.metadata.version}</span>
+			<div>${this.difficulties[i].difficultyAttributes.starRating.toFixed(2)}★</div>`;
 			button.addEventListener("click", () => {
 				this.loadMaster(i);
 				document
@@ -100,6 +113,7 @@ export default class BeatmapSet extends ScopedClass {
 			button2.style.aspectRatio = "1 / 1";
 			button2.addEventListener("click", () => {
 				this.loadSlave(i);
+
 				document
 					.querySelector<HTMLDivElement>("#diffsContainer")
 					?.classList.add("hidden");
@@ -108,7 +122,7 @@ export default class BeatmapSet extends ScopedClass {
 					?.classList.remove("flex");
 			});
 
-			div?.append(button);
+			div?.append(button, button2);
 
 			el?.append(div);
 		}
@@ -224,57 +238,84 @@ export default class BeatmapSet extends ScopedClass {
 		await storyboard.loadCurrent();
 	}
 
-	async loadMaster(idx: number) {
-		const beatmap = this.difficulties[idx];
-		if (!beatmap) return;
-		if (this.master === beatmap) return;
-
-		inject<Loading>("ui/loading")?.on();
-
-		this.master?.destroy();
-
-		const storyboard = this.context.consume<Storyboard>("storyboard");
-
-		await Promise.all([
-			this.loadAudio(beatmap),
-			this.loadVideo(beatmap),
-			this.loadBackground(beatmap),
-			storyboard?.loadMaster(beatmap.raw),
-		]);
-
-		storyboard?.checkRemoveBG();
-		storyboard?.sortChildren();
-
-		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
-
+	async loadPeripherals(beatmap: Beatmap) {
 		beatmap.loadTimingPoints();
-		beatmap.loadHitObjects();
-
-		beatmap.load();
 
 		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
 			beatmap.data.metadata,
-		);
-
-		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
-			beatmap.container,
 		);
 
 		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
 			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
 		);
 
-		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
-		beatmap.toggle();
+		const storyboard = this.context.consume<Storyboard>("storyboard");
+		await Promise.all([
+			this.loadAudio(beatmap),
+			this.loadVideo(beatmap),
+			this.loadBackground(beatmap),
+			storyboard?.loadMaster(beatmap.raw),
+		]);
+		storyboard?.checkRemoveBG();
+		storyboard?.sortChildren();
 
-		this.master = beatmap;
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
 		if (el) {
 			el.textContent = beatmap.data.metadata.version;
 		}
+		const svg = document.querySelector<SVGSVGElement>("#extraMode");
+		if (svg) {
+			const color = getDiffColour(beatmap.difficultyAttributes.starRating);
+			svg.innerHTML = svg.innerHTML
+				.replace('stroke="white"', `stroke="${color}"`)
+				.replace('fill="white"', `fill="${color}"`);
+		}
+		const sr = document.querySelector<HTMLSpanElement>("#masterSR");
+		if (sr)
+			sr.textContent = `${beatmap.difficultyAttributes.starRating.toFixed(2)}★`;
+	}
+
+	async loadBeatmap(beatmap: Beatmap) {
+		inject<Loading>("ui/loading")?.on();
+		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
+
+		beatmap.loadHitObjects();
+		beatmap.load();
+
+		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
+			beatmap.container,
+		);
+
+		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
+		beatmap.toggle();
 
 		inject<Loading>("ui/loading")?.off();
+	}
 
+	loadMaster(idx: number) {
+		const beatmap = this.difficulties[idx];
+		if (!beatmap) return;
+		if (this.master === beatmap) return;
+
+		const oldMaster = this.master;
+		const isSwitch = this.slaves.has(beatmap);
+
+		if (isSwitch && oldMaster) {
+			inject<Gameplays>("ui/main/viewer/gameplays")?.switchGameplay(
+				beatmap.container,
+				oldMaster.container,
+			);
+
+			this.slaves.delete(beatmap);
+			this.slaves.add(oldMaster);
+		} else {
+			this.master?.destroy();
+			this.loadBeatmap(beatmap);
+		}
+
+		this.master = beatmap;
+
+		this.loadPeripherals(beatmap);
 		this.setIds();
 	}
 
@@ -283,13 +324,8 @@ export default class BeatmapSet extends ScopedClass {
 		if (!beatmap) return;
 		if (beatmap === this.master || this.slaves.has(beatmap)) return;
 
-		beatmap.loadHitObjects();
-		beatmap.load();
-
+		this.loadBeatmap(beatmap);
 		this.slaves.add(beatmap);
-		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
-			beatmap.container,
-		);
 
 		this.setIds();
 	}

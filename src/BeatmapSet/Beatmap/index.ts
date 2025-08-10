@@ -5,7 +5,7 @@ import {
 	StandardRuleset,
 } from "osu-standard-stable";
 import { inject, ScopedClass } from "../../Context";
-import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import { type DifficultyAttributes, type DifficultyCalculator, DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
@@ -27,6 +27,10 @@ const ruleset = new StandardRuleset();
 
 export default class Beatmap extends ScopedClass {
 	data: StandardBeatmap;
+
+	difficultyCalculator: DifficultyCalculator;
+	difficultyAttributes: DifficultyAttributes;
+
 	objects: DrawableHitObject[] = [];
 	connectors: DrawableFollowPoints[] = [];
 
@@ -46,6 +50,10 @@ export default class Beatmap extends ScopedClass {
 			"beatmap",
 			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
 		);
+
+		this.difficultyCalculator = ruleset.createDifficultyCalculator(this.data);
+		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(ruleset.createModCombination(""));
+
 		this.context.provide("beatmapObject", this);
 		this.container = new Gameplay();
 	}

@@ -38,10 +38,11 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <span id="masterDiff">Difficulty</span>
+                <span id="masterDiff" class="flex-1 text-left">Difficulty</span>
+                <span id="masterSR">SR★</span>
             </div>
             <div id="diffsContainer"
-                class="absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden">
+                class="absolute w-full top-[100%] left-0 mt-2.5 bg-black/70 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh]">
             </div>
         </label>
     </div>
@@ -51,7 +52,7 @@
         Beatmap</button> -->
     <!-- <button class="absolute top-0 left-[300px] p-5 rounded-xl bg-gray-600" id="destroy">Destroy</button> -->
     <script type="module" src="/src/index.ts"></script>
-    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50" id="loading">
+    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50 z-[999]" id="loading">
         <span class="loader scale-50"></span>
         <div class="flex flex-col">
             <div class="font-medium text-lg">JoSu! is loading</div>

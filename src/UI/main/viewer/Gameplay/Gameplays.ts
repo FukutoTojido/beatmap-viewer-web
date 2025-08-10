@@ -39,6 +39,19 @@ export default class Gameplays {
 		this.container.addChild(this.separator);
 	}
 
+	switchGameplay(a: Gameplay, b: Gameplay) {
+		const deserialized = Array(...this.gameplays);
+		const idxA = deserialized.findIndex(beatmap => beatmap === a);
+		const idxB = deserialized.findIndex(beatmap => beatmap === b);
+
+		if (idxA === -1 || idxB === -1) return;
+		deserialized[idxA] = b;
+		deserialized[idxB] = a;
+
+		this.gameplays = new Set(deserialized);
+		this.reLayoutChildren();
+	}
+
 	constructor() {
 		const fps = new FPS();
 
