@@ -21,24 +21,24 @@ export default class MirrorConfig extends ConfigSection {
 	}
 
 	private _mirror = {
-		name: "Nerinyan",
-		urlTemplate: "https://api.nerinyan.moe/d/$setId",
+		name: "Mino",
+		urlTemplate: "https://catboy.best/d/$setId",
 	};
-	get mirror() {
-		return this._mirror;
-	}
-	set mirror(val: Mirror) {
-		this._mirror = val;
-		this.emitChange("mirror", val);
-	}
+    get mirror() {
+        return this._mirror;
+    }
+    set mirror(val: Mirror) {
+        this._mirror = val;
+        this.emitChange("mirror", val);
+    }
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	protected emitChange(key: MirrorConfigEvents, newValue: any): void {
-		super.emitChange(key, newValue);
-	}
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    protected emitChange(key: MirrorConfigEvents, newValue: any): void {
+        super.emitChange(key, newValue)
+    }
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	onChange(key: MirrorConfigEvents, callback: (newValue: any) => void): void {
-		super.onChange(key, callback);
-	}
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    onChange(key: MirrorConfigEvents, callback: (newValue: any) => void): void {
+        super.onChange(key, callback)
+    }
 }
