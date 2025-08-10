@@ -167,10 +167,10 @@ export default class Metadata {
 		this.source.text = metadata.source;
 		this.tags.text = metadata.tags.join(", ");
 
-		const artistEl = document.querySelector("#artist") 
+		const mapperEl = document.querySelector("#mapper") 
 		const titleEl = document.querySelector("#title")
 		
-		if (artistEl) artistEl.textContent = metadata.artist;
-		if (titleEl) titleEl.textContent = metadata.title;
+		if (mapperEl) mapperEl.textContent = `by ${metadata.creator}`;
+		if (titleEl) titleEl.textContent = `${metadata.artist} - ${metadata.title}`;
 	}
 }

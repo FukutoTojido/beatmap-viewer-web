@@ -55,7 +55,7 @@ export default class Beatmap extends ScopedClass {
 		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(ruleset.createModCombination(""));
 
 		this.context.provide("beatmapObject", this);
-		this.container = new Gameplay();
+		this.container = new Gameplay(this);
 	}
 
 	private constructConnectors() {

@@ -238,10 +238,12 @@ export default class Timeline {
 		this._ruler.x = width / 2 + -timestamp / (DEFAULT_SCALE / scale);
 
 		for (const idx of [...this._previousTiming].sort((a, b) => b - a)) {
+			if (!this._timingPoints[idx]) continue;
 			this._timingPoints[idx].container.visible = true;
 		}
 
 		for (const idx of [...this._previous].sort((a, b) => b - a)) {
+			if (!this._objects[idx]) continue;
 			this._objects[idx].container.visible = true;
 		}
 
