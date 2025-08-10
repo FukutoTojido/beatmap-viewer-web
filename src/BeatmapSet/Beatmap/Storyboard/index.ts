@@ -364,4 +364,19 @@ export default class Storyboard extends ScopedClass {
 		this.fill.context.destroy();
 		this.fill.context = context;
 	}
+
+	destroy() {
+		for (const sprite of this.masterSprites) {
+			sprite.destroy()
+		}
+
+		for (const sprite of this.sprites) {
+			sprite.destroy();
+		}
+
+		this.foregroundLayer.destroy();
+		this.backgroundLayer.destroy();
+		this.overlayLayer.destroy();
+		this.container.destroy();
+	}
 }

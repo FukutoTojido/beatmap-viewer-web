@@ -1,6 +1,32 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
 @import "tailwindcss";
 
+@theme {
+	--color-base: #1e1e2e;
+	--color-mantle: #181825;
+	--color-crust: #11111b;
+
+	--color-surface-0: #313244;
+	--color-surface-1: #45475a;
+	--color-surface-2: #585b70;
+
+	--color-overlay-0: #6c7086;
+	--color-overlay-1: #7f849c;
+	--color-overlay-2: #9399b2;
+
+	--color-subtext-0: #a6adc8;
+	--color-subtext-1: #bac2de;
+
+	--color-text: #cdd6f4;
+
+	--color-red: #f38ba8;
+	--color-yellow: #f9e2af;
+	--color-green: #a6e3a1;
+	--color-blue: #89b4fa;
+
+	--color-vhp: #e2f1e7;
+}
+
 :root {
 	font-family: Rubik, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
@@ -46,6 +72,20 @@ body {
 @media screen and (max-aspect-ratio: 1 / 1) {
 	body {
 		padding: 0px;
+	}
+
+	#topBar {
+		padding: 20px 10px 0 10px;
+		flex-direction: column;
+		height: auto;
+	}
+
+	#metadata, #diffsLabel {
+		width: 100%;
+	}
+
+	#search {
+		display: none;
 	}
 }
 

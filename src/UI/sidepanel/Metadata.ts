@@ -166,5 +166,11 @@ export default class Metadata {
 		this.version.text = metadata.version;
 		this.source.text = metadata.source;
 		this.tags.text = metadata.tags.join(", ");
+
+		const artistEl = document.querySelector("#artist") 
+		const titleEl = document.querySelector("#title")
+		
+		if (artistEl) artistEl.textContent = metadata.artist;
+		if (titleEl) titleEl.textContent = metadata.title;
 	}
 }

@@ -12,6 +12,10 @@ import Config from "./Config";
 import SkinManager from "./Skinning/SkinManager";
 import ResponsiveHandler from "./ResponsiveHandler";
 import Loading from "./UI/loading";
+import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
+import ky from "ky";
+import ZipHandler from "./ZipHandler";
+import BeatmapSet from "./BeatmapSet";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -19,7 +23,7 @@ RenderTarget.defaultOptions.stencil = true;
 export class Game {
 	app?: Application;
 	animationController = new AnimationController();
-	
+
 	state = provide("state", new State());
 	responsiveHandler = provide("responsiveHandler", new ResponsiveHandler());
 
@@ -113,6 +117,106 @@ export class Game {
 
 		document.querySelector<HTMLDivElement>("#app")?.append(app.canvas);
 		await inject<SkinManager>("skinManager")?.loadSkins();
+
+		this.loadFromQuery();
+
+		document
+			.querySelector<HTMLInputElement>("#idInput")
+			?.addEventListener("keydown", (event) => {
+				if (event.key !== "Enter") return;
+
+				this.loadFromInput();
+			});
+
+		document
+			.querySelector<HTMLButtonElement>("#submitId")
+			?.addEventListener("click", () => this.loadFromInput());
+	}
+
+	private async loadFromQuery() {
+		const queries = new URLSearchParams(window.location.search).getAll("b");
+		const IDs = queries.length !== 0 ? queries : [];
+
+		this.loadIDs(IDs);
+	}
+
+	private async loadFromInput() {
+		const input = document.querySelector<HTMLInputElement>("#idInput");
+		const ids =
+			input?.value
+				.split(",")
+				.map((id) => id.trim())
+				.filter((id) => /\d+/g.test(id)) ?? [];
+
+		input?.blur();
+
+		this.loadIDs(ids);
+	}
+
+	private async loadIDs(IDs: string[]) {
+		inject<Loading>("ui/loading")?.on();
+
+		try {
+			let bms = inject<BeatmapSet>("beatmapset");
+			if (
+				!bms ||
+				!bms?.difficulties.some(
+					(diff) => diff.data.metadata.beatmapId === +IDs[0],
+				)
+			) {
+				bms?.destroy();
+				const blob =
+					IDs.length !== 0
+						? await getBeatmapFromId(IDs[0])
+						: await (
+								await ky.get("./beatmapsets/test.osz", {
+									headers: { Accept: "application/x-osu-beatmap-archive" },
+								})
+							).blob();
+
+				if (blob === null) throw new Error("Cannot download beatmap");
+				console.log("Download Completed!");
+
+				bms = await this.loadBlob(blob);
+			}
+
+			if (IDs.length === 0) {
+				await bms.loadMaster(0);
+			}
+
+			for (let i = 0; i < IDs.length; i++) {
+				const ID = IDs[i];
+
+				const idx = bms.difficulties.findIndex(
+					(diff) => diff.data.metadata.beatmapId === +ID,
+				);
+
+				if (idx === -1) continue;
+				if (i === 0) await bms.loadMaster(idx);
+				if (i !== 0) bms.loadSlave(idx);
+			}
+		} catch (e) {
+			console.error(e);
+			inject<Loading>("ui/loading")?.off();
+			return;
+		}
+
+		inject<Loading>("ui/loading")?.off();
+	}
+
+	async loadBlob(blob: Blob) {
+		inject<Loading>("ui/loading")?.on();
+
+		const resources = await ZipHandler.extract(blob);
+		const bms = new BeatmapSet(resources);
+		console.log("Init beatmapset");
+
+		await bms.getDifficulties();
+		await bms.loadResources();
+
+		inject<Loading>("ui/loading")?.off();
+
+		return bms;
 	}
 
 	private resize() {

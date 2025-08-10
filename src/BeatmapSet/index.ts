@@ -1,34 +1,33 @@
-import { BlobReader, BlobWriter, ZipReader, type Entry } from "@zip.js/zip.js";
-import Beatmap from "./Beatmap";
-import { inject, provide, ScopedClass } from "../Context";
-import SampleManager from "./SampleManager";
 import Audio from "@/Audio";
+import { ScopedClass, inject, provide } from "../Context";
+import Beatmap from "./Beatmap";
+import SampleManager from "./SampleManager";
 
-import type { Resource } from "../ZipHandler";
-import type Metadata from "@/UI/sidepanel/Metadata";
+import type TimelineConfig from "@/Config/TimelineConfig";
+import type Loading from "@/UI/loading";
 import type Play from "@/UI/main/controls/Play";
-import { Assets, type FederatedWheelEvent } from "pixi.js";
-import Video from "@/Video";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import type Timestamp from "@/UI/main/controls/Timestamp";
 import type Background from "@/UI/main/viewer/Background";
-import type Gameplay from "@/UI/main/viewer/Gameplay";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Timeline from "@/UI/main/viewer/Timeline";
+import type Metadata from "@/UI/sidepanel/Metadata";
+import type Timing from "@/UI/sidepanel/Timing";
+import Video from "@/Video";
+import type { Tween } from "@tweenjs/tween.js";
+import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import { Assets, type FederatedWheelEvent } from "pixi.js";
+import type { Resource } from "../ZipHandler";
 import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
-import type ProgressBar from "@/UI/main/controls/ProgressBar";
-import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
-import type Timing from "@/UI/sidepanel/Timing";
-import type Timestamp from "@/UI/main/controls/Timestamp";
-import type TimelineConfig from "@/Config/TimelineConfig";
-import type { Tween } from "@tweenjs/tween.js";
-import Easings from "@/UI/Easings";
-import { tweenGroup } from "@/UI/animation/AnimationController";
-import type Loading from "@/UI/loading";
 import Storyboard from "./Beatmap/Storyboard";
+
+import extraMode from "/assets/extra-mode.svg?raw"
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
 	audioContext = new AudioContext();
+	animationFrame: number;
 
 	constructor(private resources: Map<string, Resource>) {
 		super();
@@ -37,7 +36,7 @@ export default class BeatmapSet extends ScopedClass {
 		this.context.provide("beatmapset", this);
 
 		provide("beatmapset", this);
-		requestAnimationFrame(() => this.frame());
+		this.animationFrame = requestAnimationFrame(() => this.frame());
 	}
 
 	async loadResources() {
@@ -73,6 +72,46 @@ export default class BeatmapSet extends ScopedClass {
 				}),
 			)
 		).filter((beatmap) => beatmap !== null);
+
+		const el = document.querySelector<HTMLDivElement>("#diffsContainer");
+		for (let i = 0; i < this.difficulties.length; i++) {
+			const difficulty = this.difficulties[i];
+			const div = document.createElement("div");
+			div.className = "flex gap-2.5";
+
+			const button = document.createElement("button");
+			button.className =
+				"flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-text";
+			button.innerHTML = `${extraMode} ${difficulty.data.metadata.version}`;
+			button.addEventListener("click", () => {
+				this.loadMaster(i);
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("hidden");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("flex");
+			});
+
+			const button2 = document.createElement("button");
+			button2.innerHTML = `<i class="ri-add-line"></i>`;
+			button2.className =
+				"h-full hover:bg-white/10 p-2.5 flex items-center justify-center rounded-[10px] cursor-pointer transition-colors text-text";
+			button2.style.aspectRatio = "1 / 1";
+			button2.addEventListener("click", () => {
+				this.loadSlave(i);
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("hidden");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("flex");
+			});
+
+			div?.append(button);
+
+			el?.append(div);
+		}
 	}
 
 	master?: Beatmap;
@@ -192,12 +231,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		inject<Loading>("ui/loading")?.on();
 
-		if (this.master) {
-			this.master.destroy();
-			inject<Gameplays>("ui/main/viewer/gameplays")?.removeGameplay(
-				this.master.container,
-			);
-		}
+		this.master?.destroy();
 
 		const storyboard = this.context.consume<Storyboard>("storyboard");
 
@@ -234,7 +268,14 @@ export default class BeatmapSet extends ScopedClass {
 		beatmap.toggle();
 
 		this.master = beatmap;
+		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
+		if (el) {
+			el.textContent = beatmap.data.metadata.version;
+		}
+
 		inject<Loading>("ui/loading")?.off();
+
+		this.setIds();
 	}
 
 	loadSlave(idx: number) {
@@ -249,6 +290,8 @@ export default class BeatmapSet extends ScopedClass {
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 			beatmap.container,
 		);
+
+		this.setIds();
 	}
 
 	toggle() {
@@ -307,10 +350,16 @@ export default class BeatmapSet extends ScopedClass {
 	cacheSample?: SamplePoint;
 
 	frame() {
-		if (!this.master) return requestAnimationFrame(() => this.frame());
+		if (!this.master) {
+			this.animationFrame = requestAnimationFrame(() => this.frame());
+			return;
+		}
 
 		const audio = this.context.consume<Audio>("audio");
-		if (!audio) return requestAnimationFrame(() => this.frame());
+		if (!audio) {
+			this.animationFrame = requestAnimationFrame(() => this.frame());
+			return;
+		}
 
 		const time = audio.currentTime;
 
@@ -364,7 +413,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		this.context.consume<Storyboard>("storyboard")?.update(time);
 
-		requestAnimationFrame(() => this.frame());
+		this.animationFrame = requestAnimationFrame(() => this.frame());
 	}
 
 	private _currentNextTick?: number;
@@ -407,5 +456,55 @@ export default class BeatmapSet extends ScopedClass {
 				beatLength;
 
 		return nextTick;
+	}
+
+	destroy() {
+		cancelAnimationFrame(this.animationFrame);
+		const audio = this.context.consume<Audio>("audio");
+		if (audio?.state === "PLAYING") {
+			audio?.toggle();
+		}
+
+		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects([]);
+		inject<Background>("ui/main/viewer/background")?.ejectStoryboardContainer();
+
+		this.context.consume<Storyboard>("storyboard")?.destroy();
+
+		this.master?.destroy();
+
+		for (const slave of this.slaves) {
+			slave.destroy();
+		}
+
+		provide("beatmapset", undefined);
+	}
+
+	private setIds() {
+		const masterId = this.master?.data.metadata.beatmapId;
+		const slavesId = [...this.slaves].map(
+			(slave) => slave.data.metadata.beatmapId,
+		);
+
+		const ids = [masterId, ...slavesId].filter((id) => id !== undefined);
+
+		const url = window.location;
+		const params = new URLSearchParams(url.search);
+
+		for (let i = 0; i < ids.length; i++) {
+			const id = ids[i];
+
+			if (i === 0) {
+				params.set("b", id.toString());
+				continue;
+			}
+
+			params.append("b", id.toString());
+		}
+
+		window.history.pushState(null, "", `?${params.toString()}`);
+
+		const input = document.querySelector<HTMLInputElement>("#idInput");
+		if (!input) return;
+		input.value = ids.join(", ");
 	}
 }

@@ -148,4 +148,8 @@ export default class Background {
 		this.storyboardContainer.removeChildren();
 		this.storyboardContainer.addChild(container);
 	}
+
+	ejectStoryboardContainer() {
+		this.storyboardContainer.removeChildren();
+	}
 }

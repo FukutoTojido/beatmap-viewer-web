@@ -20,6 +20,7 @@ import type Audio from "@/Audio";
 import Gameplay from "@/UI/main/viewer/Gameplay";
 import type Timing from "@/UI/sidepanel/Timing";
 import type Timeline from "@/UI/main/viewer/Timeline";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -305,6 +306,7 @@ export default class Beatmap extends ScopedClass {
 
 		for (const object of this.objects) {
 			object.destroy();
+			(object as DrawableHitCircle | DrawableSlider).timelineObject?.destroy();
 		}
 
 		for (const connector of this.connectors) {
@@ -316,5 +318,7 @@ export default class Beatmap extends ScopedClass {
 
 		this.previousConnectors.clear();
 		this.previousObjects.clear();
+
+		inject<Gameplays>("ui/main/viewer/gameplays")?.removeGameplay(this.container);
 	}
 }

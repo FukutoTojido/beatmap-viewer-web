@@ -1,8 +1,8 @@
 import "@pixi/layout";
-import { runTest } from "./Test";
+import 'remixicon/fonts/remixicon.css'
 import { Game } from "./Game";
 import { inject, provide } from "./Context";
-import { Assets, BitmapFontManager } from "pixi.js";
+import { Assets } from "pixi.js";
 import type BeatmapSet from "./BeatmapSet";
 import type Audio from "./Audio";
 
@@ -22,6 +22,8 @@ document.addEventListener("keydown", (event) => {
 			break;
 		}
 		case " ": {
+			const activeElement = document.activeElement
+			if (activeElement?.tagName === "INPUT" && activeElement?.getAttribute("type") === "text") return;
 			bms.toggle();
 		}
 	}
@@ -38,6 +40,11 @@ document.addEventListener(
 	},
 );
 
+document.querySelector<HTMLButtonElement>("#diffs")?.addEventListener("click", () => {
+	document.querySelector<HTMLDivElement>("#diffsContainer")?.classList.toggle("hidden");
+	document.querySelector<HTMLDivElement>("#diffsContainer")?.classList.toggle("flex");
+});
+
 (async () => {
 	await Promise.all([
 		Assets.load({ src: "./assets/metadata.png", loadParser: "loadTextures" }),
@@ -51,5 +58,4 @@ document.addEventListener(
 
 	const game = provide("game", new Game());
 	await game.init();
-	runTest();
 })();
