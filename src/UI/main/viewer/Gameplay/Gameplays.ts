@@ -106,13 +106,16 @@ export default class Gameplays {
 	tweenMap: Map<Gameplay, Tween> = new Map();
 
 	reLayoutChildren(target?: Gameplay) {
+		const deserialized = Array(...this.gameplays);
+
 		const columnsCount = Math.ceil(Math.sqrt(this.gameplays.size));
+		const rowsCount = Math.ceil(deserialized.length / columnsCount);
+		const missingLast = deserialized.length % columnsCount === 0 ? 0 : columnsCount - (deserialized.length % columnsCount)
 		const heightDenominator = Math.ceil(this.gameplays.size / columnsCount);
 
 		const w = 100 / columnsCount;
 		const h = 100 / heightDenominator;
 
-		const deserialized = Array(...this.gameplays);
 		for (let i = 0; i < deserialized.length; i++) {
 			const gameplay = deserialized[i];
 			const col = i % columnsCount;
@@ -136,7 +139,7 @@ export default class Gameplays {
 
 			const newLayout = {
 				top: Math.floor(i / columnsCount) * h,
-				left: (i % columnsCount) * w,
+				left: (i % columnsCount) * w + (row === rowsCount - 1 ? w * missingLast / 2 : 0),
 				width: w,
 				height: h,
 				paddingTop: deserialized.length > 1 ? (row === 0 ? 10 : 5) : 0,
@@ -148,7 +151,7 @@ export default class Gameplays {
 						: 0,
 				paddingLeft: deserialized.length > 1 ? (col === 0 ? 10 : 5) : 0,
 				paddingRight:
-					deserialized.length > 1 ? (col === columnsCount - 1 ? 10 : 5) : 0,
+					deserialized.length > 1 ? (col === columnsCount - 1 || i === deserialized.length - 1 ? 10 : 5) : 0,
 				scale: 1,
 			};
 
