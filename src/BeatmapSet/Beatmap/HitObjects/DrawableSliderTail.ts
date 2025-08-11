@@ -80,6 +80,6 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 	}
 
 	update(time: number): void {
-		super.update(time + TAIL_LENIENCY);
+		super.update(time - TAIL_LENIENCY);
 	}
 }
