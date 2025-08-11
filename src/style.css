@@ -80,7 +80,8 @@ body {
 		height: auto;
 	}
 
-	#metadata, #diffsLabel {
+	#metadata,
+	#diffsLabel {
 		width: 100%;
 	}
 

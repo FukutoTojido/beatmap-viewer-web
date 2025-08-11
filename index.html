@@ -10,7 +10,7 @@
 
 <body>
     <div class="absolute top-0 left-0 w-full h-full bg-black/50 backdrop-blur-lg"></div>
-    <div class="relative w-full h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
+    <div class="relative w-full min-h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
         <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full min-h-10" id="search">
             <input type="text" name="" id="idInput"
                 class="min-w-[264px] h-full rounded-full rounded-r-none focus-within:outline-0 bg-black/40 px-5 placeholder:text-text/60 text-text text-xs flex-1"
@@ -19,11 +19,11 @@
                 <i class="ri-search-line text-text text-[24px]"></i>
             </button>
         </div>
-        <div class="flex-1 flex flex-col px-5 min-h-10" id="metadata">
+        <div class="flex-1 flex flex-col px-5" id="metadata">
             <div class="text-sm font-medium text-text" id="title">Artist - Title</div>
             <div class="text-xs text-text" id="mapper">by Mapper</div>
         </div>
-        <label for="diffs" class="relative h-full min-h-10 w-[294px] text-xs" id="diffsLabel">
+        <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
             <button id="diffs" class="hidden"></button>
             <div
                 class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none">
