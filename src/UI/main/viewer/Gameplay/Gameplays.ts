@@ -4,6 +4,8 @@ import { inject, provide } from "@/Context";
 import type Gameplay from ".";
 import FPS from "../FPS";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import { Tween } from "@tweenjs/tween.js";
+import { defaultEasing, tweenGroup } from "@/UI/animation/AnimationController";
 
 export default class Gameplays {
 	container = new Container({
@@ -27,7 +29,7 @@ export default class Gameplays {
 		this.gameplays.add(gameplay);
 		this.container.addChildAt(gameplay.container, 0);
 
-		this.reLayoutChildren();
+		this.reLayoutChildren(gameplay);
 	}
 
 	removeGameplay(gameplay: Gameplay) {
@@ -50,11 +52,24 @@ export default class Gameplays {
 		this.reLayoutChildren();
 	}
 
+	w = 0;
+	h = 0;
+
 	constructor() {
 		const fps = new FPS();
 
 		this.container.addChild(fps.container);
-		this.container.on("layout", () => this.reLayoutChildren());
+		this.container.on("layout", (layout) => {
+			const width = layout.computedLayout.width;
+			const height = layout.computedLayout.height;
+
+			if (width !== this.w || height !== this.h) {
+				this.w = width;
+				this.h = height;
+
+				this.reLayoutChildren();
+			}
+		});
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
@@ -79,7 +94,9 @@ export default class Gameplays {
 		);
 	}
 
-	reLayoutChildren() {
+	tweenMap: Map<Gameplay, Tween> = new Map();
+
+	reLayoutChildren(target?: Gameplay) {
 		const columnsCount = Math.ceil(Math.sqrt(this.gameplays.size));
 		const heightDenominator = Math.ceil(this.gameplays.size / columnsCount);
 
@@ -89,12 +106,98 @@ export default class Gameplays {
 		const deserialized = Array(...this.gameplays);
 		for (let i = 0; i < deserialized.length; i++) {
 			const gameplay = deserialized[i];
-			gameplay.container.layout = {
-				top: `${Math.floor(i / columnsCount) * h}%`,
-				left: `${(i % columnsCount) * w}%`,
-				width: `${w}%`,
-				height: `${h}%`,
+			const col = i % columnsCount;
+			const row = Math.floor(i / columnsCount);
+
+			const currentTween = this.tweenMap.get(gameplay);
+			currentTween?.stop();
+			if (currentTween) tweenGroup.remove(currentTween);
+
+			const oldLayout = {
+				top: gameplay.container.layout?.yoga.getPosition(1).value,
+				left: gameplay.container.layout?.yoga.getPosition(0).value,
+				width: gameplay.container.layout?.yoga.getWidth().value,
+				height: gameplay.container.layout?.yoga.getHeight().value,
+				paddingTop: gameplay.container.layout?.yoga.getPadding(1).value,
+				paddingLeft: gameplay.container.layout?.yoga.getPadding(0).value,
+				paddingBottom: gameplay.container.layout?.yoga.getPadding(3).value,
+				paddingRight: gameplay.container.layout?.yoga.getPadding(2).value,
+				scale: 0,
 			};
+
+			const newLayout = {
+				top: Math.floor(i / columnsCount) * h,
+				left: (i % columnsCount) * w,
+				width: w,
+				height: h,
+				paddingTop: deserialized.length > 1 ? (row === 0 ? 10 : 5) : 0,
+				paddingBottom:
+					deserialized.length > 1
+						? row === Math.floor((deserialized.length - 1) / columnsCount)
+							? 10
+							: 5
+						: 0,
+				paddingLeft: deserialized.length > 1 ? (col === 0 ? 10 : 5) : 0,
+				paddingRight:
+					deserialized.length > 1 ? (col === columnsCount - 1 ? 10 : 5) : 0,
+				scale: 1,
+			};
+
+			const tween = new Tween({
+				value: oldLayout,
+			})
+				.easing(defaultEasing)
+				.to(
+					{
+						value: newLayout,
+					},
+					500,
+				)
+				.onUpdate(
+					({
+						value: {
+							top,
+							left,
+							width,
+							height,
+							paddingTop,
+							paddingBottom,
+							paddingLeft,
+							paddingRight,
+							scale,
+						},
+					}) => {
+						gameplay.container.layout = {
+							top: gameplay === target ? `${newLayout.top}%` : `${top ?? 0}%`,
+							left:
+								gameplay === target ? `${newLayout.left}%` : `${left ?? 0}%`,
+							width:
+								gameplay === target ? `${newLayout.width}%` : `${width ?? 0}%`,
+							height:
+								gameplay === target ? `${newLayout.height}%` : `${height ?? 0}%`,
+							paddingTop,
+							paddingLeft,
+							paddingBottom,
+							paddingRight,
+						};
+
+						if (gameplay === target) {
+							gameplay.container.scale = 0.5 + 0.5 * scale;
+							gameplay.container.alpha = scale; 
+						}
+					},
+				)
+				.onComplete(() => {
+					this.tweenMap.delete(gameplay);
+					tweenGroup.remove(tween);
+				})
+				.onStop(() => {
+					this.tweenMap.delete(gameplay);
+					tweenGroup.remove(tween);
+				})
+				.start();
+
+			tweenGroup.add(tween);
 
 			if (i !== 0) {
 				gameplay.showCloseButton();
@@ -106,30 +209,6 @@ export default class Gameplays {
 				gameplay.showDiffName();
 			} else {
 				gameplay.hideDiffName();
-			}
-
-			const col = i % columnsCount;
-			const row = Math.floor(i / columnsCount);
-
-			if (deserialized.length > 1) {
-				gameplay.container.layout = {
-					padding: 5,
-					paddingTop: row === 0 ? 10 : undefined,
-					paddingBottom:
-						row === Math.floor((deserialized.length - 1) / columnsCount)
-							? 10
-							: undefined,
-					paddingLeft: col === 0 ? 10 : undefined,
-					paddingRight: col === columnsCount - 1 ? 10 : undefined,
-				};
-			} else {
-				gameplay.container.layout = {
-					padding: undefined,
-					paddingTop: undefined,
-					paddingLeft: undefined,
-					paddingBottom: undefined,
-					paddingRight: undefined,
-				};
 			}
 		}
 	}

@@ -3,7 +3,7 @@ import bezier from "bezier-easing";
 
 export const tweenGroup = new Group();
 
-const defaultEasing = bezier(0, 0.4, 0, 1.0);
+export const defaultEasing = bezier(0, 0.4, 0, 1.0);
 
 export type AnimationOptions = {
 	easing?: (t: number) => number;
