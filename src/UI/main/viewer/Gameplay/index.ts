@@ -8,10 +8,11 @@ import {
 	Text,
 	type TextStyleOptions,
 } from "pixi.js";
-import { provide } from "@/Context";
+import { inject, provide } from "@/Context";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import type BeatmapSet from "@/BeatmapSet";
 import type { LayoutOptions } from "@pixi/layout";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -54,7 +55,16 @@ export default class Gameplay {
 			layout: {
 				width: "100%",
 				height: "100%",
-				borderRadius: 20,
+				backgroundColor: [
+					0,
+					0,
+					0,
+					Math.min(
+						1,
+						(inject<BackgroundConfig>("config/background")?.backgroundDim ??
+							70) / 100,
+					),
+				],
 			},
 		});
 		this.objectsContainer = new Container({
@@ -93,7 +103,6 @@ export default class Gameplay {
 		this.container.addChild(this.statsContainer);
 
 		this.wrapper.layout = {
-			backgroundColor: "rgba(0 0 0 / 50%)",
 			borderColor: 0x585b70,
 			borderWidth: 1,
 		};
@@ -103,7 +112,6 @@ export default class Gameplay {
 		this.container.removeChild(this.statsContainer);
 
 		this.wrapper.layout = {
-			backgroundColor: undefined,
 			borderColor: undefined,
 			borderWidth: 0,
 		};

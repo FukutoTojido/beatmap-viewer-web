@@ -22,19 +22,6 @@ export default class Background {
 		},
 	});
 
-	dim = new LayoutContainer({
-		label: "dim",
-		layout: {
-			position: "absolute",
-			top: 0,
-			left: 0,
-			width: "100%",
-			height: "100%",
-			backgroundColor: "black",
-		},
-		alpha: 0.5,
-	});
-
 	private sprite = new Sprite({
 		layout: {
 			position: "absolute",
@@ -66,7 +53,6 @@ export default class Background {
 			this.sprite,
 			this.video,
 			this.storyboardContainer,
-			this.dim,
 		);
 
 		this.container.on("layout", (layout) => {
@@ -93,7 +79,6 @@ export default class Background {
 			this.sprite,
 			this.video,
 			this.storyboardContainer,
-			this.dim,
 		);
 	}
 
@@ -141,7 +126,6 @@ export default class Background {
 					this.sprite,
 					this.video,
 					this.storyboardContainer,
-					this.dim,
 				);
 				this.init = true;
 			}

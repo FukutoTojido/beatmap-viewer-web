@@ -13,7 +13,7 @@ export default class Gameplays {
 		layout: {
 			width: "100%",
 			flex: 1,
-			borderWidth: 1,
+			borderWidth: 0,
 			borderColor: {
 				r: 0,
 				g: 0,
@@ -218,8 +218,14 @@ export default class Gameplays {
 
 			if (deserialized.length > 1) {
 				gameplay.showDiffName();
+				gameplay.wrapper.layout = {
+					borderRadius: 20,
+				};
 			} else {
 				gameplay.hideDiffName();
+				gameplay.wrapper.layout = {
+					borderRadius: 0,
+				};
 			}
 		}
 	}

@@ -35,7 +35,7 @@
     "osu-parsers": "^4.1.7",
     "osu-standard-stable": "^5.0.1",
     "pixi-filters": "^6.1.2",
-    "pixi.js": "^8.9.2",
+    "pixi.js": "^8.12.0",
     "remixicon": "^4.6.0",
     "tailwindcss": "^4.1.4",
     "vite": "^6.3.5",
