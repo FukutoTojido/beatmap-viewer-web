@@ -290,7 +290,7 @@ export default class BeatmapSet extends ScopedClass {
 			sr.textContent = `${beatmap.difficultyAttributes.starRating.toFixed(2)}★`;
 	}
 
-	async loadBeatmap(beatmap: Beatmap) {
+	async loadBeatmap(beatmap: Beatmap, index?: number) {
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
 		beatmap.loadHitObjects();
@@ -298,6 +298,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 			beatmap.container,
+			index
 		);
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
@@ -322,7 +323,7 @@ export default class BeatmapSet extends ScopedClass {
 			this.slaves.add(oldMaster);
 		} else {
 			this.master?.destroy();
-			this.loadBeatmap(beatmap);
+			this.loadBeatmap(beatmap, 0);
 		}
 
 		this.master = beatmap;

@@ -25,8 +25,17 @@ export default class Gameplays {
 
 	gameplays: Set<Gameplay> = new Set();
 
-	addGameplay(gameplay: Gameplay) {
-		this.gameplays.add(gameplay);
+	addGameplay(gameplay: Gameplay, index?: number) {
+		if (index === undefined) this.gameplays.add(gameplay);
+		else {
+			const deserialized = Array(...this.gameplays);
+			const newArr = [
+				...deserialized.slice(0, index),
+				gameplay,
+				...deserialized.slice(index),
+			];
+			this.gameplays = new Set(newArr);
+		}
 		this.container.addChildAt(gameplay.container, 0);
 
 		this.reLayoutChildren(gameplay);
@@ -174,7 +183,9 @@ export default class Gameplays {
 							width:
 								gameplay === target ? `${newLayout.width}%` : `${width ?? 0}%`,
 							height:
-								gameplay === target ? `${newLayout.height}%` : `${height ?? 0}%`,
+								gameplay === target
+									? `${newLayout.height}%`
+									: `${height ?? 0}%`,
 							paddingTop,
 							paddingLeft,
 							paddingBottom,
@@ -183,7 +194,7 @@ export default class Gameplays {
 
 						if (gameplay === target) {
 							gameplay.container.scale = 0.5 + 0.5 * scale;
-							gameplay.container.alpha = scale; 
+							gameplay.container.alpha = scale;
 						}
 					},
 				)
