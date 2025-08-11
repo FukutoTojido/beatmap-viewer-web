@@ -12,7 +12,7 @@ async function extract(zipFile: Blob) {
         const writer = new BlobWriter();
 
         const blob = await file.getData?.(writer);
-        resources.set(file.filename, blob);
+        resources.set(file.filename.toLowerCase(), blob);
     }
     
     zipReader.close();

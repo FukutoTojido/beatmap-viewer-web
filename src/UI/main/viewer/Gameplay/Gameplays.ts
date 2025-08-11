@@ -41,8 +41,8 @@ export default class Gameplays {
 
 	switchGameplay(a: Gameplay, b: Gameplay) {
 		const deserialized = Array(...this.gameplays);
-		const idxA = deserialized.findIndex(beatmap => beatmap === a);
-		const idxB = deserialized.findIndex(beatmap => beatmap === b);
+		const idxA = deserialized.findIndex((beatmap) => beatmap === a);
+		const idxB = deserialized.findIndex((beatmap) => beatmap === b);
 
 		if (idxA === -1 || idxB === -1) return;
 		deserialized[idxA] = b;
@@ -107,6 +107,18 @@ export default class Gameplays {
 				height: `${h}%`,
 			};
 
+			if (i !== 0) {
+				gameplay.showCloseButton();
+			} else {
+				gameplay.hideCloseButton();
+			}
+
+			if (deserialized.length > 1) {
+				gameplay.showDiffName()
+			} else {
+				gameplay.hideDiffName()
+			}
+
 			if (i % columnsCount < columnsCount - 1) {
 				this.separator.moveTo(
 					(((i % columnsCount) + 1) * containerWidth * w) / 100,
@@ -131,7 +143,7 @@ export default class Gameplays {
 
 			this.separator.stroke({
 				color: 0x585b70,
-				pixelLine: true,
+				width: 2,
 			});
 		}
 	}

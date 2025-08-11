@@ -139,7 +139,7 @@ export default class BeatmapSet extends ScopedClass {
 		console.time("Constructing audio");
 		const audioFile = this.context
 			.consume<Map<string, Resource>>("resources")
-			?.get(this.audioKey);
+			?.get(this.audioKey.toLowerCase());
 
 		if (!audioFile) throw new Error("Cannot find audio in resource?");
 
@@ -166,8 +166,10 @@ export default class BeatmapSet extends ScopedClass {
 		const videoResource = this.context
 			.consume<Map<string, Resource>>("resources")
 			?.get(
-				beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
-					?.filePath ?? "",
+				(
+					beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
+						?.filePath ?? ""
+				).toLowerCase(),
 			);
 
 		if (
@@ -200,7 +202,7 @@ export default class BeatmapSet extends ScopedClass {
 		const background = inject<Background>("ui/main/viewer/background");
 		const backgroundResource = this.context
 			.consume<Map<string, Resource>>("resources")
-			?.get(beatmap.data.events.backgroundPath ?? "");
+			?.get(beatmap.data.events.backgroundPath?.toLowerCase() ?? "");
 
 		if (!backgroundResource) return;
 
@@ -223,7 +225,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		const storyboardFile = this.context
 			.consume<Map<string, Resource>>("resources")
-			?.get(storyboardKey);
+			?.get(storyboardKey.toLowerCase());
 
 		const storyboard = this.context.provide(
 			"storyboard",
@@ -261,7 +263,15 @@ export default class BeatmapSet extends ScopedClass {
 
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
 		if (el) {
-			el.textContent = beatmap.data.metadata.version;
+			el.innerHTML = `
+			<span class="truncate">${beatmap.data.metadata.version}</span>
+			<br/>
+			<span class="text-xs">
+				CS <span class="font-medium">${beatmap.data.difficulty.circleSize.toFixed(1).replace(".0", "")}</span> / 
+				AR <span class="font-medium">${beatmap.difficultyAttributes.approachRate.toFixed(1).replace(".0", "")}</span> / 
+				OD <span class="font-medium">${beatmap.difficultyAttributes.overallDifficulty.toFixed(1).replace(".0", "")}</span> / 
+				HP <span class="font-medium">${beatmap.difficultyAttributes.drainRate.toFixed(1).replace(".0", "")}</span> 
+			</span>`;
 		}
 		const svg = document.querySelector<SVGSVGElement>("#extraMode");
 		if (svg) {
@@ -326,6 +336,17 @@ export default class BeatmapSet extends ScopedClass {
 
 		this.loadBeatmap(beatmap);
 		this.slaves.add(beatmap);
+
+		this.setIds();
+	}
+
+	unloadSlave(idx: number) {
+		const beatmap = this.difficulties[idx];
+		if (!beatmap) return;
+		if (beatmap === this.master || !this.slaves.has(beatmap)) return;
+
+		beatmap.destroy();
+		this.slaves.delete(beatmap);
 
 		this.setIds();
 	}

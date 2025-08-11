@@ -2,10 +2,12 @@ import { BeatmapDecoder } from "osu-parsers";
 import {
 	Spinner,
 	type StandardBeatmap,
+	type StandardDifficultyAttributes,
+	type StandardDifficultyCalculator,
 	StandardRuleset,
 } from "osu-standard-stable";
 import { inject, ScopedClass } from "../../Context";
-import { type DifficultyAttributes, type DifficultyCalculator, DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import { Circle, Slider } from "osu-standard-stable";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
@@ -28,8 +30,8 @@ const ruleset = new StandardRuleset();
 export default class Beatmap extends ScopedClass {
 	data: StandardBeatmap;
 
-	difficultyCalculator: DifficultyCalculator;
-	difficultyAttributes: DifficultyAttributes;
+	difficultyCalculator: StandardDifficultyCalculator;
+	difficultyAttributes: StandardDifficultyAttributes;
 
 	objects: DrawableHitObject[] = [];
 	connectors: DrawableFollowPoints[] = [];
@@ -52,7 +54,9 @@ export default class Beatmap extends ScopedClass {
 		);
 
 		this.difficultyCalculator = ruleset.createDifficultyCalculator(this.data);
-		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(ruleset.createModCombination(""));
+		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
+			ruleset.createModCombination(""),
+		);
 
 		this.context.provide("beatmapObject", this);
 		this.container = new Gameplay(this);
@@ -307,6 +311,10 @@ export default class Beatmap extends ScopedClass {
 	}
 
 	destroy() {
+		inject<Gameplays>("ui/main/viewer/gameplays")?.removeGameplay(
+			this.container,
+		);
+
 		this.worker.postMessage({ type: "destroy" });
 		this.loaded = false;
 
@@ -326,7 +334,5 @@ export default class Beatmap extends ScopedClass {
 
 		this.previousConnectors.clear();
 		this.previousObjects.clear();
-
-		inject<Gameplays>("ui/main/viewer/gameplays")?.removeGameplay(this.container);
 	}
 }
