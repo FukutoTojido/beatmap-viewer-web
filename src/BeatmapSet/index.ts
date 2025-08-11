@@ -156,12 +156,13 @@ export default class BeatmapSet extends ScopedClass {
 
 	videoKey = "";
 	async loadVideo(beatmap: Beatmap) {
-		inject<Background>("ui/main/viewer/background")?.updateFrame();
-		
 		const videoFilePath =
 			beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
 				?.filePath ?? "";
 
+		if (videoFilePath === "") {
+			inject<Background>("ui/main/viewer/background")?.updateFrame();
+		}
 		if (this.videoKey === videoFilePath) return;
 
 		this.videoKey = videoFilePath;
@@ -263,7 +264,7 @@ export default class BeatmapSet extends ScopedClass {
 			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
 		);
 
-		document.title = `${beatmap.data.metadata.artist} - ${beatmap.data.metadata.title} [${beatmap.data.metadata.version}] | JoSu!`
+		document.title = `${beatmap.data.metadata.artist} - ${beatmap.data.metadata.title} [${beatmap.data.metadata.version}] | JoSu!`;
 
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
 		if (el) {
