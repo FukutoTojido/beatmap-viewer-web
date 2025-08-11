@@ -261,6 +261,8 @@ export default class BeatmapSet extends ScopedClass {
 			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
 		);
 
+		document.title = `${beatmap.data.metadata.artist} - ${beatmap.data.metadata.title} [${beatmap.data.metadata.version}] | JoSu!`
+
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
 		if (el) {
 			el.innerHTML = `
