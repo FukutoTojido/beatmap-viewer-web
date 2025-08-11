@@ -18,7 +18,7 @@ const defaultStyle: TextStyleOptions = {
 	fill: 0xbac2de,
 	align: "left",
 	fontSize: 14,
-	fontWeight: "500",
+	fontWeight: "400",
 };
 
 const defaultLayout: Omit<LayoutOptions, "target"> = {
@@ -28,6 +28,7 @@ const defaultLayout: Omit<LayoutOptions, "target"> = {
 
 export default class Gameplay {
 	container: Container;
+	wrapper: Container;
 	objectsContainer: Container;
 	diffName!: Text;
 	statsContainer!: LayoutContainer;
@@ -49,6 +50,13 @@ export default class Gameplay {
 			},
 			isRenderGroup: true,
 		});
+		this.wrapper = new LayoutContainer({
+			layout: {
+				width: "100%",
+				height: "100%",
+				borderRadius: 20,
+			},
+		});
 		this.objectsContainer = new Container({
 			boundsArea: new Rectangle(0, 0, 512, 384),
 		});
@@ -56,10 +64,11 @@ export default class Gameplay {
 		this.createStats();
 		this.createCloseButton();
 
-		this.container.addChild(this.objectsContainer);
-		this.container.on("layout", () => {
-			const width = this.container.layout?.computedLayout.width ?? 0;
-			const height = this.container.layout?.computedLayout.height ?? 0;
+		this.container.addChild(this.wrapper);
+		this.wrapper.addChild(this.objectsContainer);
+		this.wrapper.on("layout", () => {
+			const width = this.wrapper.layout?.computedLayout.width ?? 0;
+			const height = this.wrapper.layout?.computedLayout.height ?? 0;
 
 			const scale = Math.min(width / 640, height / 480);
 			const _w = 512 * scale;
@@ -82,10 +91,22 @@ export default class Gameplay {
 
 	showDiffName() {
 		this.container.addChild(this.statsContainer);
+
+		this.wrapper.layout = {
+			backgroundColor: "rgba(0 0 0 / 50%)",
+			borderColor: 0x585b70,
+			borderWidth: 1,
+		};
 	}
 
 	hideDiffName() {
 		this.container.removeChild(this.statsContainer);
+
+		this.wrapper.layout = {
+			backgroundColor: undefined,
+			borderColor: undefined,
+			borderWidth: 0,
+		};
 	}
 
 	createCloseButton() {

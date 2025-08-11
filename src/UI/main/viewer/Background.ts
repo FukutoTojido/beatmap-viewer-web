@@ -80,7 +80,8 @@ export default class Background {
 			this.storyboardContainer.scale.set(scale);
 
 			this.storyboardContainer.x = (width - _w) / 2;
-			this.storyboardContainer.y = timelineHeight + (height - timelineHeight - _h) / 2;
+			this.storyboardContainer.y =
+				timelineHeight + (height - timelineHeight - _h) / 2;
 		});
 	}
 
@@ -107,7 +108,12 @@ export default class Background {
 	timer?: NodeJS.Timeout;
 	lastFrame?: VideoFrame;
 
-	updateFrame(frame: VideoFrame) {
+	updateFrame(frame?: VideoFrame) {
+		if (!frame) {
+			this.video.texture = new Texture();
+			return;
+		}
+
 		if (this.timer) {
 			clearTimeout(this.timer);
 			this.lastFrame?.close();

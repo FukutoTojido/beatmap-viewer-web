@@ -156,6 +156,8 @@ export default class BeatmapSet extends ScopedClass {
 
 	videoKey = "";
 	async loadVideo(beatmap: Beatmap) {
+		inject<Background>("ui/main/viewer/background")?.updateFrame();
+		
 		const videoFilePath =
 			beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
 				?.filePath ?? "";

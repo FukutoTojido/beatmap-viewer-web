@@ -22,7 +22,6 @@ export default class Gameplays {
 	});
 
 	gameplays: Set<Gameplay> = new Set();
-	separator: Graphics = new Graphics();
 
 	addGameplay(gameplay: Gameplay) {
 		this.gameplays.add(gameplay);
@@ -36,7 +35,6 @@ export default class Gameplays {
 		this.container.removeChild(gameplay.container);
 
 		this.reLayoutChildren();
-		this.container.addChild(this.separator);
 	}
 
 	switchGameplay(a: Gameplay, b: Gameplay) {
@@ -55,11 +53,7 @@ export default class Gameplays {
 	constructor() {
 		const fps = new FPS();
 
-		this.separator.x = 0;
-		this.separator.y = 0;
-		this.separator.interactive = false;
-
-		this.container.addChild(this.separator, fps.container);
+		this.container.addChild(fps.container);
 		this.container.on("layout", () => this.reLayoutChildren());
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
@@ -86,16 +80,11 @@ export default class Gameplays {
 	}
 
 	reLayoutChildren() {
-		this.separator.clear();
-
 		const columnsCount = Math.ceil(Math.sqrt(this.gameplays.size));
 		const heightDenominator = Math.ceil(this.gameplays.size / columnsCount);
 
 		const w = 100 / columnsCount;
 		const h = 100 / heightDenominator;
-
-		const containerWidth = this.container.layout?.computedLayout.width ?? 0;
-		const containerHeight = this.container.layout?.computedLayout.height ?? 0;
 
 		const deserialized = Array(...this.gameplays);
 		for (let i = 0; i < deserialized.length; i++) {
@@ -114,37 +103,34 @@ export default class Gameplays {
 			}
 
 			if (deserialized.length > 1) {
-				gameplay.showDiffName()
+				gameplay.showDiffName();
 			} else {
-				gameplay.hideDiffName()
+				gameplay.hideDiffName();
 			}
 
-			if (i % columnsCount < columnsCount - 1) {
-				this.separator.moveTo(
-					(((i % columnsCount) + 1) * containerWidth * w) / 100,
-					(Math.floor(i / columnsCount) * h * containerHeight) / 100,
-				);
-				this.separator.lineTo(
-					(((i % columnsCount) + 1) * containerWidth * w) / 100,
-					((Math.floor(i / columnsCount) + 1) * h * containerHeight) / 100,
-				);
-			}
+			const col = i % columnsCount;
+			const row = Math.floor(i / columnsCount);
 
-			if (Math.floor(i / columnsCount) < heightDenominator - 1) {
-				this.separator.moveTo(
-					((i % columnsCount) * containerWidth * w) / 100,
-					((Math.floor(i / columnsCount) + 1) * h * containerHeight) / 100,
-				);
-				this.separator.lineTo(
-					(((i % columnsCount) + 1) * containerWidth * w) / 100,
-					((Math.floor(i / columnsCount) + 1) * h * containerHeight) / 100,
-				);
+			if (deserialized.length > 1) {
+				gameplay.container.layout = {
+					padding: 5,
+					paddingTop: row === 0 ? 10 : undefined,
+					paddingBottom:
+						row === Math.floor((deserialized.length - 1) / columnsCount)
+							? 10
+							: undefined,
+					paddingLeft: col === 0 ? 10 : undefined,
+					paddingRight: col === columnsCount - 1 ? 10 : undefined,
+				};
+			} else {
+				gameplay.container.layout = {
+					padding: undefined,
+					paddingTop: undefined,
+					paddingLeft: undefined,
+					paddingBottom: undefined,
+					paddingRight: undefined,
+				};
 			}
-
-			this.separator.stroke({
-				color: 0x585b70,
-				width: 2,
-			});
 		}
 	}
 }
