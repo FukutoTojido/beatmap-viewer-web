@@ -197,15 +197,12 @@ export class Game {
 			}
 		} catch (e) {
 			console.error(e);
-			inject<Loading>("ui/loading")?.off();
-			return;
 		}
 
 		inject<Loading>("ui/loading")?.off();
 	}
 
 	async loadBlob(blob: Blob) {
-		inject<Loading>("ui/loading")?.on();
 
 		const resources = await ZipHandler.extract(blob);
 		const bms = new BeatmapSet(resources);
@@ -213,8 +210,6 @@ export class Game {
 
 		await bms.getDifficulties();
 		await bms.loadResources();
-
-		inject<Loading>("ui/loading")?.off();
 
 		return bms;
 	}

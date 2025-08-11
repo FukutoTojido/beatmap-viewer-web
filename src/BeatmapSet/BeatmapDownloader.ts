@@ -24,8 +24,6 @@ async function getBeatmapsetId(beatmapId: string) {
 }
 
 export async function getBeatmapFromId(beatmapId: string) {
-	inject<Loading>("ui/loading")?.on();
-
 	const mirrorConfig = inject<MirrorConfig>("config/mirror");
 	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
 
@@ -49,7 +47,6 @@ export async function getBeatmapFromId(beatmapId: string) {
 			})
 			.blob();
 
-		inject<Loading>("ui/loading")?.off();
 		return blob;
 	} catch (e) {
 		console.error(e);

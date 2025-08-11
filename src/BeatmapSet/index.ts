@@ -42,7 +42,6 @@ export default class BeatmapSet extends ScopedClass {
 
 	async loadResources() {
 		inject<Loading>("ui/loading")?.setText("Loading hitSamples");
-		inject<Loading>("ui/loading")?.on();
 
 		console.time("Load hitSamples");
 		const sampleManager = this.context.provide(
@@ -52,7 +51,6 @@ export default class BeatmapSet extends ScopedClass {
 		await sampleManager.loadDefaults();
 		await sampleManager.load();
 		console.timeEnd("Load hitSamples");
-		inject<Loading>("ui/loading")?.off();
 
 		await this.loadStoryboard();
 	}
@@ -244,6 +242,8 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	async loadPeripherals(beatmap: Beatmap) {
+		inject<Loading>("ui/loading")?.setText("Loading audio and background");
+
 		const storyboard = this.context.consume<Storyboard>("storyboard");
 		await Promise.all([
 			this.loadAudio(beatmap),
@@ -291,7 +291,6 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	async loadBeatmap(beatmap: Beatmap) {
-		inject<Loading>("ui/loading")?.on();
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
 		beatmap.loadHitObjects();
@@ -303,11 +302,9 @@ export default class BeatmapSet extends ScopedClass {
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
 		beatmap.toggle();
-
-		inject<Loading>("ui/loading")?.off();
 	}
 
-	loadMaster(idx: number) {
+	async loadMaster(idx: number) {
 		const beatmap = this.difficulties[idx];
 		if (!beatmap) return;
 		if (this.master === beatmap) return;
@@ -330,7 +327,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		this.master = beatmap;
 
-		this.loadPeripherals(beatmap);
+		await this.loadPeripherals(beatmap);
 		this.setIds();
 	}
 

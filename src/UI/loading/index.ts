@@ -9,7 +9,7 @@ export default class Loading {
         this._eleText = document.querySelector<HTMLDivElement>("#loadingText")!;
     }
 
-    private _state: "ON" | "OFF" = "ON";
+    _state: "ON" | "OFF" = "ON";
     on() {
         if (this._state === "ON") return;
 
