@@ -8,11 +8,12 @@ import {
 import type { HitSample as Sample, SamplePoint } from "osu-classes";
 import { Graphics } from "pixi.js";
 import DrawableHitObject from "./DrawableHitObject";
-import type { Context } from "../../../Context";
+import { inject, type Context } from "../../../Context";
 import type Beatmap from "..";
 import HitSample from "../../../Audio/HitSample";
 import DrawableHitCircle from "./DrawableHitCircle";
 import type Skin from "@/Skinning/Skin";
+import type SkinningConfig from "@/Config/SkinningConfig";
 
 const TAIL_LENIENCY = 36;
 export default class DrawableSliderTail extends DrawableHitCircle {
@@ -34,16 +35,20 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 		if (!skin) return;
 
 		const hitCircle =
-			skin.getTexture("sliderendcircle") ?? skin.getTexture("hitcircle");
+			skin.getTexture("sliderendcircle", this.context.consume<Skin>("beatmapSkin")) ??
+			skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
 		const hitCircleOverlay =
-			skin.getTexture("sliderendcircleoverlay") ??
-			skin.getTexture("hitcircleoverlay");
+			skin.getTexture(
+				"sliderendcircleoverlay",
+				this.context.consume<Skin>("beatmapSkin"),
+			) ??
+			skin.getTexture("hitcircleoverlay", this.context.consume<Skin>("beatmapSkin"));
 
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
 
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data?.colors.comboColors.length) {
+		if (beatmap?.data?.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
 			const colors = beatmap.data.colors.comboColors;
 			const comboIndex =
 				(this.parent ?? this.object).comboIndexWithOffsets % colors.length;

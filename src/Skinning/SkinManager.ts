@@ -70,6 +70,13 @@ export default class SkinManager {
 		inject<SkinningConfig>("config/skinning")?.onChange("skin", async (val) => {
 			await this.loadSkin(val);
 		});
+
+		inject<SkinningConfig>("config/skinning")?.onChange(
+			"disableBeatmapSkin",
+			async () => {
+				this.emitSkinChange();
+			},
+		);
 	}
 
 	getCurrentSkin(): Skin {

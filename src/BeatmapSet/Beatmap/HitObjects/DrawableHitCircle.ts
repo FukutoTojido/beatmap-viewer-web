@@ -8,9 +8,11 @@ import type { SamplePoint } from "osu-classes";
 import type Beatmap from "..";
 import DrawableDefaults from "./DrawableDefaults";
 import { update } from "@/Skinning/Legacy/LegacyHitCircle";
-import type { Context } from "@/Context";
+import { inject, type Context } from "@/Context";
 import TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import type { StandardHitObject } from "osu-standard-stable";
+import type Skin from "@/Skinning/Skin";
+import type SkinningConfig from "@/Config/SkinningConfig";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -84,14 +86,14 @@ export default class DrawableHitCircle
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const hitCircle = skin.getTexture("hitcircle");
-		const hitCircleOverlay = skin.getTexture("hitcircleoverlay");
+		const hitCircle = skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
+		const hitCircleOverlay = skin.getTexture("hitcircleoverlay", this.context.consume<Skin>("beatmapSkin"));
 
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
 
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data?.colors.comboColors.length) {
+		if (beatmap?.data?.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
 			const colors = beatmap.data.colors.comboColors;
 			const comboIndex = this.object.comboIndexWithOffsets % colors.length;
 

@@ -47,7 +47,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		this.hitSound = new HitSample([clonedSample]).hook(this.context);
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const sliderTick = skin.getTexture("sliderscorepoint");
+			const sliderTick = skin.getTexture("sliderscorepoint", this.context.consume<Skin>("beatmapSkin"));
 
 			if (!sliderTick) return;
 			this.container.texture = sliderTick;

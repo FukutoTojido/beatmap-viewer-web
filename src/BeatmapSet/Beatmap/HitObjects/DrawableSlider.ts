@@ -35,9 +35,10 @@ import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
 import { HitSample as Sample } from "osu-classes";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
-import type { Context } from "@/Context";
+import { inject, type Context } from "@/Context";
 import TimelineSlider from "../Timeline/TimelineSlider";
 import { update } from "@/Skinning/Legacy/LegacySlider";
+import type SkinningConfig from "@/Config/SkinningConfig";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
@@ -239,17 +240,17 @@ export default class DrawableSlider
 
 		const comboIndex =
 			this.object.comboIndexWithOffsets %
-			(beatmap?.data.colors.comboColors.length
+			(beatmap?.data.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
 				? beatmap?.data.colors.comboColors.length
 				: skin.colorsLength);
 		const colors = beatmap?.data.colors.comboColors;
-		const comboColor = colors?.length
+		const comboColor = colors?.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
 			? `${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue}`
 			: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
 
 		const trackColor = beatmap?.data.colors.sliderTrackColor;
-		const trackOverride = trackColor
+		const trackOverride = trackColor && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
 			? `${trackColor.red},${trackColor.green},${trackColor.blue}`
 			: skin.config.Colours.SliderTrackOverride;
 
@@ -259,7 +260,7 @@ export default class DrawableSlider
 		this.trackColor = color;
 		this.color = comboColor;
 
-		const border = beatmap?.data.colors.sliderBorderColor
+		const border = beatmap?.data.colors.sliderBorderColor && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
 			? Object.values(beatmap?.data.colors.sliderBorderColor)
 					.map((val) => val / 255)
 					.slice(0, 3)

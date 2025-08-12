@@ -3,6 +3,8 @@ import type { Resource } from "../ZipHandler";
 import { parse } from "js-ini";
 // @ts-ignore
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
+import { inject } from "@/Context";
+import type SkinningConfig from "@/Config/SkinningConfig";
 
 type SkinConfig = {
 	General: {
@@ -86,7 +88,9 @@ export default class Skin {
 			},
 		};
 
-		this.colorsLength = Object.keys(this.config.Colours).filter(key => /Combo[1-8]/g.test(key)).length;
+		this.colorsLength = Object.keys(this.config.Colours).filter((key) =>
+			/Combo[1-8]/g.test(key),
+		).length;
 	}
 
 	private async loadTextures() {
@@ -178,8 +182,12 @@ export default class Skin {
 		);
 	}
 
-	getTexture(filename: string) {
-		return this.textures.get(filename);
+	getTexture(filename: string, beatmapSkin?: Skin) {
+		const disableBeatmapSkin =
+			inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin;
+
+		if (disableBeatmapSkin) return this.textures.get(filename);
+		return beatmapSkin?.textures.get(filename) ?? this.textures.get(filename);
 	}
 
 	getHitsound(filename: string) {

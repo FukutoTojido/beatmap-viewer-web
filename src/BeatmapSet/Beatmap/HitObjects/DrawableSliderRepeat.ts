@@ -14,6 +14,7 @@ import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import DrawableSliderHead from "./DrawableSliderHead";
 import { update } from "@/Skinning/Legacy/LegacyReverseArrow";
+import type Skin from "@/Skinning/Skin";
 
 export default class DrawableSliderRepeat extends DrawableSliderHead {
 	reverseArrow = new Sprite({
@@ -44,7 +45,7 @@ export default class DrawableSliderRepeat extends DrawableSliderHead {
 
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
-		const reverseArrow = skin.getTexture("reversearrow");
+		const reverseArrow = skin.getTexture("reversearrow", this.context.consume<Skin>("beatmapSkin"));
 		if (reverseArrow) this.reverseArrow.texture = reverseArrow;
 	}
 

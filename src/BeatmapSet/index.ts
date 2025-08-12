@@ -26,6 +26,7 @@ import extraMode from "/assets/extra-mode.svg?raw";
 import { getDiffColour, loadColorPalette } from "@/utils";
 import type AudioConfig from "@/Config/AudioConfig";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
+import Skin from "@/Skinning/Skin";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -54,6 +55,13 @@ export default class BeatmapSet extends ScopedClass {
 		this.animationFrame = requestAnimationFrame(() => this.frame());
 	}
 
+	async loadBeatmapSkin() {
+		const skin = this.context.provide<Skin>("beatmapSkin", new Skin(this.context.consume<Map<string, Resource>>("resources")));
+		await skin.init();
+
+		console.log(skin);
+	}
+
 	async loadResources() {
 		inject<Loading>("ui/loading")?.setText("Loading hitSamples");
 
@@ -62,9 +70,10 @@ export default class BeatmapSet extends ScopedClass {
 			"sampleManager",
 			new SampleManager(this.audioContext, this.resources),
 		);
-		await sampleManager.loadDefaults();
 		await sampleManager.load();
 		console.timeEnd("Load hitSamples");
+
+		await this.loadBeatmapSkin();
 
 		await this.loadStoryboard();
 	}
@@ -546,6 +555,8 @@ export default class BeatmapSet extends ScopedClass {
 		for (const slave of this.slaves) {
 			slave.destroy();
 		}
+
+		this.context.consume<Video>("video")?.destroy();
 
 		provide("beatmapset", undefined);
 	}

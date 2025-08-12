@@ -2,6 +2,7 @@ import type { SliderRepeat } from "osu-standard-stable";
 import type DrawableSlider from "../HitObjects/DrawableSlider";
 import TimelineHitCircle from "./TimelineHitCircle";
 import { Sprite } from "pixi.js";
+import type Skin from "@/Skinning/Skin";
 
 export default class TimelineSliderRepeat extends TimelineHitCircle {
 	reverseArrow: Sprite;
@@ -25,11 +26,18 @@ export default class TimelineSliderRepeat extends TimelineHitCircle {
 		if (!skin) return;
 
 		const hitCircle =
-			skin.getTexture("sliderendcircle") ?? skin.getTexture("hitcircle");
+			skin.getTexture("sliderendcircle", this.context.consume<Skin>("beatmapSkin")) ??
+			skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
 		const hitCircleOverlay =
-			skin.getTexture("sliderendcircleoverlay") ??
-			skin.getTexture("hitcircleoverlay");
-		const reverseArrow = skin.getTexture("reversearrow");
+			skin.getTexture(
+				"sliderendcircleoverlay",
+				this.context.consume<Skin>("beatmapSkin"),
+			) ??
+			skin.getTexture("hitcircleoverlay", this.context.consume<Skin>("beatmapSkin"));
+		const reverseArrow = skin.getTexture(
+			"reversearrow",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 
 		if (hitCircle) this.hitCircle.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;

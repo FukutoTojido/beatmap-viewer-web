@@ -3,6 +3,9 @@ import { Graphics, Sprite } from "pixi.js";
 import SkinnableElement from "./SkinnableElement";
 import type Beatmap from "..";
 import { update } from "@/Skinning/Shared/ApproachCircle";
+import type Skin from "@/Skinning/Skin";
+import type SkinningConfig from "@/Config/SkinningConfig";
+import { inject } from "@/Context";
 
 export default class DrawableApproachCircle extends SkinnableElement {
 	container = new Sprite();
@@ -27,11 +30,11 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const approachCircle = skin.getTexture("approachcircle");
+		const approachCircle = skin.getTexture("approachcircle", this.context.consume<Skin>("beatmapSkin"));
 		if (approachCircle) this.container.texture = approachCircle;
 
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data.colors.comboColors.length) {
+		if (beatmap?.data.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
 			const colors = beatmap.data.colors.comboColors;
 			const comboIndex = this.object.comboIndexWithOffsets % colors.length;
 

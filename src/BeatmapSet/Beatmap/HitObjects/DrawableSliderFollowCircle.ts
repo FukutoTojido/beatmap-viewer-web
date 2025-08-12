@@ -25,7 +25,7 @@ export default class DrawableSliderFollowCircle extends SkinnableElement {
 		this.container.scale.set(this.object.scale);
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const sliderFollowCircle = skin.getTexture("sliderfollowcircle");
+			const sliderFollowCircle = skin.getTexture("sliderfollowcircle", this.context.consume<Skin>("beatmapSkin"));
 
 			if (!sliderFollowCircle) return;
 			this.container.texture = sliderFollowCircle;

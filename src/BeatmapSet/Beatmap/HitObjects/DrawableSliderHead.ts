@@ -10,7 +10,7 @@ import { Container, Graphics } from "pixi.js";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
-import type { Context } from "../../../Context";
+import { inject, type Context } from "../../../Context";
 import DrawableApproachCircle from "./DrawableApproachCircle";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
@@ -18,6 +18,7 @@ import DrawableDefaults from "./DrawableDefaults";
 import DrawableHitCircle from "./DrawableHitCircle";
 import type Skin from "@/Skinning/Skin";
 import type TimelineHitCircle from "../Timeline/TimelineHitCircle";
+import type SkinningConfig from "@/Config/SkinningConfig";
 
 export default class DrawableSliderHead extends DrawableHitCircle {
 	hitSound?: HitSample;
@@ -55,14 +56,14 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const hitCircle = skin.getTexture("sliderstartcircle") ?? skin.getTexture("hitcircle");
-		const hitCircleOverlay = skin.getTexture("sliderstartcircleoverlay") ?? skin.getTexture("hitcircleoverlay");
+		const hitCircle = skin.getTexture("sliderstartcircle", this.context.consume<Skin>("beatmapSkin")) ?? skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
+		const hitCircleOverlay = skin.getTexture("sliderstartcircleoverlay") ?? skin.getTexture("hitcircleoverlay", this.context.consume<Skin>("beatmapSkin"));
 
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
 
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data?.colors.comboColors.length) {
+		if (beatmap?.data?.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
 			const colors = beatmap.data.colors.comboColors;
 			const comboIndex =
 				(this.parent ?? this.object).comboIndexWithOffsets % colors.length;

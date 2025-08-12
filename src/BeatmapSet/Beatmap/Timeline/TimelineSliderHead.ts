@@ -2,6 +2,7 @@ import type { Slider, SliderHead } from "osu-standard-stable";
 import type DrawableSlider from "../HitObjects/DrawableSlider";
 import TimelineHitCircle from "./TimelineHitCircle";
 import DrawableDefaults from "../HitObjects/DrawableDefaults";
+import type Skin from "@/Skinning/Skin";
 
 export default class TimelineSliderHead extends TimelineHitCircle {
 	constructor(object: SliderHead, parent: Slider) {
@@ -18,8 +19,14 @@ export default class TimelineSliderHead extends TimelineHitCircle {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const hitCircle = skin.getTexture("hitcircle");
-		const hitCircleOverlay = skin.getTexture("hitcircleoverlay");
+		const hitCircle = skin.getTexture(
+			"hitcircle",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
+		const hitCircleOverlay = skin.getTexture(
+			"hitcircleoverlay",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 
 		if (hitCircle) this.hitCircle.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;

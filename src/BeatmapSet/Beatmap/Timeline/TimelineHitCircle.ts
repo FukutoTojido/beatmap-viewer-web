@@ -6,6 +6,7 @@ import { type Context, inject } from "@/Context";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import type DrawableHitCircle from "../HitObjects/DrawableHitCircle";
 import DrawableDefaults from "../HitObjects/DrawableDefaults";
+import type Skin from "@/Skinning/Skin";
 
 export default class TimelineHitCircle extends TimelineHitObject {
 	hitCircle: Sprite;
@@ -38,8 +39,14 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const hitCircle = skin.getTexture("hitcircle");
-		const hitCircleOverlay = skin.getTexture("hitcircleoverlay");
+		const hitCircle = skin.getTexture(
+			"hitcircle",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
+		const hitCircleOverlay = skin.getTexture(
+			"hitcircleoverlay",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 
 		if (hitCircle) this.hitCircle.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;

@@ -12,77 +12,11 @@ const HITSOUND_REGEX =
 
 export default class SampleManager {
 	private map = new Map<string, AudioBuffer>();
-	private defaultMap = new Map<string, AudioBuffer>();
 
 	constructor(
 		private audioContext: AudioContext,
 		private files: Map<string, Resource>,
 	) {}
-
-	async loadDefaults() {
-		const sampleSets = ["normal", "soft", "drum"];
-		const hitSounds = [
-			"hitnormal",
-			"hitclap",
-			"hitwhistle",
-			"hitfinish",
-			"sliderslide",
-			"sliderwhistle",
-			"slidertick",
-		];
-
-		const allFiles = sampleSets.reduce<string[]>((accm, sample) => {
-			accm.push(...hitSounds.map((hitSound) => `${sample}-${hitSound}`));
-			return accm;
-		}, []);
-
-		const blobs: [string, Blob | undefined][] = await Promise.all(
-			allFiles.map(async (filename) => {
-				try {
-					const data = await ky
-						.get<Blob>(`./skinning/legacy/${filename}.wav`)
-						.blob();
-					return [filename, data];
-				} catch (e) {
-					console.error(e);
-					return [filename, undefined];
-				}
-			}),
-		);
-
-		await Promise.all(
-			blobs.map(async ([filename, resource]) => {
-				if (!resource) return;
-
-				let audioBuffer: AudioBuffer;
-				try {
-					audioBuffer = await getFileAudioBuffer(resource, this.audioContext);
-				} catch (e) {
-					try {
-						audioBuffer = await getFileAudioBuffer(
-							resource,
-							this.audioContext,
-							{
-								native: true,
-							},
-						);
-					} catch (e) {
-						// console.warn(
-						// 	`Cannot decode ${filename}. Default to silent sample.`,
-						// );
-						audioBuffer = this.audioContext.createBuffer(
-							1,
-							1,
-							this.audioContext.sampleRate,
-						);
-						return;
-					}
-				}
-
-				this.defaultMap.set(filename, audioBuffer);
-			}),
-		);
-	}
 
 	async load() {
 		await Promise.all(

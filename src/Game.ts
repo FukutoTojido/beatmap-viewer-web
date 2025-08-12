@@ -212,8 +212,8 @@ export class Game {
 		const bms = new BeatmapSet(resources);
 		console.log("Init beatmapset");
 
-		await bms.getDifficulties();
 		await bms.loadResources();
+		await bms.getDifficulties();
 
 		return bms;
 	}

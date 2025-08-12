@@ -71,4 +71,8 @@ export default class Video {
 			data: timestamp,
 		});
 	}
+
+	destroy() {
+		this.worker.terminate()
+	}
 }

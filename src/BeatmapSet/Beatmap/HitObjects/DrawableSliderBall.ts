@@ -28,7 +28,7 @@ export default class DrawableSliderBall extends SkinnableElement {
 		this.container.interactiveChildren = false;
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const sliderb = skin.getTexture("sliderb0");
+			const sliderb = skin.getTexture("sliderb0", this.context.consume<Skin>("beatmapSkin"));
 
 			if (!sliderb) return;
 			this.container.texture = sliderb;
