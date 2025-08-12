@@ -136,7 +136,12 @@ export default class Timing {
 		const offset =
 			idx * 45 - (this.container.layout?.computedLayout.height ?? 0) + 40;
 
-		if (offset < this._scrollOffset) return;
+		if (
+			offset < this._scrollOffset &&
+			Math.abs(offset - this._scrollOffset) <
+				(this.container.layout?.computedLayout.height ?? 0)
+		)
+			return;
 		this.scrollTo(Math.max(0, offset));
 	}
 
