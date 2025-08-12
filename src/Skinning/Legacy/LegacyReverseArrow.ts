@@ -7,7 +7,14 @@ export const update = (drawable: DrawableSliderRepeat, time: number) => {
 	if (time > drawable.object.startTime) {
 		const animDuration = Math.min(300, drawable.object.spanDuration);
 		drawable.reverseArrow.scale.set(
-			1 + Easings.Out((time - drawable.object.startTime) / animDuration) * 0.4,
+			1 +
+				Easings.Out(
+					Math.max(
+						0,
+						Math.min(1, (time - drawable.object.startTime) / animDuration),
+					),
+				) *
+					0.4,
 		);
 		return;
 	}
@@ -18,7 +25,10 @@ export const update = (drawable: DrawableSliderRepeat, time: number) => {
 
 	const loopCurrentTime = (time - startFadeInTime) % duration;
 
-	drawable.reverseArrow.alpha = Math.min(1, Math.max(0, (time - startFadeInTime) / fadeInDuration));
+	drawable.reverseArrow.alpha = Math.min(
+		1,
+		Math.max(0, (time - startFadeInTime) / fadeInDuration),
+	);
 	// drawable.reverseArrow.angle =
 	// 	(drawable.rotation * 180) / Math.PI +
 	// 	rotation * (1 + (loopCurrentTime / duration) * -2);
