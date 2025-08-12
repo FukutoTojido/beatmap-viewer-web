@@ -1,4 +1,4 @@
-import { ScopedClass } from "@/Context";
+import { inject, ScopedClass } from "@/Context";
 import type { Storyboard as StoryboardData } from "@rian8337/osu-base";
 import {
 	StoryboardAnimation as StoryboardAnimationData,
@@ -21,6 +21,7 @@ import { LayerType } from "osu-classes";
 import type { Resource } from "@/ZipHandler";
 import type BeatmapSet from "@/BeatmapSet";
 import { StoryboardAnimation } from "./StoryboardAnimation";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 
 export default class Storyboard extends ScopedClass {
 	private data!: StoryboardData;
@@ -88,6 +89,10 @@ export default class Storyboard extends ScopedClass {
 			480,
 		);
 		this.container.mask = mask;
+
+		inject<BackgroundConfig>("config/background")?.onChange("storyboard", (val) => {
+			this.container.visible = val;
+		})
 	}
 
 	async loadTextures() {
@@ -225,6 +230,8 @@ export default class Storyboard extends ScopedClass {
 	private _previousMaster = new Set<number>();
 
 	update(timestamp: number) {
+		if (!inject<BackgroundConfig>("config/background")?.storyboard) return;
+		
 		const set = new Set<number>(
 			this._tree?.search([timestamp - 1, timestamp + 1]) as Array<number>,
 		);

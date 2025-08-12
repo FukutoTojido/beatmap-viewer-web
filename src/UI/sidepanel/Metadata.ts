@@ -115,6 +115,8 @@ export default class Metadata {
 				boxSizing: "border-box",
 				backgroundColor: inject<ColorConfig>("config/color")?.color.mantle,
 				borderRadius: 0,
+				borderWidth: 1,
+				borderColor: [0, 0, 0, 0],
 			},
 		});
 

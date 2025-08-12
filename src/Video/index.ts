@@ -2,6 +2,9 @@ import { inject } from "@/Context";
 import { MessageType, type WorkerPayload } from "./types";
 import VideoWorker from "./Worker.ts?worker";
 import type Background from "@/UI/main/viewer/Background";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
+import type BeatmapSet from "@/BeatmapSet";
+import type Audio from "@/Audio";
 
 export default class Video {
 	worker = new VideoWorker();
@@ -29,6 +32,15 @@ export default class Video {
 				}
 			},
 		);
+
+		inject<BackgroundConfig>("config/background")?.onChange("video", (val) => {
+			const audio =
+				inject<BeatmapSet>("beatmapset")?.context.consume<Audio>("audio");
+			if (!audio) return;
+
+			if (!val) this.stop(audio.currentTime);
+			if (val && audio.state === "PLAYING") this.play(audio.currentTime);
+		});
 	}
 
 	async load(blob: Blob, offset: number) {

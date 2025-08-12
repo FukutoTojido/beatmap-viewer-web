@@ -9,6 +9,7 @@ import type SampleManager from "../BeatmapSet/SampleManager";
 import { type Context, inject, ScopedClass } from "../Context";
 import type Audio from ".";
 import type BeatmapSet from "@/BeatmapSet";
+import type AudioConfig from "@/Config/AudioConfig";
 
 export default class HitSample extends ScopedClass {
 	localGainNode?: GainNode;
@@ -44,7 +45,7 @@ export default class HitSample extends ScopedClass {
 			const buffer = sampleManager.get(
 				sampleSet.toLowerCase(),
 				hitSound.toLowerCase(),
-				samplePoint.customIndex,
+				inject<AudioConfig>("config/audio")?.hitsound ? 0 : samplePoint.customIndex,
 			);
 			if (!buffer) continue;
 
@@ -53,11 +54,12 @@ export default class HitSample extends ScopedClass {
 
 			const localGainNode = audioContext?.createGain();
 			localGainNode.gain.value =
-				(0.3 * samplePoint.volume) / clientLength / 100;
+				(samplePoint.volume * (inject<AudioConfig>("config/audio")?.effectVolume ?? 1)) / clientLength / 100;
 			this.localGainNode = localGainNode;
 
 			src.connect(localGainNode);
-			localGainNode.connect(audioContext.destination);
+			// biome-ignore lint/style/noNonNullAssertion: Ensured
+			localGainNode.connect(this.context.consume<GainNode>("masterGainNode")!);
 
 			src.onended = () => {
 				src.disconnect();

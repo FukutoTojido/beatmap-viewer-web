@@ -137,6 +137,11 @@ export class Game {
 		const queries = new URLSearchParams(window.location.search).getAll("b");
 		const IDs = queries.length !== 0 ? queries : [];
 
+		if (IDs.length === 0) {
+			inject<Loading>("ui/loading")?.off();
+			return;
+		}
+
 		this.loadIDs(IDs);
 	}
 
@@ -203,7 +208,6 @@ export class Game {
 	}
 
 	async loadBlob(blob: Blob) {
-
 		const resources = await ZipHandler.extract(blob);
 		const bms = new BeatmapSet(resources);
 		console.log("Init beatmapset");

@@ -4,6 +4,7 @@ import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 import { inject, ScopedClass } from "../Context";
 import type Beatmap from "../BeatmapSet/Beatmap";
 import type BeatmapSet from "@/BeatmapSet";
+import type AudioConfig from "@/Config/AudioConfig";
 
 type AudioEvent = "time";
 type EventCallback = (time: number) => void;
@@ -22,6 +23,10 @@ export default class Audio extends ScopedClass {
 	constructor(private audioContext: AudioContext) {
 		super();
 		this.localGainNode = audioContext.createGain();
+		this.localGainNode.gain.value = (inject<AudioConfig>("config/audio")?.musicVolume ?? 0.8)
+		inject<AudioConfig>("config/audio")?.onChange("musicVolume", (val) => {
+			this.localGainNode.gain.value = val;
+		});
 	}
 
 	get currentTime() {
@@ -96,8 +101,6 @@ export default class Audio extends ScopedClass {
 		this.src = this.audioContext.createBufferSource();
 		this.src.buffer = this.audioBuffer;
 
-		this.localGainNode.gain.value = 0.2;
-
 		this.src.connect(this.localGainNode);
 		this.src.onended = () => {
 			if (!this.audioBuffer)
@@ -110,7 +113,8 @@ export default class Audio extends ScopedClass {
 			beatmapset?.toggle();
 			beatmapset?.seek(0);
 		};
-		this.localGainNode.connect(this.audioContext.destination);
+		// biome-ignore lint/style/noNonNullAssertion: Ensured
+		this.localGainNode.connect(this.context.consume<GainNode>("masterGainNode")!);
 
 		this.startTime = this.audioContext.currentTime * 1000;
 		this.previousTimestamp = performance.now();

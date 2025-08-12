@@ -27,8 +27,8 @@ export default class SkinManager {
 
 	async loadSkins() {
 		const defaultResources = await getDefaultLegacy();
-		const yugenResources = await getYugen();
-		this.skins.push(new Skin(defaultResources), new Skin(yugenResources));
+		// const yugenResources = await getYugen();
+		this.skins.push(new Skin(defaultResources));
 
         await Promise.all(this.skins.map(async (skin) => await skin.init()));
 		console.log(this.skins);

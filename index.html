@@ -11,7 +11,12 @@
 <body>
     <div class="absolute top-0 left-0 w-full h-full bg-black/50 backdrop-blur-lg"></div>
     <div class="relative w-full min-h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
-        <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full min-h-10" id="search">
+        <button class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer"
+            id="settingsButton">
+            <i class="ri-settings-3-fill text-white text-[24px]"></i>
+        </button>
+        <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full min-h-10"
+            id="search">
             <input type="text" name="" id="idInput"
                 class="min-w-[264px] h-full rounded-full rounded-r-none focus-within:outline-0 bg-black/40 px-5 placeholder:text-white/60 text-white text-xs flex-1"
                 placeholder="Open beatmap with id">
@@ -27,7 +32,8 @@
             <button id="diffs" class="hidden"></button>
             <div
                 class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" id="extraMode">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    id="extraMode">
                     <g clip-path="url(#clip0_1_34)">
                         <rect x="1" y="1" width="18" height="18" rx="9" stroke="white" stroke-width="2" />
                         <rect x="5" y="5" width="10" height="10" rx="5" fill="white" />
@@ -47,12 +53,77 @@
         </label>
     </div>
     <div id="app" class="relative w-full flex-1 overflow-hidden"></div>
-    <!-- <button class="absolute top-0 right-[50%] -translate-x-[50%] p-5 rounded-xl bg-gray-600" id="toggleSkin">Cycle Skin</button> -->
-    <!-- <button class="absolute top-0 left-[150px] p-5 rounded-xl bg-gray-600 hidden" id="toggleBeatmap">Cycle
-        Beatmap</button> -->
-    <!-- <button class="absolute top-0 left-[300px] p-5 rounded-xl bg-gray-600" id="destroy">Destroy</button> -->
+    <div class="fixed top-0 left-0 w-full h-full bg-black/50 overlayHidden" id="overlay"></div>
+    <div
+        class="fixed top-0 w-[600px] max-w-[80vw] h-screen bg-crust flex flex-col gap-2.5 text-text" id="settings">
+        <div class="bg-base p-10 flex flex-col w-full">
+            <div class="font-medium text-3xl">Settings</div>
+            <div>Change how JoSu! behaves</div>
+        </div>
+        <div class="bg-base p-10 flex flex-col w-full gap-5">
+            <div class="font-medium">Background</div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <div class="font-normal">Background Dim</div>
+                    <label for="backgroundDim">100%</label>
+                </div>
+                <input type="range" name="backgrounđDim" id="backgroundDim" min="0" max="100" step="1" tabindex="-1">
+            </div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <div class="font-normal">Background Blur</div>
+                    <label for="backgroundBlur">100%</label>
+                </div>
+                <input type="range" name="backgroundBlur" id="backgroundBlur" min="0" max="100" step="1" tabindex="-1">
+            </div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <label class="font-normal flex-1 cursor-pointer" for="video" tabindex="-1">Show Video</label>
+                    <input type="checkbox" name="video" id="video">
+                </div>
+            </div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <label class="font-normal flex-1 cursor-pointer" for="storyboard">Show Storyboard</label>
+                    <input type="checkbox" name="storyboard" id="storyboard" tabindex="-1">
+                </div>
+            </div>
+        </div>
+        <div class="bg-base p-10 flex flex-col w-full gap-5">
+            <div class="font-medium">Audio</div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <div class="font-normal">Master Volume</div>
+                    <label for="masterVolume">100%</label>
+                </div>
+                <input type="range" name="masterVolume" id="masterVolume" min="0" max="1" step="0.01" tabindex="-1">
+            </div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <div class="font-normal">Music Volume</div>
+                    <label for="musicVolume">100%</label>
+                </div>
+                <input type="range" name="musicVolume" id="musicVolume" min="0" max="1" step="0.01" tabindex="-1">
+            </div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <div class="font-normal">Effect Volume</div>
+                    <label for="effectVolume">100%</label>
+                </div>
+                <input type="range" name="effectVolume" id="effectVolume" min="0" max="1" step="0.01" tabindex="-1">
+            </div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <label class="font-normal flex-1 cursor-pointer" for="hitsound">Disable Beatmap Hitsound</label>
+                    <input type="checkbox" name="hitsound" id="hitsound" tabindex="-1">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="/src/index.ts"></script>
-    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50 z-[999]" id="loading">
+    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50 z-[999]"
+        id="loading">
         <span class="loader scale-50"></span>
         <div class="flex flex-col">
             <div class="font-medium text-lg">JoSu! is loading</div>
@@ -60,7 +131,6 @@
                 Initiating
             </div>
         </div>
-
     </div>
 </body>
 

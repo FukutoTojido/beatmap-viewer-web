@@ -214,12 +214,12 @@ export default class Gameplays {
 
 			if (deserialized.length > 1) {
 				gameplay.showDiffName();
-				gameplay.wrapper.layout = {
+				gameplay.background.layout = {
 					borderRadius: 20,
 				};
 			} else {
 				gameplay.hideDiffName();
-				gameplay.wrapper.layout = {
+				gameplay.background.layout = {
 					borderRadius: 0,
 				};
 			}

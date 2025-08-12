@@ -1,3 +1,4 @@
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { LayoutContainer } from "@pixi/layout/components";
@@ -49,11 +50,7 @@ export default class Background {
 	private storyboardContainer = new Container();
 
 	constructor() {
-		this.container.addChild(
-			this.sprite,
-			this.video,
-			this.storyboardContainer,
-		);
+		this.container.addChild(this.sprite, this.video, this.storyboardContainer);
 
 		this.container.on("layout", (layout) => {
 			const { width, height } = layout.computedLayout;
@@ -69,17 +66,17 @@ export default class Background {
 			this.storyboardContainer.y =
 				timelineHeight + (height - timelineHeight - _h) / 2;
 		});
+
+		inject<BackgroundConfig>("config/background")?.onChange("video", (val) => {
+			this.video.visible = val;
+		});
 	}
 
 	updateTexture(texture: Texture) {
 		this.sprite.texture = texture;
 
 		this.container.removeChild(this.sprite);
-		this.container.addChild(
-			this.sprite,
-			this.video,
-			this.storyboardContainer,
-		);
+		this.container.addChild(this.sprite, this.video, this.storyboardContainer);
 	}
 
 	currentFrame?: VideoFrame;

@@ -14,6 +14,7 @@ import type BeatmapSet from "@/BeatmapSet";
 import type { LayoutOptions } from "@pixi/layout";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
+import { BackdropBlurFilter } from "pixi-filters";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -31,6 +32,7 @@ const defaultLayout: Omit<LayoutOptions, "target"> = {
 export default class Gameplay {
 	container: Container;
 	wrapper: Container;
+	background: LayoutContainer;
 	objectsContainer: Container;
 	diffName!: Text;
 	statsContainer!: LayoutContainer;
@@ -42,6 +44,12 @@ export default class Gameplay {
 	hpText!: Text;
 
 	constructor(public beatmap: Beatmap) {
+		const backdropFilter = new BackdropBlurFilter({
+			strength:
+				inject<BackgroundConfig>("config/background")?.backgroundBlur ?? 0,
+			quality: 4,
+		});
+
 		this.container = new Container({
 			label: "gameplay",
 			layout: {
@@ -52,7 +60,15 @@ export default class Gameplay {
 			},
 			isRenderGroup: true,
 		});
-		this.wrapper = new LayoutContainer({
+		this.wrapper = new Container({
+			label: "wrapper",
+			layout: {
+				width: "100%",
+				height: "100%",
+			},
+		});
+		this.background = new LayoutContainer({
+			label: "dim",
 			layout: {
 				width: "100%",
 				height: "100%",
@@ -67,7 +83,9 @@ export default class Gameplay {
 					),
 				],
 			},
+			filters: [backdropFilter],
 		});
+
 		this.objectsContainer = new Container({
 			boundsArea: new Rectangle(0, 0, 512, 384),
 		});
@@ -76,7 +94,7 @@ export default class Gameplay {
 		this.createCloseButton();
 
 		this.container.addChild(this.wrapper);
-		this.wrapper.addChild(this.objectsContainer);
+		this.wrapper.addChild(this.background, this.objectsContainer);
 		this.wrapper.on("layout", () => {
 			const width = this.wrapper.layout?.computedLayout.width ?? 0;
 			const height = this.wrapper.layout?.computedLayout.height ?? 0;
@@ -96,6 +114,22 @@ export default class Gameplay {
 			this.statsContainer.layout = { backgroundColor: base };
 			this.diffName.style.fill = text;
 		});
+
+		inject<BackgroundConfig>("config/background")?.onChange(
+			"backgroundDim",
+			(value: number) => {
+				this.background.layout = {
+					backgroundColor: [0, 0, 0, Math.max(0.01, value / 100)],
+				};
+			},
+		);
+
+		inject<BackgroundConfig>("config/background")?.onChange(
+			"backgroundBlur",
+			(value: number) => {
+				backdropFilter.strength = (value / 100) * 20;
+			},
+		);
 	}
 
 	showCloseButton() {
@@ -108,8 +142,6 @@ export default class Gameplay {
 
 	showDiffName() {
 		this.container.addChild(this.statsContainer);
-
-
 	}
 
 	hideDiffName() {

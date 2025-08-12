@@ -24,6 +24,8 @@ import Storyboard from "./Beatmap/Storyboard";
 
 import extraMode from "/assets/extra-mode.svg?raw";
 import { getDiffColour, loadColorPalette } from "@/utils";
+import type AudioConfig from "@/Config/AudioConfig";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -35,6 +37,18 @@ export default class BeatmapSet extends ScopedClass {
 		this.context.provide("audioContext", this.audioContext);
 		this.context.provide("resources", resources);
 		this.context.provide("beatmapset", this);
+
+		const gainNode = this.context.provide(
+			"masterGainNode",
+			this.audioContext.createGain(),
+		);
+		gainNode.connect(this.audioContext.destination);
+		gainNode.gain.value =
+			inject<AudioConfig>("config/audio")?.masterVolume ?? 0.8;
+
+		inject<AudioConfig>("config/audio")?.onChange("masterVolume", (val) => {
+			gainNode.gain.value = val;
+		});
 
 		provide("beatmapset", this);
 		this.animationFrame = requestAnimationFrame(() => this.frame());
@@ -173,13 +187,7 @@ export default class BeatmapSet extends ScopedClass {
 				).toLowerCase(),
 			);
 
-		if (
-			!(
-				videoResource &&
-				new URLSearchParams(window.location.search).get("v") === "true"
-			)
-		)
-			return;
+		if (!videoResource) return;
 
 		inject<Loading>("ui/loading")?.setText("Loading video");
 
@@ -299,7 +307,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 			beatmap.container,
-			index
+			index,
 		);
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
