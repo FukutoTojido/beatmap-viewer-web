@@ -1,4 +1,8 @@
 import * as d3 from "d3";
+import { Vibrant } from "node-vibrant/browser";
+import type { ColorPalette } from "./Config/ColorConfig";
+import { inject } from "./Context";
+import type ColorConfig from "./Config/ColorConfig";
 
 export function lighten(
 	color: [number, number, number, number?],
@@ -95,4 +99,58 @@ export function getDiffColour(rating: number) {
 	if (rating < 0.1) return "#AAAAAA";
 	if (rating >= 9) return "#000000";
 	return d3.rgb(difficultyColourSpectrum(rating)).formatHex();
+}
+
+export async function loadColorPalette(url: string) {
+	const vibrant = new Vibrant(url);
+	const swatches = await vibrant.getPalette();
+	let palette: Partial<ColorPalette> = {};
+
+	const primary = swatches.DarkMuted ?? swatches.Muted;
+	if (primary) {
+		const lumi =
+			(0.299 * primary.rgb[0] +
+				0.587 * primary.rgb[1] +
+				0.114 * primary.rgb[2]) /
+			255;
+
+		let color = d3.color(primary.hex);
+		if (color) {
+			if (lumi < 0.1) {
+				const ratio = 0.1 / lumi;
+				const k = -Math.log(ratio) / Math.log(0.7);
+				color = color.brighter(k);
+			}
+
+			palette = {
+				...palette,
+				crust: Number.parseInt(color.darker(3.0).formatHex().slice(1), 16),
+				mantle: Number.parseInt(color.darker(2.5).formatHex().slice(1), 16),
+				base: Number.parseInt(color.darker(2.0).formatHex().slice(1), 16),
+				surface0: Number.parseInt(color.darker(1.5).formatHex().slice(1), 16),
+				surface1: Number.parseInt(color.darker(1.0).formatHex().slice(1), 16),
+				surface2: Number.parseInt(color.darker(0.5).formatHex().slice(1), 16),
+				overlay0: Number.parseInt(color.formatHex().slice(1), 16),
+				overlay1: Number.parseInt(color.brighter(0.5).formatHex().slice(1), 16),
+				overlay2: Number.parseInt(color.brighter(1).formatHex().slice(1), 16),
+			};
+		}
+	}
+
+	const accent = swatches.LightMuted ?? swatches.Muted;
+	if (accent) {
+		const color = d3.color(accent.hex);
+		if (color) {
+			palette = {
+				...palette,
+				subtext0: Number.parseInt(color.formatHex().slice(1), 16),
+				subtext1: Number.parseInt(color.brighter(0.5).formatHex().slice(1), 16),
+				text: Number.parseInt(color.brighter(1.0).formatHex().slice(1), 16),
+			};
+		}
+	}
+
+	const colorConfig = inject<ColorConfig>("config/color");
+	if (!colorConfig) return;
+	colorConfig.color = palette;
 }

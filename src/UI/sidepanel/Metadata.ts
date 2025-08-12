@@ -1,3 +1,4 @@
+import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import type { LayoutOptions } from "@pixi/layout";
@@ -29,37 +30,72 @@ export default class Metadata {
 
 	artist = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 	artistUnicode = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 	title = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 	titleUnicode = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 	version = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 	source = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 	tags = new Text({
 		text: "",
-		style: { ...defaultStyle, fontSize: 16, fontWeight: "400", fill: 0xcdd6f4 },
+		style: {
+			...defaultStyle,
+			fontSize: 16,
+			fontWeight: "400",
+			fill: inject<ColorConfig>("config/color")?.color.text,
+		},
 		layout: defaultLayout,
 	});
 
@@ -77,10 +113,15 @@ export default class Metadata {
 				gap: 15,
 				// padding: 10,
 				boxSizing: "border-box",
-				backgroundColor: 0x181825,
+				backgroundColor: inject<ColorConfig>("config/color")?.color.mantle,
 				borderRadius: 0,
-				borderWidth: 1,
 			},
+		});
+
+		inject<ColorConfig>("config/color")?.onChange("color", ({ mantle }) => {
+			this.container.layout = {
+				backgroundColor: mantle,
+			};
 		});
 
 		const artist = this.createContainer("artist", this.artist);
@@ -135,6 +176,7 @@ export default class Metadata {
 				...defaultStyle,
 				fontSize: 14,
 				fontWeight: "300",
+				fill: inject<ColorConfig>("config/color")?.color.subtext1,
 			},
 			layout: {
 				objectPosition: "top left",
@@ -155,6 +197,14 @@ export default class Metadata {
 
 		container.addChild(titleObject, content);
 
+		inject<ColorConfig>("config/color")?.onChange(
+			"color",
+			({ subtext1, text }) => {
+				titleObject.style.fill = subtext1;
+				content.style.fill = text;
+			},
+		);
+
 		return container;
 	}
 
@@ -167,9 +217,9 @@ export default class Metadata {
 		this.source.text = metadata.source;
 		this.tags.text = metadata.tags.join(", ");
 
-		const mapperEl = document.querySelector("#mapper") 
-		const titleEl = document.querySelector("#title")
-		
+		const mapperEl = document.querySelector("#mapper");
+		const titleEl = document.querySelector("#title");
+
 		if (mapperEl) mapperEl.textContent = `by ${metadata.creator}`;
 		if (titleEl) titleEl.textContent = `${metadata.artist} - ${metadata.title}`;
 	}

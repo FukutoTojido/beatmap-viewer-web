@@ -13,6 +13,7 @@ import type Beatmap from "@/BeatmapSet/Beatmap";
 import type BeatmapSet from "@/BeatmapSet";
 import type { LayoutOptions } from "@pixi/layout";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
+import type ColorConfig from "@/Config/ColorConfig";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -89,6 +90,12 @@ export default class Gameplay {
 			this.objectsContainer.x = (width - _w) / 2;
 			this.objectsContainer.y = (height - _h) / 2;
 		});
+
+		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
+			this.closeButton.layout = { backgroundColor: base };
+			this.statsContainer.layout = { backgroundColor: base };
+			this.diffName.style.fill = text;
+		});
 	}
 
 	showCloseButton() {
@@ -102,19 +109,11 @@ export default class Gameplay {
 	showDiffName() {
 		this.container.addChild(this.statsContainer);
 
-		this.wrapper.layout = {
-			borderColor: 0x585b70,
-			borderWidth: 1,
-		};
+
 	}
 
 	hideDiffName() {
 		this.container.removeChild(this.statsContainer);
-
-		this.wrapper.layout = {
-			borderColor: undefined,
-			borderWidth: 0,
-		};
 	}
 
 	createCloseButton() {
@@ -124,7 +123,7 @@ export default class Gameplay {
 				height: 30,
 				alignItems: "center",
 				justifyContent: "center",
-				backgroundColor: 0x181825,
+				backgroundColor: inject<ColorConfig>("config/color")?.color.base,
 				borderRadius: 15,
 				position: "absolute",
 				top: 20,
@@ -139,6 +138,13 @@ export default class Gameplay {
 				width: 20,
 				height: 20,
 			},
+		});
+
+		closeButton.tint =
+			inject<ColorConfig>("config/color")?.color.text ?? 0xffffff;
+
+		inject<ColorConfig>("config/color")?.onChange("color", ({ text }) => {
+			closeButton.tint = text;
 		});
 
 		(async () => {
@@ -171,7 +177,7 @@ export default class Gameplay {
 				alignItems: "center",
 				flexDirection: "row",
 				gap: 10,
-				backgroundColor: 0x181825,
+				backgroundColor: inject<ColorConfig>("config/color")?.color.base,
 				borderRadius: 20,
 				padding: 10,
 				paddingInline: 20,
@@ -185,7 +191,10 @@ export default class Gameplay {
 
 		this.diffName = new Text({
 			text: this.beatmap.data.metadata.version,
-			style: defaultStyle,
+			style: {
+				...defaultStyle,
+				fill: inject<ColorConfig>("config/color")?.color.text,
+			},
 			layout: defaultLayout,
 		});
 

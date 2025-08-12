@@ -1,5 +1,6 @@
 import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
+import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import { LayoutContainer } from "@pixi/layout/components";
 import { Assets, Sprite } from "pixi.js";
@@ -9,7 +10,7 @@ export default class Play {
 		label: "play",
 		layout: {
 			aspectRatio: 1,
-			backgroundColor: 0x11111b,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
 			height: "100%",
 			flexShrink: 0,
 			alignItems: "center",
@@ -29,9 +30,19 @@ export default class Play {
 				width: 20,
 				height: 20,
 			};
+			this.sprite.tint =
+				inject<ColorConfig>("config/color")?.color.text ?? 0xffffff;
 
 			this.container.addChild(this.sprite);
 		})();
+
+		inject<ColorConfig>("config/color")?.onChange(
+			"color",
+			({ crust, text }) => {
+				this.container.layout = { backgroundColor: crust };
+				this.sprite.tint = text;
+			},
+		);
 
 		this.container.cursor = "pointer";
 

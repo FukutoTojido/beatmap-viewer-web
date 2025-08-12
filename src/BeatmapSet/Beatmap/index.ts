@@ -128,6 +128,14 @@ export default class Beatmap extends ScopedClass {
 			});
 		}
 
+		const breaks: {
+			start: number;
+			end: number;
+		}[] = this.data.events.breaks.map(({ startTime, endTime }) => ({
+			start: startTime / (audio?.duration ?? 1),
+			end: endTime / (audio?.duration ?? 1),
+		}));
+
 		const timingPoints = [
 			...this.data.controlPoints.timingPoints,
 			...this.data.controlPoints.difficultyPoints,
@@ -152,6 +160,7 @@ export default class Beatmap extends ScopedClass {
 		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(
 			points,
 			kiaiSections,
+			breaks,
 		);
 		inject<Timing>("ui/sidepanel/timing")?.updateTimingPoints(timingPoints);
 		inject<Timeline>("ui/main/viewer/timeline")?.loadTimingPoints(

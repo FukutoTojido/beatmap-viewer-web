@@ -6,9 +6,13 @@ export default class FPS {
 	container = new LayoutContainer({
 		layout: {
 			position: "absolute",
-			bottom: 0,
-			right: 0,
-			padding: 20,
+			bottom: 10,
+			right: 10,
+			padding: 8,
+			width: 70,
+			backgroundColor: [0, 0, 0, 0.7],
+			borderRadius: 10,
+			display: "flex",
 			flexDirection: "column",
 			alignItems: "flex-end",
 		},
@@ -22,12 +26,11 @@ export default class FPS {
 				style: {
 					fontFamily: "Rubik",
 					fontWeight: "400",
-					fill: 0xcdd6f4,
+					fill: 0xffffff,
 					fontSize: 12,
 					align: "right",
 				},
 				layout: {
-					width: "100%",
 					objectFit: "none",
 					objectPosition: "center right",
 				},
@@ -41,12 +44,11 @@ export default class FPS {
 				style: {
 					fontFamily: "Rubik",
 					fontWeight: "400",
-					fill: 0xcdd6f4,
+					fill: 0xffffff,
 					fontSize: 12,
 					align: "right",
 				},
 				layout: {
-					width: "100%",
 					objectFit: "none",
 					objectPosition: "center right",
 				},

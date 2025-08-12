@@ -23,7 +23,7 @@ import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 
 import extraMode from "/assets/extra-mode.svg?raw";
-import { getDiffColour } from "@/utils";
+import { getDiffColour, loadColorPalette } from "@/utils";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -87,7 +87,7 @@ export default class BeatmapSet extends ScopedClass {
 
 			const button = document.createElement("button");
 			button.className =
-				"flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-text";
+				"flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white";
 			const color = getDiffColour(
 				this.difficulties[i].difficultyAttributes.starRating,
 			);
@@ -107,7 +107,7 @@ export default class BeatmapSet extends ScopedClass {
 			const button2 = document.createElement("button");
 			button2.innerHTML = `<i class="ri-add-line"></i>`;
 			button2.className =
-				"h-full hover:bg-white/10 p-2.5 flex items-center justify-center rounded-[10px] cursor-pointer transition-colors text-text";
+				"h-full hover:bg-white/10 p-2.5 flex items-center justify-center rounded-[10px] cursor-pointer transition-colors text-white";
 			button2.style.aspectRatio = "1 / 1";
 			button2.addEventListener("click", () => {
 				this.loadSlave(i);
@@ -215,6 +215,7 @@ export default class BeatmapSet extends ScopedClass {
 		);
 
 		document.body.style.backgroundImage = `url("${url}")`;
+		await loadColorPalette(url);
 	}
 
 	async loadStoryboard() {
@@ -563,7 +564,7 @@ export default class BeatmapSet extends ScopedClass {
 			params.append("b", id.toString());
 		}
 
-		window.history.pushState(null, "", `?${params.toString()}`);
+		window.history.replaceState(null, "", `?${params.toString()}`);
 
 		const input = document.querySelector<HTMLInputElement>("#idInput");
 		if (!input) return;

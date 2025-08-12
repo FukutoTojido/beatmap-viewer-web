@@ -1,3 +1,4 @@
+import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { LayoutContainer } from "@pixi/layout/components";
@@ -9,7 +10,7 @@ export default class Timestamp {
 		layout: {
 			width: 150,
 			height: "100%",
-			backgroundColor: 0x1e1e2e,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.base,
 			flexShrink: 0,
 			flexDirection: "column",
 			alignItems: "center",
@@ -33,7 +34,7 @@ export default class Timestamp {
 			fontFamily: "Rubik",
 			fontSize: 12,
 			fontWeight: "500",
-			fill: 0xcdd6f4,
+			fill: inject<ColorConfig>("config/color")?.color.text,
 			align: "center",
 		},
 		layout: {
@@ -47,7 +48,7 @@ export default class Timestamp {
 			fontFamily: "Rubik",
 			fontSize: 10,
 			fontWeight: "400",
-			fill: 0xcdd6f4,
+			fill: inject<ColorConfig>("config/color")?.color.text,
 			align: "center",
 		},
 		layout: {
@@ -73,6 +74,16 @@ export default class Timestamp {
 		this.timingContainer.addChild(this.bpm, this.sliderVelocity);
 		this.container.addChild(this.digitsContainer, this.timingContainer);
 
+		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
+			this.container.layout = { backgroundColor: base };
+			this.bpm.style.fill = text;
+			this.sliderVelocity.style.fill = text;
+			
+			for (const digit of this.digits) {
+				digit.style.fill = text;
+			}
+		});
+
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
 			(direction) => {
@@ -97,7 +108,7 @@ export default class Timestamp {
 				fontFamily: "Rubik",
 				fontSize: 15,
 				fontWeight: "400",
-				fill: 0xcdd6f4,
+				fill: inject<ColorConfig>("config/color")?.color.text,
 				align: "center",
 			},
 			layout: {

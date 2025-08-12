@@ -13,20 +13,20 @@
     <div class="relative w-full min-h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
         <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full min-h-10" id="search">
             <input type="text" name="" id="idInput"
-                class="min-w-[264px] h-full rounded-full rounded-r-none focus-within:outline-0 bg-black/40 px-5 placeholder:text-text/60 text-text text-xs flex-1"
+                class="min-w-[264px] h-full rounded-full rounded-r-none focus-within:outline-0 bg-black/40 px-5 placeholder:text-white/60 text-white text-xs flex-1"
                 placeholder="Open beatmap with id">
             <button class="h-full pr-5 rounded-full rounded-l-none bg-black/40" tabindex="-1" id="submitId">
-                <i class="ri-search-line text-text text-[24px]"></i>
+                <i class="ri-search-line text-white text-[24px]"></i>
             </button>
         </div>
         <div class="flex-1 flex flex-col px-5" id="metadata">
-            <div class="text-sm font-medium text-text" id="title">Artist - Title</div>
-            <div class="text-xs text-text" id="mapper">by Mapper</div>
+            <div class="text-sm font-medium text-white" id="title">Artist - Title</div>
+            <div class="text-xs text-white" id="mapper">by Mapper</div>
         </div>
         <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
             <button id="diffs" class="hidden"></button>
             <div
-                class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none">
+                class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" id="extraMode">
                     <g clip-path="url(#clip0_1_34)">
                         <rect x="1" y="1" width="18" height="18" rx="9" stroke="white" stroke-width="2" />
@@ -38,7 +38,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <span id="masterDiff" class="flex-1 text-left truncate">Difficulty</span>
+                <span id="masterDiff" class="flex-1 text-left truncate">Choose Difficulty</span>
                 <span id="masterSR">SR★</span>
             </div>
             <div id="diffsContainer"

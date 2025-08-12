@@ -9,6 +9,7 @@ import AnimationController from "@/UI/animation/AnimationController";
 import type { Tween } from "@tweenjs/tween.js";
 import Easings from "@/UI/Easings";
 import type State from "@/State";
+import type ColorConfig from "@/Config/ColorConfig";
 
 const DECAY_RATE = 0.99;
 const LN0_9 = Math.log(DECAY_RATE);
@@ -29,9 +30,8 @@ export default class Timing {
 				width: 360,
 				flex: 1,
 				overflow: "hidden",
-				backgroundColor: 0x181825,
+				backgroundColor: inject<ColorConfig>("config/color")?.color.mantle,
 				borderRadius: 0,
-				borderWidth: 1,
 			},
 			visible: false,
 		});
@@ -54,6 +54,12 @@ export default class Timing {
 					};
 				}
 			}
+		});
+
+		inject<ColorConfig>("config/color")?.onChange("color", ({ mantle }) => {
+			this.container.layout = {
+				backgroundColor: mantle,
+			};
 		});
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
@@ -83,7 +89,7 @@ export default class Timing {
 			if (newState === "CLOSED") {
 				this.container.visible = false;
 			}
-		})
+		});
 
 		this.container.on("wheel", (event) => {
 			const deltaY = event.deltaY;
@@ -129,6 +135,8 @@ export default class Timing {
 
 		const offset =
 			idx * 45 - (this.container.layout?.computedLayout.height ?? 0) + 40;
+
+		if (offset < this._scrollOffset) return;
 		this.scrollTo(Math.max(0, offset));
 	}
 

@@ -1,3 +1,5 @@
+import type ColorConfig from "@/Config/ColorConfig";
+import { inject } from "@/Context";
 import { millisecondsToMinutesString } from "@/utils";
 import { LayoutContainer } from "@pixi/layout/components";
 import { DifficultyPoint, type SamplePoint, TimingPoint } from "osu-classes";
@@ -18,7 +20,7 @@ export default class Point {
 	private content2: Text;
 
 	private accent: ColorSource;
-	private bg = 0x181825;
+	private bg = inject<ColorConfig>("config/color")?.color.mantle ?? 0x181825;
 
 	constructor(public data: TimingPoint | DifficultyPoint | SamplePoint) {
 		this.accent =
@@ -26,7 +28,7 @@ export default class Point {
 				? 0xf38ba8
 				: data instanceof DifficultyPoint
 					? 0xa6e3a1
-					: 0xcdd6f4;
+					: inject<ColorConfig>("config/color")?.color.text ?? 0xcdd6f4;
 
 		this.container = new LayoutContainer({
 			layout: {
@@ -38,9 +40,21 @@ export default class Point {
 				paddingInline: 20,
 				alignItems: "center",
 				backgroundColor: this.bg,
-				borderWidth: 2,
 			},
 			alpha: 0.5,
+		});
+
+		inject<ColorConfig>("config/color")?.onChange("color", ({ mantle }) => {
+			this.bg = mantle;
+			this.accent =
+				data instanceof TimingPoint
+					? 0xf38ba8
+					: data instanceof DifficultyPoint
+						? 0xa6e3a1
+						: inject<ColorConfig>("config/color")?.color.text ?? 0xcdd6f4;
+
+			if (this.indicator.visible) this.select();
+			if (!this.indicator.visible) this.unselect();
 		});
 
 		this.timestamp = new Text({

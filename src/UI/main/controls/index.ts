@@ -5,6 +5,7 @@ import Metadata from "./Metadata";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import Play from "./Play";
 import ProgressBar from "./ProgressBar";
+import type ColorConfig from "@/Config/ColorConfig";
 
 export default class Controls {
 	container = new LayoutContainer({
@@ -13,10 +14,8 @@ export default class Controls {
 			width: "100%",
 			height: 60,
 			flexGrow: 0,
-			backgroundColor: 0x11111b,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
 			flexDirection: "row",
-			borderColor: 0x585b70,
-			borderWidth: 1,
 			borderRadius: 20,
 			overflow: "hidden",
 		},
@@ -45,13 +44,21 @@ export default class Controls {
 
 		this.container.addChild(timestamp.container, restContainer);
 
+		inject<ColorConfig>("config/color")?.onChange(
+			"color",
+			({ crust, surface2 }) => {
+				this.container.layout = {
+					backgroundColor: crust,
+				};
+			},
+		);
+
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
 			(direction) => {
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
-							borderWidth: 1,
 							borderRadius: 20,
 							flexDirection: "row",
 							height: 60,
@@ -64,7 +71,6 @@ export default class Controls {
 					}
 					case "portrait": {
 						this.container.layout = {
-							borderWidth: 0,
 							borderRadius: 0,
 							flexDirection: "column",
 							height: "auto",

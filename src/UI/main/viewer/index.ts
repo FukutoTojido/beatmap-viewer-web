@@ -6,6 +6,7 @@ import Gameplay from "./Gameplay";
 import Background from "./Background";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import Gameplays from "./Gameplay/Gameplays";
+import type ColorConfig from "@/Config/ColorConfig";
 
 export default class Viewer {
 	container = new LayoutContainer({
@@ -14,9 +15,7 @@ export default class Viewer {
 			width: "100%",
 			flex: 1,
 			flexDirection: "column",
-			backgroundColor: 0x0,
-			borderColor: 0x585b70,
-			borderWidth: 1,
+			backgroundColor: [0, 0, 0, 0.2],
 			borderRadius: 20,
 			overflow: "hidden",
 		},
@@ -39,7 +38,6 @@ export default class Viewer {
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
-							borderWidth: 1,
 							borderRadius: 20,
 							flex: 1,
 							aspectRatio: undefined,
@@ -48,8 +46,6 @@ export default class Viewer {
 					}
 					case "portrait": {
 						this.container.layout = {
-							borderWidth: 0,
-							borderRadius: 0,
 							flex: undefined,
 							// aspectRatio: 4 / 3,
 						};

@@ -8,13 +8,14 @@ import {
 	type ColorSource,
 	type FederatedPointerEvent,
 } from "pixi.js";
+import type ColorConfig from "@/Config/ColorConfig";
 
 export default class ProgressBar {
 	container = new LayoutContainer({
 		layout: {
 			flex: 1,
 			height: "100%",
-			backgroundColor: 0x11111b,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
 			alignItems: "center",
 			justifyContent: "center",
 			paddingInline: 30,
@@ -26,7 +27,7 @@ export default class ProgressBar {
 		layout: {
 			height: 4,
 			width: "100%",
-			backgroundColor: 0x313244,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.surface0,
 			borderRadius: 4,
 		},
 	});
@@ -43,7 +44,7 @@ export default class ProgressBar {
 		.lineTo(1, 26)
 		.lineTo(6, 30)
 		.lineTo(-6, 30)
-		.fill(0xcdd6f4);
+		.fill(inject<ColorConfig>("config/color")?.color.text);
 
 	timeline: Graphics;
 
@@ -70,6 +71,28 @@ export default class ProgressBar {
 		});
 
 		this.addEventHandler();
+
+		inject<ColorConfig>("config/color")?.onChange(
+			"color",
+			({ crust, surface0, text }) => {
+				this.container.layout = { backgroundColor: crust };
+				this.line.layout = { backgroundColor: surface0 };
+				this.thumb
+					.clear()
+					.rect(-1, -30, 2, 60)
+					.moveTo(-6, -30)
+					.lineTo(-1, -26)
+					.lineTo(1, -26)
+					.lineTo(6, -30)
+					.lineTo(-6, -30)
+					.moveTo(-6, 30)
+					.lineTo(-1, 26)
+					.lineTo(1, 26)
+					.lineTo(6, 30)
+					.lineTo(-6, 30)
+					.fill(text);
+			},
+		);
 	}
 
 	addEventHandler() {
@@ -128,6 +151,10 @@ export default class ProgressBar {
 			start: number;
 			end: number;
 		}[],
+		breaks: {
+			start: number;
+			end: number;
+		}[] = [],
 	) {
 		this.timeline.clear();
 
@@ -135,6 +162,12 @@ export default class ProgressBar {
 			this.timeline
 				.rect(start, 8, end - start, 4)
 				.fill({ color: 0xffd978, alpha: 0.7 });
+		}
+
+		for (const { start, end } of breaks) {
+			this.timeline
+				.rect(start, 8, end - start, 4)
+				.fill({ color: 0xffffff, alpha: 0.3 });
 		}
 
 		for (const point of points) {

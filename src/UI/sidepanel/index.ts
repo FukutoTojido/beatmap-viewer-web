@@ -8,6 +8,7 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import Timing from "./Timing";
 import type State from "@/State";
 import type { SidebarState } from "@/State";
+import type ColorConfig from "@/Config/ColorConfig";
 
 export default class SidePanel {
 	tabs = [
@@ -43,9 +44,7 @@ export default class SidePanel {
 		layout: {
 			width: 0,
 			height: "100%",
-			backgroundColor: 0x181825,
-			borderColor: 0x585b70,
-			borderWidth: 1,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.mantle,
 			borderRadius: 20,
 			flexDirection: "column",
 			justifyContent: "flex-start",
@@ -69,9 +68,8 @@ export default class SidePanel {
 					height: 40,
 					alignItems: "center",
 					flexShrink: 0,
-					borderWidth: 1,
 					borderRadius: 10,
-					backgroundColor: 0x181825,
+					backgroundColor: inject<ColorConfig>("config/color")?.color.base,
 				},
 				cursor: "pointer",
 			});
@@ -80,7 +78,7 @@ export default class SidePanel {
 				style: {
 					fontFamily: "Rubik",
 					fontSize: 14,
-					fill: 0xcdd6f4,
+					fill: inject<ColorConfig>("config/color")?.color.text,
 					fontWeight: "400",
 					align: "center",
 				},
@@ -93,6 +91,15 @@ export default class SidePanel {
 			container.addEventListener("pointertap", () => {
 				this.switchTab(idx);
 			});
+
+			inject<ColorConfig>("config/color")?.onChange(
+				"color",
+				({ base, text: textColor }) => {
+					container.layout = { backgroundColor: base };
+					text.style.fill = textColor;
+				},
+			);
+
 			return container;
 		});
 		this.tabSwitcher.addChild(...this.headers);
@@ -121,7 +128,14 @@ export default class SidePanel {
 				src: "./assets/x.png",
 				parser: "texture",
 			});
+
+			closeButton.tint =
+				inject<ColorConfig>("config/color")?.color.text ?? 0xffffff;
 		})();
+
+		inject<ColorConfig>("config/color")?.onChange("color", ({ text }) => {
+			closeButton.tint = text;
+		});
 
 		closeButtonContainer.cursor = "pointer";
 		closeButtonContainer.addEventListener("click", () => this.closeSidePanel());
@@ -134,6 +148,27 @@ export default class SidePanel {
 		this.index = 0;
 
 		this.switchTab(0);
+
+		inject<ColorConfig>("config/color")?.onChange(
+			"color",
+			({ crust, mantle, surface0, surface2 }) => {
+				this.container.layout = {
+					backgroundColor: mantle,
+				};
+
+				for (let i = 0; i < this.headers.length; i++) {
+					if (i === this.index) {
+						this.headers[i].layout = {
+							backgroundColor: surface0,
+						};
+					} else {
+						this.headers[i].layout = {
+							backgroundColor: crust,
+						};
+					}
+				}
+			},
+		);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
@@ -300,15 +335,13 @@ export default class SidePanel {
 	switchTab(index: number) {
 		this.container.removeChild(this.tabs[this.index].content.container);
 		this.headers[this.index].layout = {
-			backgroundColor: 0x181825,
-			borderColor: undefined,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
 		};
 		this.index = index;
 
 		this.container.addChild(this.tabs[this.index].content.container);
 		this.headers[this.index].layout = {
-			backgroundColor: 0x313244,
-			borderColor: 0x585b70,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.surface0,
 		};
 	}
 }

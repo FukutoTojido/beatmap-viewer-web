@@ -31,9 +31,9 @@ export default class Timeline {
 			width: "100%",
 			height: 80,
 			backgroundColor: {
-				r: 30,
-				g: 30,
-				b: 46,
+				r: 0,
+				g: 0,
+				b: 0,
 				a: 0.8,
 			},
 			overflow: "hidden",

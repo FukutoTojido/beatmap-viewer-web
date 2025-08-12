@@ -13,13 +13,6 @@ export default class Gameplays {
 		layout: {
 			width: "100%",
 			flex: 1,
-			borderWidth: 0,
-			borderColor: {
-				r: 0,
-				g: 0,
-				b: 0,
-				a: 0,
-			},
 		},
 	});
 

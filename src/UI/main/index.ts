@@ -17,8 +17,6 @@ export default class Main {
 			flexDirection: "column",
 			gap: 10,
 			overflow: "hidden",
-			borderColor: { r: 0, g: 0, b: 0, a: 0 },
-			borderWidth: 1,
 		},
 	});
 
@@ -35,14 +33,12 @@ export default class Main {
 					case "landscape": {
 						this.container.layout = {
 							gap: 10,
-							borderWidth: 1,
 						};
 						break;
 					}
 					case "portrait": {
 						this.container.layout = {
 							gap: 0,
-							borderWidth: 0,
 						};
 						break;
 					}
