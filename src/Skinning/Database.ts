@@ -75,7 +75,7 @@ export default class Database {
 		return new Promise((resolve, reject) => {
 			const transaction = this.db.transaction("skins", "readwrite");
 			const store = transaction.objectStore("skins");
-			const request = store.delete(+key);
+			const request = store.delete(key);
 
 			request.onsuccess = (event) => {
 				resolve((event.target as IDBOpenDBRequest).result);

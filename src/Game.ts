@@ -129,6 +129,30 @@ export class Game {
 			.querySelector<HTMLButtonElement>("#submitId")
 			?.addEventListener("click", () => this.loadFromInput());
 
+		document.addEventListener("dragover", (e) => e.preventDefault());
+		document.addEventListener("drop", async (e) => {
+			e.preventDefault();
+			if (!e.dataTransfer?.files.length) return;
+
+			const file = e.dataTransfer.files[0];
+			const fileExt = file.name.split(".").at(-1);
+			if (!fileExt) return;
+			if (!["osz", "osk"].includes(fileExt)) return;
+
+			if (fileExt === "osz") {
+				await this.loadBlob(new Blob([file]));
+				return;
+			}
+
+			if (fileExt === "osk") {
+				inject<Loading>("ui/loading")?.on();
+				inject<Loading>("ui/loading")?.setText("Loading skin");
+				const resource = await ZipHandler.extract(new Blob([file]));
+				await inject<SkinManager>("skinManager")?.addSkin(resource);
+				inject<Loading>("ui/loading")?.off();
+			}
+		});
+
 		await inject<SkinManager>("skinManager")?.loadSkins();
 		await this.loadFromQuery();
 	}

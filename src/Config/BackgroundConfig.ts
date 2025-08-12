@@ -21,7 +21,7 @@ export default class BackgroundConfig extends ConfigSection {
 		this.storyboard = storyboard ?? true;
 	}
 
-	private _backgroundDim = 70;
+	private _backgroundDim = 60;
 	get backgroundDim() {
 		return this._backgroundDim;
 	}
@@ -91,7 +91,7 @@ export default class BackgroundConfig extends ConfigSection {
 		document
 			.querySelector<HTMLInputElement>("#backgroundDim")
 			?.addEventListener("input", (event) => {
-				const value = +((event.target as HTMLInputElement)?.value ?? 70);
+				const value = +((event.target as HTMLInputElement)?.value ?? 60);
 				this.backgroundDim = value;
 			});
 

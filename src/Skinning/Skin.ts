@@ -70,6 +70,7 @@ export default class Skin {
 		if (!configFile) return;
 
 		const config = parse(configFile, {
+			comment: ["//", "--", ";"],
 			delimiter: ":",
 		});
 
@@ -101,6 +102,7 @@ export default class Skin {
 			"followpoint",
 			"hitcircle",
 			"hitcircleoverlay",
+			"sliderb",
 			"sliderb0",
 			"sliderstartcircle",
 			"sliderstartcircleoverlay",
@@ -148,7 +150,7 @@ export default class Skin {
 					"sliderslide",
 					"slidertick",
 					"sliderwhistle",
-				].map((hitSound) => `${hitSample}-${hitSound}.wav`),
+				].map((hitSound) => `${hitSample}-${hitSound}`),
 			)
 			.reduce((accm, curr) => {
 				accm.push(...curr);
@@ -157,7 +159,10 @@ export default class Skin {
 
 		await Promise.all(
 			hitSounds.map(async (filename) => {
-				const resource = this.resources?.get(filename);
+				let resource = this.resources?.get(`${filename}.wav`);
+				if (!resource) {
+					resource = this.resources?.get(`${filename}.ogg`);
+				}
 				if (!resource) return;
 
 				let audioBuffer: AudioBuffer;
@@ -174,10 +179,7 @@ export default class Skin {
 					);
 					return;
 				}
-				this.hitsounds.set(
-					filename.split(".").slice(0, -1).join(""),
-					audioBuffer,
-				);
+				this.hitsounds.set(filename, audioBuffer);
 			}),
 		);
 	}

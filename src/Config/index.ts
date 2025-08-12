@@ -23,7 +23,7 @@ export default class Config {
 		this.background = provide(
 			"config/background",
 			new BackgroundConfig({
-				backgroundDim: 80,
+				backgroundDim: 60,
 				backgroundBlur: 0,
 				storyboard: true,
 				video: true,

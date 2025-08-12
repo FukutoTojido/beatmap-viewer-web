@@ -16,8 +16,16 @@ export default class DrawableSliderBall extends SkinnableElement {
 
 	constructor(public object: Slider) {
 		super();
+		const currentSkin = this.skinManager?.getCurrentSkin();
 		this.container = new Sprite(
-			this.skinManager?.getCurrentSkin().getTexture("sliderb0"),
+			currentSkin?.getTexture(
+				"sliderb",
+				this.context.consume<Skin>("beatmapSkin"),
+			) ??
+				currentSkin?.getTexture(
+					"sliderb0",
+					this.context.consume<Skin>("beatmapSkin"),
+				),
 		);
 		this.container.visible = false;
 		this.container.x = object.startX;
@@ -28,7 +36,9 @@ export default class DrawableSliderBall extends SkinnableElement {
 		this.container.interactiveChildren = false;
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const sliderb = skin.getTexture("sliderb0", this.context.consume<Skin>("beatmapSkin"));
+			const sliderb =
+				skin.getTexture("sliderb", this.context.consume<Skin>("beatmapSkin")) ??
+				skin.getTexture("sliderb0", this.context.consume<Skin>("beatmapSkin"));
 
 			if (!sliderb) return;
 			this.container.texture = sliderb;
@@ -41,6 +51,7 @@ export default class DrawableSliderBall extends SkinnableElement {
 
 	destroy() {
 		this.container.destroy();
-		if (this.skinEventCallback) this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
+		if (this.skinEventCallback)
+			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
 }

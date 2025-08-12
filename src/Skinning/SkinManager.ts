@@ -4,6 +4,7 @@ import { getDefaultLegacy, getYugen } from "../Initiator";
 import Database from "./Database";
 import Skin from "./Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import Loading from "@/UI/loading";
 
 export type SkinEventCallback = (skin: Skin) => void;
 
@@ -95,9 +96,11 @@ export default class SkinManager {
 
 	async addSkin(resources: Map<string, Resource>) {
 		const skin = new Skin(resources);
+		await skin.init();
+
 		await this.indexed.add(
 			{ type: "CUSTOM", name: skin.config.General.Name, resources },
-			"default",
+			`${skin.config.General.Name}-${Date.now()}`,
 		);
 
 		this.currentSkin = skin;
@@ -106,9 +109,9 @@ export default class SkinManager {
 	}
 
 	async removeSkin(key: string) {
-		await this.loadSkin(0);
 		await this.indexed.remove(key);
 		await this.refreshSkinList();
+		await this.loadSkin(0);
 	}
 
 	async refreshSkinList() {
@@ -116,6 +119,8 @@ export default class SkinManager {
 			this.indexed.getAll(),
 			this.indexed.getAllKeys(),
 		]);
+
+		this.skins = skins as SkinMetadata[];
 
 		const el = document.querySelector<HTMLDivElement>("#skinsContainer");
 		if (el) el.innerHTML = "";
