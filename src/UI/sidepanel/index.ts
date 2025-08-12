@@ -119,7 +119,7 @@ export default class SidePanel {
 		(async () => {
 			closeButton.texture = await Assets.load({
 				src: "./assets/x.png",
-				loadParser: "loadTextures",
+				parser: "texture",
 			});
 		})();
 

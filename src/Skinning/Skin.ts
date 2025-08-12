@@ -119,7 +119,7 @@ export default class Skin {
 				try {
 					const texture = await Assets.load<Texture>({
 						src: `${URL.createObjectURL(blob)}`,
-						loadParser: "loadTextures",
+						parser: "texture",
 					});
 					texture.source.resolution = isHD ? 2 : 1;
 					texture.update();

@@ -13,11 +13,14 @@ import type DrawableApproachCircle from "./DrawableApproachCircle";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import DrawableSliderHead from "./DrawableSliderHead";
+import { update } from "@/Skinning/Legacy/LegacyReverseArrow";
 
 export default class DrawableSliderRepeat extends DrawableSliderHead {
 	reverseArrow = new Sprite({
 		anchor: 0.5,
 	});
+
+	rotation!: number
 
 	constructor(
 		public object: SliderRepeat,
@@ -68,6 +71,12 @@ export default class DrawableSliderRepeat extends DrawableSliderHead {
 		const endVec = this.parent.path.calculatedPath[next];
 
 		const rotation = Math.atan2(endVec.y - startVec.y, endVec.x - startVec.x);
+		this.rotation = rotation;
 		this.reverseArrow.rotation = rotation;
+	}
+
+	update(time: number) {
+		super.update(time);
+		update(this, time);
 	}
 }

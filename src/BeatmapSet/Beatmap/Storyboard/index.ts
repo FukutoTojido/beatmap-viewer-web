@@ -102,7 +102,7 @@ export default class Storyboard extends ScopedClass {
 			const texture = await Assets.load<Texture>({
 				// biome-ignore lint/style/noNonNullAssertion: Should be able to be found
 				src: URL.createObjectURL(resource!),
-				loadParser: "loadTextures",
+				parser: "texture",
 			});
 
 			textureMap.set(key.toLowerCase(), texture);

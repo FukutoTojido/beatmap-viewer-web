@@ -211,7 +211,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		const url = URL.createObjectURL(backgroundResource);
 		background?.updateTexture(
-			await Assets.load({ src: url, loadParser: "loadTextures" }),
+			await Assets.load({ src: url, parser: "texture" }),
 		);
 
 		document.body.style.backgroundImage = `url("${url}")`;
@@ -303,6 +303,8 @@ export default class BeatmapSet extends ScopedClass {
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
 		beatmap.toggle();
+
+		console.log(beatmap);
 	}
 
 	async loadMaster(idx: number) {

@@ -47,13 +47,13 @@ document.querySelector<HTMLButtonElement>("#diffs")?.addEventListener("click", (
 
 (async () => {
 	await Promise.all([
-		Assets.load({ src: "./assets/metadata.png", loadParser: "loadTextures" }),
-		Assets.load({ src: "./assets/back.png", loadParser: "loadTextures" }),
-		Assets.load({ src: "./assets/play.png", loadParser: "loadTextures" }),
-		Assets.load({ src: "./assets/pause.png", loadParser: "loadTextures" }),
-		Assets.load({ src: "./assets/next.png", loadParser: "loadTextures" }),
-		Assets.load({ src: "./assets/maximize.png", loadParser: "loadTextures" }),
-		Assets.load({ src: "./assets/x.png", loadParser: "loadTextures" }),
+		Assets.load({ src: "./assets/metadata.png", parser: "texture" }),
+		Assets.load({ src: "./assets/back.png", parser: "texture" }),
+		Assets.load({ src: "./assets/play.png", parser: "texture" }),
+		Assets.load({ src: "./assets/pause.png", parser: "texture" }),
+		Assets.load({ src: "./assets/next.png", parser: "texture" }),
+		Assets.load({ src: "./assets/maximize.png", parser: "texture" }),
+		Assets.load({ src: "./assets/x.png", parser: "texture" }),
 	]);
 
 	const game = provide("game", new Game());

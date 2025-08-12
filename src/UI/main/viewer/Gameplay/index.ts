@@ -144,7 +144,7 @@ export default class Gameplay {
 		(async () => {
 			closeButton.texture = await Assets.load({
 				src: "./assets/x.png",
-				loadParser: "loadTextures",
+				parser: "texture",
 			});
 		})();
 
