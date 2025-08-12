@@ -126,7 +126,7 @@ export default class SampleManager {
 
 		const key = `${sampleSet}-${hitSound}${idx === 1 ? "" : idx}`;
 		const fallbackKey = `${sampleSet}-${hitSound}`;
-		const currentSkin = skinManager?.skins[skinManager.currentSkinIdx];
+		const currentSkin = skinManager?.currentSkin;
 
 		if (idx === 0) return currentSkin?.getHitsound(fallbackKey);
 		return this.map.get(key) ?? currentSkin?.getHitsound(fallbackKey);

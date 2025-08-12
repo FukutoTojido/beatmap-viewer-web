@@ -45,6 +45,11 @@ document.querySelector<HTMLButtonElement>("#diffs")?.addEventListener("click", (
 	document.querySelector<HTMLDivElement>("#diffsContainer")?.classList.toggle("flex");
 });
 
+document.querySelector<HTMLButtonElement>("#skins")?.addEventListener("click", () => {
+	document.querySelector<HTMLDivElement>("#skinsContainer")?.classList.toggle("hidden");
+	document.querySelector<HTMLDivElement>("#skinsContainer")?.classList.toggle("flex");
+});
+
 (async () => {
 	await Promise.all([
 		Assets.load({ src: "./assets/metadata.png", parser: "texture" }),

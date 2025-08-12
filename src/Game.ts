@@ -116,9 +116,6 @@ export class Game {
 		initDevtools({ app });
 
 		document.querySelector<HTMLDivElement>("#app")?.append(app.canvas);
-		await inject<SkinManager>("skinManager")?.loadSkins();
-
-		this.loadFromQuery();
 
 		document
 			.querySelector<HTMLInputElement>("#idInput")
@@ -131,6 +128,9 @@ export class Game {
 		document
 			.querySelector<HTMLButtonElement>("#submitId")
 			?.addEventListener("click", () => this.loadFromInput());
+
+		await inject<SkinManager>("skinManager")?.loadSkins();
+		await this.loadFromQuery();
 	}
 
 	private async loadFromQuery() {
@@ -142,7 +142,7 @@ export class Game {
 			return;
 		}
 
-		this.loadIDs(IDs);
+		await this.loadIDs(IDs);
 	}
 
 	private async loadFromInput() {
@@ -155,7 +155,7 @@ export class Game {
 
 		input?.blur();
 
-		this.loadIDs(ids);
+		await this.loadIDs(ids);
 	}
 
 	private async loadIDs(IDs: string[]) {

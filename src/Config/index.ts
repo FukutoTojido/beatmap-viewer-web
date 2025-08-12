@@ -4,6 +4,7 @@ import BackgroundConfig from "./BackgroundConfig";
 import ColorConfig from "./ColorConfig";
 import MirrorConfig from "./MirrorConfig";
 import RendererConfig from "./RendererConfig";
+import SkinningConfig from "./SkinningConfig";
 import TimelineConfig from "./TimelineConfig";
 
 export default class Config {
@@ -11,6 +12,7 @@ export default class Config {
 	mirror: MirrorConfig;
 	timeline: TimelineConfig;
 	background: BackgroundConfig;
+	skinning: SkinningConfig;
 	audio: AudioConfig;
 	color: ColorConfig;
 
@@ -24,7 +26,7 @@ export default class Config {
 				backgroundDim: 80,
 				backgroundBlur: 0,
 				storyboard: true,
-				video: true
+				video: true,
 			}),
 		);
 		this.audio = provide(
@@ -34,6 +36,13 @@ export default class Config {
 				musicVolume: 0.5,
 				effectVolume: 0.5,
 				hitsound: false,
+			}),
+		);
+		this.skinning = provide(
+			"config/skinning",
+			new SkinningConfig({
+				skinningIdx: 0,
+				disableBeatmapSkin: false,
 			}),
 		);
 		this.color = provide("config/color", new ColorConfig());
