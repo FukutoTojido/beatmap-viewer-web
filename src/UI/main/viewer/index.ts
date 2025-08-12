@@ -47,6 +47,7 @@ export default class Viewer {
 					case "portrait": {
 						this.container.layout = {
 							flex: undefined,
+							borderRadius: 0,
 							// aspectRatio: 4 / 3,
 						};
 						break;
