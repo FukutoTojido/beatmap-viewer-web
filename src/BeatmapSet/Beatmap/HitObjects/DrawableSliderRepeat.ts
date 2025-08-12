@@ -15,13 +15,14 @@ import type Beatmap from "..";
 import DrawableSliderHead from "./DrawableSliderHead";
 import { update } from "@/Skinning/Legacy/LegacyReverseArrow";
 import type Skin from "@/Skinning/Skin";
+import { BLANK_TEXTURE } from "@/Skinning/Skin";
 
 export default class DrawableSliderRepeat extends DrawableSliderHead {
 	reverseArrow = new Sprite({
 		anchor: 0.5,
 	});
 
-	rotation!: number
+	rotation!: number;
 
 	constructor(
 		public object: SliderRepeat,
@@ -45,7 +46,33 @@ export default class DrawableSliderRepeat extends DrawableSliderHead {
 
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
-		const reverseArrow = skin.getTexture("reversearrow", this.context.consume<Skin>("beatmapSkin"));
+
+		const hitCircle =
+			skin.getTexture(
+				"sliderendcircle",
+				this.context.consume<Skin>("beatmapSkin"),
+			) ??
+			skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
+		const hitCircleOverlay = skin.getTexture(
+			"sliderendcircle",
+			this.context.consume<Skin>("beatmapSkin"),
+		)
+			? (skin.getTexture(
+					"sliderendcircleoverlay",
+					this.context.consume<Skin>("beatmapSkin"),
+				) ?? BLANK_TEXTURE)
+			: skin.getTexture(
+					"hitcircleoverlay",
+					this.context.consume<Skin>("beatmapSkin"),
+				);
+
+		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
+		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+
+		const reverseArrow = skin.getTexture(
+			"reversearrow",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 		if (reverseArrow) this.reverseArrow.texture = reverseArrow;
 	}
 

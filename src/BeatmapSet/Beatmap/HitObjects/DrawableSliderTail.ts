@@ -14,8 +14,8 @@ import HitSample from "../../../Audio/HitSample";
 import DrawableHitCircle from "./DrawableHitCircle";
 import type Skin from "@/Skinning/Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import { BLANK_TEXTURE } from "@/Skinning/Skin";
 
-const BLANK_TEXTURE = new Texture();
 const TAIL_LENIENCY = 36;
 export default class DrawableSliderTail extends DrawableHitCircle {
 	hitSound?: HitSample;

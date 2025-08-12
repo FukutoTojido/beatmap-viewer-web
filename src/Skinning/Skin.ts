@@ -1,4 +1,4 @@
-import { Assets, type Texture } from "pixi.js";
+import { Assets, Texture } from "pixi.js";
 import type { Resource } from "../ZipHandler";
 import { parse } from "js-ini";
 // @ts-ignore
@@ -32,6 +32,8 @@ type SkinConfig = {
 		HitCircleOverlap: number;
 	};
 };
+
+export const BLANK_TEXTURE = new Texture();
 
 export default class Skin {
 	config: SkinConfig = {
@@ -70,7 +72,7 @@ export default class Skin {
 		if (!configFile) return;
 
 		const config = parse(configFile, {
-			comment: ["//", "--", ";"],
+			comment: ["//", "--", ";", "=="],
 			delimiter: ":",
 		});
 
