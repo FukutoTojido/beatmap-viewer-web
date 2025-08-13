@@ -5,8 +5,6 @@ import { lighten, darken } from "@/utils";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import { sharedUpdate } from "../Shared/Slider";
 
-const blur = new URLSearchParams(window.location.search).get("blur");
-
 export const refreshSprite = (drawable: DrawableSlider) => {
 	const skin = drawable.skinManager?.getCurrentSkin();
 	if (!skin) return;
@@ -27,46 +25,28 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 			: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
 
-	const trackColor = beatmap?.data.colors.sliderTrackColor;
-	const trackOverride =
-		trackColor && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-			? `${trackColor.red},${trackColor.green},${trackColor.blue}`
-			: skin.config.Colours.SliderTrackOverride;
-
-	const color = (trackOverride ?? comboColor)
-		.split(",")
-		.map((value) => +value / 255);
+	const color = comboColor.split(",").map((value) => +value / 255);
 	drawable.trackColor = color;
 	drawable.color = comboColor;
 
-	const border =
-		beatmap?.data.colors.sliderBorderColor &&
-		!inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-			? Object.values(beatmap?.data.colors.sliderBorderColor)
-					.map((val) => val / 255)
-					.slice(0, 3)
-			: null;
-	const borderColor =
-		border ??
-		skin.config.Colours.SliderBorder.split(",").map((value) => +value / 255);
-	drawable.borderColor = borderColor;
+	drawable.borderColor = color;
 
-	drawable._shader.resources.customUniforms.uniforms.borderColor = borderColor;
-	drawable._shader.resources.customUniforms.uniforms.innerColor = lighten(
-		blur ? [0.5, 0.5, 0.5] : [color[0], color[1], color[2]],
-		blur ? 0.1 : 0.5,
+	drawable._shader.resources.customUniforms.uniforms.borderColor = color;
+	drawable._shader.resources.customUniforms.uniforms.innerColor = darken(
+		[color[0], color[1], color[2]],
+		4.0,
 	);
 	drawable._shader.resources.customUniforms.uniforms.outerColor = darken(
-		blur ? [0.5, 0.5, 0.5] : [color[0], color[1], color[2]],
-		0.1,
+		[color[0], color[1], color[2]],
+		4.0,
 	);
-	drawable._shader.resources.customUniforms.uniforms.borderWidth = 0.128;
-	drawable._shader.resources.customUniforms.uniforms.bodyAlpha = 0.7;
+	drawable._shader.resources.customUniforms.uniforms.borderWidth = 0.128 * 1.65;
+	drawable._shader.resources.customUniforms.uniforms.bodyAlpha = 1.0;
 
 	drawable.timelineObject?.refreshSprite();
 };
 
 export const update = (drawable: DrawableSlider, time: number) => {
 	const { start, end } = sharedUpdate(drawable, time);
-	drawable.updateGeometry(start, end);
+	drawable.updateGeometry(start, end, 0.95);
 };

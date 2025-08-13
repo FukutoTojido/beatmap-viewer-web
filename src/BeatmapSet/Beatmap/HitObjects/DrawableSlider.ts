@@ -37,7 +37,14 @@ import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import { inject, type Context } from "@/Context";
 import TimelineSlider from "../Timeline/TimelineSlider";
-import { update } from "@/Skinning/Legacy/LegacySlider";
+import {
+	refreshSprite as argonRefreshSprite,
+	update as argonUpdate,
+} from "@/Skinning/Argon/ArgonSlider";
+import {
+	refreshSprite as legacyRefreshSprite,
+	update as legacyUpdate,
+} from "@/Skinning/Legacy/LegacySlider";
 import type SkinningConfig from "@/Config/SkinningConfig";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
@@ -66,7 +73,7 @@ export default class DrawableSlider
 		},
 		indexBuffer: [],
 	});
-	private _shader = Shader.from({
+	public _shader = Shader.from({
 		gl: GL,
 		resources: {
 			customUniforms: {
@@ -78,6 +85,7 @@ export default class DrawableSlider
 				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				borderWidth: { value: 0.128, type: "f32" },
+				bodyAlpha: { value: 0.7, type: "f32" },
 			},
 		},
 	});
@@ -232,55 +240,22 @@ export default class DrawableSlider
 	borderColor: number[] = [0, 0, 0];
 	color = "0,0,0";
 
+	updateFn = legacyUpdate;
+
 	refreshSprite() {
-		const skin = this.skinManager?.getCurrentSkin();
+		const skin =
+			this.skinManager?.skins[
+				inject<SkinningConfig>("config/skinning")?.skinningIdx ?? 0
+			];
 		if (!skin) return;
 
-		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-
-		const comboIndex =
-			this.object.comboIndexWithOffsets %
-			(beatmap?.data.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-				? beatmap?.data.colors.comboColors.length
-				: skin.colorsLength);
-		const colors = beatmap?.data.colors.comboColors;
-		const comboColor = colors?.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-			? `${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue}`
-			: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
-
-		const trackColor = beatmap?.data.colors.sliderTrackColor;
-		const trackOverride = trackColor && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-			? `${trackColor.red},${trackColor.green},${trackColor.blue}`
-			: skin.config.Colours.SliderTrackOverride;
-
-		const color = (trackOverride ?? comboColor)
-			.split(",")
-			.map((value) => +value / 255);
-		this.trackColor = color;
-		this.color = comboColor;
-
-		const border = beatmap?.data.colors.sliderBorderColor && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-			? Object.values(beatmap?.data.colors.sliderBorderColor)
-					.map((val) => val / 255)
-					.slice(0, 3)
-			: null;
-		const borderColor =
-			border ??
-			skin.config.Colours.SliderBorder.split(",").map((value) => +value / 255);
-		this.borderColor = borderColor;
-
-		this._shader.resources.customUniforms.uniforms.borderColor = borderColor;
-		this._shader.resources.customUniforms.uniforms.innerColor = lighten(
-			blur ? [0.5, 0.5, 0.5] : [color[0], color[1], color[2]],
-			blur ? 0.1 : 0.5,
-		);
-		this._shader.resources.customUniforms.uniforms.outerColor = darken(
-			blur ? [0.5, 0.5, 0.5] : [color[0], color[1], color[2]],
-			0.1,
-		);
-
-		this.timelineObject?.refreshSprite();
+		if (skin.type === "ARGON") {
+			argonRefreshSprite(this);
+			this.updateFn = argonUpdate;
+		} else {
+			legacyRefreshSprite(this);
+			this.updateFn = legacyUpdate;
+		}
 	}
 
 	get approachCircle() {
@@ -321,7 +296,7 @@ export default class DrawableSlider
 		);
 	}
 
-	updateGeometry(progressHead = 0, progressTail = 0) {
+	updateGeometry(progressHead = 0, progressTail = 0, scale = 1) {
 		const path = calculateSliderProgress(
 			this.object.path,
 			progressHead,
@@ -329,7 +304,7 @@ export default class DrawableSlider
 		);
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
-			this.object.radius * (236 / 256),
+			this.object.radius * (236 / 256) * scale,
 		);
 		this._geometry.attributes.aPosition.buffer.data = new Float32Array(
 			aPosition,
@@ -352,7 +327,7 @@ export default class DrawableSlider
 		this.followCircle.update(time);
 		for (const circle of this.drawableCircles) circle.update(time);
 
-		update(this, time);
+		this.updateFn(this, time);
 	}
 
 	destroy() {

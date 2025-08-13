@@ -1,6 +1,29 @@
 import ky from "ky";
 import type { Resource } from "./ZipHandler";
 
+export async function getArgon() {
+	const filenames = [
+		"hitcircle@2x.png",
+		"hitcircleflash@2x.png",
+		"hitcircleoverlay@2x.png",
+		"sliderendcircle.png",
+	];
+
+	const resources = new Map<string, Resource>();
+	await Promise.all(
+		filenames.map(async (filename) => {
+			try {
+				const data = await ky.get<Blob>(`./skinning/argon/${filename}`).blob();
+				resources.set(filename, data);
+			} catch (e) {
+				return;
+			}
+		}),
+	);
+
+	return resources;
+}
+
 export async function getDefaultLegacy() {
 	const defaults = [...Array(10)].map((_, idx) => `default-${idx}@2x.png`);
 	const hitSounds = ["drum", "normal", "soft"].map((hitSample) =>
@@ -25,7 +48,7 @@ export async function getDefaultLegacy() {
 		"followpoint@2x.png",
 		"hitcircle@2x.png",
 		"hitcircleoverlay@2x.png",
-        "skin.ini",
+		"skin.ini",
 		"sliderb0@2x.png",
 		"sliderfollowcircle@2x.png",
 		"reversearrow@2x.png",
@@ -44,9 +67,8 @@ export async function getDefaultLegacy() {
 		}),
 	);
 
-    return resources;
+	return resources;
 }
-
 
 export async function getYugen() {
 	const defaults = [...Array(10)].map((_, idx) => `default-${idx}@2x.png`);
@@ -72,7 +94,7 @@ export async function getYugen() {
 		"followpoint@2x.png",
 		"hitcircle@2x.png",
 		"hitcircleoverlay@2x.png",
-        "skin.ini",
+		"skin.ini",
 		"sliderb0@2x.png",
 		"sliderfollowcircle@2x.png",
 		"reversearrow@2x.png",
@@ -91,5 +113,5 @@ export async function getYugen() {
 		}),
 	);
 
-    return resources;
+	return resources;
 }

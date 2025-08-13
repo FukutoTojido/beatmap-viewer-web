@@ -13,6 +13,14 @@ import TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import type { StandardHitObject } from "osu-standard-stable";
 import type Skin from "@/Skinning/Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import {
+	refreshSprite as argonRefreshSprite,
+	update as argonUpdate,
+} from "@/Skinning/Argon/ArgonHitCircle";
+import {
+	refreshSprite as legacyRefreshSprite,
+	update as legacyUpdate,
+} from "@/Skinning/Legacy/LegacyHitCircle";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -33,6 +41,8 @@ export default class DrawableHitCircle
 	samplePoint?: SamplePoint;
 
 	timelineObject?: TimelineHitCircle;
+
+	updateFn = legacyUpdate;
 
 	constructor(
 		public object: StandardHitObject,
@@ -83,38 +93,19 @@ export default class DrawableHitCircle
 
 	color: ColorSource = "rgb(0, 0, 0)";
 	refreshSprite() {
-		const skin = this.skinManager?.getCurrentSkin();
+		const skin =
+			this.skinManager?.skins[
+				inject<SkinningConfig>("config/skinning")?.skinningIdx ?? 0
+			];
 		if (!skin) return;
 
-		const hitCircle = skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
-		const hitCircleOverlay = skin.getTexture("hitcircleoverlay", this.context.consume<Skin>("beatmapSkin"));
-
-		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
-		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
-
-		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data?.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
-			const colors = beatmap.data.colors.comboColors;
-			const comboIndex = this.object.comboIndexWithOffsets % colors.length;
-
-			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
-
-			this.color = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
-			this.timelineObject?.refreshSprite();
-
-			return;
+		if (skin.type === "ARGON") {
+			argonRefreshSprite(this);
+			this.updateFn = argonUpdate;
+		} else {
+			legacyRefreshSprite(this);
+			this.updateFn = legacyUpdate;
 		}
-
-		const comboIndex = this.object.comboIndexWithOffsets % skin.colorsLength;
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const color = (skin.config.Colours as any)[
-			`Combo${comboIndex + 1}`
-		] as string;
-
-		this.color = `rgb(${color})`;
-		this.hitCircleSprite.tint = `rgb(${color})`;
-
-		this.timelineObject?.refreshSprite();
 	}
 
 	playHitSound(time: number): void {
@@ -145,7 +136,7 @@ export default class DrawableHitCircle
 	update(time: number) {
 		this.approachCircle.update(time);
 		this.defaults?.update(time);
-		update(this, time);
+		this.updateFn(this, time);
 	}
 
 	destroy() {

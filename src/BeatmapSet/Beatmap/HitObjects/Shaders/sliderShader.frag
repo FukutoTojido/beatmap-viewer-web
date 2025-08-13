@@ -11,6 +11,7 @@ uniform vec4 borderColor;
 uniform vec4 innerColor;
 uniform vec4 outerColor;
 uniform float borderWidth;
+uniform float bodyAlpha;
 
 void main() {
     float position = dist;
@@ -18,7 +19,6 @@ void main() {
     float a = 1.0;
     float innerWidth = 1.0 - borderWidth;
     float blurRate = 0.02;
-    float bodyAlpha = 0.7;
 
     // Set body color
     vec4 color = mix(innerColor, outerColor, position);

@@ -1,10 +1,11 @@
 import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
 import { sharedRefreshSprite } from "../Shared/HitCircle";
+import Easings from "@/UI/Easings";
+import type Skin from "../Skin";
 
 export const refreshSprite = (drawable: DrawableHitCircle) => {
 	sharedRefreshSprite(drawable);
-	drawable.container.scale.set(drawable.object.scale);
-	drawable.hitCircleSprite.blendMode = "normal";
+	drawable.container.scale.set(drawable.object.scale * 0.95);
 };
 
 export const update = (drawable: DrawableHitCircle, time: number) => {
@@ -24,6 +25,13 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	drawable.sprite.scale.set(1);
 
 	if (time < drawable.object.startTime) {
+		const baseTexture = drawable.skinManager
+			?.getCurrentSkin()
+			.getTexture("hitcircle", drawable.context.consume<Skin>("beatmapSkin"));
+		if (baseTexture) drawable.hitCircleSprite.texture = baseTexture;
+
+        drawable.hitCircleSprite.blendMode = "normal";
+
 		const opacity = Math.min(
 			1,
 			Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
@@ -34,17 +42,25 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	}
 
 	if (time >= drawable.object.startTime) {
+		const flashTexture = drawable.skinManager
+			?.getCurrentSkin()
+			.getTexture("hitcircleflash", drawable.context.consume<Skin>("beatmapSkin"));
+		if (flashTexture) drawable.hitCircleSprite.texture = flashTexture;
+
+        drawable.hitCircleSprite.blendMode = "add";
+
 		const opacity =
 			1 -
 			Math.min(
 				1,
 				Math.max(0, (time - drawable.object.startTime) / fadeOutDuration),
 			);
-		const scale = Math.min(
-			1.5,
-			1 +
-				0.5 * Math.max(0, (time - drawable.object.startTime) / fadeOutDuration),
-		);
+		const scale =
+			1 -
+			0.2 *
+				Easings.OutElasticHalf(
+					Math.min(1, Math.max(0, (time - drawable.object.startTime) / 400)),
+				);
 
 		drawable.container.alpha = opacity;
 		drawable.sprite.scale.set(scale);

@@ -105,6 +105,7 @@ export default class Skin {
 			"followpoint",
 			"hitcircle",
 			"hitcircleoverlay",
+			"hitcircleflash",
 			"sliderb",
 			"sliderb0",
 			"sliderstartcircle",

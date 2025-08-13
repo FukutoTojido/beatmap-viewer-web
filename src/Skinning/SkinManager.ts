@@ -1,6 +1,6 @@
 import type { Resource } from "@/ZipHandler";
 import { inject, provide } from "../Context";
-import { getDefaultLegacy, getYugen } from "../Initiator";
+import { getArgon, getDefaultLegacy, getYugen } from "../Initiator";
 import Database from "./Database";
 import Skin from "./Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
@@ -13,6 +13,8 @@ type SkinMetadata = {
 	name: string;
 	resources: Map<string, Resource>;
 };
+
+const argon = await getArgon();
 
 export default class SkinManager {
 	skins: SkinMetadata[] = [];
@@ -60,7 +62,11 @@ export default class SkinManager {
 		}
 
 		const skins = await this.indexed.getAll();
-		this.skins.push(...(skins as SkinMetadata[]));
+		this.skins.push(...(skins as SkinMetadata[]), {
+			type: "ARGON",
+			name: "Argon",
+			resources: argon,
+		});
 
 		await this.loadDefaultSkin();
 
@@ -146,13 +152,19 @@ export default class SkinManager {
 			this.indexed.getAllKeys(),
 		]);
 
-		this.skins = skins as SkinMetadata[];
+		this.skins = [...(skins as SkinMetadata[]), {
+			type: "ARGON",
+			name: "Argon",
+			resources: argon,
+		}];
+
+		console.log(this.skins);
 
 		const el = document.querySelector<HTMLDivElement>("#skinsContainer");
 		if (el) el.innerHTML = "";
 
-		for (let i = 0; i < (skins as SkinMetadata[]).length; i++) {
-			const skin = (skins as SkinMetadata[])[i];
+		for (let i = 0; i < this.skins.length; i++) {
+			const skin = this.skins[i];
 			const div = document.createElement("div");
 			div.className = "flex gap-2.5 items-center";
 

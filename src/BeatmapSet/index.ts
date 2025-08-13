@@ -25,7 +25,7 @@ import Storyboard from "./Beatmap/Storyboard";
 import extraMode from "/assets/extra-mode.svg?raw";
 import { getDiffColour, loadColorPalette } from "@/utils";
 import type AudioConfig from "@/Config/AudioConfig";
-import BackgroundConfig from "@/Config/BackgroundConfig";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 import Skin from "@/Skinning/Skin";
 
 export default class BeatmapSet extends ScopedClass {

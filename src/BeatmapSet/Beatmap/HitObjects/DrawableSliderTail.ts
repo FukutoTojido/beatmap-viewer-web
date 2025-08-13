@@ -15,6 +15,7 @@ import DrawableHitCircle from "./DrawableHitCircle";
 import type Skin from "@/Skinning/Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import { update } from "@/Skinning/Argon/ArgonSliderTail";
 
 const TAIL_LENIENCY = 36;
 export default class DrawableSliderTail extends DrawableHitCircle {
@@ -30,10 +31,24 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 		this.refreshSprite();
 	}
 
+	tailUpdateFn: null | typeof update = null;
+
 	refreshSprite() {
 		super.refreshSprite();
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
+
+		const skinMetadata =
+			this.skinManager?.skins[
+				inject<SkinningConfig>("config/skinning")?.skinningIdx ?? 0
+			];
+		if (!skinMetadata) return;
+
+		if (skinMetadata.type === "ARGON") {
+			this.tailUpdateFn = update;
+		} else {
+			this.tailUpdateFn = null;
+		}
 
 		const hitCircle =
 			skin.getTexture(
@@ -99,5 +114,6 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 
 	update(time: number): void {
 		super.update(time - TAIL_LENIENCY);
+		this.tailUpdateFn?.(this, time - TAIL_LENIENCY);
 	}
 }
