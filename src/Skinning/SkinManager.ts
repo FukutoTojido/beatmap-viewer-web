@@ -97,6 +97,11 @@ export default class SkinManager {
 
 	async loadSkin(idx: number) {
 		const selectedSkin = this.skins[idx];
+		if (!selectedSkin) {
+			// biome-ignore lint/style/noNonNullAssertion: Must have!
+			inject<SkinningConfig>("config/skinning")!.skinningIdx = 0;
+			return;
+		}
 
 		if (selectedSkin.type === "DEFAULT" && selectedSkin.name === "Default") {
 			this.currentSkin = this.defaultSkin;
