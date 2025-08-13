@@ -3,7 +3,7 @@ import { inject, provide } from "../Context";
 import { getDefaultLegacy, getYugen } from "../Initiator";
 import Database from "./Database";
 import Skin from "./Skin";
-import type SkinningConfig from "@/Config/SkinningConfig";
+import SkinningConfig from "@/Config/SkinningConfig";
 import Loading from "@/UI/loading";
 
 export type SkinEventCallback = (skin: Skin) => void;
@@ -152,7 +152,8 @@ export default class SkinManager {
 				"flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white";
 			button.innerHTML = skin.name;
 			button.addEventListener("click", () => {
-				this.loadSkin(i);
+				// biome-ignore lint/style/noNonNullAssertion: This is ensured to be loaded
+				inject<SkinningConfig>("config/skinning")!.skinningIdx = i;
 				document
 					.querySelector<HTMLDivElement>("#skinsContainer")
 					?.classList.add("hidden");

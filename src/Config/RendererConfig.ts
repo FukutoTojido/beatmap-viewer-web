@@ -3,20 +3,22 @@ import ConfigSection from "./ConfigSection";
 export type RENDERER = "WEBGL2" | "WEBGPU" | "AUTO";
 type RendererConfigEvents = "renderer" | "resolution" | "antialiasing";
 
-export default class RendererConfig extends ConfigSection {
-    constructor(defaultOptions?: {
-        renderer?: RENDERER,
-        resolution?: number,
-        antialiasing?: boolean
-    }) {
-        super();
-        if (!defaultOptions) return;
+export type RendererProps = {
+	renderer?: RENDERER;
+	resolution?: number;
+	antialiasing?: boolean;
+};
 
-        const { renderer, resolution, antialiasing } = defaultOptions;
-        this._renderer = renderer ?? "WEBGL2";
-        this._resolution = resolution ?? 1;
-        this._antialiasing = antialiasing ?? true; 
-    };
+export default class RendererConfig extends ConfigSection {
+	constructor(defaultOptions?: RendererProps) {
+		super();
+		if (!defaultOptions) return;
+
+		const { renderer, resolution, antialiasing } = defaultOptions;
+		this.renderer = renderer ?? "WEBGL2";
+		this.resolution = resolution ?? 1;
+		this.antialiasing = antialiasing ?? true;
+	}
 
 	private _renderer: RENDERER = "WEBGL2";
 	get renderer() {
@@ -40,18 +42,26 @@ export default class RendererConfig extends ConfigSection {
 	get antialiasing() {
 		return this._antialiasing;
 	}
-    set antialiasing(val: boolean) {
-        this._antialiasing = val;
-        this.emitChange("antialiasing", val);
-    }
+	set antialiasing(val: boolean) {
+		this._antialiasing = val;
+		this.emitChange("antialiasing", val);
+	}
 
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    protected emitChange(key: RendererConfigEvents, newValue: any): void {
-        super.emitChange(key, newValue);
-    }
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	protected emitChange(key: RendererConfigEvents, newValue: any): void {
+		super.emitChange(key, newValue);
+	}
 
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    onChange(key: RendererConfigEvents, callback: (newValue: any) => void): void {
-        super.onChange(key, callback);
-    }
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	onChange(key: RendererConfigEvents, callback: (newValue: any) => void): void {
+		super.onChange(key, callback);
+	}
+
+	jsonify(): RendererProps {
+		return {
+			renderer: this.renderer,
+			resolution: this.resolution,
+			antialiasing: this.antialiasing,
+		};
+	}
 }

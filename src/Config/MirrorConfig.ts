@@ -6,15 +6,17 @@ export type Mirror = {
 };
 type MirrorConfigEvents = "mirror";
 
+export type MirrorProps = {
+	mirror?: Mirror
+}
+
 export default class MirrorConfig extends ConfigSection {
-	constructor(defaultOptions?: {
-		mirror?: Mirror;
-	}) {
+	constructor(defaultOptions?: MirrorProps) {
 		super();
 		if (!defaultOptions) return;
 
 		const { mirror } = defaultOptions;
-		this._mirror = mirror ?? {
+		this.mirror = mirror ?? {
 			name: "Nerinyan",
 			urlTemplate: "https://api.nerinyan.moe/d/$setId",
 		};
@@ -40,5 +42,11 @@ export default class MirrorConfig extends ConfigSection {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	onChange(key: MirrorConfigEvents, callback: (newValue: any) => void): void {
 		super.onChange(key, callback);
+	}
+
+	jsonify(): MirrorProps {
+		return {
+			mirror: this.mirror
+		}
 	}
 }

@@ -3,17 +3,19 @@ import ConfigSection from "./ConfigSection";
 
 type TimelineConfigEvents = "scale" | "divisor";
 
+export type TimelineProps = {
+	scale?: number;
+	divisor?: number;
+};
+
 export default class TimelineConfig extends ConfigSection {
-	constructor(defaultOptions?: {
-		scale?: 1.0;
-		divisor?: 4;
-	}) {
+	constructor(defaultOptions?: TimelineProps) {
 		super();
 		if (!defaultOptions) return;
 
 		const { scale, divisor } = defaultOptions;
-		this._scale = scale ?? 1;
-		this._divisor = divisor ?? 4;
+		this.scale = scale ?? 1;
+		this.divisor = divisor ?? 4;
 	}
 
 	private _scale = 1.0;
@@ -58,5 +60,12 @@ export default class TimelineConfig extends ConfigSection {
 				this.divisor === 16 ? 12 : this.divisor === 12 ? 9 : this.divisor - 1,
 			);
 		}
+	}
+
+	jsonify(): TimelineProps {
+		return {
+			scale: this.scale,
+			divisor: this.divisor,
+		};
 	}
 }

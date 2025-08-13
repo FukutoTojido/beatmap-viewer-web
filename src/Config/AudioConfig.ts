@@ -1,12 +1,14 @@
 import ConfigSection from "./ConfigSection";
 
+export type AudioProps = {
+	masterVolume?: number;
+	musicVolume?: number;
+	effectVolume?: number;
+	hitsound?: boolean;
+};
+
 export default class AudioConfig extends ConfigSection {
-	constructor(defaultOptions?: {
-		masterVolume?: number;
-		musicVolume?: number;
-		effectVolume?: number;
-		hitsound?: boolean;
-	}) {
+	constructor(defaultOptions?: AudioProps) {
 		super();
 		this.loadEventListeners();
 
@@ -115,5 +117,13 @@ export default class AudioConfig extends ConfigSection {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.hitsound = value;
 			});
+	}
+	jsonify(): AudioProps {
+		return {
+			masterVolume: this.masterVolume,
+			musicVolume: this.musicVolume,
+			effectVolume: this.effectVolume,
+			hitsound: this.hitsound,
+		};
 	}
 }

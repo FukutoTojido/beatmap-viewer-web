@@ -1,3 +1,6 @@
+import { inject } from "@/Context";
+import type Config from ".";
+
 export default class ConfigSection {
 	// biome-ignore lint/suspicious/noExplicitAny: I don't care
 	private _callbacks: Map<string, Set<(newValue: any) => void>> = new Map();
@@ -13,10 +16,14 @@ export default class ConfigSection {
 
 	// biome-ignore lint/suspicious/noExplicitAny: I don't care
 	protected emitChange(key: string, newValue: any) {
+		inject<Config>("config")?.saveSettings();
+		
 		const callbacks = this._callbacks.get(key);
 		if (!callbacks) return;
 		for (const callback of callbacks) {
 			callback(newValue);
 		}
 	}
+
+	jsonify() {}
 }

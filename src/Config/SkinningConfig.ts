@@ -8,7 +8,7 @@ export type SkinningProps = {
 export default class SkinningConfig extends ConfigSection {
 	constructor(defaultOptions?: SkinningProps) {
 		super();
-        this.loadEventListeners();
+		this.loadEventListeners();
 
 		if (!defaultOptions) return;
 
@@ -47,5 +47,12 @@ export default class SkinningConfig extends ConfigSection {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.disableBeatmapSkin = value;
 			});
+	}
+
+	jsonify(): SkinningProps {
+		return {
+			skinningIdx: this.skinningIdx,
+			disableBeatmapSkin: this.disableBeatmapSkin,
+		};
 	}
 }

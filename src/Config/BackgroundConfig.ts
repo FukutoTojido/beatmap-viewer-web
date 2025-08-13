@@ -116,4 +116,13 @@ export default class BackgroundConfig extends ConfigSection {
 				this.storyboard = value;
 			});
 	}
+
+	jsonify(): BackgroundProps {
+		return {
+			backgroundDim: this.backgroundDim,
+			backgroundBlur: this.backgroundBlur,
+			video: this.video,
+			storyboard: this.storyboard
+		}
+	}
 }
