@@ -121,6 +121,10 @@ export default class SkinManager {
 		);
 
 		this.currentSkin = skin;
+
+		const el = document.querySelector<HTMLSpanElement>("#currentSkin");
+		if (el) el.innerHTML = skin.config.General.Name;
+
 		await this.refreshSkinList();
 		this.emitSkinChange();
 	}
