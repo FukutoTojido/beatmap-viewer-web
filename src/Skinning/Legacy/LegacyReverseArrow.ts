@@ -5,16 +5,20 @@ export const update = (drawable: DrawableSliderRepeat, time: number) => {
 	const startFadeInTime =
 		drawable.object.startTime - drawable.object.timePreempt;
 	if (time > drawable.object.startTime) {
+		const startValue =
+			1.3 - Easings.Out(drawable.object.timePreempt / 300) * 0.3;
+		const delta = 1.4 - startValue;
+
 		const animDuration = Math.min(300, drawable.object.spanDuration);
 		drawable.reverseArrow.scale.set(
-			1 +
+			startValue +
 				Easings.Out(
 					Math.max(
 						0,
 						Math.min(1, (time - drawable.object.startTime) / animDuration),
 					),
 				) *
-					0.4,
+					delta,
 		);
 		return;
 	}

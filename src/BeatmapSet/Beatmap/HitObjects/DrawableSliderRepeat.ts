@@ -34,7 +34,7 @@ export default class DrawableSliderRepeat extends DrawableSliderHead {
 		this.reverseArrow.interactive = false;
 		this.reverseArrow.interactiveChildren = false;
 
-		this.container.addChild(this.reverseArrow);
+		this.sprite.addChild(this.reverseArrow);
 		this.refreshSprite();
 		this.updateRotation();
 	}
