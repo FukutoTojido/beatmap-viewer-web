@@ -25,7 +25,7 @@ import Storyboard from "./Beatmap/Storyboard";
 import extraMode from "/assets/extra-mode.svg?raw";
 import { getDiffColour, loadColorPalette } from "@/utils";
 import type AudioConfig from "@/Config/AudioConfig";
-import type BackgroundConfig from "@/Config/BackgroundConfig";
+import BackgroundConfig from "@/Config/BackgroundConfig";
 import Skin from "@/Skinning/Skin";
 
 export default class BeatmapSet extends ScopedClass {
@@ -385,7 +385,7 @@ export default class BeatmapSet extends ScopedClass {
 			slave.toggle();
 		}
 
-		if (audio?.state === "PLAYING") {
+		if (audio?.state === "PLAYING" && inject<BackgroundConfig>("config/background")?.video) {
 			this.context.consume<Video>("video")?.play(audio?.currentTime);
 		}
 
