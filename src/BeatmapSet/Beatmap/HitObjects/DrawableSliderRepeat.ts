@@ -71,7 +71,7 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 			"repeat-edge-piece",
 			this.context.consume<Skin>("beatmapSkin"),
 		);
-		if (ringPiece) this.ringPiece.texture = skin?.config.General.Argon ? ringPiece : BLANK_TEXTURE;
+		this.ringPiece.texture = skin?.config.General.Argon ? ringPiece ?? BLANK_TEXTURE : BLANK_TEXTURE;
 	}
 
 	updateRotation() {
