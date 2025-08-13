@@ -1,10 +1,13 @@
 import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
 import { sharedRefreshSprite } from "../Shared/HitCircle";
+import { BLANK_TEXTURE } from "../Skin";
 
 export const refreshSprite = (drawable: DrawableHitCircle) => {
 	sharedRefreshSprite(drawable);
+	drawable.flashPiece.texture = BLANK_TEXTURE;
+	drawable.flashPiece.visible = false;
 	drawable.container.scale.set(drawable.object.scale);
-	drawable.hitCircleSprite.blendMode = "normal";
+	drawable.sprite.blendMode = "normal";
 };
 
 export const update = (drawable: DrawableHitCircle, time: number) => {

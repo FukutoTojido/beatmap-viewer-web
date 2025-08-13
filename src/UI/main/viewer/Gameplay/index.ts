@@ -46,8 +46,10 @@ export default class Gameplay {
 	constructor(public beatmap: Beatmap) {
 		const backdropFilter = new BackdropBlurFilter({
 			strength:
-				inject<BackgroundConfig>("config/background")?.backgroundBlur ?? 0,
-			quality: 4,
+				((inject<BackgroundConfig>("config/background")?.backgroundBlur ?? 0) /
+					100) *
+				20,
+			quality: 6,
 		});
 
 		this.container = new Container({

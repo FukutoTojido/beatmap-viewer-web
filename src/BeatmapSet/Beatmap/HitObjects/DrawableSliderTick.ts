@@ -14,6 +14,7 @@ import type Beatmap from "..";
 import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import { update } from "@/Skinning/Legacy/LegacySliderTick";
+import type DrawableSlider from "./DrawableSlider";
 
 export default class DrawableSliderTick extends DrawableHitObject {
 	container: Sprite;
@@ -46,12 +47,26 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		clonedSample.hitSound = "slidertick";
 		this.hitSound = new HitSample([clonedSample]).hook(this.context);
 
-		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const sliderTick = skin.getTexture("sliderscorepoint", this.context.consume<Skin>("beatmapSkin"));
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
+			this.refreshSprite(),
+		);
+	}
 
-			if (!sliderTick) return;
-			this.container.texture = sliderTick;
-		});
+	refreshSprite() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
+		const sliderTick = skin.getTexture(
+			"sliderscorepoint",
+			!skin.config.General.Argon ? this.context.consume<Skin>("beatmapSkin") : undefined,
+		);
+
+		this.container.tint = skin.config.General.Argon
+			? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ?? 0xffffff)
+			: 0xffffff;
+
+		if (!sliderTick) return;
+		this.container.texture = sliderTick;
 	}
 
 	playHitSound(time: number): void {

@@ -10,15 +10,22 @@ export const sharedRefreshSprite = (drawable: DrawableHitCircle) => {
 
 	const hitCircle = skin.getTexture(
 		"hitcircle",
-		drawable.context.consume<Skin>("beatmapSkin"),
+		!skin.config.General.Argon
+			? drawable.context.consume<Skin>("beatmapSkin")
+			: undefined,
 	);
 	const hitCircleOverlay = skin.getTexture(
 		"hitcircleoverlay",
-		drawable.context.consume<Skin>("beatmapSkin"),
+		!skin.config.General.Argon
+			? drawable.context.consume<Skin>("beatmapSkin")
+			: undefined,
 	);
 
 	if (hitCircle) drawable.hitCircleSprite.texture = hitCircle;
 	if (hitCircleOverlay) drawable.hitCircleOverlay.texture = hitCircleOverlay;
+
+	drawable.hitCircleOverlay.alpha = 1;
+	drawable.hitCircleSprite.alpha = 1;
 
 	const beatmap = drawable.context.consume<Beatmap>("beatmapObject");
 	if (
@@ -29,6 +36,7 @@ export const sharedRefreshSprite = (drawable: DrawableHitCircle) => {
 		const comboIndex = drawable.object.comboIndexWithOffsets % colors.length;
 
 		drawable.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+		drawable.flashPiece.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
 
 		drawable.color = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
 		drawable.timelineObject?.refreshSprite();
@@ -44,6 +52,7 @@ export const sharedRefreshSprite = (drawable: DrawableHitCircle) => {
 
 	drawable.color = `rgb(${color})`;
 	drawable.hitCircleSprite.tint = `rgb(${color})`;
+	drawable.flashPiece.tint = `rgb(${color})`;
 
 	drawable.timelineObject?.refreshSprite();
 };

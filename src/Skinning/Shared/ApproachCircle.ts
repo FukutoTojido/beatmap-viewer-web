@@ -1,6 +1,6 @@
 import type DrawableApproachCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableApproachCircle";
 
-export const update = (drawable: DrawableApproachCircle, time: number) => {
+export const sharedUpdate = (drawable: DrawableApproachCircle, time: number) => {
 	const startFadeInTime = drawable.object.startTime - drawable.object.timePreempt;
 	const fadeInDuration = Math.min(
 		drawable.object.timeFadeIn * 2,
@@ -13,7 +13,7 @@ export const update = (drawable: DrawableApproachCircle, time: number) => {
 		time >= drawable.object.startTime + fadeOutDuration
 	) {
 		drawable.container.visible = false;
-		return;
+		return 3;
 	}
 
 	drawable.container.visible = true;
@@ -31,7 +31,7 @@ export const update = (drawable: DrawableApproachCircle, time: number) => {
 
 		drawable.container.alpha = opacity * 0.9;
 		drawable.container.scale.set((4 - scale) * drawable.object.scale);
-		return;
+		return scale;
 	}
 
 	if (time >= drawable.object.startTime) {
@@ -41,7 +41,8 @@ export const update = (drawable: DrawableApproachCircle, time: number) => {
 		);
 
 		drawable.container.alpha = (1 - opacity) * 0.9;
-		drawable.container.scale.set(1 * drawable.object.scale);
-		return;
+		return 3;
 	}
+
+	return 3
 };

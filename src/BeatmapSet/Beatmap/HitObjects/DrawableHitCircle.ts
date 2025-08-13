@@ -1,4 +1,4 @@
-import { Container, Sprite, type ColorSource } from "pixi.js";
+import { BlurFilter, Container, Sprite, type ColorSource } from "pixi.js";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
@@ -30,6 +30,7 @@ export default class DrawableHitCircle
 
 	hitCircleSprite: Sprite;
 	hitCircleOverlay: Sprite;
+	flashPiece: Sprite;
 
 	sprite = new Container();
 
@@ -55,6 +56,11 @@ export default class DrawableHitCircle
 
 		this.hitCircleSprite = new Sprite();
 		this.hitCircleOverlay = new Sprite();
+		this.flashPiece = new Sprite();
+
+		this.flashPiece.anchor.set(0.5);
+		this.flashPiece.blendMode = "add";
+		this.flashPiece.filters = [new BlurFilter({ kernelSize: 9, strength: 10, quality: 4 })];
 
 		this.hitCircleSprite.anchor.set(0.5);
 		this.hitCircleSprite.alpha = 0.9;
@@ -64,7 +70,7 @@ export default class DrawableHitCircle
 
 		this.approachCircle = new DrawableApproachCircle(object).hook(this.context);
 
-		this.container.addChild(this.sprite);
+		this.container.addChild(this.sprite, this.flashPiece);
 
 		if (this.hasNumber) {
 			this.defaults = new DrawableDefaults(object);
@@ -93,13 +99,10 @@ export default class DrawableHitCircle
 
 	color: ColorSource = "rgb(0, 0, 0)";
 	refreshSprite() {
-		const skin =
-			this.skinManager?.skins[
-				inject<SkinningConfig>("config/skinning")?.skinningIdx ?? 0
-			];
+		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		if (skin.type === "ARGON") {
+		if (skin.config.General.Argon) {
 			argonRefreshSprite(this);
 			this.updateFn = argonUpdate;
 		} else {
@@ -108,7 +111,7 @@ export default class DrawableHitCircle
 		}
 	}
 
-	playHitSound(time: number): void {
+	playHitSound(time: number, _?: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		if (!beatmap) return;
 		if (

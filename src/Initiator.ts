@@ -2,11 +2,37 @@ import ky from "ky";
 import type { Resource } from "./ZipHandler";
 
 export async function getArgon() {
+	const defaults = [...Array(10)].map((_, idx) => `default-${idx}@2x.png`);
+	const hitSounds = ["drum", "normal", "soft"].map((hitSample) =>
+		[
+			"hitclap",
+			"hitfinish",
+			"hitnormal",
+			"hitwhistle",
+			"sliderslide",
+			"slidertick",
+			"sliderwhistle",
+		].map((hitSound) => `${hitSample}-${hitSound}.wav`),
+	);
+
 	const filenames = [
+		...defaults,
+		...hitSounds.reduce((accm, curr) => {
+			accm.push(...curr);
+			return accm;
+		}, []),
+		"followpoint.png",
 		"hitcircle@2x.png",
 		"hitcircleflash@2x.png",
 		"hitcircleoverlay@2x.png",
+		"sliderb0@2x.png",
+		"slidernd@2x.png",
+		"sliderfollowcircle@2x.png",
+		"reversearrow@2x.png",
+		"repeat-edge-piece@2x.png",
 		"sliderendcircle.png",
+		"sliderscorepoint@2x.png",
+		"skin.ini",
 	];
 
 	const resources = new Map<string, Resource>();

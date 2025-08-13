@@ -19,6 +19,7 @@ import DrawableHitCircle from "./DrawableHitCircle";
 import type Skin from "@/Skinning/Skin";
 import type TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import type DrawableSlider from "./DrawableSlider";
 
 export default class DrawableSliderHead extends DrawableHitCircle {
 	hitSound?: HitSample;
@@ -62,26 +63,10 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
 
-		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data?.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
-			const colors = beatmap.data.colors.comboColors;
-			const comboIndex =
-				(this.parent ?? this.object).comboIndexWithOffsets % colors.length;
-
-			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
-			this.color = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
-			this.timelineObject?.refreshSprite();
-			return;
-		}
-
-		const comboIndex =
-			(this.parent ?? this.object).comboIndexWithOffsets % skin.colorsLength;
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const color = (skin.config.Colours as any)[
-			`Combo${comboIndex + 1}`
-		] as string;
-		this.hitCircleSprite.tint = `rgb(${color})`;
-		this.color = `rgb(${color})`;
+		const color = this.context.consume<DrawableSlider>("slider")?.getColor(skin) ?? 0xffffff;
+		this.hitCircleSprite.tint = color;
+		this.flashPiece.tint = color;
+		this.color = color;
 
 		this.timelineObject?.refreshSprite();
 	}

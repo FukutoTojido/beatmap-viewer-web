@@ -2,7 +2,8 @@ import type { Circle } from "osu-standard-stable";
 import { Graphics, Sprite } from "pixi.js";
 import SkinnableElement from "./SkinnableElement";
 import type Beatmap from "..";
-import { update } from "@/Skinning/Shared/ApproachCircle";
+import { update as argonUpdate } from "@/Skinning/Argon/ArgonApproachCircle";
+import { update as legacyUpdate } from "@/Skinning/Legacy/LegacyApproachCircle";
 import type Skin from "@/Skinning/Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
@@ -26,15 +27,29 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		);
 	}
 
+	updateFn = legacyUpdate;
+
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const approachCircle = skin.getTexture("approachcircle", this.context.consume<Skin>("beatmapSkin"));
+		if (skin.config.General.Argon) {
+			this.updateFn = argonUpdate;
+		} else {
+			this.updateFn = legacyUpdate;
+		}
+
+		const approachCircle = skin.getTexture(
+			"approachcircle",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 		if (approachCircle) this.container.texture = approachCircle;
 
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (beatmap?.data.colors.comboColors.length && !inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin) {
+		if (
+			beatmap?.data.colors.comboColors.length &&
+			!inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
+		) {
 			const colors = beatmap.data.colors.comboColors;
 			const comboIndex = this.object.comboIndexWithOffsets % colors.length;
 
@@ -51,7 +66,7 @@ export default class DrawableApproachCircle extends SkinnableElement {
 	}
 
 	update(time: number) {
-		update(this, time);
+		this.updateFn(this, time);
 	}
 
 	destroy() {

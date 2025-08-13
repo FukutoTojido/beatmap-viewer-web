@@ -14,8 +14,6 @@ type SkinMetadata = {
 	resources: Map<string, Resource>;
 };
 
-const argon = await getArgon();
-
 export default class SkinManager {
 	skins: SkinMetadata[] = [];
 	currentSkin!: Skin;
@@ -61,12 +59,19 @@ export default class SkinManager {
 			);
 		}
 
+		if (!(allKeys as unknown[]).includes("argon")) {
+			await this.indexed.add(
+				{
+					type: "ARGON",
+					name: "Argon",
+					resources: await getArgon(),
+				},
+				"argon",
+			);
+		}
+
 		const skins = await this.indexed.getAll();
-		this.skins.push(...(skins as SkinMetadata[]), {
-			type: "ARGON",
-			name: "Argon",
-			resources: argon,
-		});
+		this.skins.push(...(skins as SkinMetadata[]));
 
 		await this.loadDefaultSkin();
 
@@ -152,11 +157,7 @@ export default class SkinManager {
 			this.indexed.getAllKeys(),
 		]);
 
-		this.skins = [...(skins as SkinMetadata[]), {
-			type: "ARGON",
-			name: "Argon",
-			resources: argon,
-		}];
+		this.skins = [...(skins as SkinMetadata[])];
 
 		console.log(this.skins);
 

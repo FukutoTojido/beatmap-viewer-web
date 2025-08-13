@@ -13,7 +13,7 @@ export default abstract class DrawableHitObject extends SkinnableElement {
     abstract container: Container;
     abstract update(time: number): void;
     abstract getTimeRange(): { start: number, end: number };
-    playHitSound(time?: number) {};
+    playHitSound(time?: number, offset?: number) {};
 
     constructor(public object: StandardHitObject) {
         super();

@@ -154,3 +154,7 @@ export async function loadColorPalette(url: string) {
 	if (!colorConfig) return;
 	colorConfig.color = palette;
 }
+
+export const Clamp = (val: number, min = 0, max = 1) => {
+	return Math.min(max, Math.max(min, val));
+};

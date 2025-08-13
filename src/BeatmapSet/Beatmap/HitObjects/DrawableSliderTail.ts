@@ -16,17 +16,18 @@ import type Skin from "@/Skinning/Skin";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import { update } from "@/Skinning/Argon/ArgonSliderTail";
+import DrawableSliderHead from "./DrawableSliderHead";
 
-const TAIL_LENIENCY = 36;
-export default class DrawableSliderTail extends DrawableHitCircle {
+export const TAIL_LENIENCY = 36;
+export default class DrawableSliderTail extends DrawableSliderHead {
 	hitSound?: HitSample;
 
 	constructor(
 		public object: SliderTail,
-		private parent: Slider,
+		public parent: Slider,
 		samples: Sample[],
 	) {
-		super(object, false);
+		super(object, parent, samples, false);
 		this.hitSound = new HitSample(samples).hook(this.context);
 		this.refreshSprite();
 	}
@@ -35,16 +36,12 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 
 	refreshSprite() {
 		super.refreshSprite();
+		this.flashPiece.texture = BLANK_TEXTURE;
+
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const skinMetadata =
-			this.skinManager?.skins[
-				inject<SkinningConfig>("config/skinning")?.skinningIdx ?? 0
-			];
-		if (!skinMetadata) return;
-
-		if (skinMetadata.type === "ARGON") {
+		if (skin.config.General.Argon) {
 			this.tailUpdateFn = update;
 		} else {
 			this.tailUpdateFn = null;
@@ -53,67 +50,60 @@ export default class DrawableSliderTail extends DrawableHitCircle {
 		const hitCircle =
 			skin.getTexture(
 				"sliderendcircle",
-				this.context.consume<Skin>("beatmapSkin"),
+				!skin.config.General.Argon
+					? this.context.consume<Skin>("beatmapSkin")
+					: undefined,
 			) ??
-			skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
+			skin.getTexture(
+				"hitcircle",
+				!skin.config.General.Argon
+					? this.context.consume<Skin>("beatmapSkin")
+					: undefined,
+			);
 		const hitCircleOverlay = skin.getTexture(
 			"sliderendcircle",
-			this.context.consume<Skin>("beatmapSkin"),
+			!skin.config.General.Argon
+				? this.context.consume<Skin>("beatmapSkin")
+				: undefined,
 		)
 			? (skin.getTexture(
 					"sliderendcircleoverlay",
-					this.context.consume<Skin>("beatmapSkin"),
+					!skin.config.General.Argon
+						? this.context.consume<Skin>("beatmapSkin")
+						: undefined,
 				) ?? BLANK_TEXTURE)
 			: skin.getTexture(
 					"hitcircleoverlay",
-					this.context.consume<Skin>("beatmapSkin"),
+					!skin.config.General.Argon
+						? this.context.consume<Skin>("beatmapSkin")
+						: undefined,
 				);
 
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
-
-		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (
-			beatmap?.data?.colors.comboColors.length &&
-			!inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
-		) {
-			const colors = beatmap.data.colors.comboColors;
-			const comboIndex =
-				(this.parent ?? this.object).comboIndexWithOffsets % colors.length;
-
-			this.hitCircleSprite.tint = `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
-			return;
-		}
-
-		const comboIndex =
-			(this.parent ?? this.object).comboIndexWithOffsets % skin.colorsLength;
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const color = (skin.config.Colours as any)[
-			`Combo${comboIndex + 1}`
-		] as string;
-		this.hitCircleSprite.tint = `rgb(${color})`;
 	}
 
-	playHitSound(time: number): void {
+	playHitSound(time: number, offset: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		if (!beatmap) return;
 		if (
 			!(
-				beatmap.previousTime <= this.object.startTime + TAIL_LENIENCY &&
-				this.object.startTime + TAIL_LENIENCY < time &&
+				beatmap.previousTime <= this.object.startTime + offset &&
+				this.object.startTime + offset < time &&
 				time - beatmap.previousTime < 30
 			)
 		)
 			return;
 
 		const currentSamplePoint = beatmap.getNearestSamplePoint(
-			this.object.startTime + TAIL_LENIENCY,
+			this.object.startTime + offset,
 		);
+
 		this.hitSound?.play(currentSamplePoint);
 	}
 
 	update(time: number): void {
-		super.update(time - TAIL_LENIENCY);
-		this.tailUpdateFn?.(this, time - TAIL_LENIENCY);
+		super.update(time);
+		this.tailUpdateFn?.(this, time);
 	}
 }

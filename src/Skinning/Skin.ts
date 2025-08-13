@@ -15,6 +15,7 @@ type SkinConfig = {
 		AnimationFrameRate?: number;
 		HitCircleOverlayAboveNumber?: 0 | 1;
 		SliderBallFlip?: 0 | 1;
+		Argon?: boolean;
 	};
 	Colours: {
 		Combo1: string;
@@ -92,6 +93,8 @@ export default class Skin {
 			},
 		};
 
+		console.log(this.config)
+
 		this.colorsLength = Object.keys(this.config.Colours).filter((key) =>
 			/Combo[1-8]/g.test(key),
 		).length;
@@ -108,6 +111,7 @@ export default class Skin {
 			"hitcircleflash",
 			"sliderb",
 			"sliderb0",
+			"slidernd",
 			"sliderstartcircle",
 			"sliderstartcircleoverlay",
 			"sliderendcircle",
@@ -115,6 +119,7 @@ export default class Skin {
 			"sliderfollowcircle",
 			"sliderscorepoint",
 			"reversearrow",
+			"repeat-edge-piece"
 		];
 
 		await Promise.all(

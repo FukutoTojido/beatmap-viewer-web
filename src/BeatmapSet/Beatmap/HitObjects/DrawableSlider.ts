@@ -28,7 +28,7 @@ import DrawableHitObject, {
 import type DrawableHitCircle from "./DrawableHitCircle";
 import DrawableSliderTick from "./DrawableSliderTick";
 import DrawableSliderRepeat from "./DrawableSliderRepeat";
-import DrawableSliderTail from "./DrawableSliderTail";
+import DrawableSliderTail, { TAIL_LENIENCY } from "./DrawableSliderTail";
 import DrawableSliderBall from "./DrawableSliderBall";
 import DrawableSliderHead from "./DrawableSliderHead";
 import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
@@ -46,6 +46,7 @@ import {
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacySlider";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import type Skin from "@/Skinning/Skin";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
@@ -119,6 +120,7 @@ export default class DrawableSlider
 	timelineObject: TimelineSlider;
 
 	private layer = new RenderLayer();
+	private layer2 = new RenderLayer();
 
 	constructor(public object: Slider) {
 		super(object);
@@ -174,16 +176,25 @@ export default class DrawableSlider
 		this.body.x = object.startPosition.x + object.stackedOffset.x;
 		this.body.y = object.startPosition.y + object.stackedOffset.x;
 
-		this.ball = new DrawableSliderBall(this.object);
-		this.followCircle = new DrawableSliderFollowCircle(this.object);
+		this.context.provide("slider", this);
+
+		this.ball = new DrawableSliderBall(this.object).hook(this.context);
+		this.followCircle = new DrawableSliderFollowCircle(this.object).hook(
+			this.context,
+		);
 
 		// this.container.visible = false;
 		this.container.addChild(
 			this.body,
-			...this.drawableCircles.toReversed().map((circle) => circle.container),
+			...this.drawableCircles
+				.slice(1)
+				.toReversed()
+				.map((circle) => circle.container),
 			this.followCircle.container,
-			this.ball.container,
 			this.layer,
+			this.ball.container,
+			this.drawableCircles[0].container,
+			this.layer2,
 		);
 
 		for (const drawable of this.drawableCircles.toReversed()) {
@@ -194,7 +205,7 @@ export default class DrawableSlider
 			}
 
 			if (d instanceof DrawableSliderHead && d.defaults) {
-				this.layer.attach(d.defaults.container);
+				this.layer2.attach(d.defaults.container);
 			}
 		}
 
@@ -226,10 +237,13 @@ export default class DrawableSlider
 			(object) =>
 				object instanceof DrawableSliderHead ||
 				object instanceof DrawableSliderTail ||
-				object instanceof DrawableSliderRepeat,
+				object instanceof DrawableSliderRepeat ||
+				object instanceof DrawableSliderTick,
 		)) {
 			object.refreshSprite();
 		}
+		this.ball.refreshSprite();
+		this.followCircle.refreshSprite();
 		this.refreshSprite();
 		this.timelineObject.updateVelocity();
 
@@ -243,19 +257,36 @@ export default class DrawableSlider
 	updateFn = legacyUpdate;
 
 	refreshSprite() {
-		const skin =
-			this.skinManager?.skins[
-				inject<SkinningConfig>("config/skinning")?.skinningIdx ?? 0
-			];
+		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		if (skin.type === "ARGON") {
+		if (skin.config.General.Argon) {
 			argonRefreshSprite(this);
 			this.updateFn = argonUpdate;
 		} else {
 			legacyRefreshSprite(this);
 			this.updateFn = legacyUpdate;
 		}
+	}
+
+	getColor(skin: Skin) {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		if (
+			beatmap?.data?.colors.comboColors.length &&
+			!inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
+		) {
+			const colors = beatmap.data.colors.comboColors;
+			const comboIndex = this.object.comboIndexWithOffsets % colors.length;
+
+			return `rgb(${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue})`;
+		}
+
+		const comboIndex = this.object.comboIndexWithOffsets % skin.colorsLength;
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const color = (skin.config.Colours as any)[
+			`Combo${comboIndex + 1}`
+		] as string;
+		return `rgb(${color})`;
 	}
 
 	get approachCircle() {
@@ -274,7 +305,12 @@ export default class DrawableSlider
 		if (!beatmap) return;
 
 		for (const object of this.drawableCircles) {
-			object.playHitSound(time);
+			const offset =
+				object instanceof DrawableSliderTail &&
+				!(object instanceof DrawableSliderRepeat)
+					? TAIL_LENIENCY
+					: 0;
+			object.playHitSound(time, offset);
 		}
 
 		const currentSamplePoint = beatmap.getNearestSamplePoint(
@@ -325,7 +361,14 @@ export default class DrawableSlider
 	update(time: number) {
 		this.ball.update(time);
 		this.followCircle.update(time);
-		for (const circle of this.drawableCircles) circle.update(time);
+		for (const circle of this.drawableCircles) {
+			const offset =
+				circle instanceof DrawableSliderTail &&
+				!(circle instanceof DrawableSliderRepeat)
+					? TAIL_LENIENCY
+					: 0;
+			circle.update(time - offset);
+		}
 
 		this.updateFn(this, time);
 	}
