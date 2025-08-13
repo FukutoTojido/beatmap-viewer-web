@@ -3,7 +3,7 @@ import { inject, provide } from "../Context";
 import { getDefaultLegacy, getYugen } from "../Initiator";
 import Database from "./Database";
 import Skin from "./Skin";
-import SkinningConfig from "@/Config/SkinningConfig";
+import type SkinningConfig from "@/Config/SkinningConfig";
 import Loading from "@/UI/loading";
 
 export type SkinEventCallback = (skin: Skin) => void;
