@@ -17,6 +17,7 @@ type SkinMetadata = {
 export default class SkinManager {
 	skins: SkinMetadata[] = [];
 	currentSkin!: Skin;
+	defaultSkin!: Skin;
 	indexed = new Database();
 
 	private callbacks = new Set<SkinEventCallback>();
@@ -61,6 +62,8 @@ export default class SkinManager {
 		const skins = await this.indexed.getAll();
 		this.skins.push(...(skins as SkinMetadata[]));
 
+		await this.loadDefaultSkin();
+
 		await Promise.all([
 			this.refreshSkinList(),
 			this.loadSkin(
@@ -84,12 +87,26 @@ export default class SkinManager {
 		return this.currentSkin;
 	}
 
+	async loadDefaultSkin() {
+		const defaultSkin = this.skins.find(
+			(skin) => skin.type === "DEFAULT" && skin.name === "Default",
+		);
+		this.defaultSkin = new Skin(defaultSkin?.resources);
+		await this.defaultSkin.init();
+	}
+
 	async loadSkin(idx: number) {
-		this.currentSkin = new Skin(this.skins[idx].resources);
-		await this.currentSkin.init();
+		const selectedSkin = this.skins[idx];
+
+		if (selectedSkin.type === "DEFAULT" && selectedSkin.name === "Default") {
+			this.currentSkin = this.defaultSkin;
+		} else {
+			this.currentSkin = new Skin(selectedSkin?.resources);
+			await this.currentSkin.init();
+		}
 
 		const el = document.querySelector<HTMLSpanElement>("#currentSkin");
-		if (el) el.innerHTML = this.skins[idx].name;
+		if (el) el.innerHTML = selectedSkin.name;
 
 		this.emitSkinChange();
 	}

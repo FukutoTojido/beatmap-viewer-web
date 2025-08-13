@@ -5,6 +5,7 @@ import { parse } from "js-ini";
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 import { inject } from "@/Context";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import type SkinManager from "./SkinManager";
 
 type SkinConfig = {
 	General: {
@@ -186,12 +187,20 @@ export default class Skin {
 		);
 	}
 
-	getTexture(filename: string, beatmapSkin?: Skin) {
+	getTexture(filename: string, beatmapSkin?: Skin): Texture | undefined {
 		const disableBeatmapSkin =
 			inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin;
 
-		if (disableBeatmapSkin) return this.textures.get(filename);
-		return beatmapSkin?.textures.get(filename) ?? this.textures.get(filename);
+		if (disableBeatmapSkin)
+			return (
+				this.textures.get(filename) ??
+				inject<SkinManager>("skinManager")?.defaultSkin?.textures.get(filename)
+			);
+		return (
+			beatmapSkin?.textures.get(filename) ??
+			this.textures.get(filename) ??
+			inject<SkinManager>("skinManager")?.defaultSkin?.textures.get(filename)
+		);
 	}
 
 	getHitsound(filename: string) {
