@@ -45,6 +45,8 @@ export default class Point {
 		});
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ mantle }) => {
+			if (this._destroyed) return;
+			
 			this.bg = mantle;
 			this.accent =
 				data instanceof TimingPoint
@@ -179,11 +181,14 @@ export default class Point {
 		this.indicator.visible = false;
 	}
 
+	private _destroyed = false;
 	destroy() {
 		this.container.destroy();
 		this.timestamp.destroy();
 		this.content1.destroy();
 		this.content2.destroy();
 		this.indicator.destroy();
+
+		this._destroyed = true;
 	}
 }

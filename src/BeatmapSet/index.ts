@@ -300,8 +300,8 @@ export default class BeatmapSet extends ScopedClass {
 		if (svg) {
 			const color = getDiffColour(beatmap.difficultyAttributes.starRating);
 			svg.innerHTML = svg.innerHTML
-				.replace('stroke="white"', `stroke="${color}"`)
-				.replace('fill="white"', `fill="${color}"`);
+				.replace(/stroke=".*"/g, `stroke="${color}"`)
+				.replace(/fill=".*"/, `fill="${color}"`);
 		}
 		const sr = document.querySelector<HTMLSpanElement>("#masterSR");
 		if (sr)
