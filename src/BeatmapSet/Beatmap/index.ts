@@ -84,7 +84,7 @@ export default class Beatmap extends ScopedClass {
 		this.loaded = true;
 	}
 
-	loadTimingPoints() {
+	async loadTimingPoints() {
 		const audio = this.context.consume<Audio>("audio");
 
 		const points = this.data.controlPoints.groups.map((group) => {

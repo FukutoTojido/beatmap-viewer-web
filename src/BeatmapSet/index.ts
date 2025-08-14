@@ -309,13 +309,14 @@ export default class BeatmapSet extends ScopedClass {
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
-		await beatmap.loadHitObjects();
-		beatmap.load();
-
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 			beatmap.container,
 			index,
 		);
+
+		await beatmap.loadHitObjects();
+		beatmap.load();
+
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
 		beatmap.toggle();

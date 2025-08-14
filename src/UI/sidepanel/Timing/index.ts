@@ -103,7 +103,9 @@ export default class Timing {
 	}
 
 	private points: Point[] = [];
-	updateTimingPoints(points: (TimingPoint | DifficultyPoint | SamplePoint)[]) {
+	async updateTimingPoints(
+		points: (TimingPoint | DifficultyPoint | SamplePoint)[],
+	) {
 		if (this.points.length > 0) {
 			for (const point of this.points) {
 				point.destroy();
@@ -111,17 +113,22 @@ export default class Timing {
 			this._timingContainer.removeChildren();
 		}
 
-		const p: Point[] = [];
+		this.points = [];
 
-		let i = 0;
-		for (const point of points) {
-			const x = new Point(point);
-			x.container.y = i++ * 45;
+		const p: Point[] = await Promise.all(
+			points.map((point, i) => {
+				return new Promise<Point>((resolve) => {
+					setTimeout(() => {
+						const x = new Point(point);
+						x.container.y = i * 45;
+						resolve(x);
+					}, 0)
 
-			p.push(x);
-		}
-		this._timingContainer.boundsArea = new Rectangle(0, 0, 360, i * 45 - 5);
-
+				});
+			}),
+		);
+		
+		this._timingContainer.boundsArea = new Rectangle(0, 0, 360, p.length * 45 - 5);
 		this.points = p;
 	}
 
