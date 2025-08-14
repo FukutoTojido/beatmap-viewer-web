@@ -103,7 +103,10 @@ export default class Gameplays {
 
 		const columnsCount = Math.ceil(Math.sqrt(this.gameplays.size));
 		const rowsCount = Math.ceil(deserialized.length / columnsCount);
-		const missingLast = deserialized.length % columnsCount === 0 ? 0 : columnsCount - (deserialized.length % columnsCount)
+		const missingLast =
+			deserialized.length % columnsCount === 0
+				? 0
+				: columnsCount - (deserialized.length % columnsCount);
 		const heightDenominator = Math.ceil(this.gameplays.size / columnsCount);
 
 		const w = 100 / columnsCount;
@@ -132,7 +135,9 @@ export default class Gameplays {
 
 			const newLayout = {
 				top: Math.floor(i / columnsCount) * h,
-				left: (i % columnsCount) * w + (row === rowsCount - 1 ? w * missingLast / 2 : 0),
+				left:
+					(i % columnsCount) * w +
+					(row === rowsCount - 1 ? (w * missingLast) / 2 : 0),
 				width: w,
 				height: h,
 				paddingTop: deserialized.length > 1 ? (row === 0 ? 10 : 5) : 0,
@@ -144,7 +149,11 @@ export default class Gameplays {
 						: 0,
 				paddingLeft: deserialized.length > 1 ? (col === 0 ? 10 : 5) : 0,
 				paddingRight:
-					deserialized.length > 1 ? (col === columnsCount - 1 || i === deserialized.length - 1 ? 10 : 5) : 0,
+					deserialized.length > 1
+						? col === columnsCount - 1 || i === deserialized.length - 1
+							? 10
+							: 5
+						: 0,
 				scale: 1,
 			};
 
@@ -217,11 +226,15 @@ export default class Gameplays {
 				gameplay.background.layout = {
 					borderRadius: 20,
 				};
+				gameplay.statsContainer.scale.set(
+					1 / Math.max(1, (columnsCount - 1) / 2),
+				);
 			} else {
 				gameplay.hideDiffName();
 				gameplay.background.layout = {
 					borderRadius: 0,
 				};
+				gameplay.statsContainer.scale.set(1);
 			}
 		}
 	}
