@@ -66,12 +66,23 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			this.context.consume<DrawableHitCircle>("object")?.color ?? "rgb(0,0,0)";
 		this.hitCircle.tint = color;
 		this.defaults.container.tint = 0xffffff;
+		this.defaults.sprites.map((sprite) => {
+			sprite.text.tint = 0xffffff;
+		});
 
 		if (!skin.config.General.Argon) return;
 
-		const defaultColor = d3.color(color as string)?.darker(2);
-		if (!defaultColor) return;
-		this.defaults.container.tint = defaultColor;
+		const col = d3.color(color as string);
+		if (!col) return;
+
+		const lumi =
+			0.299 * (col?.rgb().r / 255) +
+			0.587 * (col?.rgb().g / 255) +
+			0.114 * (col?.rgb().b / 255);
+		this.defaults.container.tint = color;
+		this.defaults.sprites.map((sprite) => {
+			sprite.text.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
+		});
 	}
 
 	hook(context: Context) {
