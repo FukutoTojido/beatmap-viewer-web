@@ -56,7 +56,10 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	async loadBeatmapSkin() {
-		const skin = this.context.provide<Skin>("beatmapSkin", new Skin(this.context.consume<Map<string, Resource>>("resources")));
+		const skin = this.context.provide<Skin>(
+			"beatmapSkin",
+			new Skin(this.context.consume<Map<string, Resource>>("resources")),
+		);
 		await skin.init();
 	}
 
@@ -173,16 +176,16 @@ export default class BeatmapSet extends ScopedClass {
 		console.timeEnd("Constructing audio");
 	}
 
-	videoKey = "";
+	videoKey: string | null = null;
 	async loadVideo(beatmap: Beatmap) {
 		const videoFilePath =
 			beatmap.data.events.storyboard?.layers.get("Video")?.elements.at(0)
 				?.filePath ?? "";
 
+		if (this.videoKey === videoFilePath) return;
 		if (videoFilePath === "") {
 			inject<Background>("ui/main/viewer/background")?.updateFrame();
 		}
-		if (this.videoKey === videoFilePath) return;
 
 		this.videoKey = videoFilePath;
 		const videoResource = this.context
@@ -270,7 +273,7 @@ export default class BeatmapSet extends ScopedClass {
 		storyboard?.checkRemoveBG();
 		storyboard?.sortChildren();
 
-		beatmap.loadTimingPoints();
+		await beatmap.loadTimingPoints();
 
 		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
 			beatmap.data.metadata,
@@ -314,14 +317,15 @@ export default class BeatmapSet extends ScopedClass {
 			index,
 		);
 
+		beatmap.container.spinner.spin = true;
 		await beatmap.loadHitObjects();
 		beatmap.load();
-
+		beatmap.container.spinner.spin = false;
 
 		beatmap.seek(this.context.consume<Audio>("audio")?.currentTime ?? 0);
 		beatmap.toggle();
 
-		console.log(beatmap);
+		// console.log(beatmap);
 	}
 
 	async loadMaster(idx: number) {
@@ -356,7 +360,7 @@ export default class BeatmapSet extends ScopedClass {
 		if (!beatmap) return;
 		if (beatmap === this.master || this.slaves.has(beatmap)) return;
 
-		this.loadBeatmap(beatmap);
+		await this.loadBeatmap(beatmap);
 		this.slaves.add(beatmap);
 
 		this.setIds();
@@ -384,7 +388,10 @@ export default class BeatmapSet extends ScopedClass {
 			slave.toggle();
 		}
 
-		if (audio?.state === "PLAYING" && inject<BackgroundConfig>("config/background")?.video) {
+		if (
+			audio?.state === "PLAYING" &&
+			inject<BackgroundConfig>("config/background")?.video
+		) {
 			this.context.consume<Video>("video")?.play(audio?.currentTime);
 		}
 

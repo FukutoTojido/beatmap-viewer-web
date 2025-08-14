@@ -159,7 +159,7 @@ export default class SkinManager {
 
 		this.skins = [...(skins as SkinMetadata[])];
 
-		console.log(this.skins);
+		// console.log(this.skins);
 
 		const el = document.querySelector<HTMLDivElement>("#skinsContainer");
 		if (el) el.innerHTML = "";

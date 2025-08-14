@@ -93,7 +93,7 @@ export default class Skin {
 			},
 		};
 
-		console.log(this.config);
+		// console.log(this.config);
 
 		this.colorsLength = Object.keys(this.config.Colours).filter((key) =>
 			/Combo[1-8]/g.test(key),

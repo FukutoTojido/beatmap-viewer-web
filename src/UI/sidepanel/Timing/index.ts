@@ -122,7 +122,7 @@ export default class Timing {
 						const x = new Point(point);
 						x.container.y = i * 45;
 						resolve(x);
-					}, 0)
+					}, 10)
 
 				});
 			}),

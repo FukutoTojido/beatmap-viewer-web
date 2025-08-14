@@ -154,8 +154,6 @@ export default class Point {
 	}
 
 	select() {
-		if (!this.container) return;
-
 		this.container.alpha = 1;
 
 		this.container.layout = {
@@ -170,8 +168,6 @@ export default class Point {
 	}
 
 	unselect() {
-		if (!this.container) return;
-
 		this.container.alpha = 0.5;
 
 		this.container.layout = {

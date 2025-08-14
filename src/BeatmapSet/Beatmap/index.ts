@@ -157,14 +157,16 @@ export default class Beatmap extends ScopedClass {
 			return a.startTime - b.startTime;
 		});
 
+		await inject<Timing>("ui/sidepanel/timing")?.updateTimingPoints(
+			timingPoints,
+		);
+		inject<Timeline>("ui/main/viewer/timeline")?.loadTimingPoints(
+			this.data.controlPoints.timingPoints,
+		);
 		inject<ProgressBar>("ui/main/controls/progress")?.drawTimeline(
 			points,
 			kiaiSections,
 			breaks,
-		);
-		inject<Timing>("ui/sidepanel/timing")?.updateTimingPoints(timingPoints);
-		inject<Timeline>("ui/main/viewer/timeline")?.loadTimingPoints(
-			this.data.controlPoints.timingPoints,
 		);
 	}
 

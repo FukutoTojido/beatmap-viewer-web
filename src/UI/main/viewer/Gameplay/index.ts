@@ -15,6 +15,7 @@ import type { LayoutOptions } from "@pixi/layout";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
 import { BackdropBlurFilter } from "pixi-filters";
+import Spinner from "./Spinner";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -37,6 +38,7 @@ export default class Gameplay {
 	diffName!: Text;
 	statsContainer!: LayoutContainer;
 	closeButton!: LayoutContainer;
+	spinner: Spinner;
 
 	csText!: Text;
 	arText!: Text;
@@ -92,10 +94,13 @@ export default class Gameplay {
 			boundsArea: new Rectangle(0, 0, 512, 384),
 		});
 
+		this.spinner = new Spinner(this);
+		this.spinner.spin = true;
+
 		this.createStats();
 		this.createCloseButton();
 
-		this.container.addChild(this.wrapper);
+		this.container.addChild(this.wrapper, this.spinner.graphics);
 		this.wrapper.addChild(this.background, this.objectsContainer);
 		this.wrapper.on("layout", () => {
 			const width = this.wrapper.layout?.computedLayout.width ?? 0;
@@ -109,6 +114,9 @@ export default class Gameplay {
 
 			this.objectsContainer.x = (width - _w) / 2;
 			this.objectsContainer.y = (height - _h) / 2;
+
+			this.spinner.graphics.x = width / 2;
+			this.spinner.graphics.y = height / 2;
 		});
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
@@ -220,7 +228,7 @@ export default class Gameplay {
 				position: "absolute",
 				top: 20,
 				left: 20,
-				transformOrigin: "top left"
+				transformOrigin: "top left",
 			},
 		});
 
