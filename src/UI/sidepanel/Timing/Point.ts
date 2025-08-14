@@ -15,9 +15,9 @@ import {
 export default class Point {
 	container: LayoutContainer;
 	private indicator: Graphics;
-	private timestamp: Text;
-	private content1: Text;
-	private content2: Text;
+	private timestamp: BitmapText;
+	private content1: BitmapText;
+	private content2: BitmapText;
 
 	private accent: ColorSource;
 	private bg = inject<ColorConfig>("config/color")?.color.mantle ?? 0x181825;
@@ -59,7 +59,7 @@ export default class Point {
 			if (!this.indicator.visible) this.unselect();
 		});
 
-		this.timestamp = new Text({
+		this.timestamp = new BitmapText({
 			text: millisecondsToMinutesString(data.startTime),
 			style: {
 				fontSize: 14,
@@ -74,7 +74,7 @@ export default class Point {
 			},
 		});
 
-		this.content1 = new Text({
+		this.content1 = new BitmapText({
 			text:
 				data instanceof TimingPoint
 					? `${Math.round(data.bpm)} BPM`
@@ -95,7 +95,7 @@ export default class Point {
 			},
 		});
 
-		this.content2 = new Text({
+		this.content2 = new BitmapText({
 			text:
 				data instanceof TimingPoint
 					? `Signature ${data.timeSignature}/4`

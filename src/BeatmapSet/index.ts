@@ -298,11 +298,11 @@ export default class BeatmapSet extends ScopedClass {
 		storyboard?.checkRemoveBG();
 		storyboard?.sortChildren();
 
-		await beatmap.loadTimingPoints();
-
 		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
 			beatmap.data.metadata,
 		);
+
+		await beatmap.loadTimingPoints();
 	}
 
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
@@ -331,7 +331,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		const oldMaster = this.master;
 		const isSwitch = this.slaves.has(beatmap);
-		
+
 		await this.loadPeripherals(beatmap);
 
 		if (isSwitch && oldMaster) {

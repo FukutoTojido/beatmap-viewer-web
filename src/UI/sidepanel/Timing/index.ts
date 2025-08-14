@@ -10,6 +10,7 @@ import type { Tween } from "@tweenjs/tween.js";
 import Easings from "@/UI/Easings";
 import type State from "@/State";
 import type ColorConfig from "@/Config/ColorConfig";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 
 const DECAY_RATE = 0.99;
 const LN0_9 = Math.log(DECAY_RATE);
@@ -103,6 +104,37 @@ export default class Timing {
 	}
 
 	private points: Point[] = [];
+
+	private createTimingPointsSync(
+		points: (TimingPoint | DifficultyPoint | SamplePoint)[],
+	) {
+		const p = [];
+		let i = 0;
+
+		for (const point of points) {
+			const x = new Point(point);
+			x.container.y = i++ * 45;
+			p.push(x);
+		}
+
+		return p;
+	}
+
+	private async createTimingPointsAsync(
+		points: (TimingPoint | DifficultyPoint | SamplePoint)[],
+	) {
+		return await Promise.all(
+			points.map((point, i) => {
+				return new Promise<Point>((resolve) => {
+					setTimeout(() => {
+						const x = new Point(point);
+						x.container.y = i * 45;
+						resolve(x);
+					}, 10);
+				});
+			}),
+		);
+	}
 	async updateTimingPoints(
 		points: (TimingPoint | DifficultyPoint | SamplePoint)[],
 	) {
@@ -115,20 +147,20 @@ export default class Timing {
 
 		this.points = [];
 
-		const p: Point[] = await Promise.all(
-			points.map((point, i) => {
-				return new Promise<Point>((resolve) => {
-					setTimeout(() => {
-						const x = new Point(point);
-						x.container.y = i * 45;
-						resolve(x);
-					}, 10)
+		const async = inject<ExperimentalConfig>(
+			"config/experimental",
+		)?.asyncLoading;
 
-				});
-			}),
+		const p: Point[] = async
+			? await this.createTimingPointsAsync(points)
+			: this.createTimingPointsSync(points);
+
+		this._timingContainer.boundsArea = new Rectangle(
+			0,
+			0,
+			360,
+			p.length * 45 - 5,
 		);
-		
-		this._timingContainer.boundsArea = new Rectangle(0, 0, 360, p.length * 45 - 5);
 		this.points = p;
 	}
 

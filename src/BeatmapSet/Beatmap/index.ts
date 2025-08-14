@@ -24,6 +24,7 @@ import type Timing from "@/UI/sidepanel/Timing";
 import type Timeline from "@/UI/main/viewer/Timeline";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import { sort } from "fast-sort";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -171,8 +172,19 @@ export default class Beatmap extends ScopedClass {
 		);
 	}
 
-	async loadHitObjects() {
-		console.time("Constructing hitObjects");
+	private loadHitObjectsSync() {
+		this.objects = this.data.hitObjects
+			.map((object) => {
+				if (object instanceof Circle)
+					return new DrawableHitCircle(object).hook(this.context);
+				if (object instanceof Slider)
+					return new DrawableSlider(object).hook(this.context);
+				return null;
+			})
+			.filter((object) => object !== null);
+	}
+
+	private async loadHitObjectsAsync() {
 		this.objects = (
 			await Promise.all(
 				this.data.hitObjects.map((object) => {
@@ -188,6 +200,14 @@ export default class Beatmap extends ScopedClass {
 				}),
 			)
 		).filter((object) => object !== null);
+	}
+
+	async loadHitObjects() {
+		console.time("Constructing hitObjects");
+		const async = inject<ExperimentalConfig>("config/experimental")?.asyncLoading;
+		if (async) await this.loadHitObjectsAsync();
+		else this.loadHitObjectsSync();
+
 		console.timeEnd("Constructing hitObjects");
 		this.connectors = this.constructConnectors();
 		this.worker.postMessage({
@@ -229,7 +249,9 @@ export default class Beatmap extends ScopedClass {
 		const approachCircleContainers = [];
 		const connectorContainers = [];
 
-		const objs = sort([...this.previousObjects]).desc(u => this.objects[u].object.startTime);
+		const objs = sort([...this.previousObjects]).desc(
+			(u) => this.objects[u].object.startTime,
+		);
 
 		for (const idx of objs) {
 			containers.push(this.objects[idx].container);

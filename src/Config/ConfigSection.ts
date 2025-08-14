@@ -15,14 +15,19 @@ export default class ConfigSection {
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: I don't care
-	protected emitChange(key: string, newValue: any) {
+	protected async emitChange(key: string, newValue: any) {
 		inject<Config>("config")?.saveSettings();
 		
 		const callbacks = this._callbacks.get(key);
 		if (!callbacks) return;
-		for (const callback of callbacks) {
-			callback(newValue);
-		}
+		await Promise.all([...callbacks].map((callback) => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					callback(newValue);
+					resolve(undefined)
+				}, 10)
+			})
+		}))
 	}
 
 	jsonify() {}

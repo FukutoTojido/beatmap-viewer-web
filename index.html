@@ -57,7 +57,8 @@
     </div>
     <div id="app" class="relative w-full flex-1 overflow-hidden"></div>
     <div class="fixed top-0 left-0 w-full h-full bg-black/50 overlayHidden" id="overlay"></div>
-    <div class="fixed top-0 w-[600px] max-w-[80vw] h-svh overflow-auto bg-crust flex flex-col gap-2.5 text-text" id="settings">
+    <div class="fixed top-0 w-[600px] max-w-[80vw] h-svh overflow-auto bg-crust flex flex-col gap-2.5 text-text"
+        id="settings">
         <div class="bg-base p-10 flex flex-col w-full">
             <div class="font-medium text-3xl">Settings</div>
             <div>Change how JoSu! behaves</div>
@@ -76,7 +77,8 @@
             </label>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
-                    <label class="font-normal flex-1 cursor-pointer" for="disableBeatmapSkin" tabindex="-1">Ignore beatmap skin</label>
+                    <label class="font-normal flex-1 cursor-pointer" for="disableBeatmapSkin" tabindex="-1">Ignore
+                        beatmap skin</label>
                     <input type="checkbox" name="disableBeatmapSkin" id="disableBeatmapSkin">
                 </div>
             </div>
@@ -137,6 +139,18 @@
                 <div class="flex items-center justify-between w-full text-sm">
                     <label class="font-normal flex-1 cursor-pointer" for="hitsound">Disable Beatmap Hitsound</label>
                     <input type="checkbox" name="hitsound" id="hitsound" tabindex="-1">
+                </div>
+            </div>
+        </div>
+        <div class="bg-base p-10 flex flex-col w-full gap-5">
+            <div class="font-medium">Experimental</div>
+            <div class="flex flex-col w-full gap-2.5">
+                <div class="flex items-center justify-between w-full text-sm">
+                    <label class="font-normal flex-1 cursor-pointer flex flex-col" for="asyncLoading">
+                        <span>Asynchronous Loading</span>
+                        <span class="text-xs">Load beatmap asynchronously for responsiveness</span>
+                    </label>
+                    <input type="checkbox" name="asyncLoading" id="asyncLoading" tabindex="-1">
                 </div>
             </div>
         </div>

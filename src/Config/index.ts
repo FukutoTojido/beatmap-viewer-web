@@ -2,6 +2,9 @@ import { provide } from "../Context";
 import AudioConfig, { type AudioProps } from "./AudioConfig";
 import BackgroundConfig, { type BackgroundProps } from "./BackgroundConfig";
 import ColorConfig from "./ColorConfig";
+import ExperimentalConfig, {
+	type ExperimentalProps,
+} from "./ExperimentalConfig";
 import MirrorConfig, { type MirrorProps } from "./MirrorConfig";
 import RendererConfig, { type RendererProps } from "./RendererConfig";
 import SkinningConfig, { type SkinningProps } from "./SkinningConfig";
@@ -14,6 +17,7 @@ type Configs = {
 	background: BackgroundProps;
 	skinning: SkinningProps;
 	audio: AudioProps;
+	experimental: ExperimentalProps;
 };
 
 export default class Config {
@@ -24,6 +28,7 @@ export default class Config {
 	skinning: SkinningConfig;
 	audio: AudioConfig;
 	color: ColorConfig;
+	experimental: ExperimentalConfig;
 
 	constructor() {
 		const savedSettings = this.loadSettings();
@@ -72,6 +77,14 @@ export default class Config {
 			),
 		);
 		this.color = provide("config/color", new ColorConfig());
+		this.experimental = provide(
+			"config/experimental",
+			new ExperimentalConfig(
+				savedSettings?.experimental ?? {
+					asyncLoading: true,
+				},
+			),
+		);
 
 		const overlay = document.querySelector<HTMLDivElement>("#overlay");
 		const settings = document.querySelector<HTMLDivElement>("#settings");
@@ -107,6 +120,7 @@ export default class Config {
 				renderer: this.renderer.jsonify(),
 				skinning: this.skinning.jsonify(),
 				timeline: this.timeline.jsonify(),
+				experimental: this.experimental.jsonify()
 			}),
 		);
 	}
