@@ -261,13 +261,13 @@ export default class Beatmap extends ScopedClass {
 		);
 
 		const potentialFutureSamplePoint = this.data.controlPoints.samplePointAt(
-			Math.ceil(time + 1),
+			Math.ceil(time + 2),
 		);
 
 		let samplePoint: SamplePoint = currentSamplePoint;
 		if (
 			potentialFutureSamplePoint?.group &&
-			potentialFutureSamplePoint.group.startTime - time < 2
+			potentialFutureSamplePoint.group.startTime - time < 3
 		)
 			samplePoint = potentialFutureSamplePoint;
 
