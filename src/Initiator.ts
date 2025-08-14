@@ -22,6 +22,7 @@ export async function getArgon() {
 			return accm;
 		}, []),
 		"followpoint.png",
+		"timelinehitcircle@2x.png",
 		"hitcircle@2x.png",
 		"hitcircleflash@2x.png",
 		"hitcircleoverlay@2x.png",

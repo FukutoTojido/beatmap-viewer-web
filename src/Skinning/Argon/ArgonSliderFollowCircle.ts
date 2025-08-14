@@ -1,5 +1,6 @@
 import type DrawableSliderFollowCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderFollowCircle";
 import Easings from "@/UI/Easings";
+import { Clamp } from "@/utils";
 
 export const update = (drawable: DrawableSliderFollowCircle, time: number) => {
 	const completionProgress = Math.min(
@@ -47,6 +48,8 @@ export const update = (drawable: DrawableSliderFollowCircle, time: number) => {
 		return;
 	}
 
+	const maxScale = 1 + 1.4 * Clamp(Easings.OutQuint(drawable.object.duration / duration));
+
 	if (time > drawable.object.endTime) {
 		const opacity = Math.min(
 			1,
@@ -58,7 +61,7 @@ export const update = (drawable: DrawableSliderFollowCircle, time: number) => {
 		);
 
 		drawable.container.scale.set(
-			(2.4 - 1.4 * Easings.OutQuint(scale)) * drawable.object.scale,
+			(maxScale - (maxScale - 1) * Easings.OutQuint(scale)) * drawable.object.scale,
 		);
 		drawable.container.alpha = 1 - Easings.OutQuint(opacity);
 

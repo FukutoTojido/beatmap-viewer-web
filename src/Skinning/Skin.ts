@@ -106,6 +106,7 @@ export default class Skin {
 			"approachcircle",
 			...defaults,
 			"followpoint",
+			"timelinehitcircle",
 			"hitcircle",
 			"hitcircleoverlay",
 			"hitcircleflash",

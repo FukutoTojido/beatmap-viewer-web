@@ -7,6 +7,8 @@ import type TimelineConfig from "@/Config/TimelineConfig";
 import type DrawableHitCircle from "../HitObjects/DrawableHitCircle";
 import DrawableDefaults from "../HitObjects/DrawableDefaults";
 import type Skin from "@/Skinning/Skin";
+import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import * as d3 from "d3";
 
 export default class TimelineHitCircle extends TimelineHitObject {
 	hitCircle: Sprite;
@@ -39,6 +41,10 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
+		const timelineHitCircle = skin.getTexture(
+			"timelinehitcircle",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 		const hitCircle = skin.getTexture(
 			"hitcircle",
 			this.context.consume<Skin>("beatmapSkin"),
@@ -48,12 +54,24 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			this.context.consume<Skin>("beatmapSkin"),
 		);
 
-		if (hitCircle) this.hitCircle.texture = hitCircle;
-		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+		this.hitCircle.texture =
+			(skin.config.General.Argon
+				? (timelineHitCircle ?? hitCircle)
+				: hitCircle) ?? BLANK_TEXTURE;
+		this.hitCircleOverlay.texture =
+			(skin.config.General.Argon ? BLANK_TEXTURE : hitCircleOverlay) ??
+			BLANK_TEXTURE;
 
 		const color =
 			this.context.consume<DrawableHitCircle>("object")?.color ?? "rgb(0,0,0)";
 		this.hitCircle.tint = color;
+		this.defaults.container.tint = 0xffffff;
+
+		if (!skin.config.General.Argon) return;
+
+		const defaultColor = d3.color(color as string)?.darker(2);
+		if (!defaultColor) return;
+		this.defaults.container.tint = defaultColor;
 	}
 
 	hook(context: Context) {

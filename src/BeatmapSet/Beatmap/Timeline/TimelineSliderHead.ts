@@ -3,6 +3,7 @@ import type DrawableSlider from "../HitObjects/DrawableSlider";
 import TimelineHitCircle from "./TimelineHitCircle";
 import DrawableDefaults from "../HitObjects/DrawableDefaults";
 import type Skin from "@/Skinning/Skin";
+import * as d3 from "d3";
 
 export default class TimelineSliderHead extends TimelineHitCircle {
 	constructor(object: SliderHead, parent: Slider) {
@@ -31,7 +32,17 @@ export default class TimelineSliderHead extends TimelineHitCircle {
 		if (hitCircle) this.hitCircle.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
 
+		this.hitCircle.visible = !skin.config.General.Argon;
+		this.hitCircleOverlay.visible = !skin.config.General.Argon;
+
 		const color = `rgb(${this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"})`;
 		this.hitCircle.tint = color;
+		this.defaults.container.tint = 0xffffff;
+
+		if (!skin.config.General.Argon) return;
+
+		const defaultColor = d3.color(color as string)?.darker(2);
+		if (!defaultColor) return;
+		this.defaults.container.tint = defaultColor;
 	}
 }

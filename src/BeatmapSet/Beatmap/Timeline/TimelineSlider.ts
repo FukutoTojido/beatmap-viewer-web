@@ -55,12 +55,11 @@ const radialGradient = new FillGradient({
 
 export default class TimelineSlider extends TimelineHitObject {
 	circles: TimelineHitCircle[] = [];
+	filter = new AlphaFilter({
+		alpha: 0.7,
+	});
 	body: Graphics = new Graphics({
-		filters: [
-			new AlphaFilter({
-				alpha: 0.7,
-			}),
-		],
+		filters: this.filter,
 	});
 
 	length = 0;
@@ -144,14 +143,35 @@ export default class TimelineSlider extends TimelineHitObject {
 			(this.object as Slider).duration /
 			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
 
-		this.body
-			.clear()
-			.circle(0, 0, (25 * 236) / 256)
-			.fill(radialGradient)
-			.circle(this.length, 0, (25 * 236) / 256)
-			.fill(radialGradient)
-			.rect(0, -((25 * 236) / 256), this.length, (50 * 236) / 256)
-			.fill(gradient);
+		if (this.skinManager?.getCurrentSkin().config.General.Argon) {
+			this.body
+				.clear()
+				.moveTo(0, 0)
+				.lineTo(this.length, 0)
+				.stroke({
+					width: 50,
+					cap: "round",
+					color: 0xb6b6b6,
+				})
+				.moveTo(0, 0)
+				.lineTo(this.length, 0)
+				.stroke({
+					width: 50 * 0.8,
+					cap: "round",
+					color: "white",
+				});
+			this.filter.alpha = 1;
+		} else {
+			this.body
+				.clear()
+				.circle(0, 0, (25 * 236) / 256)
+				.fill(radialGradient)
+				.circle(this.length, 0, (25 * 236) / 256)
+				.fill(radialGradient)
+				.rect(0, -((25 * 236) / 256), this.length, (50 * 236) / 256)
+				.fill(gradient);
+			this.filter.alpha = 0.7;
+		}
 
 		this.body.tint = `rgb(${
 			this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"
@@ -187,7 +207,10 @@ export default class TimelineSlider extends TimelineHitObject {
 		)) {
 			object.container.x =
 				(object.object.startTime +
-					(object instanceof TimelineSliderTail ? 36 : 0)) /
+					(object instanceof TimelineSliderTail &&
+					!(object instanceof TimelineSliderRepeat)
+						? 36
+						: 0)) /
 				(DEFAULT_SCALE / scale);
 		}
 	}
