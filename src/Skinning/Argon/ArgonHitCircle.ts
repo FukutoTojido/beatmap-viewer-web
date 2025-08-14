@@ -4,6 +4,7 @@ import Easings from "@/UI/Easings";
 import type Skin from "../Skin";
 import { BLANK_TEXTURE } from "../Skin";
 import { Easing } from "osu-classes";
+import * as d3 from "d3";
 
 export const refreshSprite = (drawable: DrawableHitCircle) => {
 	sharedRefreshSprite(drawable);
@@ -21,6 +22,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		drawable.object.startTime - drawable.object.timePreempt;
 	const fadeOutDuration = 800;
 	const flashInDuration = 150;
+	const fadeColourDuration = 80;
 
 	if (
 		time < startFadeInTime ||
@@ -36,7 +38,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	if (time < drawable.object.startTime) {
 		const baseTexture = drawable.skinManager
 			?.getCurrentSkin()
-			.getTexture("hitcircle", drawable.context.consume<Skin>("beatmapSkin"));
+			.getTexture("hitcircle");
 		if (baseTexture) drawable.hitCircleSprite.texture = baseTexture;
 
 		drawable.flashPiece.visible = false;
@@ -54,12 +56,11 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	}
 
 	if (time >= drawable.object.startTime) {
+		drawable.hitCircleSprite.tint = drawable.color;
+
 		const flashTexture = drawable.skinManager
 			?.getCurrentSkin()
-			.getTexture(
-				"hitcircleflash",
-				drawable.context.consume<Skin>("beatmapSkin"),
-			);
+			.getTexture("hitcircleflash");
 		if (flashTexture) drawable.hitCircleSprite.texture = flashTexture;
 
 		drawable.flashPiece.visible = true;
@@ -69,9 +70,13 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 			1,
 			Math.max(0, (time - drawable.object.startTime) / fadeOutDuration),
 		);
+		const fadeProgress = Math.min(
+			1,
+			Math.max(0, (time - drawable.object.startTime) / fadeColourDuration),
+		);
 		const flashOpacity = Math.min(
 			1,
-			Math.max(0, (time - drawable.object.startTime) / flashInDuration),
+			Math.max(0, (time - (drawable.object.startTime + fadeColourDuration)) / flashInDuration),
 		);
 		const flashPieceOpacity =
 			2 *
@@ -88,6 +93,16 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 			Math.max(0, (time - drawable.object.startTime) / 400),
 		);
 
+		const color = d3.color(drawable.color as string);
+		const white = d3.color("white");
+
+		if (color && white) {
+			const interpolator = d3.interpolateRgb(color, white);
+			const interpolated = interpolator(fadeProgress);
+
+			drawable.hitCircleSprite.tint = interpolated;
+		}
+
 		drawable.container.alpha = 1 - Easings.OutQuad(opacity);
 
 		drawable.hitCircleOverlay.alpha = 0.5 * (1 - Easings.OutQuad(opacity));
@@ -98,7 +113,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 			flashPieceOpacity < 0
 				? Easings.OutQuint(1 - Math.abs(flashPieceOpacity))
 				: 1 - Easings.OutQuint(flashPieceOpacity);
-		drawable.flashPiece.scale.set(1.2 - 0.2 * Easing.outElasticHalf(scale));
+		drawable.flashPiece.scale.set(1.0 - 0.2 * Easing.outElasticHalf(scale));
 
 		return;
 	}

@@ -1,9 +1,11 @@
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
+import { Clamp } from "@/utils";
 
 export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 	const startFadeInTime =
 		drawable.object.startTime - drawable.object.timePreempt;
-	const fadeOutDuration = 200;
+	const fadeOutDuration = 240;
+	const bodyFadeOutDuration = 40;
 
 	if (
 		time < startFadeInTime ||
@@ -59,11 +61,7 @@ export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 
 	if (time >= drawable.object.endTime) {
 		const opacity =
-			1 -
-			Math.min(
-				1,
-				Math.max(0, (time - drawable.object.endTime) / fadeOutDuration),
-			);
+			1 - Clamp((time - drawable.object.endTime) / bodyFadeOutDuration);
 		drawable._alphaFilter.alpha = opacity;
 		return { start, end };
 	}

@@ -69,7 +69,12 @@ export default class DrawableFollowPoints extends SkinnableElement {
 		this.container.addChild(...this.sprites);
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const followpoint = skin.getTexture("followpoint", this.context.consume<Skin>("beatmapSkin"));
+			const followpoint = skin.getTexture(
+				"followpoint",
+				this.context.consume<Skin>("beatmapSkin"),
+			);
+
+			this.container.blendMode = skin.config.General.Argon ? "add" : "normal";
 
 			if (!followpoint) return;
 			for (const sprite of this.sprites) {

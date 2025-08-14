@@ -97,7 +97,7 @@ export default class DrawableSlider
 	});
 
 	private drawableCircles: DrawableHitObject[] = [];
-	private body: Mesh<Geometry, Shader> = new Mesh({
+	public body: Mesh<Geometry, Shader> = new Mesh({
 		geometry: this._geometry,
 		shader: this._shader,
 		filters: [
@@ -333,11 +333,23 @@ export default class DrawableSlider
 	}
 
 	updateGeometry(progressHead = 0, progressTail = 0, scale = 1) {
+		let head = progressHead;
+		let tail = progressTail;
+
+		if (progressHead === progressTail) {
+			const checkDistance = 0.1 / this.object.path.distance;
+			head = Math.min(1 - checkDistance, progressHead);
+			tail = Math.min(1, progressHead + checkDistance);
+		}
+
 		const path = calculateSliderProgress(
 			this.object.path,
-			progressHead,
-			progressTail,
+			head,
+			tail,
 		);
+
+		if (!path.length) return;
+
 		const { aPosition, indexBuffer } = createGeometry(
 			path,
 			this.object.radius * (236 / 256) * scale,

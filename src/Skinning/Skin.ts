@@ -93,7 +93,7 @@ export default class Skin {
 			},
 		};
 
-		console.log(this.config)
+		console.log(this.config);
 
 		this.colorsLength = Object.keys(this.config.Colours).filter((key) =>
 			/Combo[1-8]/g.test(key),
@@ -119,7 +119,7 @@ export default class Skin {
 			"sliderfollowcircle",
 			"sliderscorepoint",
 			"reversearrow",
-			"repeat-edge-piece"
+			"repeat-edge-piece",
 		];
 
 		await Promise.all(
@@ -176,9 +176,9 @@ export default class Skin {
 
 				let audioBuffer: AudioBuffer;
 				try {
-					audioBuffer = await getFileAudioBuffer(resource, audioContext, {
-						native: true,
-					});
+					audioBuffer = await audioContext.decodeAudioData(
+						await resource.arrayBuffer(),
+					);
 				} catch (e) {
 					// console.warn(`Cannot decode ${filename}. Default to silent sample.`);
 					audioBuffer = audioContext.createBuffer(
@@ -197,7 +197,7 @@ export default class Skin {
 		const disableBeatmapSkin =
 			inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin;
 
-		if (disableBeatmapSkin)
+		if (disableBeatmapSkin || this.config.General.Argon)
 			return (
 				this.textures.get(filename) ??
 				inject<SkinManager>("skinManager")?.defaultSkin?.textures.get(filename)

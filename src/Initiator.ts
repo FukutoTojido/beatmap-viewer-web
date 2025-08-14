@@ -31,6 +31,7 @@ export async function getArgon() {
 		"reversearrow@2x.png",
 		"repeat-edge-piece@2x.png",
 		"sliderendcircle.png",
+		"sliderstartcircle@2x.png",
 		"sliderscorepoint@2x.png",
 		"skin.ini",
 	];

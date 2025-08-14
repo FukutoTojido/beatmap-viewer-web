@@ -20,9 +20,12 @@ import type Skin from "@/Skinning/Skin";
 import type TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import type DrawableSlider from "./DrawableSlider";
+import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderHead";
 
 export default class DrawableSliderHead extends DrawableHitCircle {
 	hitSound?: HitSample;
+
+	headUpdateFn: ((_: DrawableSliderHead, __: number) => void) | null = null;
 
 	constructor(
 		public object: SliderHead,
@@ -57,17 +60,47 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		const hitCircle = skin.getTexture("sliderstartcircle", this.context.consume<Skin>("beatmapSkin")) ?? skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
-		const hitCircleOverlay = skin.getTexture("sliderstartcircleoverlay") ?? skin.getTexture("hitcircleoverlay", this.context.consume<Skin>("beatmapSkin"));
+		const sliderStartCircle = skin.getTexture(
+			"sliderstartcircle",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
+
+		const sliderStartCircleOverlay = skin.getTexture(
+			"sliderstartcircleoverlay",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
+
+		const hitCircle =
+			sliderStartCircle ??
+			skin.getTexture("hitcircle", this.context.consume<Skin>("beatmapSkin"));
+		const hitCircleOverlay = sliderStartCircle
+			? (sliderStartCircleOverlay ??
+				skin.getTexture(
+					"hitcircleoverlay",
+					this.context.consume<Skin>("beatmapSkin"),
+				))
+			: skin.getTexture(
+					"hitcircleoverlay",
+					this.context.consume<Skin>("beatmapSkin"),
+				);
 
 		if (hitCircle) this.hitCircleSprite.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
 
-		const color = this.context.consume<DrawableSlider>("slider")?.getColor(skin) ?? 0xffffff;
+		this.headUpdateFn = skin.config.General.Argon ? argonUpdate : null;
+
+		const color =
+			this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+			0xffffff;
 		this.hitCircleSprite.tint = color;
 		this.flashPiece.tint = color;
 		this.color = color;
 
 		this.timelineObject?.refreshSprite();
+	}
+
+	update(time: number) {
+		super.update(time);
+		this.headUpdateFn?.(this, time);
 	}
 }

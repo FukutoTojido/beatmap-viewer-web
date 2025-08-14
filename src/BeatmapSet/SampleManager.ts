@@ -25,28 +25,21 @@ export default class SampleManager {
 				if (!resource) return;
 
 				let audioBuffer: AudioBuffer;
+
 				try {
-					audioBuffer = await getFileAudioBuffer(resource, this.audioContext);
+					audioBuffer = await this.audioContext.decodeAudioData(
+						await resource.arrayBuffer(),
+					);
 				} catch (e) {
-					try {
-						audioBuffer = await getFileAudioBuffer(
-							resource,
-							this.audioContext,
-							{
-								native: true,
-							},
-						);
-					} catch (e) {
-						// console.warn(
-						// 	`Cannot decode ${filename}. Default to silent sample.`,
-						// );
-						audioBuffer = this.audioContext.createBuffer(
-							1,
-							1,
-							this.audioContext.sampleRate,
-						);
-						return;
-					}
+					// console.warn(
+					// 	`Cannot decode ${filename}. Default to silent sample.`,
+					// );
+					audioBuffer = this.audioContext.createBuffer(
+						1,
+						1,
+						this.audioContext.sampleRate,
+					);
+					return;
 				}
 
 				const key = filename.split(".").slice(0, -1).join(".");
@@ -63,7 +56,15 @@ export default class SampleManager {
 		const currentSkin = skinManager?.currentSkin;
 		const defaultSkin = skinManager?.defaultSkin;
 
-		if (idx === 0) return currentSkin?.getHitsound(fallbackKey) ?? defaultSkin?.getHitsound(fallbackKey);
-		return this.map.get(key) ?? currentSkin?.getHitsound(fallbackKey) ?? defaultSkin?.getHitsound(fallbackKey);
+		if (idx === 0)
+			return (
+				currentSkin?.getHitsound(fallbackKey) ??
+				defaultSkin?.getHitsound(fallbackKey)
+			);
+		return (
+			this.map.get(key) ??
+			currentSkin?.getHitsound(fallbackKey) ??
+			defaultSkin?.getHitsound(fallbackKey)
+		);
 	}
 }
