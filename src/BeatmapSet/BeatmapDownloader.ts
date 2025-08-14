@@ -11,6 +11,7 @@ type BeatmapData = {
 async function getBeatmapsetId(beatmapId: string) {
 	try {
 		if (!/\d+/g.test(beatmapId)) throw new Error("beatmapId is not a number!");
+		inject<Loading>("ui/loading")?.setText("Getting beatmapsetId...");
 		const { beatmaps }: { beatmaps: BeatmapData[] } = await ky
 			.get(`https://api.try-z.net/beatmaps?ids=${beatmapId}`)
 			.json();
@@ -36,6 +37,7 @@ export async function getBeatmapFromId(beatmapId: string) {
 		throw new Error(`Map with id ${beatmapId} does not exist!!!`);
 
 	try {
+		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
 		const blob = await ky
 			.get(urlTemplate.replaceAll("$setId", beatmapsetId.toString()), {
 				headers: { Accept: "application/x-osu-beatmap-archive" },
