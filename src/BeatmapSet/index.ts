@@ -309,7 +309,7 @@ export default class BeatmapSet extends ScopedClass {
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
-		beatmap.loadHitObjects();
+		await beatmap.loadHitObjects();
 		beatmap.load();
 
 		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
@@ -341,7 +341,7 @@ export default class BeatmapSet extends ScopedClass {
 			this.slaves.add(oldMaster);
 		} else {
 			this.master?.destroy();
-			this.loadBeatmap(beatmap, 0);
+			await this.loadBeatmap(beatmap, 0);
 		}
 
 		this.master = beatmap;
@@ -350,7 +350,7 @@ export default class BeatmapSet extends ScopedClass {
 		this.setIds();
 	}
 
-	loadSlave(idx: number) {
+	async loadSlave(idx: number) {
 		const beatmap = this.difficulties[idx];
 		if (!beatmap) return;
 		if (beatmap === this.master || this.slaves.has(beatmap)) return;

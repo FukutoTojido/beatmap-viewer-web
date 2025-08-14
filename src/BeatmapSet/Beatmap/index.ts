@@ -168,17 +168,23 @@ export default class Beatmap extends ScopedClass {
 		);
 	}
 
-	loadHitObjects() {
+	async loadHitObjects() {
 		console.time("Constructing hitObjects");
-		this.objects = this.data.hitObjects
-			.map((object) => {
-				if (object instanceof Circle)
-					return new DrawableHitCircle(object).hook(this.context);
-				if (object instanceof Slider)
-					return new DrawableSlider(object).hook(this.context);
-				return null;
-			})
-			.filter((object) => object !== null);
+		this.objects = (
+			await Promise.all(
+				this.data.hitObjects.map((object) => {
+					return new Promise<DrawableHitObject | null>((resolve) => {
+						setTimeout(() => {
+							if (object instanceof Circle)
+								resolve(new DrawableHitCircle(object).hook(this.context));
+							if (object instanceof Slider)
+								resolve(new DrawableSlider(object).hook(this.context));
+							resolve(null);
+						}, 5);
+					});
+				}),
+			)
+		).filter((object) => object !== null);
 		console.timeEnd("Constructing hitObjects");
 		this.connectors = this.constructConnectors();
 		this.worker.postMessage({
