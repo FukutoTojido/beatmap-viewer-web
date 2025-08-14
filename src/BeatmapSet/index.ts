@@ -263,26 +263,6 @@ export default class BeatmapSet extends ScopedClass {
 	async loadPeripherals(beatmap: Beatmap) {
 		inject<Loading>("ui/loading")?.setText("Loading audio and background");
 
-		const storyboard = this.context.consume<Storyboard>("storyboard");
-		await Promise.all([
-			this.loadAudio(beatmap),
-			this.loadVideo(beatmap),
-			this.loadBackground(beatmap),
-			storyboard?.loadMaster(beatmap.raw),
-		]);
-		storyboard?.checkRemoveBG();
-		storyboard?.sortChildren();
-
-		await beatmap.loadTimingPoints();
-
-		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
-			beatmap.data.metadata,
-		);
-
-		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
-			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
-		);
-
 		document.title = `${beatmap.data.metadata.artist} - ${beatmap.data.metadata.title} [${beatmap.data.metadata.version}] | JoSu!`;
 
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
@@ -307,6 +287,26 @@ export default class BeatmapSet extends ScopedClass {
 		const sr = document.querySelector<HTMLSpanElement>("#masterSR");
 		if (sr)
 			sr.textContent = `${beatmap.difficultyAttributes.starRating.toFixed(2)}★`;
+
+		const storyboard = this.context.consume<Storyboard>("storyboard");
+		await Promise.all([
+			this.loadAudio(beatmap),
+			this.loadVideo(beatmap),
+			this.loadBackground(beatmap),
+			storyboard?.loadMaster(beatmap.raw),
+		]);
+		storyboard?.checkRemoveBG();
+		storyboard?.sortChildren();
+
+		await beatmap.loadTimingPoints();
+
+		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
+			beatmap.data.metadata,
+		);
+
+		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
+			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
+		);
 	}
 
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
