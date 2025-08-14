@@ -86,6 +86,7 @@ export default class Gameplay {
 							70) / 100,
 					),
 				],
+				borderRadius: 20,
 			},
 			filters: [backdropFilter],
 		});

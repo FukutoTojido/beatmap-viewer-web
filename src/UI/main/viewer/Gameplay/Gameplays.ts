@@ -131,6 +131,7 @@ export default class Gameplays {
 				paddingBottom: gameplay.container.layout?.yoga.getPadding(3).value,
 				paddingRight: gameplay.container.layout?.yoga.getPadding(2).value,
 				scale: 0,
+				borderRadius: gameplay.background.layout?.style.borderRadius ?? 20,
 			};
 
 			const newLayout = {
@@ -155,6 +156,7 @@ export default class Gameplays {
 							: 5
 						: 0,
 				scale: 1,
+				borderRadius: deserialized.length > 1 ? 20 : 0,
 			};
 
 			const tween = new Tween({
@@ -179,6 +181,7 @@ export default class Gameplays {
 							paddingLeft,
 							paddingRight,
 							scale,
+							borderRadius,
 						},
 					}) => {
 						gameplay.container.layout = {
@@ -201,6 +204,10 @@ export default class Gameplays {
 							gameplay.container.scale = 0.5 + 0.5 * scale;
 							gameplay.container.alpha = scale;
 						}
+
+						gameplay.background.layout = {
+							borderRadius: borderRadius,
+						};
 					},
 				)
 				.onComplete(() => {
@@ -223,17 +230,12 @@ export default class Gameplays {
 
 			if (deserialized.length > 1) {
 				gameplay.showDiffName();
-				gameplay.background.layout = {
-					borderRadius: 20,
-				};
+
 				gameplay.statsContainer.scale.set(
 					1 / Math.max(1, (columnsCount - 1) / 2),
 				);
 			} else {
 				gameplay.hideDiffName();
-				gameplay.background.layout = {
-					borderRadius: 0,
-				};
 				gameplay.statsContainer.scale.set(1);
 			}
 		}

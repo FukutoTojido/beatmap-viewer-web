@@ -303,10 +303,6 @@ export default class BeatmapSet extends ScopedClass {
 		inject<Metadata>("ui/sidepanel/metadata")?.updateMetadata(
 			beatmap.data.metadata,
 		);
-
-		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
-			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
-		);
 	}
 
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
@@ -335,6 +331,8 @@ export default class BeatmapSet extends ScopedClass {
 
 		const oldMaster = this.master;
 		const isSwitch = this.slaves.has(beatmap);
+		
+		await this.loadPeripherals(beatmap);
 
 		if (isSwitch && oldMaster) {
 			inject<Gameplays>("ui/main/viewer/gameplays")?.switchGameplay(
@@ -349,9 +347,12 @@ export default class BeatmapSet extends ScopedClass {
 			await this.loadBeatmap(beatmap, 0);
 		}
 
+		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(
+			beatmap.objects as (DrawableHitCircle | DrawableSlider)[],
+		);
+
 		this.master = beatmap;
 
-		await this.loadPeripherals(beatmap);
 		this.setIds();
 	}
 

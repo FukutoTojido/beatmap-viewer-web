@@ -23,6 +23,7 @@ import Gameplay from "@/UI/main/viewer/Gameplay";
 import type Timing from "@/UI/sidepanel/Timing";
 import type Timeline from "@/UI/main/viewer/Timeline";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
+import { sort } from "fast-sort";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -228,7 +229,9 @@ export default class Beatmap extends ScopedClass {
 		const approachCircleContainers = [];
 		const connectorContainers = [];
 
-		for (const idx of [...this.previousObjects].sort().toReversed()) {
+		const objs = sort([...this.previousObjects]).desc(u => this.objects[u].object.startTime);
+
+		for (const idx of objs) {
 			containers.push(this.objects[idx].container);
 			if ((this.objects[idx] as unknown as IHasApproachCircle).approachCircle)
 				approachCircleContainers.push(
