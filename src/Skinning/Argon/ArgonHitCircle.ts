@@ -34,6 +34,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 
 	drawable.container.visible = true;
 	drawable.sprite.scale.set(1);
+	drawable.hitCircleSprite.tint = drawable.color;
 
 	if (time < drawable.object.startTime) {
 		const baseTexture = drawable.skinManager
@@ -76,7 +77,11 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		);
 		const flashOpacity = Math.min(
 			1,
-			Math.max(0, (time - (drawable.object.startTime + fadeColourDuration)) / flashInDuration),
+			Math.max(
+				0,
+				(time - (drawable.object.startTime + fadeColourDuration)) /
+					flashInDuration,
+			),
 		);
 		const flashPieceOpacity =
 			2 *
