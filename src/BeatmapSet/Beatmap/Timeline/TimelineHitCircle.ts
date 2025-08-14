@@ -79,7 +79,7 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			0.299 * (col?.rgb().r / 255) +
 			0.587 * (col?.rgb().g / 255) +
 			0.114 * (col?.rgb().b / 255);
-		this.defaults.container.tint = color;
+		this.defaults.container.tint = lumi > 0.5 ? color : 0xffffff;
 		this.defaults.sprites.map((sprite) => {
 			sprite.text.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
 		});
