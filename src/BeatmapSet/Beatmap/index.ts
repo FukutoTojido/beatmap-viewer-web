@@ -64,7 +64,40 @@ export default class Beatmap extends ScopedClass {
 		this.container = new Gameplay(this);
 	}
 
-	private constructConnectors() {
+	private async constructConnectorsAsync() {
+		return await Promise.all(
+			this.data.hitObjects.map((_, i, arr) => {
+				return new Promise<DrawableFollowPoints | null>((resolve) => {
+					setTimeout(() => {
+						if (i === arr.length - 1) {
+							resolve(null);
+							return;
+						}
+
+						const startObject = arr[i];
+						const endObject = arr[i + 1];
+
+						if (endObject.isNewCombo) {
+							resolve(null);
+							return;
+						}
+
+						const distance = startObject.endPosition
+							.add(startObject.stackedOffset)
+							.distance(endObject.startPosition.add(endObject.stackedOffset));
+						if (distance < 80) {
+							resolve(null);
+							return;
+						}
+
+						resolve(new DrawableFollowPoints(startObject, endObject));
+					}, 5);
+				});
+			}),
+		);
+	}
+
+	private constructConnectorsSync() {
 		const connectors = [];
 		for (let i = 0; i < this.data.hitObjects.length - 1; i++) {
 			const startObject = this.data.hitObjects[i];
@@ -80,6 +113,15 @@ export default class Beatmap extends ScopedClass {
 		}
 
 		return connectors;
+	}
+
+	private async constructConnectors() {
+		const async = inject<ExperimentalConfig>(
+			"config/experimental",
+		)?.asyncLoading;
+
+		if (async) return await this.constructConnectorsAsync();
+		return this.constructConnectorsSync();
 	}
 
 	load() {
@@ -204,12 +246,16 @@ export default class Beatmap extends ScopedClass {
 
 	async loadHitObjects() {
 		console.time("Constructing hitObjects");
-		const async = inject<ExperimentalConfig>("config/experimental")?.asyncLoading;
+		const async = inject<ExperimentalConfig>(
+			"config/experimental",
+		)?.asyncLoading;
 		if (async) await this.loadHitObjectsAsync();
 		else this.loadHitObjectsSync();
 
 		console.timeEnd("Constructing hitObjects");
-		this.connectors = this.constructConnectors();
+		this.connectors = (await this.constructConnectors()).filter(
+			(conn) => conn !== null,
+		);
 		this.worker.postMessage({
 			type: "init",
 			objects: this.data.hitObjects
