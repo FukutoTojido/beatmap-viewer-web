@@ -24,7 +24,10 @@ export default class Main {
 		const controls = provide("ui/main/controls", new Controls());
 		const viewer = provide("ui/main/viewer", new Viewer());
 
-		this.container.addChild(viewer.container, controls.container);
+		this.container.addChild(
+			viewer.container, 
+			controls.container
+		);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
