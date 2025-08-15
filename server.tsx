@@ -58,7 +58,7 @@ app
 						data = {
 							artist: beatmapData.beatmapset.artist,
 							title: beatmapData.beatmapset.title,
-							cover: beatmapData.beatmapset.covers.list,
+							cover: beatmapData.beatmapset.covers["cover@2x"],
 							creator: beatmapData.beatmapset.creator,
 							difficulty: beatmapData.version,
 						};
@@ -93,6 +93,9 @@ app
 								content="JoSu! | osu! Beatmap Viewer"
 							/>
 							<meta property="og:url" content="https://beatmap.try-z.net" />
+							<meta property="twitter:url" content="https://beatmap.try-z.net" />
+							<meta property="twitter:domain" content="https://beatmap.try-z.net" />
+							<meta name="twitter_card" content="summary_large_image"/>
 							<title>JoSu!</title>
 							{data ? (
 								<>
@@ -100,12 +103,21 @@ app
 										property="og:title"
 										content={`${data.artist} - ${data.title} | JoSu! - osu! Beatmap Viewer`}
 									/>
+									<meta
+										name="twitter:title"
+										content={`${data.artist} - ${data.title} | JoSu! - osu! Beatmap Viewer`}
+									/>
 									<meta property="og:type" content="website" />
 									<meta
 										property="og:description"
 										content={`Difficulty: ${data.difficulty} - Mapset by ${data.creator}`}
 									/>
+									<meta
+										name="twitter:description"
+										content={`Difficulty: ${data.difficulty} - Mapset by ${data.creator}`}
+									/>
 									<meta property="og:image" content={data.cover} />
+									<meta name="twitter:image" content={data.cover} />
 								</>
 							) : (
 								<meta
