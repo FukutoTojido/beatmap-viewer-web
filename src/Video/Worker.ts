@@ -1,6 +1,6 @@
 import { AVSeekFlag, WebDemuxer } from "web-demuxer";
-import { MessageType, type WorkerPayload } from "./types";
 import { debounce } from "@/utils";
+import { MessageType, type WorkerPayload } from "./types";
 
 let engine: VideoEngine | undefined;
 
@@ -23,15 +23,15 @@ class VideoEngine {
 	timer?: NodeJS.Timeout;
 	currentFrame?: VideoFrame;
 
-	offset = 0
+	offset = 0;
 
-	constructor(_: string) {
+	constructor(origin: string) {
 		this.seek = debounce((timestamp: number) => this._seek(timestamp), 200);
 
 		this.demuxer = new WebDemuxer({
 			// ⚠️ you need to put the dist/wasm-files file in the npm package into a static directory like public
 			// making sure that the js and wasm in wasm-files are in the same directory
-			wasmLoaderPath: "https://cdn.jsdelivr.net/npm/web-demuxer@latest/dist/wasm-files/web-demuxer.wasm",
+			wasmFilePath: `${origin}/web-demuxer.wasm`,
 		});
 
 		this.decoder = new VideoDecoder({
@@ -50,7 +50,7 @@ class VideoEngine {
 		const file = new File([blob], "video.avi");
 		await this.demuxer.load(file);
 
-		const videoDecoderConfig = await this.demuxer.getVideoDecoderConfig();
+		const videoDecoderConfig = await this.demuxer.getDecoderConfig("video");
 		const videoMediaInfo = await this.demuxer.getMediaInfo();
 
 		console.log(videoDecoderConfig, videoMediaInfo);
@@ -61,7 +61,7 @@ class VideoEngine {
 		this.frameRate = +frameRateStr.split("/")[0] / +frameRateStr.split("/")[1];
 
 		const reader = this.demuxer
-			.readVideoPacket(0, undefined, AVSeekFlag.AVSEEK_FLAG_BACKWARD)
+			.readMediaPacket("video", 0, undefined, AVSeekFlag.AVSEEK_FLAG_BACKWARD)
 			.getReader();
 
 		console.time("Reading Video Chunks");
@@ -69,7 +69,7 @@ class VideoEngine {
 			const { done, value } = await reader.read();
 			if (done) break;
 
-			this.encodedChunks.push(this.demuxer.genEncodedVideoChunk(value));
+			this.encodedChunks.push(this.demuxer.genEncodedChunk("video", value));
 		}
 		console.timeEnd("Reading Video Chunks");
 		await reader.cancel();
@@ -98,8 +98,10 @@ class VideoEngine {
 		// if (this.last === 0) this.last = 1000 / this.frameRate - 1;
 		const frameTime = 1000 / this.frameRate;
 
-		if (this.startTime + now - this.absStartTime - this.offset > this.currentIndex * frameTime) {
-
+		if (
+			this.startTime + now - this.absStartTime - this.offset >
+			this.currentIndex * frameTime
+		) {
 			const i = this.currentIndex;
 
 			if (this.status === "STOP") {
@@ -210,44 +212,39 @@ class VideoEngine {
 	}
 }
 
-self.addEventListener(
-	"message",
-	(event: {
-		data: WorkerPayload;
-	}) => {
-		switch (event.data.type) {
-			case MessageType.Init: {
-				engine = new VideoEngine(event.data.data);
-				break;
-			}
-			case MessageType.Load: {
-				if (!engine) return;
-
-				engine.demux(event.data.data, event.data.offset);
-				break;
-			}
-			case MessageType.Seek: {
-				if (!engine) return;
-				engine.seek(event.data.data);
-				break;
-			}
-			case MessageType.Play: {
-				if (!engine) return;
-				// console.log("play");
-				engine.play(event.data.data);
-
-				break;
-			}
-			case MessageType.Stop: {
-				if (!engine) return;
-				// console.log("stop");
-				// console.log(engine.currentIndex);
-				engine.status = "STOP";
-				break;
-			}
+self.addEventListener("message", (event: { data: WorkerPayload }) => {
+	switch (event.data.type) {
+		case MessageType.Init: {
+			engine = new VideoEngine(event.data.data);
+			break;
 		}
-	},
-);
+		case MessageType.Load: {
+			if (!engine) return;
+
+			engine.demux(event.data.data, event.data.offset);
+			break;
+		}
+		case MessageType.Seek: {
+			if (!engine) return;
+			engine.seek(event.data.data);
+			break;
+		}
+		case MessageType.Play: {
+			if (!engine) return;
+			// console.log("play");
+			engine.play(event.data.data);
+
+			break;
+		}
+		case MessageType.Stop: {
+			if (!engine) return;
+			// console.log("stop");
+			// console.log(engine.currentIndex);
+			engine.status = "STOP";
+			break;
+		}
+	}
+});
 
 // // const frame = 1000 / 30;
 // let last = 0;

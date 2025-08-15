@@ -36,7 +36,7 @@
         "tailwindcss": "^4.1.12",
         "vite": "^6.3.5",
         "vite-plugin-node-polyfills": "^0.24.0",
-        "web-demuxer": "^2.3.8",
+        "web-demuxer": "^3.0.2",
       },
       "devDependencies": {
         "@types/bun": "^1.2.20",
@@ -1043,7 +1043,7 @@
 
     "vm-browserify": ["vm-browserify@1.1.2", "", {}, "sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ=="],
 
-    "web-demuxer": ["web-demuxer@2.3.8", "", {}, "sha512-n8bawDfHO0090/3YKkF6OGOTJKUKukOeBuVjdBVbi1RiBCkvTpaCmNYNoj2rgBDOpY3WkXibBlFltYxtQFlbsg=="],
+    "web-demuxer": ["web-demuxer@3.0.2", "", {}, "sha512-T4TzLeVhULO10XSyYNffxWTlYmw9rkwN8YfIAHye2g34sHEXP8FbTa9mqOQMuNt3ZWkgWnKw4nWJLe0XZhWDRA=="],
 
     "webidl-conversions": ["webidl-conversions@3.0.1", "", {}, "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ=="],
 

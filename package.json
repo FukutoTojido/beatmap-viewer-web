@@ -47,6 +47,6 @@
     "tailwindcss": "^4.1.12",
     "vite": "^6.3.5",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "web-demuxer": "^2.3.8"
+    "web-demuxer": "^3.0.2"
   }
 }
