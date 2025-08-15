@@ -92,11 +92,6 @@ app
 							/>
 							<meta property="og:url" content="https://beatmap.try-z.net" />
 							<title>JoSu!</title>
-							{/* {isProduction ? (
-								<link rel="stylesheet" href="assets/style.css" />
-							) : (
-								<link rel="stylesheet" href="/src/style.css" />
-							)} */}
 							{data ? (
 								<>
 									<meta
