@@ -40,7 +40,7 @@ if (vite) {
 app
 	.use(
 		cors({
-			origin: "*",
+			origin: "null",
 		}),
 	)
 	.use(html())
