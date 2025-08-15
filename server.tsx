@@ -88,10 +88,10 @@ app
 								href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
 								rel="stylesheet"
 							/>
-							{/* <meta
+							<meta
 								property="og:site_name"
 								content="JoSu! | osu! Beatmap Viewer"
-							/> */}
+							/>
 							<meta property="og:url" content="https://beatmap.try-z.net" />
 							<meta property="twitter:url" content="https://beatmap.try-z.net" />
 							<meta property="twitter:domain" content="https://beatmap.try-z.net" />
@@ -107,7 +107,7 @@ app
 										name="twitter:title"
 										content={`${data.artist} - ${data.title} | JoSu! - osu! Beatmap Viewer`}
 									/>
-									{/* <meta property="og:type" content="website" /> */}
+									<meta property="og:type" content="website" />
 									<meta
 										property="og:description"
 										content={`Difficulty: ${data.difficulty} - Mapset by ${data.creator}`}
