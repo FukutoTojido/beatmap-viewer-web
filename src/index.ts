@@ -1,10 +1,9 @@
 import "@pixi/layout";
-import 'remixicon/fonts/remixicon.css'
-import { Game } from "./Game";
-import { inject, provide } from "./Context";
 import { Assets } from "pixi.js";
-import type BeatmapSet from "./BeatmapSet";
 import type Audio from "./Audio";
+import type BeatmapSet from "./BeatmapSet";
+import { inject, provide } from "./Context";
+import { Game } from "./Game";
 
 document.addEventListener("keydown", (event) => {
 	const bms = inject<BeatmapSet>("beatmapset");
@@ -22,8 +21,12 @@ document.addEventListener("keydown", (event) => {
 			break;
 		}
 		case " ": {
-			const activeElement = document.activeElement
-			if (activeElement?.tagName === "INPUT" && activeElement?.getAttribute("type") === "text") return;
+			const activeElement = document.activeElement;
+			if (
+				activeElement?.tagName === "INPUT" &&
+				activeElement?.getAttribute("type") === "text"
+			)
+				return;
 			bms.toggle();
 		}
 	}
@@ -40,15 +43,27 @@ document.addEventListener(
 	},
 );
 
-document.querySelector<HTMLButtonElement>("#diffs")?.addEventListener("click", () => {
-	document.querySelector<HTMLDivElement>("#diffsContainer")?.classList.toggle("hidden");
-	document.querySelector<HTMLDivElement>("#diffsContainer")?.classList.toggle("flex");
-});
+document
+	.querySelector<HTMLButtonElement>("#diffs")
+	?.addEventListener("click", () => {
+		document
+			.querySelector<HTMLDivElement>("#diffsContainer")
+			?.classList.toggle("hidden");
+		document
+			.querySelector<HTMLDivElement>("#diffsContainer")
+			?.classList.toggle("flex");
+	});
 
-document.querySelector<HTMLButtonElement>("#skins")?.addEventListener("click", () => {
-	document.querySelector<HTMLDivElement>("#skinsContainer")?.classList.toggle("hidden");
-	document.querySelector<HTMLDivElement>("#skinsContainer")?.classList.toggle("flex");
-});
+document
+	.querySelector<HTMLButtonElement>("#skins")
+	?.addEventListener("click", () => {
+		document
+			.querySelector<HTMLDivElement>("#skinsContainer")
+			?.classList.toggle("hidden");
+		document
+			.querySelector<HTMLDivElement>("#skinsContainer")
+			?.classList.toggle("flex");
+	});
 
 (async () => {
 	await Promise.all([
