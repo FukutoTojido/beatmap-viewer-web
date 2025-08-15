@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun --watch server.ts",
     "build": "bun build --compile server.ts --external=lightningcss --target bun --outfile ./out/server",
-    "preview": "NODE_ENV=production ./server"
+    "preview": "NODE_ENV=production ./out/server"
   },
   "devDependencies": {
     "@types/bun": "^1.2.20"
