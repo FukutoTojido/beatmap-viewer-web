@@ -7,7 +7,13 @@ export default defineConfig({
 	plugins: [tailwindcss(), nodePolyfills()],
 	build: {
 		target: "esnext", //browsers can handle the latest ES features
+		rollupOptions: {
+			output: {
+				assetFileNames: "assets/style.css",
+			},
+		},
 	},
+
 	optimizeDeps: {
 		esbuildOptions: {
 			target: "esnext",

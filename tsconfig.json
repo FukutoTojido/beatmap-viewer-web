@@ -26,7 +26,11 @@
 
 		"paths": {
 			"@/*": ["./src/*"]
-		}
+		},
+
+		"jsx": "react",
+		"jsxFactory": "Html.createElement",
+		"jsxFragmentFactory": "Html.Fragment"
 	},
 	"include": ["src"]
 }
