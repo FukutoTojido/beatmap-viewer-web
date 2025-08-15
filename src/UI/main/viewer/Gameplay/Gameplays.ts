@@ -6,6 +6,7 @@ import FPS from "../FPS";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { Tween } from "@tweenjs/tween.js";
 import { defaultEasing, tweenGroup } from "@/UI/animation/AnimationController";
+import ExperimentalConfig from "@/Config/ExperimentalConfig";
 
 export default class Gameplays {
 	container = new Container({
@@ -21,7 +22,7 @@ export default class Gameplays {
 	addGameplay(gameplay: Gameplay, index?: number) {
 		if (index === undefined) this.gameplays.add(gameplay);
 		else {
-			const deserialized = Array(...this.gameplays);
+			const deserialized = [...this.gameplays];
 			const newArr = [
 				...deserialized.slice(0, index),
 				gameplay,
@@ -94,12 +95,21 @@ export default class Gameplays {
 				}
 			},
 		);
+
+		inject<ExperimentalConfig>("config/experimental")?.onChange(
+			"overlapGameplays",
+			() => this.reLayoutChildren(),
+		);
 	}
 
 	tweenMap: Map<Gameplay, Tween> = new Map();
 
 	reLayoutChildren(target?: Gameplay) {
-		const deserialized = Array(...this.gameplays);
+		const overlapGameplays = inject<ExperimentalConfig>(
+			"config/experimental",
+		)?.overlapGameplays;
+
+		const deserialized = [...this.gameplays];
 
 		const columnsCount = Math.ceil(Math.sqrt(this.gameplays.size));
 		const rowsCount = Math.ceil(deserialized.length / columnsCount);
@@ -109,13 +119,13 @@ export default class Gameplays {
 				: columnsCount - (deserialized.length % columnsCount);
 		const heightDenominator = Math.ceil(this.gameplays.size / columnsCount);
 
-		const w = 100 / columnsCount;
-		const h = 100 / heightDenominator;
+		const w = overlapGameplays ? 100 : 100 / columnsCount;
+		const h = overlapGameplays ? 100 : 100 / heightDenominator;
 
 		for (let i = 0; i < deserialized.length; i++) {
 			const gameplay = deserialized[i];
-			const col = i % columnsCount;
-			const row = Math.floor(i / columnsCount);
+			const col = overlapGameplays ? 0 : i % columnsCount;
+			const row = overlapGameplays ? 0 : Math.floor(i / columnsCount);
 
 			const currentTween = this.tweenMap.get(gameplay);
 			currentTween?.stop();
@@ -135,28 +145,29 @@ export default class Gameplays {
 			};
 
 			const newLayout = {
-				top: Math.floor(i / columnsCount) * h,
-				left:
-					(i % columnsCount) * w +
-					(row === rowsCount - 1 ? (w * missingLast) / 2 : 0),
+				top: overlapGameplays ? 0 : Math.floor(i / columnsCount) * h,
+				left: overlapGameplays
+					? 0
+					: (i % columnsCount) * w +
+						(row === rowsCount - 1 ? (w * missingLast) / 2 : 0),
 				width: w,
 				height: h,
-				paddingTop: deserialized.length > 1 ? (row === 0 ? 10 : 5) : 0,
+				paddingTop: w !== 100 ? (row === 0 ? 10 : 5) : 0,
 				paddingBottom:
-					deserialized.length > 1
+					w !== 100
 						? row === Math.floor((deserialized.length - 1) / columnsCount)
 							? 10
 							: 5
 						: 0,
-				paddingLeft: deserialized.length > 1 ? (col === 0 ? 10 : 5) : 0,
+				paddingLeft: w !== 100 ? (col === 0 ? 10 : 5) : 0,
 				paddingRight:
-					deserialized.length > 1
+					w !== 100
 						? col === columnsCount - 1 || i === deserialized.length - 1
 							? 10
 							: 5
 						: 0,
 				scale: 1,
-				borderRadius: deserialized.length > 1 ? 20 : 0,
+				borderRadius: w !== 100 ? 20 : 0,
 			};
 
 			const tween = new Tween({
@@ -222,13 +233,17 @@ export default class Gameplays {
 
 			tweenGroup.add(tween);
 
-			if (i !== 0) {
+			if (i !== 0 && !overlapGameplays) {
 				gameplay.showCloseButton();
 			} else {
 				gameplay.hideCloseButton();
 			}
 
-			if (deserialized.length > 1) {
+			if (overlapGameplays) {
+				gameplay.background.visible = i === deserialized.length - 1;
+			}
+
+			if (w !== 100) {
 				gameplay.showDiffName();
 
 				gameplay.statsContainer.scale.set(

@@ -52,7 +52,7 @@ app
 				if (beatmapId) {
 					try {
 						const { data: beatmapData } = await axios.get(
-							`https://api.try-z.net/b/${beatmapId}`,
+							`https://api.try-z.net/b/${beatmapId[0]}`,
 						);
 
 						data = {
@@ -143,7 +143,7 @@ app
 		},
 		{
 			query: t.Object({
-				b: t.Optional(t.Number()),
+				b: t.Optional(t.Array(t.Number())),
 			}),
 		},
 	)

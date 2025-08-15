@@ -82,6 +82,7 @@ export default class Config {
 			new ExperimentalConfig(
 				savedSettings?.experimental ?? {
 					asyncLoading: true,
+					overlapGameplays: false,
 				},
 			),
 		);
@@ -120,7 +121,7 @@ export default class Config {
 				renderer: this.renderer.jsonify(),
 				skinning: this.skinning.jsonify(),
 				timeline: this.timeline.jsonify(),
-				experimental: this.experimental.jsonify()
+				experimental: this.experimental.jsonify(),
 			}),
 		);
 	}

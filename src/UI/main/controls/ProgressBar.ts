@@ -1,14 +1,13 @@
-import type BeatmapSet from "@/BeatmapSet";
-import type Beatmap from "@/BeatmapSet/Beatmap";
-import { inject } from "@/Context";
-import type Audio from "@/Audio";
 import { LayoutContainer } from "@pixi/layout/components";
 import {
-	Graphics,
 	type ColorSource,
 	type FederatedPointerEvent,
+	Graphics,
 } from "pixi.js";
+import type Audio from "@/Audio";
+import type BeatmapSet from "@/BeatmapSet";
 import type ColorConfig from "@/Config/ColorConfig";
+import { inject } from "@/Context";
 
 export default class ProgressBar {
 	container = new LayoutContainer({

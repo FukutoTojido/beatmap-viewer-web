@@ -1,19 +1,21 @@
 import ConfigSection from "./ConfigSection";
 
 export type ExperimentalProps = {
-	asyncLoading: boolean;
+	asyncLoading?: boolean;
+	overlapGameplays?: boolean;
 };
 
 export default class ExperimentalConfig extends ConfigSection {
 	constructor(defaultOptions?: ExperimentalProps) {
 		super();
 
-        this.loadEventListeners();
+		this.loadEventListeners();
 
 		if (!defaultOptions) return;
 
-		const { asyncLoading } = defaultOptions;
-		this.asyncLoading = asyncLoading;
+		const { asyncLoading, overlapGameplays } = defaultOptions;
+		this.asyncLoading = asyncLoading ?? true;
+		this.overlapGameplays = overlapGameplays ?? false;
 	}
 
 	private _asyncLoading = true;
@@ -22,7 +24,7 @@ export default class ExperimentalConfig extends ConfigSection {
 	}
 	set asyncLoading(val: boolean) {
 		this._asyncLoading = val;
-        
+
 		const ele = document.querySelector<HTMLInputElement>("#asyncLoading");
 		if (!ele) return;
 		ele.checked = val;
@@ -30,18 +32,33 @@ export default class ExperimentalConfig extends ConfigSection {
 		this.emitChange("asyncLoading", val);
 	}
 
+	private _overlapGameplays = true;
+	get overlapGameplays() {
+		return this._overlapGameplays;
+	}
+	set overlapGameplays(val: boolean) {
+		this._overlapGameplays = val;
+
+		const ele = document.querySelector<HTMLInputElement>("#overlapGameplays");
+		if (!ele) return;
+		ele.checked = val;
+
+		this.emitChange("overlapGameplays", val);
+	}
+
 	loadEventListeners() {
 		document
-			.querySelector<HTMLInputElement>("#asyncLoading")
+			.querySelector<HTMLInputElement>("#overlapGameplays")
 			?.addEventListener("change", (event) => {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
-				this.asyncLoading = value;
+				this.overlapGameplays = value;
 			});
 	}
 
-    jsonify(): ExperimentalProps {
-        return {
-            asyncLoading: this.asyncLoading
-        }
-    }
+	jsonify(): ExperimentalProps {
+		return {
+			asyncLoading: this.asyncLoading,
+			overlapGameplays: this.overlapGameplays,
+		};
+	}
 }
