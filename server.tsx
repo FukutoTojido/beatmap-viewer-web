@@ -1,8 +1,9 @@
+import { cors } from "@elysiajs/cors";
+import { html, Html } from "@elysiajs/html";
+import { staticPlugin } from "@elysiajs/static";
+import axios from "axios";
 import { Elysia, t } from "elysia";
 import type { ViteDevServer } from "vite";
-import { staticPlugin } from "@elysiajs/static";
-import { html, Html } from "@elysiajs/html";
-import axios from "axios";
 
 const isProduction = process.env.NODE_ENV === "production";
 const htmlTemplate = isProduction
@@ -37,6 +38,7 @@ if (vite) {
 }
 
 app
+	.use(cors())
 	.use(html())
 	.get(
 		"/",

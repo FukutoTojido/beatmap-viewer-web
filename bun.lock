@@ -4,6 +4,7 @@
     "": {
       "name": "beatmap-viewer-web",
       "dependencies": {
+        "@elysiajs/cors": "^1.3.3",
         "@elysiajs/html": "^1.3.1",
         "@elysiajs/static": "^1.3.0",
         "@flatten-js/interval-tree": "^1.1.3",
@@ -46,6 +47,8 @@
     },
   },
   "packages": {
+    "@elysiajs/cors": ["@elysiajs/cors@1.3.3", "", { "peerDependencies": { "elysia": ">= 1.3.0" } }, "sha512-mYIU6PyMM6xIJuj7d27Vt0/wuzVKIEnFPjcvlkyd7t/m9xspAG37cwNjFxVOnyvY43oOd2I/oW2DB85utXpA2Q=="],
+
     "@elysiajs/html": ["@elysiajs/html@1.3.1", "", { "dependencies": { "@kitajs/html": "^4.1.0", "@kitajs/ts-html-plugin": "^4.0.1" }, "peerDependencies": { "elysia": ">= 1.3.0" } }, "sha512-jOWUfvL9vZ2Gs3uCx2w4Po+jxOwRD/sXW3JgvOAD3rEjX0NuygwcvixtbONSzAH8lFhaDBbHAtmCfpue46X9IQ=="],
 
     "@elysiajs/static": ["@elysiajs/static@1.3.0", "", { "dependencies": { "node-cache": "^5.1.2" }, "peerDependencies": { "elysia": ">= 1.3.0" } }, "sha512-7mWlj2U/AZvH27IfRKqpUjDP1W9ZRldF9NmdnatFEtx0AOy7YYgyk0rt5hXrH6wPcR//2gO2Qy+k5rwswpEhJA=="],
