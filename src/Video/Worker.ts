@@ -25,13 +25,13 @@ class VideoEngine {
 
 	offset = 0
 
-	constructor(origin: string) {
+	constructor(_: string) {
 		this.seek = debounce((timestamp: number) => this._seek(timestamp), 200);
 
 		this.demuxer = new WebDemuxer({
 			// ⚠️ you need to put the dist/wasm-files file in the npm package into a static directory like public
 			// making sure that the js and wasm in wasm-files are in the same directory
-			wasmLoaderPath: `${origin}/ffmpeg/ffmpeg.js`,
+			wasmLoaderPath: "https://cdn.jsdelivr.net/npm/web-demuxer@latest/dist/wasm-files/web-demuxer.wasm",
 		});
 
 		this.decoder = new VideoDecoder({

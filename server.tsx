@@ -38,11 +38,7 @@ if (vite) {
 }
 
 app
-	.use(
-		cors({
-			origin: "null",
-		}),
-	)
+	.use(cors())
 	.use(html())
 	.get(
 		"/",
