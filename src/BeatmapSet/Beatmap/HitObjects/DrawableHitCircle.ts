@@ -60,9 +60,6 @@ export default class DrawableHitCircle
 
 		this.flashPiece.anchor.set(0.5);
 		this.flashPiece.blendMode = "add";
-		this.flashPiece.filters = [
-			new BlurFilter({ kernelSize: 9, strength: 1, quality: 5 }),
-		];
 
 		this.hitCircleSprite.anchor.set(0.5);
 		this.hitCircleSprite.alpha = 0.9;

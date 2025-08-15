@@ -25,6 +25,7 @@ export async function getArgon() {
 		"timelinehitcircle@2x.png",
 		"hitcircle@2x.png",
 		"hitcircleflash@2x.png",
+		"hitcircleglow@2x.png",
 		"hitcircleoverlay@2x.png",
 		"sliderb0@2x.png",
 		"slidernd@2x.png",

@@ -11,7 +11,7 @@ export const refreshSprite = (drawable: DrawableHitCircle) => {
 
 	const flashTexture = drawable.skinManager
 		?.getCurrentSkin()
-		.getTexture("hitcircleflash");
+		.getTexture("hitcircleglow");
 
 	drawable.flashPiece.texture = flashTexture ?? BLANK_TEXTURE;
 	drawable.container.scale.set(drawable.object.scale * 0.95);
