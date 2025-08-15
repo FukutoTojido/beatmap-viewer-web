@@ -239,9 +239,8 @@ export default class Gameplays {
 				gameplay.hideCloseButton();
 			}
 
-			if (overlapGameplays) {
-				gameplay.background.visible = i === deserialized.length - 1;
-			}
+			gameplay.background.visible =
+				!overlapGameplays || i === deserialized.length - 1;
 
 			if (w !== 100) {
 				gameplay.showDiffName();
