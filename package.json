@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --watch server.ts",
-    "build": "NODE_ENV=production bun build --compile server.ts --external=lightningcss --target bun --outfile ./out",
+    "build": "NODE_ENV=production vite build && bun build --compile server.ts --external=lightningcss --target bun --outfile ./out",
     "preview": "./out"
   },
   "devDependencies": {
