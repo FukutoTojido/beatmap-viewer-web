@@ -56,7 +56,7 @@ app
 						data = {
 							artist: beatmapData.beatmapset.artist,
 							title: beatmapData.beatmapset.title,
-							cover: beatmapData.beatmapset.covers.cover,
+							cover: beatmapData.beatmapset.covers.list,
 							creator: beatmapData.beatmapset.creator,
 							difficulty: beatmapData.version,
 						};
