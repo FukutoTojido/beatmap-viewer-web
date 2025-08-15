@@ -41,7 +41,7 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 		4.0,
 	);
 	drawable._shader.resources.customUniforms.uniforms.borderWidth = 0.128 * 1.65;
-	drawable._shader.resources.customUniforms.uniforms.bodyAlpha = 1.0;
+	drawable._shader.resources.customUniforms.uniforms.bodyAlpha = 0.92;
 
 	drawable.timelineObject?.refreshSprite();
 };

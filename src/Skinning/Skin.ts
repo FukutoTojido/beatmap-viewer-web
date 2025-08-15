@@ -6,6 +6,7 @@ import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
 import { inject } from "@/Context";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import type SkinManager from "./SkinManager";
+import type { SkinMetadata } from "./SkinManager";
 
 type SkinConfig = {
 	General: {
@@ -62,7 +63,10 @@ export default class Skin {
 	hitsounds = new Map<string, AudioBuffer>();
 	colorsLength = 4;
 
-	constructor(private resources?: Map<string, Resource>) {}
+	constructor(
+		private resources?: Map<string, Resource>,
+		public metadata?: SkinMetadata,
+	) {}
 
 	async init() {
 		await this.loadConfig();

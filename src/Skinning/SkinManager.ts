@@ -8,7 +8,7 @@ import Loading from "@/UI/loading";
 
 export type SkinEventCallback = (skin: Skin) => void;
 
-type SkinMetadata = {
+export type SkinMetadata = {
 	type: "DEFAULT" | "CUSTOM" | "ARGON";
 	name: string;
 	resources: Map<string, Resource>;
@@ -21,6 +21,25 @@ export default class SkinManager {
 	indexed = new Database();
 
 	private callbacks = new Set<SkinEventCallback>();
+
+	constructor() {
+		document.querySelector<HTMLButtonElement>("#reloadDefaultSkins")?.addEventListener("click", async () => {
+			await this.indexed.remove("default");
+			await this.indexed.remove("yugen");
+			await this.indexed.remove("argon");
+
+			await this.loadDefaultSkins();
+			await this.refreshSkinList();
+
+			const currentSkin = this.getCurrentSkin();
+			if (currentSkin?.metadata?.type === "CUSTOM") return;
+
+			const idx = this.skins.findIndex(skin => skin.name === currentSkin?.metadata?.name);
+			if (this.skins[idx].type === "CUSTOM" || idx === -1) return;
+
+			await this.loadSkin(idx);
+		})
+	}
 
 	addSkinChangeListener(callback: SkinEventCallback) {
 		this.callbacks.add(callback);
@@ -39,36 +58,7 @@ export default class SkinManager {
 
 	async loadSkins() {
 		await this.indexed.init();
-		const allKeys = await this.indexed.getAllKeys();
-
-		if (!(allKeys as unknown[]).includes("default")) {
-			await this.indexed.add(
-				{
-					type: "DEFAULT",
-					name: "Default",
-					resources: await getDefaultLegacy(),
-				},
-				"default",
-			);
-		}
-
-		if (!(allKeys as unknown[]).includes("yugen")) {
-			await this.indexed.add(
-				{ type: "DEFAULT", name: "YUGEN", resources: await getYugen() },
-				"yugen",
-			);
-		}
-
-		if (!(allKeys as unknown[]).includes("argon")) {
-			await this.indexed.add(
-				{
-					type: "ARGON",
-					name: "Argon",
-					resources: await getArgon(),
-				},
-				"argon",
-			);
-		}
+		await this.loadDefaultSkins();
 
 		const skins = await this.indexed.getAll();
 		this.skins.push(...(skins as SkinMetadata[]));
@@ -117,7 +107,7 @@ export default class SkinManager {
 		if (selectedSkin.type === "DEFAULT" && selectedSkin.name === "Default") {
 			this.currentSkin = this.defaultSkin;
 		} else {
-			this.currentSkin = new Skin(selectedSkin?.resources);
+			this.currentSkin = new Skin(selectedSkin?.resources, selectedSkin);
 			await this.currentSkin.init();
 		}
 
@@ -131,10 +121,14 @@ export default class SkinManager {
 		const skin = new Skin(resources);
 		await skin.init();
 
+		const metadata: SkinMetadata = { type: "CUSTOM", name: skin.config.General.Name, resources }
+
 		await this.indexed.add(
-			{ type: "CUSTOM", name: skin.config.General.Name, resources },
+			metadata,
 			`${skin.config.General.Name}-${Date.now()}`,
 		);
+
+		skin.metadata = metadata;
 
 		this.currentSkin = skin;
 
@@ -203,6 +197,39 @@ export default class SkinManager {
 			div?.append(button);
 			if (skin.type === "CUSTOM") div?.append(button2);
 			el?.append(div);
+		}
+	}
+
+	async loadDefaultSkins() {
+		const allKeys = await this.indexed.getAllKeys();
+
+		if (!(allKeys as unknown[]).includes("default")) {
+			await this.indexed.add(
+				{
+					type: "DEFAULT",
+					name: "Default",
+					resources: await getDefaultLegacy(),
+				},
+				"default",
+			);
+		}
+
+		if (!(allKeys as unknown[]).includes("yugen")) {
+			await this.indexed.add(
+				{ type: "DEFAULT", name: "YUGEN", resources: await getYugen() },
+				"yugen",
+			);
+		}
+
+		if (!(allKeys as unknown[]).includes("argon")) {
+			await this.indexed.add(
+				{
+					type: "ARGON",
+					name: "Argon",
+					resources: await getArgon(),
+				},
+				"argon",
+			);
 		}
 	}
 }
