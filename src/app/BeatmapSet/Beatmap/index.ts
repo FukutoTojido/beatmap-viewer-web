@@ -127,12 +127,9 @@ export default class Beatmap extends ScopedClass {
 			const endObject = this.data.hitObjects[i + 1];
 			if (endObject.isNewCombo) continue;
 
-			const distance = startObject.endPosition
-				.add(startObject.stackedOffset)
-				.distance(endObject.startPosition.add(endObject.stackedOffset));
-			if (distance < 80) continue;
-
-			this.connectors[j++]?.updateObjects(startObject, endObject);
+			// console.log(this.connectors[j].startObject.startTime, this.connectors[j].endObject.startTime, startObject.startTime, endObject.startTime)
+			this.connectors[j]?.updateObjects(startObject, endObject);
+			j++;
 		}
 
 		if (this.context.consume<BeatmapSet>("beatmapset")?.master !== this) return;
@@ -179,14 +176,6 @@ export default class Beatmap extends ScopedClass {
 							return;
 						}
 
-						const distance = startObject.endPosition
-							.add(startObject.stackedOffset)
-							.distance(endObject.startPosition.add(endObject.stackedOffset));
-						if (distance < 80) {
-							resolve(null);
-							return;
-						}
-
 						resolve(new DrawableFollowPoints(startObject, endObject));
 					}, 5);
 				});
@@ -200,11 +189,6 @@ export default class Beatmap extends ScopedClass {
 			const startObject = this.data.hitObjects[i];
 			const endObject = this.data.hitObjects[i + 1];
 			if (endObject.isNewCombo) continue;
-
-			const distance = startObject.endPosition
-				.add(startObject.stackedOffset)
-				.distance(endObject.startPosition.add(endObject.stackedOffset));
-			if (distance < 80) continue;
 
 			connectors.push(new DrawableFollowPoints(startObject, endObject));
 		}
