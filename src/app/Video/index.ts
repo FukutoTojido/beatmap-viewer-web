@@ -2,7 +2,7 @@ import { inject } from "@/Context";
 import { MessageType, type WorkerPayload } from "./types";
 import VideoWorker from "./Worker.ts?worker";
 import type Background from "@/UI/main/viewer/Background";
-import type BackgroundConfig from "@/Config/BackgroundConfig";
+import BackgroundConfig from "@/Config/BackgroundConfig";
 import type BeatmapSet from "@/BeatmapSet";
 import type Audio from "@/Audio";
 
@@ -24,6 +24,7 @@ export default class Video {
 			}) => {
 				switch (event.data.type) {
 					case MessageType.Frame: {
+						if (!inject<BackgroundConfig>("config/background")?.video) break;
 						inject<Background>("ui/main/viewer/background")?.updateFrame(
 							event.data.data as VideoFrame,
 						);
