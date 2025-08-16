@@ -1,19 +1,10 @@
-import {
-	StandardBeatmap,
-	type StandardHitObject,
-	type Circle,
-	type Slider,
-} from "osu-standard-stable";
-import { Assets, Container, Graphics, Sprite, type Texture } from "pixi.js";
-import type Skin from "@/Skinning/Skin";
-import { inject } from "@/Context";
-import type SkinManager from "@/Skinning/SkinManager";
-import SkinnableElement from "./SkinnableElement";
+import type { Slider } from "osu-standard-stable";
+import { Container, Sprite } from "pixi.js";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderBall";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacySliderBall";
-import type Beatmap from "..";
-import type SkinningConfig from "@/Config/SkinningConfig";
+import type Skin from "@/Skinning/Skin";
 import type DrawableSlider from "./DrawableSlider";
+import SkinnableElement from "./SkinnableElement";
 
 export default class DrawableSliderBall extends SkinnableElement {
 	container: Container;
@@ -21,10 +12,10 @@ export default class DrawableSliderBall extends SkinnableElement {
 	slidernd: Sprite;
 	updateFn = legacyUpdate;
 
-	constructor(
-		public object: Slider,
-	) {
+	constructor(object: Slider) {
 		super();
+		this.object = object;
+
 		const currentSkin = this.skinManager?.getCurrentSkin();
 		this.container = new Container();
 
@@ -62,16 +53,43 @@ export default class DrawableSliderBall extends SkinnableElement {
 		);
 	}
 
+	private _object!: Slider;
+	get object() {
+		return this._object;
+	}
+
+	set object(val: Slider) {
+		this._object = val;
+
+		if (this.container) {
+			this.container.x = val.startX;
+			this.container.y = val.startY;
+			this.container.scale.set(val.scale);
+		}
+	}
+
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
 		const sliderb =
-			skin.getTexture("sliderb", !skin.config.General.Argon ? this.context.consume<Skin>("beatmapSkin") : undefined) ??
-			skin.getTexture("sliderb0", !skin.config.General.Argon ? this.context.consume<Skin>("beatmapSkin") : undefined);
+			skin.getTexture(
+				"sliderb",
+				!skin.config.General.Argon
+					? this.context.consume<Skin>("beatmapSkin")
+					: undefined,
+			) ??
+			skin.getTexture(
+				"sliderb0",
+				!skin.config.General.Argon
+					? this.context.consume<Skin>("beatmapSkin")
+					: undefined,
+			);
 		const sliderg = skin.getTexture(
 			"slidernd",
-			!skin.config.General.Argon ? this.context.consume<Skin>("beatmapSkin") : undefined,
+			!skin.config.General.Argon
+				? this.context.consume<Skin>("beatmapSkin")
+				: undefined,
 		);
 
 		this.container.alpha = 1;
@@ -84,7 +102,9 @@ export default class DrawableSliderBall extends SkinnableElement {
 			this.object.scale * (skin.config.General.Argon ? 0.95 : 1),
 		);
 		this.updateFn = skin.config.General.Argon ? argonUpdate : legacyUpdate;
-		this.slidernd.tint = this.context.consume<DrawableSlider>("slider")?.getColor(skin) ?? 0xffffff;
+		this.slidernd.tint =
+			this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+			0xffffff;
 	}
 
 	update(time: number) {
@@ -99,7 +119,7 @@ export default class DrawableSliderBall extends SkinnableElement {
 			slider.spans,
 		);
 		const end = slider.path.curvePositionAt(
-			Math.min(1, completionProgress + checkDistance), 
+			Math.min(1, completionProgress + checkDistance),
 			slider.spans,
 		);
 		const diff = start.subtract(end);

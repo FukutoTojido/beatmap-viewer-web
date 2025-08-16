@@ -1,18 +1,6 @@
-import {
-	StandardBeatmap,
-	type StandardHitObject,
-	type Circle,
-	type Slider,
-	type SliderRepeat,
-} from "osu-standard-stable";
-import type { HitSample as Sample, SamplePoint } from "osu-classes";
-import { Container, Graphics, Sprite } from "pixi.js";
-import DrawableHitObject from "./DrawableHitObject";
-import type { Context } from "../../../Context";
-import type DrawableApproachCircle from "./DrawableApproachCircle";
-import HitSample from "../../../Audio/HitSample";
-import type Beatmap from "..";
-import DrawableSliderHead from "./DrawableSliderHead";
+import type { HitSample as Sample } from "osu-classes";
+import type { Slider, SliderHead, SliderRepeat } from "osu-standard-stable";
+import { Container, Sprite } from "pixi.js";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonReverseArrow";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacyReverseArrow";
 import type Skin from "@/Skinning/Skin";
@@ -25,16 +13,16 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 	});
 
 	ringPiece = new Sprite({
-		anchor: 0.5
-	})
+		anchor: 0.5,
+	});
 
 	rotation!: number;
 
 	arrowContainer = new Container();
 
 	constructor(
-		public object: SliderRepeat,
-		parent: Slider,
+		object: SliderRepeat,
+		public parent: Slider,
 		samples: Sample[],
 	) {
 		super(object, parent, samples);
@@ -49,6 +37,12 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 		this.updateRotation();
 	}
 
+	updateObjects(object: SliderHead, parent: Slider, samples: Sample[]): void {
+		super.updateObjects(object, parent, samples);
+		this.parent = parent;
+		this.updateRotation();
+	}
+
 	arrowUpdateFn = legacyUpdate;
 
 	refreshSprite(): void {
@@ -59,7 +53,9 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
-		this.arrowUpdateFn = skin?.config.General.Argon ? argonUpdate : legacyUpdate;
+		this.arrowUpdateFn = skin?.config.General.Argon
+			? argonUpdate
+			: legacyUpdate;
 
 		const reverseArrow = skin.getTexture(
 			"reversearrow",
@@ -71,11 +67,13 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 			"repeat-edge-piece",
 			this.context.consume<Skin>("beatmapSkin"),
 		);
-		this.ringPiece.texture = skin?.config.General.Argon ? ringPiece ?? BLANK_TEXTURE : BLANK_TEXTURE;
+		this.ringPiece.texture = skin?.config.General.Argon
+			? (ringPiece ?? BLANK_TEXTURE)
+			: BLANK_TEXTURE;
 	}
 
 	updateRotation() {
-		const isAtEnd = this.object.repeatIndex % 2 === 0;
+		const isAtEnd = (this.object as SliderRepeat).repeatIndex % 2 === 0;
 
 		const first = isAtEnd ? this.parent.path.calculatedPath.length - 1 : 0;
 		let next = first;

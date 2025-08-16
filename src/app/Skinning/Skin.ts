@@ -1,14 +1,12 @@
-import { Assets, Texture } from "pixi.js";
-import type { Resource } from "../ZipHandler";
 import { parse } from "js-ini";
-// @ts-ignore
-import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
-import { inject } from "@/Context";
+import { Assets, Texture } from "pixi.js";
 import type SkinningConfig from "@/Config/SkinningConfig";
+import { inject } from "@/Context";
+import type { Resource } from "../ZipHandler";
 import type SkinManager from "./SkinManager";
 import type { SkinMetadata } from "./SkinManager";
 
-type SkinConfig = {
+export type SkinConfig = {
 	General: {
 		Name: string;
 		Author?: string;
@@ -146,7 +144,7 @@ export default class Skin {
 					texture.update();
 
 					this.textures.set(filename, texture);
-				} catch (e) {
+				} catch {
 					return;
 				}
 			}),
@@ -185,7 +183,7 @@ export default class Skin {
 					audioBuffer = await audioContext.decodeAudioData(
 						await resource.arrayBuffer(),
 					);
-				} catch (e) {
+				} catch {
 					// console.warn(`Cannot decode ${filename}. Default to silent sample.`);
 					audioBuffer = audioContext.createBuffer(
 						1,

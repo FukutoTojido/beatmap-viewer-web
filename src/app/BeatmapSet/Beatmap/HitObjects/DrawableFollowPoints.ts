@@ -1,12 +1,9 @@
 import type { Vector2 } from "osu-classes";
 import type { Slider, StandardHitObject } from "osu-standard-stable";
-import { Assets, Container, Graphics, Sprite, type Texture } from "pixi.js";
-import Easings from "../../../UI/Easings";
-import { inject } from "@/Context";
-import type Skin from "@/Skinning/Skin";
-import type SkinManager from "@/Skinning/SkinManager";
-import SkinnableElement from "./SkinnableElement";
+import { Container, Sprite } from "pixi.js";
 import { update } from "@/Skinning/Shared/FollowPoints";
+import type Skin from "@/Skinning/Skin";
+import SkinnableElement from "./SkinnableElement";
 
 export default class DrawableFollowPoints extends SkinnableElement {
 	container: Container = new Container();
@@ -81,6 +78,33 @@ export default class DrawableFollowPoints extends SkinnableElement {
 				sprite.texture = followpoint;
 			}
 		});
+	}
+
+	updateObjects(startObject: StandardHitObject, endObject: StandardHitObject) {
+		this.startObject = startObject;
+		this.endObject = endObject;
+
+		this.timePreempt = startObject.timePreempt;
+		this.startTime =
+			(this.startObject as unknown as Slider).endTime ??
+			this.startObject.startTime;
+		this.endTime = this.endObject.startTime;
+
+		this.startPosition = this.startObject.endPosition.add(
+			this.startObject.stackedOffset,
+		);
+		this.endPosition = this.endObject.startPosition.add(
+			this.endObject.stackedOffset,
+		);
+
+		this.distance = this.endPosition.distance(this.startPosition);
+
+		const vector = this.endPosition.subtract(this.startPosition).normalize();
+		const angle = Math.atan2(vector.y, vector.x);
+
+		this.container.x = this.startPosition.x;
+		this.container.y = this.startPosition.y;
+		this.container.rotation = angle;
 	}
 
 	update(time: number) {

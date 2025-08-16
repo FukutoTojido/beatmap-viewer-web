@@ -1,9 +1,9 @@
+import * as d3 from "d3";
 import type { Slider, SliderHead } from "osu-standard-stable";
+import type Skin from "@/Skinning/Skin";
+import DrawableDefaults from "../HitObjects/DrawableDefaults";
 import type DrawableSlider from "../HitObjects/DrawableSlider";
 import TimelineHitCircle from "./TimelineHitCircle";
-import DrawableDefaults from "../HitObjects/DrawableDefaults";
-import type Skin from "@/Skinning/Skin";
-import * as d3 from "d3";
 
 export default class TimelineSliderHead extends TimelineHitCircle {
 	constructor(object: SliderHead, parent: Slider) {
@@ -39,7 +39,7 @@ export default class TimelineSliderHead extends TimelineHitCircle {
 		this.hitCircle.tint = color;
 		this.defaults.container.tint = 0xffffff;
 		this.defaults.sprites.map((sprite) => {
-			sprite.text.tint = 0xffffff;
+			sprite.tint = 0xffffff;
 		});
 
 		if (!skin.config.General.Argon) return;
@@ -53,7 +53,7 @@ export default class TimelineSliderHead extends TimelineHitCircle {
 			0.114 * (col?.rgb().b / 255);
 		this.defaults.container.tint = lumi > 0.5 ? color : 0xffffff;
 		this.defaults.sprites.map((sprite) => {
-			sprite.text.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
+			sprite.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
 		});
 	}
 }

@@ -17,11 +17,11 @@ export class Context {
 	private parent?: Context
 
 	provide<T>(key: string, value: T): T {
-		if (this._map.has(key)) {
-			throw new Error(
-				"You cannot re-provide an already provided key-value pair!!!",
-			);
-		}
+		// if (this._map.has(key)) {
+		// 	throw new Error(
+		// 		"You cannot re-provide an already provided key-value pair!!!",
+		// 	);
+		// }
 
 		this._map.set(key, value);
 		return value;

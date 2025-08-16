@@ -1,14 +1,12 @@
+import * as d3 from "d3";
 import type { Circle } from "osu-standard-stable";
-import TimelineHitObject from "./TimelineHitObject";
-import { Container, Graphics, Sprite } from "pixi.js";
-import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
-import { type Context, inject } from "@/Context";
-import type TimelineConfig from "@/Config/TimelineConfig";
-import type DrawableHitCircle from "../HitObjects/DrawableHitCircle";
-import DrawableDefaults from "../HitObjects/DrawableDefaults";
+import { Sprite } from "pixi.js";
+import type { Context } from "@/Context";
 import type Skin from "@/Skinning/Skin";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
-import * as d3 from "d3";
+import DrawableDefaults from "../HitObjects/DrawableDefaults";
+import type DrawableHitCircle from "../HitObjects/DrawableHitCircle";
+import TimelineHitObject from "./TimelineHitObject";
 
 export default class TimelineHitCircle extends TimelineHitObject {
 	hitCircle: Sprite;
@@ -35,6 +33,16 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		);
 
 		this.refreshSprite();
+	}
+
+	get object() {
+		return this._object;
+	}
+
+	set object(val: Circle) {
+		super.object = val;
+		this._object = val;
+		if (this.defaults) this.defaults.object = val;
 	}
 
 	refreshSprite() {
@@ -67,7 +75,7 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		this.hitCircle.tint = color;
 		this.defaults.container.tint = 0xffffff;
 		this.defaults.sprites.map((sprite) => {
-			sprite.text.tint = 0xffffff;
+			sprite.tint = 0xffffff;
 		});
 
 		if (!skin.config.General.Argon) return;
@@ -81,7 +89,7 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			0.114 * (col?.rgb().b / 255);
 		this.defaults.container.tint = lumi > 0.5 ? color : 0xffffff;
 		this.defaults.sprites.map((sprite) => {
-			sprite.text.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
+			sprite.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
 		});
 	}
 

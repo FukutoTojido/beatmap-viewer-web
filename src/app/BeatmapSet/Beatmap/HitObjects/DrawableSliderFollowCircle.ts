@@ -1,20 +1,18 @@
 import type { Slider } from "osu-standard-stable";
-import { Assets, Graphics, Sprite, type Texture } from "pixi.js";
-import Easings from "../../../UI/Easings";
-import { inject } from "@/Context";
-import type Skin from "@/Skinning/Skin";
-import type SkinManager from "@/Skinning/SkinManager";
-import SkinnableElement from "./SkinnableElement";
+import { Sprite } from "pixi.js";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderFollowCircle";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacySliderFollowCircle";
+import type Skin from "@/Skinning/Skin";
 import type DrawableSlider from "./DrawableSlider";
+import SkinnableElement from "./SkinnableElement";
 
 export default class DrawableSliderFollowCircle extends SkinnableElement {
 	container;
 	updateFn = legacyUpdate;
 
-	constructor(public object: Slider) {
+	constructor(object: Slider) {
 		super();
+		this.object = object;
 
 		this.container = new Sprite(
 			this.skinManager?.getCurrentSkin().getTexture("sliderfollowcircle"),
@@ -25,9 +23,24 @@ export default class DrawableSliderFollowCircle extends SkinnableElement {
 		this.container.anchor.set(0.5);
 		this.container.scale.set(this.object.scale);
 
-		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) =>
+		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
 		);
+	}
+
+	private _object!: Slider;
+	get object() {
+		return this._object;
+	}
+
+	set object(val: Slider) {
+		this._object = val;
+
+		if (this.container) {
+			this.container.x = val.startX;
+			this.container.y = val.startY;
+			this.container.scale.set(val.scale);
+		}
 	}
 
 	refreshSprite() {
@@ -38,7 +51,9 @@ export default class DrawableSliderFollowCircle extends SkinnableElement {
 
 		const sliderFollowCircle = skin.getTexture(
 			"sliderfollowcircle",
-			skin.config.General.Argon ? this.context.consume<Skin>("beatmapSkin") : undefined
+			skin.config.General.Argon
+				? this.context.consume<Skin>("beatmapSkin")
+				: undefined,
 		);
 
 		if (!sliderFollowCircle) return;

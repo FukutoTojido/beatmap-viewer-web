@@ -1,26 +1,12 @@
-import {
-	StandardBeatmap,
-	type StandardHitObject,
-	type Circle,
-	type SliderHead,
-	type Slider,
-} from "osu-standard-stable";
-import type { HitSample as Sample, SamplePoint } from "osu-classes";
-import { Container, Graphics } from "pixi.js";
-import DrawableHitObject, {
-	type IHasApproachCircle,
-} from "./DrawableHitObject";
-import { inject, type Context } from "../../../Context";
-import DrawableApproachCircle from "./DrawableApproachCircle";
+import type { HitSample as Sample } from "osu-classes";
+import type { Slider, SliderHead } from "osu-standard-stable";
+import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderHead";
+import type Skin from "@/Skinning/Skin";
 import HitSample from "../../../Audio/HitSample";
-import type Beatmap from "..";
+import DrawableApproachCircle from "./DrawableApproachCircle";
 import DrawableDefaults from "./DrawableDefaults";
 import DrawableHitCircle from "./DrawableHitCircle";
-import type Skin from "@/Skinning/Skin";
-import type TimelineHitCircle from "../Timeline/TimelineHitCircle";
-import type SkinningConfig from "@/Config/SkinningConfig";
 import type DrawableSlider from "./DrawableSlider";
-import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderHead";
 
 export default class DrawableSliderHead extends DrawableHitCircle {
 	hitSound?: HitSample;
@@ -28,8 +14,8 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 	headUpdateFn: ((_: DrawableSliderHead, __: number) => void) | null = null;
 
 	constructor(
-		public object: SliderHead,
-		protected parent: Slider,
+		object: SliderHead,
+		parent: Slider,
 		samples: Sample[],
 		hasNumber = true,
 	) {
@@ -51,6 +37,14 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 		this.timelineObject = undefined;
 
 		this.refreshSprite();
+	}
+
+	updateObjects(object: SliderHead, parent: Slider, samples: Sample[]) {
+		super.object = object;
+		this._object = object;
+		if (this.defaults) this.defaults.object = parent;
+		if (this.approachCircle) this.approachCircle.object = parent;
+		if (this.hitSound) this.hitSound.hitSamples = samples;
 	}
 
 	refreshSprite() {

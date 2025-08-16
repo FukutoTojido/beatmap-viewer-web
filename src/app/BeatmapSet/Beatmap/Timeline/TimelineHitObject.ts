@@ -1,26 +1,33 @@
+import type { StandardHitObject } from "osu-standard-stable";
+import { Container } from "pixi.js";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject } from "@/Context";
-import type Timeline from "@/UI/main/viewer/Timeline";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
-import type { Circle, StandardHitObject } from "osu-standard-stable";
-import { Container } from "pixi.js";
 import SkinnableElement from "../HitObjects/SkinnableElement";
 
 export default abstract class TimelineHitObject extends SkinnableElement {
 	container: Container = new Container({
 		visible: false,
 	});
-	constructor(public object: StandardHitObject) {
+	constructor(object: StandardHitObject) {
 		super();
-
-		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
-
-		this.container.x = this.object.startTime / (DEFAULT_SCALE / scale);
+		this.object = object;
 		this.container.y = 40;
 
 		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newValue) => {
 			this.container.x = this.object.startTime / (DEFAULT_SCALE / newValue);
 		});
+	}
+
+	protected _object!: StandardHitObject;
+	get object() {
+		return this._object;
+	}
+	set object(val: StandardHitObject) {
+		this._object = val;
+
+		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
+		this.container.x = val.startTime / (DEFAULT_SCALE / scale);
 	}
 
 	abstract getTimeRange(): { start: number; end: number };

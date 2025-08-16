@@ -1,18 +1,8 @@
-import { BlurFilter, Container, Sprite, type ColorSource } from "pixi.js";
-import DrawableHitObject, {
-	type IHasApproachCircle,
-} from "./DrawableHitObject";
-import DrawableApproachCircle from "./DrawableApproachCircle";
-import HitSample from "@/Audio/HitSample";
 import type { SamplePoint } from "osu-classes";
-import type Beatmap from "..";
-import DrawableDefaults from "./DrawableDefaults";
-import { update } from "@/Skinning/Legacy/LegacyHitCircle";
-import { inject, type Context } from "@/Context";
-import TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import type { StandardHitObject } from "osu-standard-stable";
-import type Skin from "@/Skinning/Skin";
-import type SkinningConfig from "@/Config/SkinningConfig";
+import { type ColorSource, Container, Sprite } from "pixi.js";
+import HitSample from "@/Audio/HitSample";
+import type { Context } from "@/Context";
 import {
 	refreshSprite as argonRefreshSprite,
 	update as argonUpdate,
@@ -21,6 +11,13 @@ import {
 	refreshSprite as legacyRefreshSprite,
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacyHitCircle";
+import type Beatmap from "..";
+import TimelineHitCircle from "../Timeline/TimelineHitCircle";
+import DrawableApproachCircle from "./DrawableApproachCircle";
+import DrawableDefaults from "./DrawableDefaults";
+import DrawableHitObject, {
+	type IHasApproachCircle,
+} from "./DrawableHitObject";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -46,13 +43,13 @@ export default class DrawableHitCircle
 	updateFn = legacyUpdate;
 
 	constructor(
-		public object: StandardHitObject,
+		object: StandardHitObject,
 		protected hasNumber = true,
 	) {
 		super(object);
+		this.object = object;
+
 		this.container.visible = false;
-		this.container.x = object.startX + object.stackedOffset.x;
-		this.container.y = object.startY + object.stackedOffset.y;
 
 		this.hitCircleSprite = new Sprite();
 		this.hitCircleOverlay = new Sprite();
@@ -76,7 +73,6 @@ export default class DrawableHitCircle
 			this.container.addChild(this.defaults.container);
 		}
 
-		this.container.scale.set(object.scale);
 		this.hitSound = new HitSample(object.samples).hook(this.context);
 
 		this.refreshSprite();
@@ -85,6 +81,23 @@ export default class DrawableHitCircle
 		);
 
 		this.timelineObject = new TimelineHitCircle(object).hook(this.context);
+	}
+
+	protected _object!: StandardHitObject;
+	get object() {
+		return this._object;
+	}
+
+	set object(val: StandardHitObject) {
+		this._object = val;
+		this.container.x = val.startX + val.stackedOffset.x;
+		this.container.y = val.startY + val.stackedOffset.y;
+		this.container.scale.set(val.scale);
+
+		if (this.approachCircle) this.approachCircle.object = val;
+		if (this.defaults) this.defaults.object = val;
+		if (this.hitSound) this.hitSound.hitSamples = val.samples;
+		if (this.timelineObject) this.timelineObject.object = val;
 	}
 
 	hook(context: Context) {

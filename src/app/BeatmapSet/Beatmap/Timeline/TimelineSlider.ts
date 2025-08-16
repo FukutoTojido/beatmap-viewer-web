@@ -1,29 +1,21 @@
 import {
-	AlphaFilter,
-	Color,
-	Container,
-	FillGradient,
-	Graphics,
-	Text,
-} from "pixi.js";
-import TimelineHitObject from "./TimelineHitObject";
-import type TimelineHitCircle from "./TimelineHitCircle";
-import {
+	type Slider,
 	SliderHead,
 	SliderRepeat,
 	SliderTail,
-	type Slider,
 } from "osu-standard-stable";
-import { type Context, inject } from "@/Context";
+import { AlphaFilter, Color, FillGradient, Graphics, Text } from "pixi.js";
 import type TimelineConfig from "@/Config/TimelineConfig";
+import { type Context, inject } from "@/Context";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
-import type DrawableSlider from "../HitObjects/DrawableSlider";
 import { darken } from "@/utils";
-import TimelineSliderHead from "./TimelineSliderHead";
-import TimelineSliderTail from "./TimelineSliderTail";
-import TimelineSliderRepeat from "./TimelineSliderRepeat";
-import { LayoutText } from "@pixi/layout/components";
 import type Beatmap from "..";
+import type DrawableSlider from "../HitObjects/DrawableSlider";
+import type TimelineHitCircle from "./TimelineHitCircle";
+import TimelineHitObject from "./TimelineHitObject";
+import TimelineSliderHead from "./TimelineSliderHead";
+import TimelineSliderRepeat from "./TimelineSliderRepeat";
+import TimelineSliderTail from "./TimelineSliderTail";
 
 const gradient = new FillGradient({
 	start: { x: 0, y: 0 },
@@ -66,6 +58,7 @@ export default class TimelineSlider extends TimelineHitObject {
 
 	constructor(object: Slider) {
 		super(object);
+		this.object = object;
 
 		this.length =
 			object.duration /
@@ -107,10 +100,44 @@ export default class TimelineSlider extends TimelineHitObject {
 		this.updateCircles();
 		this.refreshSprite();
 
-		inject<TimelineConfig>("config/timeline")?.onChange("scale", (newValue) => {
+		inject<TimelineConfig>("config/timeline")?.onChange("scale", () => {
 			this.updateCircles();
 			this.refreshSprite();
 		});
+	}
+
+	get object() {
+		return this._object as Slider;
+	}
+
+	set object(val: Slider) {
+		super.object = val;
+		this._object = val;
+		this.length =
+			val.duration /
+			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
+
+		if (!this.circles?.length) return;
+
+		let idx = 0;
+		for (const object of val.nestedHitObjects
+			.filter(
+				(object) =>
+					object instanceof SliderHead ||
+					object instanceof SliderTail ||
+					object instanceof SliderRepeat,
+			)
+			.map((object) => {
+				const obj = object.clone();
+				obj.startTime = obj.startTime - val.startTime;
+				return obj;
+			})
+			.toReversed()) {
+			this.circles[idx++].object = object;
+		}
+
+		this.updateCircles();
+		this.refreshSprite();
 	}
 
 	updateVelocity() {

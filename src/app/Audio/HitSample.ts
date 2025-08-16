@@ -1,15 +1,9 @@
-import type {
-	HitSound,
-	SamplePoint,
-	SampleSet,
-	HitSample as Sample,
-} from "osu-classes";
-import Beatmap from "../BeatmapSet/Beatmap";
-import type SampleManager from "../BeatmapSet/SampleManager";
-import { type Context, inject, ScopedClass } from "../Context";
-import type Audio from ".";
+import type { HitSample as Sample, SamplePoint } from "osu-classes";
 import type BeatmapSet from "@/BeatmapSet";
 import type AudioConfig from "@/Config/AudioConfig";
+import type SampleManager from "../BeatmapSet/SampleManager";
+import { inject, ScopedClass } from "../Context";
+import type Audio from ".";
 
 export default class HitSample extends ScopedClass {
 	localGainNode?: GainNode;
@@ -18,8 +12,17 @@ export default class HitSample extends ScopedClass {
 	private isPlaying = false;
 	private timeout?: ReturnType<typeof setTimeout>;
 
-	constructor(private hitSamples: Sample[]) {
+	constructor(hitSamples: Sample[]) {
 		super();
+		this.hitSamples = hitSamples;
+	}
+
+	private _hitSamples: Sample[] = [];
+	get hitSamples() {
+		return this._hitSamples
+	}
+	set hitSamples(val: Sample[]) {
+		this._hitSamples = val;
 	}
 
 	play(samplePoint: SamplePoint, isLoop = false) {
@@ -45,7 +48,9 @@ export default class HitSample extends ScopedClass {
 			const buffer = sampleManager.get(
 				sampleSet.toLowerCase(),
 				hitSound.toLowerCase(),
-				inject<AudioConfig>("config/audio")?.hitsound ? 0 : samplePoint.customIndex,
+				inject<AudioConfig>("config/audio")?.hitsound
+					? 0
+					: samplePoint.customIndex,
 			);
 			if (!buffer) continue;
 
@@ -54,7 +59,10 @@ export default class HitSample extends ScopedClass {
 
 			const localGainNode = audioContext?.createGain();
 			localGainNode.gain.value =
-				(samplePoint.volume * (inject<AudioConfig>("config/audio")?.effectVolume ?? 1)) / clientLength / 100;
+				(samplePoint.volume *
+					(inject<AudioConfig>("config/audio")?.effectVolume ?? 1)) /
+				clientLength /
+				100;
 			this.localGainNode = localGainNode;
 
 			src.connect(localGainNode);

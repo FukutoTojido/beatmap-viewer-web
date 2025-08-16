@@ -1,19 +1,11 @@
-import {
-	StandardBeatmap,
-	type StandardHitObject,
-	type Circle,
-	type SliderTick,
-	type Slider,
-} from "osu-standard-stable";
-import { Assets, Graphics, Sprite } from "pixi.js";
-import DrawableHitObject from "./DrawableHitObject";
-import { inject, type Context } from "../../../Context";
-import type { HitSample as Sample, SamplePoint } from "osu-classes";
+import type { HitSample as Sample } from "osu-classes";
+import type { Slider, SliderTick } from "osu-standard-stable";
+import { Sprite } from "pixi.js";
+import { update } from "@/Skinning/Legacy/LegacySliderTick";
+import type Skin from "@/Skinning/Skin";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
-import type Skin from "@/Skinning/Skin";
-import type SkinManager from "@/Skinning/SkinManager";
-import { update } from "@/Skinning/Legacy/LegacySliderTick";
+import DrawableHitObject from "./DrawableHitObject";
 import type DrawableSlider from "./DrawableSlider";
 
 export default class DrawableSliderTick extends DrawableHitObject {
@@ -22,10 +14,12 @@ export default class DrawableSliderTick extends DrawableHitObject {
 
 	constructor(
 		public object: SliderTick,
-		private parent: Slider,
+		parent: Slider,
 		sample: Sample,
 	) {
 		super(object);
+		this.object = object;
+
 		this.container = new Sprite(
 			this.skinManager?.getCurrentSkin().getTexture("sliderscorepoint"),
 		);
@@ -52,17 +46,41 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		);
 	}
 
+	updateObjects(object: SliderTick, parent: Slider, sample: Sample) {
+		this.object = object;
+
+		if (this.container) {
+			this.container.x = object.startX + object.stackedOffset.x;
+			this.container.y = object.startY + object.stackedOffset.x;
+
+			const distFromStart = object.startPosition.distance(parent.startPosition);
+			const distFromEnd = object.endPosition.distance(parent.endPosition);
+
+			if (distFromStart < parent.radius || distFromEnd < parent.radius)
+				this.container.visible = false;
+		}
+
+		if (this.hitSound) {
+			const clonedSample = sample.clone();
+			clonedSample.hitSound = "slidertick";
+			this.hitSound.hitSamples = [clonedSample];
+		}
+	}
+
 	refreshSprite() {
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
 
 		const sliderTick = skin.getTexture(
 			"sliderscorepoint",
-			!skin.config.General.Argon ? this.context.consume<Skin>("beatmapSkin") : undefined,
+			!skin.config.General.Argon
+				? this.context.consume<Skin>("beatmapSkin")
+				: undefined,
 		);
 
 		this.container.tint = skin.config.General.Argon
-			? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ?? 0xffffff)
+			? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+				0xffffff)
 			: 0xffffff;
 
 		if (!sliderTick) return;

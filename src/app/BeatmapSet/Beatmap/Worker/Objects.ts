@@ -17,9 +17,11 @@ let currentTime = 0;
 let startTime = 0;
 let previousTime = 0;
 
+let preempt = 1200;
+
 function getTimeRange(object: HitObjectMini) {
 	return {
-		start: object.startTime - object.timePreempt,
+		start: object.startTime,
 		end: (object.endTime ?? object.startTime) + 800,
 	};
 }
@@ -52,7 +54,7 @@ function loop() {
 }
 
 function findRange(tree: IntervalTree, time: number) {
-	const res = tree.search([time - 1, time + 1]);
+	const res = tree.search([time - preempt, time + 800]);
 	return new Set<number>(res as Array<number>);
 }
 
@@ -74,6 +76,10 @@ onmessage = (event) => {
 
 			initTree(objectsTree, objects);
 			initTree(connectorsTree, connectors);
+			break;
+		}
+		case "preempt": {
+			preempt = event.data.preempt;
 			break;
 		}
 		case "start": {

@@ -1,42 +1,23 @@
+import { HitSample as Sample } from "osu-classes";
 import {
+	type Slider,
 	SliderHead,
 	SliderRepeat,
 	SliderTail,
 	SliderTick,
 	StandardHitObject,
-	type Slider,
 } from "osu-standard-stable";
 import {
 	AlphaFilter,
-	Mesh,
-	Geometry,
-	Shader,
 	Container,
+	Geometry,
+	Mesh,
 	RenderLayer,
+	Shader,
 } from "pixi.js";
 import { BackdropBlurFilter } from "pixi-filters";
-
-import vertex from "./Shaders/sliderShader.vert?raw";
-import fragment from "./Shaders/sliderShader.frag?raw";
-
-import { darken, lighten } from "../../../utils";
-import calculateSliderProgress from "./CalculateSliderProgress";
-import createGeometry, { type Vector3 } from "./CreateSliderGeometry";
-import DrawableHitObject, {
-	type IHasApproachCircle,
-} from "./DrawableHitObject";
-import type DrawableHitCircle from "./DrawableHitCircle";
-import DrawableSliderTick from "./DrawableSliderTick";
-import DrawableSliderRepeat from "./DrawableSliderRepeat";
-import DrawableSliderTail, { TAIL_LENIENCY } from "./DrawableSliderTail";
-import DrawableSliderBall from "./DrawableSliderBall";
-import DrawableSliderHead from "./DrawableSliderHead";
-import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
-import { HitSample as Sample } from "osu-classes";
-import HitSample from "../../../Audio/HitSample";
-import type Beatmap from "..";
-import { inject, type Context } from "@/Context";
-import TimelineSlider from "../Timeline/TimelineSlider";
+import type SkinningConfig from "@/Config/SkinningConfig";
+import { type Context, inject } from "@/Context";
 import {
 	refreshSprite as argonRefreshSprite,
 	update as argonUpdate,
@@ -45,8 +26,25 @@ import {
 	refreshSprite as legacyRefreshSprite,
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacySlider";
-import type SkinningConfig from "@/Config/SkinningConfig";
 import type Skin from "@/Skinning/Skin";
+import HitSample from "../../../Audio/HitSample";
+import { darken, lighten } from "../../../utils";
+import type Beatmap from "..";
+import TimelineSlider from "../Timeline/TimelineSlider";
+import calculateSliderProgress from "./CalculateSliderProgress";
+import createGeometry from "./CreateSliderGeometry";
+import type DrawableHitCircle from "./DrawableHitCircle";
+import DrawableHitObject, {
+	type IHasApproachCircle,
+} from "./DrawableHitObject";
+import DrawableSliderBall from "./DrawableSliderBall";
+import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
+import DrawableSliderHead from "./DrawableSliderHead";
+import DrawableSliderRepeat from "./DrawableSliderRepeat";
+import DrawableSliderTail, { TAIL_LENIENCY } from "./DrawableSliderTail";
+import DrawableSliderTick from "./DrawableSliderTick";
+import fragment from "./Shaders/sliderShader.frag?raw";
+import vertex from "./Shaders/sliderShader.vert?raw";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
@@ -122,8 +120,9 @@ export default class DrawableSlider
 	private layer = new RenderLayer();
 	private layer2 = new RenderLayer();
 
-	constructor(public object: Slider) {
+	constructor(object: Slider) {
 		super(object);
+		this.object = object;
 
 		if (blur) {
 			this.body.filters = [this._alphaFilter, this._backdropBlurFilter];
@@ -138,7 +137,7 @@ export default class DrawableSlider
 						return new DrawableSliderTick(
 							object,
 							this.object,
-							// biome-ignore lint/style/noNonNullAssertion: <explanation>
+							// biome-ignore lint/style/noNonNullAssertion: Always Available
 							this.object.samples.find(
 								(sample) => sample.hitSound === "Normal",
 							)!,
@@ -173,8 +172,6 @@ export default class DrawableSlider
 		);
 
 		this.body.state.depthTest = true;
-		this.body.x = object.startPosition.x + object.stackedOffset.x;
-		this.body.y = object.startPosition.y + object.stackedOffset.x;
 
 		this.context.provide("slider", this);
 
@@ -230,6 +227,46 @@ export default class DrawableSlider
 		this.timelineObject = new TimelineSlider(object).hook(this.context);
 	}
 
+	private _object!: Slider;
+	get object() {
+		return this._object;
+	}
+
+	set object(val: Slider) {
+		this._object = val;
+
+		this.body.x = val.startPosition.x + val.stackedOffset.x;
+		this.body.y = val.startPosition.y + val.stackedOffset.x;
+
+		const nodes = val.nestedHitObjects.filter(
+			(object) => object instanceof StandardHitObject,
+		);
+
+		let idx = -1;
+		for (let i = 0; i < this.drawableCircles.length; i++) {
+			const circle = this.drawableCircles[i];
+			circle.object = val;
+
+			if (circle instanceof DrawableSliderTick) {
+				circle.updateObjects(
+					nodes[i] as SliderTick,
+					val,
+					// biome-ignore lint/style/noNonNullAssertion: Always Available
+					val.samples.find((sample) => sample.hitSound === "Normal")!,
+				);
+				continue;
+			}
+
+			idx++;
+			if (circle instanceof DrawableSliderHead) {
+				circle.updateObjects?.(nodes[i], val, val.nodeSamples[idx]);
+			}
+		}
+		if (this.ball) this.ball.object = val;
+		if (this.followCircle) this.followCircle.object = val;
+		if (this.timelineObject) this.timelineObject.object = val;
+	}
+
 	hook(context: Context) {
 		super.hook(context);
 
@@ -282,7 +319,7 @@ export default class DrawableSlider
 		}
 
 		const comboIndex = this.object.comboIndexWithOffsets % skin.colorsLength;
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/suspicious/noExplicitAny: It is complicated
 		const color = (skin.config.Colours as any)[
 			`Combo${comboIndex + 1}`
 		] as string;
@@ -342,11 +379,7 @@ export default class DrawableSlider
 			tail = Math.min(1, progressHead + checkDistance);
 		}
 
-		const path = calculateSliderProgress(
-			this.object.path,
-			head,
-			tail,
-		);
+		const path = calculateSliderProgress(this.object.path, head, tail);
 
 		if (!path.length) return;
 

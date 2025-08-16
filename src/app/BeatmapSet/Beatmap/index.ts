@@ -20,6 +20,7 @@ import type Timeline from "@/UI/main/viewer/Timeline";
 import type Timing from "@/UI/sidepanel/Timing";
 import { getDiffColour } from "@/utils";
 import { inject, ScopedClass } from "../../Context";
+import type BeatmapSet from "..";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
@@ -67,6 +68,97 @@ export default class Beatmap extends ScopedClass {
 
 		this.context.provide("beatmapObject", this);
 		this.container = new Gameplay(this);
+
+		this.worker.postMessage({
+			type: "preempt",
+			preempt: this.data.hitObjects.find((o) => o instanceof Circle)
+				?.timePreempt,
+		});
+
+		inject<ExperimentalConfig>("config/experimental")?.onChange(
+			"modsHR",
+			(val) => {
+				if (val) {
+					this.data = this.context.provide(
+						"beatmap",
+						ruleset.applyToBeatmapWithMods(
+							decoder.decodeFromString(this.raw),
+							ruleset.createModCombination("HR"),
+						),
+					);
+				} else {
+					this.data = this.context.provide(
+						"beatmap",
+						ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
+					);
+				}
+
+				this.difficultyCalculator = ruleset.createDifficultyCalculator(
+					this.data,
+				);
+				this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
+					ruleset.createModCombination(val ? "HR" : ""),
+				);
+
+				this.recalculateDifficulty();
+			},
+		);
+	}
+
+	private recalculateDifficulty() {
+		this.color = getDiffColour(this.difficultyAttributes.starRating);
+
+		this.worker.postMessage({
+			type: "preempt",
+			preempt: this.data.hitObjects.find((o) => o instanceof Circle)
+				?.timePreempt,
+		});
+
+		const objs = this.data.hitObjects.filter(
+			(object) => object instanceof Circle || object instanceof Slider,
+		);
+		for (let i = 0; i < this.objects.length; i++) {
+			this.objects[i].object = objs[i];
+		}
+
+		let j = 0;
+		for (let i = 0; i < this.data.hitObjects.length - 1; i++) {
+			const startObject = this.data.hitObjects[i];
+			const endObject = this.data.hitObjects[i + 1];
+			if (endObject.isNewCombo) continue;
+
+			const distance = startObject.endPosition
+				.add(startObject.stackedOffset)
+				.distance(endObject.startPosition.add(endObject.stackedOffset));
+			if (distance < 80) continue;
+
+			this.connectors[j++]?.updateObjects(startObject, endObject);
+		}
+
+		if (this.context.consume<BeatmapSet>("beatmapset")?.master !== this) return;
+
+		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
+		if (el) {
+			el.innerHTML = `
+						<span class="truncate">${this.data.metadata.version}</span>
+						<br/>
+						<span class="text-xs">
+							CS <span class="font-medium">${this.data.difficulty.circleSize.toFixed(1).replace(".0", "")}</span> / 
+							AR <span class="font-medium">${this.difficultyAttributes.approachRate.toFixed(1).replace(".0", "")}</span> / 
+							OD <span class="font-medium">${this.difficultyAttributes.overallDifficulty.toFixed(1).replace(".0", "")}</span> / 
+							HP <span class="font-medium">${this.difficultyAttributes.drainRate.toFixed(1).replace(".0", "")}</span> 
+						</span>`;
+		}
+		const svg = document.querySelector<SVGSVGElement>("#extraMode");
+		if (svg) {
+			const color = this.color;
+			svg.innerHTML = svg.innerHTML
+				.replace(/stroke=".*"/g, `stroke="${color}"`)
+				.replace(/fill=".*"/, `fill="${color}"`);
+		}
+		const sr = document.querySelector<HTMLSpanElement>("#masterSR");
+		if (sr)
+			sr.textContent = `${this.difficultyAttributes.starRating.toFixed(2)}★`;
 	}
 
 	private async constructConnectorsAsync() {
@@ -269,7 +361,6 @@ export default class Beatmap extends ScopedClass {
 					return {
 						startTime: object.startTime,
 						endTime: (object as Slider).endTime,
-						timePreempt: object.timePreempt,
 					};
 				})
 				.filter((object) => object !== null),
@@ -277,12 +368,11 @@ export default class Beatmap extends ScopedClass {
 				return {
 					startTime: connector.startTime,
 					endTime: connector.endTime,
-					timePreempt: connector.timePreempt,
 				};
 			}),
 		});
 
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/suspicious/noExplicitAny: Can't specify event type
 		this.worker.onmessage = (event: any) => {
 			switch (event.data.type) {
 				case "update": {
@@ -350,7 +440,7 @@ export default class Beatmap extends ScopedClass {
 	update(time: number, objects: Set<number>, connectors: Set<number>) {
 		if (!this.loaded) return;
 
-		const audio = this.context.consume<Audio>("audio");
+		// const audio = this.context.consume<Audio>("audio");
 		const objectContainer = this.container.objectsContainer;
 
 		const disposedObjects = this.previousObjects.difference(objects);

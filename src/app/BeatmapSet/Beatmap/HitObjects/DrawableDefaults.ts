@@ -1,51 +1,52 @@
-import { Assets, BitmapText, Container, Sprite, Text } from "pixi.js";
-import { inject, ScopedClass } from "@/Context";
-import type { StandardHitObject } from "osu-standard-stable";
-import { LayoutContainer } from "@pixi/layout/components";
-import type Skin from "@/Skinning/Skin";
-import type SkinManager from "@/Skinning/SkinManager";
-import SkinnableElement from "./SkinnableElement";
+import type { Circle, StandardHitObject } from "osu-standard-stable";
+import { Container, Sprite } from "pixi.js";
 import { update } from "@/Skinning/Legacy/LegacyDefaults";
-
-const SPACING = -2;
+import type Skin from "@/Skinning/Skin";
+import SkinnableElement from "./SkinnableElement";
 
 export default class DrawableDefaults extends SkinnableElement {
 	container: Container;
-	sprites: { text: Sprite; digit: string }[] = [];
+	sprites: Sprite[] = [];
+	digits: string[] = [];
 
-	constructor(public object: StandardHitObject) {
+	constructor(object: StandardHitObject) {
 		super();
+		this.container = new Container();
+		this.object = object;
+
 		const number = object.currentComboIndex + 1;
 		const digits = number.toString().split("");
 
-		this.container = new Container({
-			// layout: {
-			// 	position: "absolute",
-			// 	transformOrigin: "center center",
-			// 	width: 0,
-			// 	height: 0,
-			// 	flexDirection: "row",
-			// 	gap: -SPACING,
-			// 	alignItems: "center",
-			// 	justifyContent: "center",
-			// },
-		});
-
-		this.sprites = digits.map<{ text: Sprite; digit: string }>((digit) => {
+		this.sprites = digits.map<Sprite>(() => {
 			const text = new Sprite();
 			text.anchor.set(0, 0.5);
-			return { text, digit };
+			return text;
 		});
 
 		this.refreshSprites();
+
 		this.container.scale.set(0.8);
-		this.container.addChild(...this.sprites.map((sprite) => sprite.text));
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
+		this.container.addChild(...this.sprites);
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprites(),
 		);
+	}
+
+	private _object!: Circle;
+	get object() {
+		return this._object;
+	}
+
+	set object(val: Circle) {
+		this._object = val;
+
+		const number = val.currentComboIndex + 1;
+		const digits = number.toString().split("");
+
+		this.digits = digits;
 	}
 
 	refreshSprites(skin?: Skin) {
@@ -53,7 +54,10 @@ export default class DrawableDefaults extends SkinnableElement {
 		if (!s) return;
 
 		let width = s.config.Fonts.HitCircleOverlap;
-		for (const { text, digit } of this.sprites) {
+		for (let i = 0; i < this.sprites.length; i++) {
+			const text = this.sprites[i];
+			const digit = this.digits[i];
+
 			width -= s.config.Fonts.HitCircleOverlap;
 			const texture = s.getTexture(`default-${digit}`);
 			text.x = width;
@@ -73,7 +77,7 @@ export default class DrawableDefaults extends SkinnableElement {
 	}
 
 	destroy() {
-		for (const { text } of this.sprites) {
+		for (const text of this.sprites) {
 			text.destroy();
 		}
 

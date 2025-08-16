@@ -1,32 +1,17 @@
-import {
-	StandardBeatmap,
-	type StandardHitObject,
-	type Circle,
-	type SliderTail,
-	type Slider,
-} from "osu-standard-stable";
-import type { HitSample as Sample, SamplePoint } from "osu-classes";
-import { Graphics, Texture } from "pixi.js";
-import DrawableHitObject from "./DrawableHitObject";
-import { inject, type Context } from "../../../Context";
-import type Beatmap from "..";
-import HitSample from "../../../Audio/HitSample";
-import DrawableHitCircle from "./DrawableHitCircle";
-import type Skin from "@/Skinning/Skin";
-import type SkinningConfig from "@/Config/SkinningConfig";
-import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import type { HitSample as Sample } from "osu-classes";
+import type { Slider, SliderTail } from "osu-standard-stable";
 import { update } from "@/Skinning/Argon/ArgonSliderTail";
+import type Skin from "@/Skinning/Skin";
+import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import HitSample from "../../../Audio/HitSample";
+import type Beatmap from "..";
 import DrawableSliderHead from "./DrawableSliderHead";
 
 export const TAIL_LENIENCY = 36;
 export default class DrawableSliderTail extends DrawableSliderHead {
 	hitSound?: HitSample;
 
-	constructor(
-		public object: SliderTail,
-		public parent: Slider,
-		samples: Sample[],
-	) {
+	constructor(object: SliderTail, parent: Slider, samples: Sample[]) {
 		super(object, parent, samples, false);
 		this.hitSound = new HitSample(samples).hook(this.context);
 		this.refreshSprite();
