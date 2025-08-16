@@ -140,7 +140,17 @@ export class Game {
 			if (!["osz", "osk"].includes(fileExt)) return;
 
 			if (fileExt === "osz") {
+				inject<Loading>("ui/loading")?.on();
+				inject<Loading>("ui/loading")?.setText("Importing beatmapset ");
 				await this.loadBlob(new Blob([file]));
+				inject<Loading>("ui/loading")?.off();
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("hidden");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("flex");
+
 				return;
 			}
 
