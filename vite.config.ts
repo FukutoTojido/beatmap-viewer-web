@@ -8,7 +8,6 @@ export default defineConfig({
 	build: {
 		target: "esnext", //browsers can handle the latest ES features
 	},
-
 	optimizeDeps: {
 		esbuildOptions: {
 			target: "esnext",
@@ -17,7 +16,7 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			"@": path.resolve(__dirname, "./src"),
+			"@": path.resolve(__dirname, "./src/app"),
 		},
 	},
 	preview: {

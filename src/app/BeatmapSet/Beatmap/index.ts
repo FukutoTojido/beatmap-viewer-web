@@ -1,30 +1,31 @@
+import { sort } from "fast-sort";
+import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { BeatmapDecoder } from "osu-parsers";
 import {
+	Circle,
+	Slider,
 	Spinner,
 	type StandardBeatmap,
 	type StandardDifficultyAttributes,
 	type StandardDifficultyCalculator,
 	StandardRuleset,
 } from "osu-standard-stable";
-import { inject, ScopedClass } from "../../Context";
-import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
-import type DrawableHitObject from "./HitObjects/DrawableHitObject";
-import { Circle, Slider } from "osu-standard-stable";
-import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
-import DrawableSlider from "./HitObjects/DrawableSlider";
-
-import ObjectsWorker from "./Worker/Objects?worker";
-import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
-import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
-
-import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import type { ColorSource } from "pixi.js";
 import type Audio from "@/Audio";
-import Gameplay from "@/UI/main/viewer/Gameplay";
-import type Timing from "@/UI/sidepanel/Timing";
-import type Timeline from "@/UI/main/viewer/Timeline";
-import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
-import { sort } from "fast-sort";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import Gameplay from "@/UI/main/viewer/Gameplay";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
+import type Timeline from "@/UI/main/viewer/Timeline";
+import type Timing from "@/UI/sidepanel/Timing";
+import { getDiffColour } from "@/utils";
+import { inject, ScopedClass } from "../../Context";
+import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
+import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
+import type DrawableHitObject from "./HitObjects/DrawableHitObject";
+import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
+import DrawableSlider from "./HitObjects/DrawableSlider";
+import ObjectsWorker from "./Worker/Objects?worker";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -37,6 +38,8 @@ export default class Beatmap extends ScopedClass {
 
 	objects: DrawableHitObject[] = [];
 	connectors: DrawableFollowPoints[] = [];
+
+	color: ColorSource;
 
 	private worker = new ObjectsWorker();
 
@@ -59,6 +62,8 @@ export default class Beatmap extends ScopedClass {
 		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
 			ruleset.createModCombination(""),
 		);
+
+		this.color = getDiffColour(this.difficultyAttributes.starRating);
 
 		this.context.provide("beatmapObject", this);
 		this.container = new Gameplay(this);

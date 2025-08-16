@@ -1,5 +1,6 @@
 import { cors } from "@elysiajs/cors";
-import { html, Html } from "@elysiajs/html";
+// biome-ignore lint/correctness/noUnusedImports: JSX lah
+import { Html, html } from "@elysiajs/html";
 import { staticPlugin } from "@elysiajs/static";
 import axios from "axios";
 import { Elysia, t } from "elysia";
@@ -93,9 +94,15 @@ app
 								content="JoSu! | osu! Beatmap Viewer"
 							/>
 							<meta property="og:url" content="https://beatmap.try-z.net" />
-							<meta property="twitter:url" content="https://beatmap.try-z.net" />
-							<meta property="twitter:domain" content="https://beatmap.try-z.net" />
-							<meta name="twitter:card" content="summary_large_image"/>
+							<meta
+								property="twitter:url"
+								content="https://beatmap.try-z.net"
+							/>
+							<meta
+								property="twitter:domain"
+								content="https://beatmap.try-z.net"
+							/>
+							<meta name="twitter:card" content="summary_large_image" />
 							<title>JoSu!</title>
 							{data ? (
 								<>

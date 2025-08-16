@@ -1,20 +1,19 @@
+import type { LayoutOptions } from "@pixi/layout";
 import { LayoutContainer } from "@pixi/layout/components";
 import {
 	Assets,
 	Container,
-	Graphics,
 	Rectangle,
 	Sprite,
 	Text,
 	type TextStyleOptions,
 } from "pixi.js";
-import { inject, provide } from "@/Context";
-import type Beatmap from "@/BeatmapSet/Beatmap";
+import { BackdropBlurFilter } from "pixi-filters";
 import type BeatmapSet from "@/BeatmapSet";
-import type { LayoutOptions } from "@pixi/layout";
+import type Beatmap from "@/BeatmapSet/Beatmap";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
-import { BackdropBlurFilter } from "pixi-filters";
+import { inject } from "@/Context";
 import Spinner from "./Spinner";
 
 const defaultStyle: TextStyleOptions = {

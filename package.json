@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch server.tsx",
-    "build": "vite build && NODE_ENV=production bun build --compile server.tsx --external=lightningcss --target bun --outfile ./out",
+    "dev": "bun --watch src/server/index.tsx",
+    "build": "vite build && NODE_ENV=production bun build --compile /src/server/index.tsx --external=lightningcss --target bun --outfile ./out",
     "preview": "./out"
   },
   "devDependencies": {

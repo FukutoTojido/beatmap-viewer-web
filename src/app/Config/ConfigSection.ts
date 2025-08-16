@@ -15,7 +15,7 @@ export default class ConfigSection {
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: I don't care
-	protected async emitChange(key: string, newValue: any) {
+	async emitChange(key: string, newValue: any) {
 		inject<Config>("config")?.saveSettings();
 		
 		const callbacks = this._callbacks.get(key);

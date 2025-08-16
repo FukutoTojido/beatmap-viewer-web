@@ -1,9 +1,11 @@
+import type { Tween } from "@tweenjs/tween.js";
+import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import { Assets, type FederatedWheelEvent } from "pixi.js";
 import Audio from "@/Audio";
-import { ScopedClass, inject, provide } from "../Context";
-import Beatmap from "./Beatmap";
-import SampleManager from "./SampleManager";
-
+import type AudioConfig from "@/Config/AudioConfig";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
+import Skin from "@/Skinning/Skin";
 import type Loading from "@/UI/loading";
 import type Play from "@/UI/main/controls/Play";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
@@ -13,20 +15,16 @@ import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Timeline from "@/UI/main/viewer/Timeline";
 import type Metadata from "@/UI/sidepanel/Metadata";
 import type Timing from "@/UI/sidepanel/Timing";
+import { getDiffColour, loadColorPalette } from "@/utils";
 import Video from "@/Video";
-import type { Tween } from "@tweenjs/tween.js";
-import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
-import { Assets, type FederatedWheelEvent } from "pixi.js";
+import extraMode from "/assets/extra-mode.svg?raw";
+import { inject, provide, ScopedClass } from "../Context";
 import type { Resource } from "../ZipHandler";
+import Beatmap from "./Beatmap";
 import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
-
-import extraMode from "/assets/extra-mode.svg?raw";
-import { getDiffColour, loadColorPalette } from "@/utils";
-import type AudioConfig from "@/Config/AudioConfig";
-import type BackgroundConfig from "@/Config/BackgroundConfig";
-import Skin from "@/Skinning/Skin";
+import SampleManager from "./SampleManager";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];

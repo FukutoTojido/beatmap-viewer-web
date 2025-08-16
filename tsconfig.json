@@ -25,12 +25,12 @@
 		"noPropertyAccessFromIndexSignature": false,
 
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/app/*"],
 		},
 
 		"jsx": "react",
 		"jsxFactory": "Html.createElement",
 		"jsxFragmentFactory": "Html.Fragment"
 	},
-	"include": ["src"]
+	"include": ["src", "vite.config.ts"]
 }

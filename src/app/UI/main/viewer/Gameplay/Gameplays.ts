@@ -1,12 +1,11 @@
-import { LayoutContainer } from "@pixi/layout/components";
-import { Container, Graphics, Rectangle } from "pixi.js";
-import { inject, provide } from "@/Context";
-import type Gameplay from ".";
-import FPS from "../FPS";
-import type ResponsiveHandler from "@/ResponsiveHandler";
 import { Tween } from "@tweenjs/tween.js";
+import { Container } from "pixi.js";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { inject } from "@/Context";
+import type ResponsiveHandler from "@/ResponsiveHandler";
 import { defaultEasing, tweenGroup } from "@/UI/animation/AnimationController";
-import ExperimentalConfig from "@/Config/ExperimentalConfig";
+import FPS from "../FPS";
+import type Gameplay from ".";
 
 export default class Gameplays {
 	container = new Container({
@@ -43,7 +42,7 @@ export default class Gameplays {
 	}
 
 	switchGameplay(a: Gameplay, b: Gameplay) {
-		const deserialized = Array(...this.gameplays);
+		const deserialized = [...this.gameplays];
 		const idxA = deserialized.findIndex((beatmap) => beatmap === a);
 		const idxB = deserialized.findIndex((beatmap) => beatmap === b);
 
