@@ -18,7 +18,7 @@ import Gameplay from "@/UI/main/viewer/Gameplay";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Timeline from "@/UI/main/viewer/Timeline";
 import type Timing from "@/UI/sidepanel/Timing";
-import { getDiffColour } from "@/utils";
+import { difficultyRange, getDiffColour } from "@/utils";
 import { inject, ScopedClass } from "../../Context";
 import type BeatmapSet from "..";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
@@ -71,8 +71,12 @@ export default class Beatmap extends ScopedClass {
 
 		this.worker.postMessage({
 			type: "preempt",
-			preempt: this.data.hitObjects.find((o) => o instanceof Circle)
-				?.timePreempt,
+			preempt: difficultyRange(
+				this.data.difficulty.approachRate,
+				1800,
+				1200,
+				450,
+			),
 		});
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
@@ -110,8 +114,12 @@ export default class Beatmap extends ScopedClass {
 
 		this.worker.postMessage({
 			type: "preempt",
-			preempt: this.data.hitObjects.find((o) => o instanceof Circle)
-				?.timePreempt,
+			preempt: difficultyRange(
+				this.data.difficulty.approachRate,
+				1800,
+				1200,
+				450,
+			),
 		});
 
 		const objs = this.data.hitObjects.filter(

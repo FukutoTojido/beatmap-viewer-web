@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import { Vibrant } from "node-vibrant/browser";
+import type ColorConfig from "./Config/ColorConfig";
 import type { ColorPalette } from "./Config/ColorConfig";
 import { inject } from "./Context";
-import type ColorConfig from "./Config/ColorConfig";
 
 export function lighten(
 	color: [number, number, number, number?],
@@ -31,10 +31,10 @@ export function darken(
 	return ret;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: Could be any
 export function debounce(fn: (...args: any) => void, timeout = 100) {
 	let timer: NodeJS.Timeout;
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: Literally any
 	return (...args: any) => {
 		if (timer) clearTimeout(timer);
 		timer = setTimeout(() => fn(...args), timeout);
@@ -157,4 +157,15 @@ export async function loadColorPalette(url: string) {
 
 export const Clamp = (val: number, min = 0, max = 1) => {
 	return Math.min(max, Math.max(min, val));
+};
+
+export const difficultyRange = (
+	val: number,
+	min: number,
+	mid: number,
+	max: number,
+) => {
+	if (val > 5) return mid + ((max - mid) * (val - 5)) / 5;
+	if (val < 5) return mid - ((mid - min) * (5 - val)) / 5;
+	return mid;
 };

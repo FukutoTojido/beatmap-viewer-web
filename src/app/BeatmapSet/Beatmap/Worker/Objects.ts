@@ -54,7 +54,7 @@ function loop() {
 }
 
 function findRange(tree: IntervalTree, time: number) {
-	const res = tree.search([time - preempt, time + 800]);
+	const res = tree.search([time - 800, time + preempt]);
 	return new Set<number>(res as Array<number>);
 }
 
@@ -80,6 +80,7 @@ onmessage = (event) => {
 		}
 		case "preempt": {
 			preempt = event.data.preempt;
+			console.log(preempt);
 			break;
 		}
 		case "start": {
