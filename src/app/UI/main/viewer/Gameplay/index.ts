@@ -3,6 +3,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import {
 	Assets,
 	Container,
+	Graphics,
 	Rectangle,
 	Sprite,
 	Text,
@@ -11,10 +12,13 @@ import {
 import { BackdropBlurFilter } from "pixi-filters";
 import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
+import DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
+import DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import Spinner from "./Spinner";
+import { Vector2 } from "osu-classes";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -34,6 +38,8 @@ export default class Gameplay {
 	wrapper: Container;
 	background: LayoutContainer;
 	objectsContainer: Container;
+	selector: Graphics;
+	selectContainer: Container;
 	diffName!: Text;
 	statsContainer!: LayoutContainer;
 	closeButton!: LayoutContainer;
@@ -43,6 +49,8 @@ export default class Gameplay {
 	arText!: Text;
 	odText!: Text;
 	hpText!: Text;
+
+	selected: Set<number> = new Set();
 
 	constructor(public beatmap: Beatmap) {
 		const backdropFilter = new BackdropBlurFilter({
@@ -62,7 +70,7 @@ export default class Gameplay {
 				alignItems: "flex-start",
 			},
 			isRenderGroup: true,
-			interactive: true
+			interactive: true,
 		});
 		this.wrapper = new Container({
 			label: "wrapper",
@@ -70,7 +78,7 @@ export default class Gameplay {
 				width: "100%",
 				height: "100%",
 			},
-			interactive: true
+			interactive: true,
 		});
 		this.background = new LayoutContainer({
 			label: "dim",
@@ -91,8 +99,18 @@ export default class Gameplay {
 			},
 			filters: [backdropFilter],
 		});
+		this.selector = new Graphics()
+			.rect(0, 0, 1, 1)
+			.fill({ color: 0xffffff, alpha: 0.3 })
+			.stroke({ width: 1, color: 0xffffff, pixelLine: true });
 
 		this.objectsContainer = new Container({
+			label: "objectsContainer",
+			boundsArea: new Rectangle(0, 0, 512, 384),
+		});
+
+		this.selectContainer = new Container({
+			label: "selectContainer",
 			boundsArea: new Rectangle(0, 0, 512, 384),
 		});
 
@@ -103,7 +121,12 @@ export default class Gameplay {
 		this.createCloseButton();
 
 		this.container.addChild(this.wrapper, this.spinner.graphics);
-		this.wrapper.addChild(this.background, this.objectsContainer);
+		this.wrapper.addChild(
+			this.background,
+			this.objectsContainer,
+			this.selectContainer,
+			this.selector,
+		);
 		this.wrapper.on("layout", () => {
 			const width = this.wrapper.layout?.computedLayout.width ?? 0;
 			const height = this.wrapper.layout?.computedLayout.height ?? 0;
@@ -117,9 +140,16 @@ export default class Gameplay {
 			this.objectsContainer.x = (width - _w) / 2;
 			this.objectsContainer.y = (height - _h) / 2;
 
+			this.selectContainer.scale.set(scale);
+
+			this.selectContainer.x = (width - _w) / 2;
+			this.selectContainer.y = (height - _h) / 2;
+
 			this.spinner.graphics.x = width / 2;
 			this.spinner.graphics.y = height / 2;
 		});
+
+		this.loadEventListeners();
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
 			this.closeButton.layout = { backgroundColor: base };
@@ -141,6 +171,96 @@ export default class Gameplay {
 			(value: number) => {
 				backdropFilter.strength = (value / 100) * 20;
 			},
+		);
+	}
+
+	dragWindow: [Vector2, Vector2] = [new Vector2(0, 0), new Vector2(0, 0)];
+
+	loadEventListeners() {
+		const beatmap = this.beatmap;
+
+		let clicked = false;
+
+		this.wrapper.on("pointerup", () => {
+			clicked = false;
+			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
+		});
+
+		this.wrapper.on("pointermove", (event) => {
+			const pos = this.objectsContainer.toLocal(event.global);
+
+			if (clicked) {
+				this.dragWindow[1] = new Vector2(event.global.x, event.global.y);
+			}
+
+			for (const idx of beatmap.previousObjects) {
+				const obj = beatmap.objects[idx];
+				if (obj instanceof DrawableHitCircle || obj instanceof DrawableSlider) {
+					const collided = obj.checkCollide(pos.x, pos.y);
+
+					if (obj instanceof DrawableSlider) {
+						obj.isHover = collided;
+					}
+				}
+			}
+		});
+
+		this.wrapper.on("pointerdown", (event) => {
+			clicked = true;
+			this.dragWindow[0] = new Vector2(event.global.x, event.global.y);
+			this.dragWindow[1] = new Vector2(event.global.x, event.global.y);
+
+			const pos = this.objectsContainer.toLocal(event.global);
+			const selected = [];
+
+			for (const idx of beatmap.previousObjects) {
+				const obj = beatmap.objects[idx];
+				if (obj instanceof DrawableHitCircle || obj instanceof DrawableSlider) {
+					const collided = obj.checkCollide(pos.x, pos.y);
+					if (collided) selected.push(idx);
+				}
+			}
+
+			selected.sort(
+				(a, b) =>
+					beatmap.objects[a].object.startTime -
+					beatmap.objects[b].object.startTime,
+			);
+
+			if (!event.ctrlKey || selected.length === 0) {
+				for (const select of this.selected) {
+					(
+						beatmap.objects[select] as DrawableHitCircle | DrawableSlider
+					).isSelected = false;
+				}
+				this.selectContainer.removeChildren();
+				this.selected.clear();
+			}
+			if (selected.length !== 0) this.selected.add(selected[0]);
+
+			for (const select of this.selected) {
+				(
+					beatmap.objects[select] as DrawableHitCircle | DrawableSlider
+				).isSelected = true;
+				this.selectContainer.addChild(
+					(beatmap.objects[select] as DrawableHitCircle | DrawableSlider)
+						.select,
+				);
+			}
+		});
+	}
+
+	checkInBound(point: Vector2) {
+		const start = this.objectsContainer.toLocal(this.dragWindow[0]);
+		const end = this.objectsContainer.toLocal(this.dragWindow[1]);
+
+		const minX = Math.min(start.x, end.x);
+		const maxX = Math.max(start.x, end.x);
+		const minY = Math.min(start.y, end.y);
+		const maxY = Math.max(start.y, end.y);
+
+		return (
+			minX <= point.x && point.x <= maxX && minY <= point.y && point.y <= maxY
 		);
 	}
 

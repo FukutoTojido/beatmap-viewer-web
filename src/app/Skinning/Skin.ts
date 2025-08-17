@@ -113,6 +113,7 @@ export default class Skin {
 			"hitcircleoverlay",
 			"hitcircleflash",
 			"hitcircleglow",
+			"hitcircleselect",
 			"sliderb",
 			"sliderb0",
 			"slidernd",

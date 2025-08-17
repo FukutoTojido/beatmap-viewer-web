@@ -1,4 +1,4 @@
-import { HitSample as Sample } from "osu-classes";
+import { HitSample as Sample, Vector2 } from "osu-classes";
 import {
 	type Slider,
 	SliderHead,
@@ -11,6 +11,7 @@ import {
 	AlphaFilter,
 	Container,
 	Geometry,
+	Graphics,
 	Mesh,
 	RenderLayer,
 	Shader,
@@ -27,13 +28,14 @@ import {
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacySlider";
 import type Skin from "@/Skinning/Skin";
+import type SkinManager from "@/Skinning/SkinManager";
 import HitSample from "../../../Audio/HitSample";
-import { darken, lighten } from "../../../utils";
+import { closestPointTo, darken, lighten } from "../../../utils";
 import type Beatmap from "..";
 import TimelineSlider from "../Timeline/TimelineSlider";
 import calculateSliderProgress from "./CalculateSliderProgress";
 import createGeometry from "./CreateSliderGeometry";
-import type DrawableHitCircle from "./DrawableHitCircle";
+import DrawableHitCircle from "./DrawableHitCircle";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
@@ -88,6 +90,22 @@ export default class DrawableSlider
 			},
 		},
 	});
+	public _selectShader = Shader.from({
+		gl: GL,
+		resources: {
+			customUniforms: {
+				borderColor: {
+					value: [205 / 255, 214 / 255, 244 / 255, 1.0],
+					type: "vec4<f32>",
+				},
+				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
+				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
+				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
+				borderWidth: { value: 0.128, type: "f32" },
+				bodyAlpha: { value: 0.0, type: "f32" },
+			},
+		},
+	});
 	_alphaFilter = new AlphaFilter();
 	private _backdropBlurFilter = new BackdropBlurFilter({
 		strength: 20,
@@ -107,8 +125,29 @@ export default class DrawableSlider
 		blendMode: "none",
 	});
 
+	public select = new Container();
+
+	public _baseGeometry: Geometry = new Geometry({
+		attributes: {
+			aPosition: new Float32Array([]),
+		},
+		indexBuffer: [],
+	});
+	public selectBody: Mesh<Geometry, Shader> = new Mesh({
+		geometry: this._baseGeometry,
+		shader: this._selectShader,
+		filters: [new AlphaFilter({ alpha: 1 })],
+		x: 0,
+		y: 0,
+		blendMode: "none",
+	});
+
+	path: Vector2[] = [];
+
 	ball: DrawableSliderBall;
 	followCircle: DrawableSliderFollowCircle;
+
+	nodes: Graphics = new Graphics({ visible: false });
 
 	private sliderWhistleSample: HitSample;
 	private sliderSlideSample: HitSample;
@@ -119,6 +158,9 @@ export default class DrawableSlider
 
 	private layer = new RenderLayer();
 	private layer2 = new RenderLayer();
+	private layer3 = new RenderLayer();
+
+	wrapper = new Container();
 
 	constructor(object: Slider) {
 		super(object);
@@ -172,6 +214,7 @@ export default class DrawableSlider
 		);
 
 		this.body.state.depthTest = true;
+		this.selectBody.state.depthTest = true;
 
 		this.context.provide("slider", this);
 
@@ -180,8 +223,7 @@ export default class DrawableSlider
 			this.context,
 		);
 
-		// this.container.visible = false;
-		this.container.addChild(
+		this.wrapper.addChild(
 			this.body,
 			...this.drawableCircles
 				.slice(1)
@@ -194,6 +236,10 @@ export default class DrawableSlider
 			this.layer2,
 		);
 
+		// this.container.visible = false;
+		this.container.addChild(this.wrapper, this.nodes);
+		this.select.addChild(this.selectBody);
+
 		for (const drawable of this.drawableCircles.toReversed()) {
 			const d = drawable as DrawableHitCircle;
 
@@ -204,6 +250,8 @@ export default class DrawableSlider
 			if (d instanceof DrawableSliderHead && d.defaults) {
 				this.layer2.attach(d.defaults.container);
 			}
+
+			if (d.select) this.select.addChild(d.select);
 		}
 
 		const whistleSample = new Sample();
@@ -225,13 +273,28 @@ export default class DrawableSlider
 			(object.radius / 54.4) * (236 / 256);
 
 		this.timelineObject = new TimelineSlider(object).hook(this.context);
+	}
 
-		this.container.cursor = "pointer";
-		this.container.interactive = true;
-		this.body.interactive = true;
-		this.container.addEventListener("pointerdown", () => {
-			console.log(this.object.startTime, "CLicked!");
-		});
+	private _isHover = false;
+	get isHover() {
+		return this._isHover;
+	}
+	set isHover(val: boolean) {
+		this._isHover = val;
+		this.nodes.visible = val || this.isSelected;
+	}
+
+	private _isSelected = false;
+	get isSelected() {
+		return this._isSelected;
+	}
+	set isSelected(val: boolean) {
+		this._isSelected = val;
+		this.select.visible = val;
+		this.nodes.visible = val;
+		for (const circle of this.drawableCircles) {
+			if (circle instanceof DrawableHitCircle) circle.select.visible = val;
+		}
 	}
 
 	private _object!: Slider;
@@ -242,8 +305,33 @@ export default class DrawableSlider
 	set object(val: Slider) {
 		this._object = val;
 
+		this.nodes.clear();
+		for (let i = 0; i < val.path.controlPoints.length; i++) {
+			const point = val.path.controlPoints[i];
+			if (i === 0) {
+				this.nodes.lineTo(point.position.x, point.position.y);
+			} else {
+				this.nodes
+					.lineTo(point.position.x, point.position.y)
+					.stroke({ width: 0.5, alignment: 0.5, color: 0xefefef });
+			}
+		}
+
+		for (let i = 0; i < val.path.controlPoints.length; i++) {
+			const point = val.path.controlPoints[i];
+
+			this.nodes
+				.circle(point.position.x, point.position.y, 2)
+				.fill(i === 0 || point.type === null ? 0xefefef : 0xff0000);
+		}
+
 		this.body.x = val.startPosition.x + val.stackedOffset.x;
 		this.body.y = val.startPosition.y + val.stackedOffset.x;
+		this.selectBody.x = val.startPosition.x + val.stackedOffset.x;
+		this.selectBody.y = val.startPosition.y + val.stackedOffset.x;
+
+		this.nodes.x = val.startPosition.x + val.stackedOffset.x;
+		this.nodes.y = val.startPosition.y + val.stackedOffset.x;
 
 		const nodes = val.nestedHitObjects.filter(
 			(object) => object instanceof StandardHitObject,
@@ -272,6 +360,45 @@ export default class DrawableSlider
 		if (this.ball) this.ball.object = val;
 		if (this.followCircle) this.followCircle.object = val;
 		if (this.timelineObject) this.timelineObject.object = val;
+
+		const path = calculateSliderProgress(this.object.path, 0, 1);
+		if (!path.length) return;
+
+		const { aPosition, indexBuffer } = createGeometry(
+			path,
+			val.radius *
+				(236 / 256) *
+				(inject<SkinManager>("skinManager")?.getCurrentSkin()?.config.General
+					.Argon
+					? 0.95
+					: 1),
+		);
+		this._baseGeometry.attributes.aPosition.buffer.data = new Float32Array(
+			aPosition,
+		);
+		this._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
+	}
+
+	checkCollide(x: number, y: number) {
+		const radius = 54.4 * this.object.scale;
+		const point = new Vector2(x, y);
+		const objectPosition = new Vector2(
+			this.object.startX + this.object.stackedOffset.x,
+			this.object.startY + this.object.stackedOffset.y,
+		);
+
+		let min = Infinity;
+		for (let i = 0; i < this.path.length - 1; i++) {
+			const start = this.path[i].add(objectPosition);
+			const end = this.path[i + 1].add(objectPosition);
+
+			const closestPoint = closestPointTo(point, start, end);
+			const dist = closestPoint.distance(point);
+
+			if (dist < min) min = dist;
+		}
+
+		return min < radius;
 	}
 
 	hook(context: Context) {
@@ -387,6 +514,7 @@ export default class DrawableSlider
 		}
 
 		const path = calculateSliderProgress(this.object.path, head, tail);
+		this.path = path;
 
 		if (!path.length) return;
 

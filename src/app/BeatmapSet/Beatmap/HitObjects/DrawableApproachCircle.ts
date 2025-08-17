@@ -20,6 +20,7 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		this.container.anchor.set(0.5);
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
+		this.container.eventMode = "none";
 
 		this.refreshSprite();
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>

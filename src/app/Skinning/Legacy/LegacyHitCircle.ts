@@ -19,11 +19,11 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		time < startFadeInTime ||
 		time > drawable.object.startTime + fadeOutDuration
 	) {
-		drawable.container.visible = false;
+		drawable.wrapper.visible = false;
 		return;
 	}
 
-	drawable.container.visible = true;
+	drawable.wrapper.visible = true;
 	drawable.sprite.scale.set(1);
 
 	if (time < drawable.object.startTime) {
@@ -31,7 +31,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 			1,
 			Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
 		);
-		drawable.container.alpha = opacity;
+		drawable.wrapper.alpha = opacity;
 
 		return;
 	}
@@ -49,7 +49,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 				0.5 * Math.max(0, (time - drawable.object.startTime) / fadeOutDuration),
 		);
 
-		drawable.container.alpha = opacity;
+		drawable.wrapper.alpha = opacity;
 		drawable.sprite.scale.set(scale);
 
 		return;

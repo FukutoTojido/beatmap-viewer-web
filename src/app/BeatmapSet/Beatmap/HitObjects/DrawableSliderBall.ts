@@ -15,17 +15,17 @@ export default class DrawableSliderBall extends SkinnableElement {
 	constructor(object: Slider) {
 		super();
 		this.object = object;
-
+		
 		const currentSkin = this.skinManager?.getCurrentSkin();
 		this.container = new Container();
-
+		
 		this.sliderb = new Sprite(
 			currentSkin?.getTexture(
 				"sliderb",
 				this.context.consume<Skin>("beatmapSkin"),
 			) ??
-				currentSkin?.getTexture(
-					"sliderb0",
+			currentSkin?.getTexture(
+				"sliderb0",
 					this.context.consume<Skin>("beatmapSkin"),
 				),
 		);
@@ -38,14 +38,15 @@ export default class DrawableSliderBall extends SkinnableElement {
 			),
 		);
 		this.slidernd.anchor.set(0.5);
-
+		
 		this.container.visible = false;
 		this.container.x = object.startX;
 		this.container.y = object.startY;
 		this.container.scale.set(this.object.scale);
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
-
+		this.container.eventMode = "none";
+		
 		this.container.addChild(this.slidernd, this.sliderb);
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>

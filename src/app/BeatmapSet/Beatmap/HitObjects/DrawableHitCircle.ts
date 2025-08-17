@@ -1,8 +1,8 @@
-import type { SamplePoint } from "osu-classes";
+import { Vector2, type SamplePoint } from "osu-classes";
 import type { StandardHitObject } from "osu-standard-stable";
 import { type ColorSource, Container, Sprite } from "pixi.js";
 import HitSample from "@/Audio/HitSample";
-import type { Context } from "@/Context";
+import { inject, type Context } from "@/Context";
 import {
 	refreshSprite as argonRefreshSprite,
 	update as argonUpdate,
@@ -18,6 +18,7 @@ import DrawableDefaults from "./DrawableDefaults";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
+import type SkinManager from "@/Skinning/SkinManager";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -28,8 +29,10 @@ export default class DrawableHitCircle
 	hitCircleSprite: Sprite;
 	hitCircleOverlay: Sprite;
 	flashPiece: Sprite;
+	select: Sprite = new Sprite({ visible: false, anchor: 0.5 });
 
 	sprite = new Container();
+	wrapper = new Container();
 
 	approachCircle: DrawableApproachCircle;
 	defaults?: DrawableDefaults;
@@ -49,7 +52,7 @@ export default class DrawableHitCircle
 		super(object);
 		this.object = object;
 
-		this.container.visible = false;
+		this.wrapper.visible = false;
 
 		this.hitCircleSprite = new Sprite();
 		this.hitCircleOverlay = new Sprite();
@@ -66,11 +69,13 @@ export default class DrawableHitCircle
 
 		this.approachCircle = new DrawableApproachCircle(object).hook(this.context);
 
-		this.container.addChild(this.sprite, this.flashPiece);
+		this.wrapper.addChild(this.sprite, this.flashPiece);
+
+		this.container.addChild(this.wrapper);
 
 		if (this.hasNumber) {
 			this.defaults = new DrawableDefaults(object);
-			this.container.addChild(this.defaults.container);
+			this.wrapper.addChild(this.defaults.container);
 		}
 
 		this.hitSound = new HitSample(object.samples).hook(this.context);
@@ -81,12 +86,27 @@ export default class DrawableHitCircle
 		);
 
 		this.timelineObject = new TimelineHitCircle(object).hook(this.context);
+	}
 
-		this.container.cursor = "pointer";
-		this.container.interactive = true;
-		this.container.addEventListener("pointertap", () => {
-			console.log(this.object.startTime, "CLicked!");
-		});
+	private _isSelected = false;
+	get isSelected() {
+		return this._isSelected;
+	}
+	set isSelected(val: boolean) {
+		this._isSelected = val;
+		this.select.visible = val;
+	}
+
+	checkCollide(x: number, y: number) {
+		const radius = 54.4 * this.object.scale;
+		const objectPosition = new Vector2(
+			this.object.startX + this.object.stackedOffset.x,
+			this.object.startY + this.object.stackedOffset.y,
+		);
+		const pointer = new Vector2(x, y);
+
+		const dist = pointer.distance(objectPosition);
+		return dist < radius && this.wrapper.visible;
 	}
 
 	protected _object!: StandardHitObject;
@@ -98,7 +118,22 @@ export default class DrawableHitCircle
 		this._object = val;
 		this.container.x = val.startX + val.stackedOffset.x;
 		this.container.y = val.startY + val.stackedOffset.y;
-		this.container.scale.set(val.scale);
+		this.container.scale.set(
+			val.scale *
+				(inject<SkinManager>("skinManager")?.getCurrentSkin()?.config.General
+					.Argon
+					? 0.95
+					: 1),
+		);
+		this.select.x = val.startX + val.stackedOffset.x;
+		this.select.y = val.startY + val.stackedOffset.y;
+		this.select.scale.set(
+			val.scale *
+				(inject<SkinManager>("skinManager")?.getCurrentSkin()?.config.General
+					.Argon
+					? 0.95
+					: 1),
+		);
 
 		if (this.approachCircle) this.approachCircle.object = val;
 		if (this.defaults) this.defaults.object = val;

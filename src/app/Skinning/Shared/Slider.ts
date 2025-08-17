@@ -12,12 +12,12 @@ export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 		time > drawable.object.endTime + fadeOutDuration
 	) {
 		drawable._alphaFilter.alpha = 0;
-		drawable.container.visible = false;
+		drawable.wrapper.visible = false;
 
 		return { start: 0, end: 0 };
 	}
 
-	drawable.container.visible = true;
+	drawable.wrapper.visible = true;
 
 	const completionProgress = Math.min(
 		1,

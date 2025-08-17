@@ -80,7 +80,6 @@ onmessage = (event) => {
 		}
 		case "preempt": {
 			preempt = event.data.preempt;
-			console.log(preempt);
 			break;
 		}
 		case "start": {

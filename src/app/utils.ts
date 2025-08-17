@@ -3,6 +3,7 @@ import { Vibrant } from "node-vibrant/browser";
 import type ColorConfig from "./Config/ColorConfig";
 import type { ColorPalette } from "./Config/ColorConfig";
 import { inject } from "./Context";
+import type { Vector2 } from "osu-classes";
 
 export function lighten(
 	color: [number, number, number, number?],
@@ -169,3 +170,17 @@ export const difficultyRange = (
 	if (val < 5) return mid - ((mid - min) * (5 - val)) / 5;
 	return mid;
 };
+
+export const closestPointTo = (p: Vector2, start: Vector2, end: Vector2): Vector2 => {
+	const v = end.subtract(start);
+	const w = p.subtract(start);
+
+	const c1 = w.dot(v);
+	if (c1 <= 0) return start;
+
+	const c2 = v.dot(v);
+	if (c2 <= c1) return end;
+
+	const b = c1 / c2;
+	return start.add(v.scale(b));
+}

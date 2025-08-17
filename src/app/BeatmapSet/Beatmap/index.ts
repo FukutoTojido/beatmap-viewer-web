@@ -47,7 +47,7 @@ export default class Beatmap extends ScopedClass {
 	private loaded = false;
 
 	private previousConnectors = new Set<number>();
-	private previousObjects = new Set<number>();
+	previousObjects = new Set<number>();
 	previousTime = 0;
 
 	container: Gameplay;
@@ -408,6 +408,14 @@ export default class Beatmap extends ScopedClass {
 				...containers,
 				...approachCircleContainers,
 			);
+
+		const dragWindowVector = this.container.dragWindow[1].subtract(
+			this.container.dragWindow[0],
+		);
+		const pos = this.container.wrapper.toLocal(this.container.dragWindow[0]);
+
+		this.container.selector.scale.set(dragWindowVector.x, dragWindowVector.y);
+		this.container.selector.position.set(pos.x, pos.y);
 	}
 
 	getNearestSamplePoint(time: number) {
@@ -431,13 +439,38 @@ export default class Beatmap extends ScopedClass {
 
 	update(time: number, objects: Set<number>, connectors: Set<number>) {
 		if (!this.loaded) return;
+		if (
+			this.container.dragWindow[0].distance(this.container.dragWindow[1]) > 0
+		) {
+			for (const idx of objects) {
+				const obj = this.objects[idx];
+				const isInBound = this.container.checkInBound(obj.object.startPosition);
+
+				if (isInBound) {
+					this.container.selected.add(idx);
+					(obj as DrawableHitCircle | DrawableSlider).isSelected = true;
+					this.container.selectContainer.addChild(
+						(obj as DrawableHitCircle | DrawableSlider).select,
+					);
+				} else {
+					this.container.selected.delete(idx);
+					(obj as DrawableHitCircle | DrawableSlider).isSelected = false;
+					this.container.selectContainer.removeChild(
+						(obj as DrawableHitCircle | DrawableSlider).select,
+					);
+				}
+			}
+		}
+
+		const objectsWithSelected = objects.union(this.container.selected);
 
 		// const audio = this.context.consume<Audio>("audio");
 		const objectContainer = this.container.objectsContainer;
 
-		const disposedObjects = this.previousObjects.difference(objects);
+		const disposedObjects =
+			this.previousObjects.difference(objectsWithSelected);
 		const disposedConnectors = this.previousConnectors.difference(connectors);
-		this.previousObjects = objects;
+		this.previousObjects = objectsWithSelected;
 		this.previousConnectors = connectors;
 
 		for (const idx of disposedObjects) {

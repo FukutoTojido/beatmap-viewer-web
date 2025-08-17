@@ -22,6 +22,7 @@ export default class DrawableSliderFollowCircle extends SkinnableElement {
 		this.container.y = object.startY;
 		this.container.anchor.set(0.5);
 		this.container.scale.set(this.object.scale);
+		this.container.eventMode = "none";
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),

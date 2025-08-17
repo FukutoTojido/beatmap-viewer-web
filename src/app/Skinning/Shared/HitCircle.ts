@@ -20,9 +20,16 @@ export const sharedRefreshSprite = (drawable: DrawableHitCircle) => {
 			? drawable.context.consume<Skin>("beatmapSkin")
 			: undefined,
 	);
+	const hitCircleSelect = skin.getTexture(
+		"hitcircleselect",
+		!skin.config.General.Argon
+			? drawable.context.consume<Skin>("beatmapSkin")
+			: undefined,
+	);
 
 	if (hitCircle) drawable.hitCircleSprite.texture = hitCircle;
 	if (hitCircleOverlay) drawable.hitCircleOverlay.texture = hitCircleOverlay;
+	if (hitCircleSelect) drawable.select.texture = hitCircleSelect;
 
 	drawable.hitCircleOverlay.alpha = 1;
 	drawable.hitCircleSprite.alpha = 1;
@@ -45,7 +52,7 @@ export const sharedRefreshSprite = (drawable: DrawableHitCircle) => {
 	}
 
 	const comboIndex = drawable.object.comboIndexWithOffsets % skin.colorsLength;
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: It is complicated
 	const color = (skin.config.Colours as any)[
 		`Combo${comboIndex + 1}`
 	] as string;

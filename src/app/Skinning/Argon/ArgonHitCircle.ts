@@ -1,10 +1,9 @@
-import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
-import { sharedRefreshSprite } from "../Shared/HitCircle";
-import Easings from "@/UI/Easings";
-import type Skin from "../Skin";
-import { BLANK_TEXTURE } from "../Skin";
-import { Easing } from "osu-classes";
 import * as d3 from "d3";
+import { Easing } from "osu-classes";
+import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
+import Easings from "@/UI/Easings";
+import { sharedRefreshSprite } from "../Shared/HitCircle";
+import { BLANK_TEXTURE } from "../Skin";
 
 export const refreshSprite = (drawable: DrawableHitCircle) => {
 	sharedRefreshSprite(drawable);
@@ -28,11 +27,11 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		time < startFadeInTime ||
 		time > drawable.object.startTime + fadeOutDuration
 	) {
-		drawable.container.visible = false;
+		drawable.wrapper.visible = false;
 		return;
 	}
 
-	drawable.container.visible = true;
+	drawable.wrapper.visible = true;
 	drawable.sprite.scale.set(1);
 	drawable.hitCircleSprite.tint = drawable.color;
 
@@ -49,7 +48,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 			1,
 			Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
 		);
-		drawable.container.alpha = opacity;
+		drawable.wrapper.alpha = opacity;
 		drawable.hitCircleOverlay.alpha = 1;
 		drawable.hitCircleSprite.alpha = 1;
 
@@ -108,7 +107,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 			drawable.hitCircleSprite.tint = interpolated;
 		}
 
-		drawable.container.alpha = 1 - Easings.OutQuad(opacity);
+		drawable.wrapper.alpha = 1 - Easings.OutQuad(opacity);
 
 		drawable.hitCircleOverlay.alpha = 0.5 * (1 - Easings.OutQuad(opacity));
 		drawable.hitCircleSprite.alpha = 1 - Easings.OutQuint(flashOpacity);

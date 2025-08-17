@@ -32,7 +32,7 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 
 		this.arrowContainer.addChild(this.reverseArrow, this.ringPiece);
 
-		this.container.addChild(this.arrowContainer);
+		this.wrapper.addChild(this.arrowContainer);
 		this.refreshSprite();
 		this.updateRotation();
 	}

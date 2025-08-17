@@ -26,7 +26,7 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 			this.approachCircle = new DrawableApproachCircle(parent).hook(
 				this.context,
 			);
-			this.container.addChild(this.defaults.container);
+			this.wrapper.addChild(this.defaults.container);
 		}
 
 		this.hitSound = new HitSample(samples).hook(this.context);
@@ -37,6 +37,7 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 		this.timelineObject = undefined;
 
 		this.refreshSprite();
+		this.container.eventMode = "none";
 	}
 
 	updateObjects(object: SliderHead, parent: Slider, samples: Sample[]) {

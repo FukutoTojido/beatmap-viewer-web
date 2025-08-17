@@ -4,6 +4,8 @@ import { inject } from "@/Context";
 import { lighten, darken } from "@/utils";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import { sharedUpdate } from "../Shared/Slider";
+import createGeometry from "@/BeatmapSet/Beatmap/HitObjects/CreateSliderGeometry";
+import calculateSliderProgress from "@/BeatmapSet/Beatmap/HitObjects/CalculateSliderProgress";
 
 const blur = new URLSearchParams(window.location.search).get("blur");
 
@@ -24,7 +26,7 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 		colors?.length &&
 		!inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
 			? `${colors[comboIndex].red},${colors[comboIndex].green},${colors[comboIndex].blue}`
-			: // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			: // biome-ignore lint/suspicious/noExplicitAny: It is complicated
 				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
 
 	const trackColor = beatmap?.data.colors.sliderTrackColor;
@@ -63,7 +65,27 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 	drawable._shader.resources.customUniforms.uniforms.borderWidth = 0.128;
 	drawable._shader.resources.customUniforms.uniforms.bodyAlpha = 0.7;
 
+	drawable._selectShader.resources.customUniforms.uniforms.borderColor = [
+		49 / 255,
+		151 / 255,
+		255 / 255,
+		1.0,
+	];
+	drawable._selectShader.resources.customUniforms.uniforms.borderWidth = 0.128;
+
 	drawable.timelineObject?.refreshSprite();
+
+	const path = calculateSliderProgress(drawable.object.path, 0, 1);
+	if (!path.length) return;
+
+	const { aPosition, indexBuffer } = createGeometry(
+		path,
+		drawable.object.radius * (236 / 256),
+	);
+	drawable._baseGeometry.attributes.aPosition.buffer.data = new Float32Array(
+		aPosition,
+	);
+	drawable._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
 };
 
 export const update = (drawable: DrawableSlider, time: number) => {

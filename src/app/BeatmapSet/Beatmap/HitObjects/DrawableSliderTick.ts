@@ -30,6 +30,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 
 		this.container.interactive = false;
 		this.container.interactiveChildren = false;
+		this.container.eventMode = "none";
 
 		const distFromStart = object.startPosition.distance(parent.startPosition);
 		const distFromEnd = object.endPosition.distance(parent.endPosition);
