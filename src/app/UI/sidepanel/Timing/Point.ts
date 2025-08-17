@@ -1,23 +1,16 @@
+import { DifficultyPoint, type SamplePoint, TimingPoint } from "osu-classes";
+import { BitmapText, type ColorSource, Container, Graphics } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import { millisecondsToMinutesString } from "@/utils";
-import { LayoutContainer } from "@pixi/layout/components";
-import { DifficultyPoint, type SamplePoint, TimingPoint } from "osu-classes";
-import {
-	BitmapText,
-	Container,
-	Graphics,
-	Rectangle,
-	Text,
-	type ColorSource,
-} from "pixi.js";
 
 export default class Point {
-	container: LayoutContainer;
+	container: Container;
 	private indicator: Graphics;
 	private timestamp: BitmapText;
 	private content1: BitmapText;
 	private content2: BitmapText;
+	private color: Graphics;
 
 	private accent: ColorSource;
 	private bg = inject<ColorConfig>("config/color")?.color.mantle ?? 0x181825;
@@ -28,32 +21,27 @@ export default class Point {
 				? 0xf38ba8
 				: data instanceof DifficultyPoint
 					? 0xa6e3a1
-					: inject<ColorConfig>("config/color")?.color.text ?? 0xcdd6f4;
+					: (inject<ColorConfig>("config/color")?.color.text ?? 0xcdd6f4);
 
-		this.container = new LayoutContainer({
-			layout: {
-				position: "absolute",
-				display: "flex",
-				width: 360,
-				height: 40,
-				borderRadius: 10,
-				paddingInline: 20,
-				alignItems: "center",
-				backgroundColor: this.bg,
-			},
+		this.color = new Graphics().roundRect(0, 0, 360, 40, 10).fill(0xffffff);
+		this.color.tint = this.bg;
+
+		this.container = new Container({
+			width: 360,
+			height: 40,
 			alpha: 0.5,
 		});
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ mantle }) => {
 			if (this._destroyed) return;
-			
+
 			this.bg = mantle;
 			this.accent =
 				data instanceof TimingPoint
 					? 0xf38ba8
 					: data instanceof DifficultyPoint
 						? 0xa6e3a1
-						: inject<ColorConfig>("config/color")?.color.text ?? 0xcdd6f4;
+						: (inject<ColorConfig>("config/color")?.color.text ?? 0xcdd6f4);
 
 			if (this.indicator.visible) this.select();
 			if (!this.indicator.visible) this.unselect();
@@ -67,11 +55,7 @@ export default class Point {
 				fill: this.accent,
 				align: "left",
 			},
-			layout: {
-				width: 80,
-				flexShrink: 0,
-				objectPosition: "center left",
-			},
+			layout: false,
 		});
 
 		this.content1 = new BitmapText({
@@ -88,12 +72,9 @@ export default class Point {
 				align: "left",
 				fontWeight: "500",
 			},
-			layout: {
-				flex: 1,
-				flexShrink: 0,
-				objectPosition: "center left",
-			},
+			layout: false,
 		});
+		this.content1.x = 80;
 
 		this.content2 = new BitmapText({
 			text:
@@ -108,10 +89,7 @@ export default class Point {
 				fill: this.accent,
 				align: "left",
 			},
-			layout: {
-				flexShrink: 0,
-				objectPosition: "center right",
-			},
+			layout: false,
 		});
 
 		this.indicator = new Graphics()
@@ -127,6 +105,7 @@ export default class Point {
 		this.indicator.visible = false;
 
 		this.container.addChild(
+			this.color,
 			this.timestamp,
 			this.content1,
 			this.content2,
@@ -134,6 +113,21 @@ export default class Point {
 		);
 		this.container.visible = false;
 		this.container.interactiveChildren = false;
+
+		this.reWidth(360);
+	}
+
+	reWidth(width: number, height = 40) {
+		this.color.clear().roundRect(0, 0, width, 40, 10).fill(0xffffff);
+
+		this.content2.x = width - this.content2.width - 20;
+		this.content2.y = (height - this.content2.height) / 2;
+
+		this.timestamp.x = 20;
+		this.timestamp.y = (height - this.timestamp.height) / 2;
+
+		this.content1.x = 20 + 80;
+		this.content1.y = (height - this.content1.height) / 2;
 	}
 
 	on() {
@@ -156,9 +150,7 @@ export default class Point {
 	select() {
 		this.container.alpha = 1;
 
-		this.container.layout = {
-			backgroundColor: this.accent,
-		};
+		this.color.tint = this.accent;
 		this.timestamp.style.fill = this.bg;
 		this.content1.style.fill = this.bg;
 		this.content2.style.fill = this.bg;
@@ -170,9 +162,7 @@ export default class Point {
 	unselect() {
 		this.container.alpha = 0.5;
 
-		this.container.layout = {
-			backgroundColor: this.bg,
-		};
+		this.color.tint = this.bg;
 		this.timestamp.style.fill = this.accent;
 		this.content1.style.fill = this.accent;
 		this.content2.style.fill = this.accent;
@@ -184,6 +174,7 @@ export default class Point {
 	private _destroyed = false;
 	destroy() {
 		this.container.destroy();
+		this.color.destroy();
 		this.timestamp.destroy();
 		this.content1.destroy();
 		this.content2.destroy();

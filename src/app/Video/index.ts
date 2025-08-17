@@ -1,10 +1,10 @@
+import type Audio from "@/Audio";
+import type BeatmapSet from "@/BeatmapSet";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 import { inject } from "@/Context";
+import type Background from "@/UI/main/viewer/Background";
 import { MessageType, type WorkerPayload } from "./types";
 import VideoWorker from "./Worker.ts?worker";
-import type Background from "@/UI/main/viewer/Background";
-import BackgroundConfig from "@/Config/BackgroundConfig";
-import type BeatmapSet from "@/BeatmapSet";
-import type Audio from "@/Audio";
 
 export default class Video {
 	worker = new VideoWorker();
@@ -19,9 +19,7 @@ export default class Video {
 
 		this.worker.addEventListener(
 			"message",
-			(event: {
-				data: WorkerPayload;
-			}) => {
+			(event: { data: WorkerPayload }) => {
 				switch (event.data.type) {
 					case MessageType.Frame: {
 						if (!inject<BackgroundConfig>("config/background")?.video) break;
@@ -74,6 +72,6 @@ export default class Video {
 	}
 
 	destroy() {
-		this.worker.terminate()
+		this.worker.terminate();
 	}
 }

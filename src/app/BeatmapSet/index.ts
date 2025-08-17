@@ -300,7 +300,7 @@ export default class BeatmapSet extends ScopedClass {
 			beatmap.data.metadata,
 		);
 
-		await beatmap.loadTimingPoints();
+		beatmap.loadTimingPoints();
 	}
 
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
@@ -330,7 +330,7 @@ export default class BeatmapSet extends ScopedClass {
 		const oldMaster = this.master;
 		const isSwitch = this.slaves.has(beatmap);
 
-		await this.loadPeripherals(beatmap);
+		this.loadPeripherals(beatmap);
 
 		if (isSwitch && oldMaster) {
 			inject<Gameplays>("ui/main/viewer/gameplays")?.switchGameplay(

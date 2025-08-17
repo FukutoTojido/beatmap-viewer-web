@@ -1,16 +1,14 @@
-import { inject } from "@/Context";
-import type ResponsiveHandler from "@/ResponsiveHandler";
 import { LayoutContainer } from "@pixi/layout/components";
-import { Container, type FederatedPointerEvent, Rectangle } from "pixi.js";
-import Point from "./Point";
 import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
-import { binarySearch } from "@/utils";
-import AnimationController from "@/UI/animation/AnimationController";
-import type { Tween } from "@tweenjs/tween.js";
-import Easings from "@/UI/Easings";
-import type State from "@/State";
+import { Container, type FederatedPointerEvent, Rectangle } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { inject } from "@/Context";
+import type ResponsiveHandler from "@/ResponsiveHandler";
+import type State from "@/State";
+import AnimationController from "@/UI/animation/AnimationController";
+import Easings from "@/UI/Easings";
+import Point from "./Point";
 
 const DECAY_RATE = 0.99;
 const LN0_9 = Math.log(DECAY_RATE);
@@ -50,9 +48,7 @@ export default class Timing {
 			if (this.container.layout?.computedLayout.width !== this._cachedWidth) {
 				this._cachedWidth = this.container.layout?.computedLayout.width;
 				for (const point of this.points) {
-					point.container.layout = {
-						width: this.container.layout?.computedLayout.width ?? 360,
-					};
+					point.reWidth(this.container.layout?.computedLayout.width ?? 360);
 				}
 			}
 		});

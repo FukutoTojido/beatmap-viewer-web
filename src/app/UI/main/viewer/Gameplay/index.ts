@@ -62,6 +62,7 @@ export default class Gameplay {
 				alignItems: "flex-start",
 			},
 			isRenderGroup: true,
+			interactive: true
 		});
 		this.wrapper = new Container({
 			label: "wrapper",
@@ -69,6 +70,7 @@ export default class Gameplay {
 				width: "100%",
 				height: "100%",
 			},
+			interactive: true
 		});
 		this.background = new LayoutContainer({
 			label: "dim",

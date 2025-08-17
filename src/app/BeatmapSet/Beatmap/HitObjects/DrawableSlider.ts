@@ -225,6 +225,13 @@ export default class DrawableSlider
 			(object.radius / 54.4) * (236 / 256);
 
 		this.timelineObject = new TimelineSlider(object).hook(this.context);
+
+		this.container.cursor = "pointer";
+		this.container.interactive = true;
+		this.body.interactive = true;
+		this.container.addEventListener("pointerdown", () => {
+			console.log(this.object.startTime, "CLicked!");
+		});
 	}
 
 	private _object!: Slider;

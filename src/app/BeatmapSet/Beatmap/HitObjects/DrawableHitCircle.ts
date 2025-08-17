@@ -81,6 +81,12 @@ export default class DrawableHitCircle
 		);
 
 		this.timelineObject = new TimelineHitCircle(object).hook(this.context);
+
+		this.container.cursor = "pointer";
+		this.container.interactive = true;
+		this.container.addEventListener("pointertap", () => {
+			console.log(this.object.startTime, "CLicked!");
+		});
 	}
 
 	protected _object!: StandardHitObject;

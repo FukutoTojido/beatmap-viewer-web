@@ -14,6 +14,7 @@ export default class Gameplays {
 			width: "100%",
 			flex: 1,
 		},
+		interactive: true,
 	});
 
 	gameplays: Set<Gameplay> = new Set();

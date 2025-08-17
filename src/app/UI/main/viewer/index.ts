@@ -19,6 +19,7 @@ export default class Viewer {
 			borderRadius: 20,
 			overflow: "hidden",
 		},
+			interactive: true
 	});
 
 	constructor() {
