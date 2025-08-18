@@ -1,6 +1,9 @@
 # osu! Web Beatmap Viewer
 An osu! beatmap viewer on the web.
 
+## The 2.0 version of JoSu! is being developed and can be tested out here: [https://beatmap.try-z.net/dev](https://beatmap.try-z.net/dev)
+- 2.0 Development Branch: https://github.com/FukutoTojido/beatmap-viewer-web/tree/feature/2.0
+
 ## Special Thanks
 - Beatmap Mirror from [Nerinyan](https://nerinyan.moe) by **[Zeee2](https://github.com/zeee2)**
 - Slider Implementation inspired by **[Marvin](https://github.com/minetoblend)** from [osu-cad](https://github.com/minetoblend/osu-cad/)
@@ -47,3 +50,4 @@ An osu! beatmap viewer on the web.
 ## Issue
 - Should there be any issue happening on the site, please create a new issue on this repository.
 - Also, since I haven't tested this site on many different kinds of browsers (such as Firefox, Safari, Opera, etc), inconsistencies are expected to happen between each one of them.
+
