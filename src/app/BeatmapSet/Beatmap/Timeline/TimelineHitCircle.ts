@@ -12,6 +12,7 @@ export default class TimelineHitCircle extends TimelineHitObject {
 	hitCircle: Sprite;
 	hitCircleOverlay: Sprite;
 	defaults: DrawableDefaults;
+	select: Sprite;
 
 	constructor(object: Circle) {
 		super(object);
@@ -20,9 +21,11 @@ export default class TimelineHitCircle extends TimelineHitObject {
 
 		this.hitCircle = new Sprite();
 		this.hitCircleOverlay = new Sprite();
+		this.select = new Sprite({ visible: false });
 
 		this.hitCircle.anchor.set(0.5);
 		this.hitCircleOverlay.anchor.set(0.5);
+		this.select.anchor.set(0.5);
 
 		this.container.scale.set(50 / 128);
 
@@ -30,6 +33,7 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			this.hitCircle,
 			this.defaults.container,
 			this.hitCircleOverlay,
+			this.select,
 		);
 
 		this.refreshSprite();
@@ -43,6 +47,14 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		super.object = val;
 		this._object = val;
 		if (this.defaults) this.defaults.object = val;
+	}
+
+	get isSelected() {
+		return this._isSelected;
+	}
+	set isSelected(val: boolean) {
+		this._isSelected = val;
+		this.select.visible = val;
 	}
 
 	refreshSprite() {
@@ -61,6 +73,10 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			"hitcircleoverlay",
 			this.context.consume<Skin>("beatmapSkin"),
 		);
+		const select = skin.getTexture(
+			"hitcircleselect",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 
 		this.hitCircle.texture =
 			(skin.config.General.Argon
@@ -69,6 +85,8 @@ export default class TimelineHitCircle extends TimelineHitObject {
 		this.hitCircleOverlay.texture =
 			(skin.config.General.Argon ? BLANK_TEXTURE : hitCircleOverlay) ??
 			BLANK_TEXTURE;
+		this.select.texture = select ?? BLANK_TEXTURE;
+		this.select.scale.set(skin.config.General.Argon ? 256 / 236 : 1);
 
 		const color =
 			this.context.consume<DrawableHitCircle>("object")?.color ?? "rgb(0,0,0)";

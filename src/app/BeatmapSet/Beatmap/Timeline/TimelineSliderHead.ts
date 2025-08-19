@@ -4,6 +4,7 @@ import type Skin from "@/Skinning/Skin";
 import DrawableDefaults from "../HitObjects/DrawableDefaults";
 import type DrawableSlider from "../HitObjects/DrawableSlider";
 import TimelineHitCircle from "./TimelineHitCircle";
+import { BLANK_TEXTURE } from "@/Skinning/Skin";
 
 export default class TimelineSliderHead extends TimelineHitCircle {
 	constructor(object: SliderHead, parent: Slider) {
@@ -28,9 +29,15 @@ export default class TimelineSliderHead extends TimelineHitCircle {
 			"hitcircleoverlay",
 			this.context.consume<Skin>("beatmapSkin"),
 		);
+		const select = skin.getTexture(
+			"hitcircleselect",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 
 		if (hitCircle) this.hitCircle.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+		this.select.texture =
+			(skin.config.General.Argon ? BLANK_TEXTURE : select) ?? BLANK_TEXTURE;
 
 		this.hitCircle.visible = !skin.config.General.Argon;
 		this.hitCircleOverlay.visible = !skin.config.General.Argon;

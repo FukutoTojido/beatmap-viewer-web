@@ -439,25 +439,16 @@ export default class Beatmap extends ScopedClass {
 
 	update(time: number, objects: Set<number>, connectors: Set<number>) {
 		if (!this.loaded) return;
-		if (
-			this.container.dragWindow[0].distance(this.container.dragWindow[1]) > 0
-		) {
+		
+		if (this.container.dragWindow[0].distance(this.container.dragWindow[1]) > 0) {
 			for (const idx of objects) {
 				const obj = this.objects[idx];
 				const isInBound = this.container.checkInBound(obj.object.startPosition);
 
 				if (isInBound) {
-					this.container.selected.add(idx);
-					(obj as DrawableHitCircle | DrawableSlider).isSelected = true;
-					this.container.selectContainer.addChild(
-						(obj as DrawableHitCircle | DrawableSlider).select,
-					);
+					this.container.addSelected(idx);
 				} else {
-					this.container.selected.delete(idx);
-					(obj as DrawableHitCircle | DrawableSlider).isSelected = false;
-					this.container.selectContainer.removeChild(
-						(obj as DrawableHitCircle | DrawableSlider).select,
-					);
+					this.container.removeSelected(idx);
 				}
 			}
 		}

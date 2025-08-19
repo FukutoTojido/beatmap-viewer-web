@@ -186,7 +186,12 @@ export default class Gameplay {
 			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
 		});
 
-		this.wrapper.on("pointermove", (event) => {
+		this.wrapper.on("pointerupoutside", () => {
+			clicked = false;
+			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
+		});
+
+		this.wrapper.on("globalpointermove", (event) => {
 			const pos = this.objectsContainer.toLocal(event.global);
 
 			if (clicked) {
@@ -229,25 +234,31 @@ export default class Gameplay {
 
 			if (!event.ctrlKey || selected.length === 0) {
 				for (const select of this.selected) {
-					(
-						beatmap.objects[select] as DrawableHitCircle | DrawableSlider
-					).isSelected = false;
+					this.removeSelected(select);
 				}
-				this.selectContainer.removeChildren();
-				this.selected.clear();
 			}
 			if (selected.length !== 0) this.selected.add(selected[0]);
 
 			for (const select of this.selected) {
-				(
-					beatmap.objects[select] as DrawableHitCircle | DrawableSlider
-				).isSelected = true;
-				this.selectContainer.addChild(
-					(beatmap.objects[select] as DrawableHitCircle | DrawableSlider)
-						.select,
-				);
+				this.addSelected(select);
 			}
 		});
+	}
+
+	addSelected(idx: number) {
+		this.selected.add(idx);
+		const obj = this.beatmap.objects[idx] as DrawableHitCircle | DrawableSlider;
+		obj.isSelected = true;
+		if (obj.timelineObject) obj.timelineObject.isSelected = true;
+		this.selectContainer.addChild(obj.select);
+	}
+
+	removeSelected(idx: number) {
+		this.selected.delete(idx);
+		const obj = this.beatmap.objects[idx] as DrawableHitCircle | DrawableSlider;
+		obj.isSelected = false;
+		if (obj.timelineObject) obj.timelineObject.isSelected = false;
+		this.selectContainer.removeChild(obj.select);
 	}
 
 	checkInBound(point: Vector2) {

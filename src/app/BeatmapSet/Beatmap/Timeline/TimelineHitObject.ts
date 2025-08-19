@@ -9,6 +9,7 @@ export default abstract class TimelineHitObject extends SkinnableElement {
 	container: Container = new Container({
 		visible: false,
 	});
+	abstract select: Container;
 	constructor(object: StandardHitObject) {
 		super();
 		this.object = object;
@@ -28,6 +29,14 @@ export default abstract class TimelineHitObject extends SkinnableElement {
 
 		const scale = inject<TimelineConfig>("config/timeline")?.scale ?? 1;
 		this.container.x = val.startTime / (DEFAULT_SCALE / scale);
+	}
+
+	protected _isSelected = false;
+	get isSelected() {
+		return this._isSelected;
+	}
+	set isSelected(val: boolean) {
+		this._isSelected = val;
 	}
 
 	abstract getTimeRange(): { start: number; end: number };

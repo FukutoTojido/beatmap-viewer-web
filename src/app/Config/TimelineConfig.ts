@@ -36,12 +36,7 @@ export default class TimelineConfig extends ConfigSection {
 		this.emitChange("divisor", val);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	protected emitChange(key: TimelineConfigEvents, newValue: any): void {
-		super.emitChange(key, newValue);
-	}
-
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: It could be any yah
 	onChange(key: TimelineConfigEvents, callback: (newValue: any) => void): void {
 		super.onChange(key, callback);
 	}

@@ -165,6 +165,7 @@ export default class DrawableSlider
 	constructor(object: Slider) {
 		super(object);
 		this.object = object;
+		this.context.provide<DrawableSlider>("drawable", this);
 
 		if (blur) {
 			this.body.filters = [this._alphaFilter, this._backdropBlurFilter];
@@ -293,7 +294,12 @@ export default class DrawableSlider
 		this.select.visible = val;
 		this.nodes.visible = val;
 		for (const circle of this.drawableCircles) {
-			if (circle instanceof DrawableHitCircle) circle.select.visible = val;
+			if (
+				circle instanceof DrawableSliderHead ||
+				circle instanceof DrawableSliderTail ||
+				circle instanceof DrawableSliderRepeat
+			)
+				circle.select.visible = val;
 		}
 	}
 

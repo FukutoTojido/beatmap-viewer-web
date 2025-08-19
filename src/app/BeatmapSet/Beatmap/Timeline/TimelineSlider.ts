@@ -4,7 +4,14 @@ import {
 	SliderRepeat,
 	SliderTail,
 } from "osu-standard-stable";
-import { AlphaFilter, Color, FillGradient, Graphics, Text } from "pixi.js";
+import {
+	AlphaFilter,
+	Color,
+	Container,
+	FillGradient,
+	Graphics,
+	Text,
+} from "pixi.js";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { type Context, inject } from "@/Context";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
@@ -53,6 +60,7 @@ export default class TimelineSlider extends TimelineHitObject {
 	body: Graphics = new Graphics({
 		filters: this.filter,
 	});
+	select: Graphics;
 
 	length = 0;
 
@@ -63,6 +71,8 @@ export default class TimelineSlider extends TimelineHitObject {
 		this.length =
 			object.duration /
 			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
+
+		this.select = new Graphics({ visible: false });
 
 		for (const object of this.object.nestedHitObjects
 			.filter(
@@ -95,6 +105,7 @@ export default class TimelineSlider extends TimelineHitObject {
 		this.container.addChild(
 			this.body,
 			...this.circles.map((circle) => circle.container),
+			this.select,
 		);
 
 		this.updateCircles();
@@ -140,6 +151,17 @@ export default class TimelineSlider extends TimelineHitObject {
 		this.refreshSprite();
 	}
 
+	get isSelected() {
+		return this._isSelected;
+	}
+	set isSelected(val: boolean) {
+		this._isSelected = val;
+		for (const circle of this.circles) {
+			circle.isSelected = val;
+		}
+		this.refreshSprite();
+	}
+
 	updateVelocity() {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		if (!beatmap) return;
@@ -169,6 +191,17 @@ export default class TimelineSlider extends TimelineHitObject {
 		this.length =
 			(this.object as Slider).duration /
 			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
+
+		this.select.clear().roundRect(-25, -25, this.length + 50, 50, 25).stroke({
+			width: 50 * 0.1,
+			cap: "round",
+			color: 0xffc02b,
+			alignment: 1
+		});
+
+		this.select.visible =
+			(this.skinManager?.getCurrentSkin().config.General.Argon ?? false) &&
+			this.isSelected;
 
 		if (this.skinManager?.getCurrentSkin().config.General.Argon) {
 			this.body

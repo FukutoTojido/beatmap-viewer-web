@@ -14,6 +14,7 @@ export const refreshSprite = (drawable: DrawableHitCircle) => {
 
 	drawable.flashPiece.texture = flashTexture ?? BLANK_TEXTURE;
 	drawable.container.scale.set(drawable.object.scale * 0.95);
+	drawable.select.scale.set(drawable.object.scale * 0.95);
 };
 
 export const update = (drawable: DrawableHitCircle, time: number) => {

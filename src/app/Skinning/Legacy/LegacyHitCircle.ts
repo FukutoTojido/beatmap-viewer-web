@@ -7,6 +7,7 @@ export const refreshSprite = (drawable: DrawableHitCircle) => {
 	drawable.flashPiece.texture = BLANK_TEXTURE;
 	drawable.flashPiece.visible = false;
 	drawable.container.scale.set(drawable.object.scale);
+	drawable.select.scale.set(drawable.object.scale);
 	drawable.sprite.blendMode = "normal";
 };
 

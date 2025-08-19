@@ -40,9 +40,15 @@ export default class TimelineSliderTail extends TimelineHitCircle {
 						"hitcircleoverlay",
 						this.context.consume<Skin>("beatmapSkin"),
 					);
+		const select = skin.getTexture(
+			"hitcircleselect",
+			this.context.consume<Skin>("beatmapSkin"),
+		);
 
 		if (hitCircle) this.hitCircle.texture = hitCircle;
 		if (hitCircleOverlay) this.hitCircleOverlay.texture = hitCircleOverlay;
+		this.select.texture =
+			(skin.config.General.Argon ? BLANK_TEXTURE : select) ?? BLANK_TEXTURE;
 
 		const color = `rgb(${this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"})`;
 		this.hitCircle.tint = color;

@@ -1,8 +1,8 @@
-import { Vector2, type SamplePoint } from "osu-classes";
+import { type SamplePoint, Vector2 } from "osu-classes";
 import type { StandardHitObject } from "osu-standard-stable";
 import { type ColorSource, Container, Sprite } from "pixi.js";
 import HitSample from "@/Audio/HitSample";
-import { inject, type Context } from "@/Context";
+import { type Context, inject } from "@/Context";
 import {
 	refreshSprite as argonRefreshSprite,
 	update as argonUpdate,
@@ -11,6 +11,7 @@ import {
 	refreshSprite as legacyRefreshSprite,
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacyHitCircle";
+import type SkinManager from "@/Skinning/SkinManager";
 import type Beatmap from "..";
 import TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import DrawableApproachCircle from "./DrawableApproachCircle";
@@ -18,7 +19,6 @@ import DrawableDefaults from "./DrawableDefaults";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
-import type SkinManager from "@/Skinning/SkinManager";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -50,6 +50,7 @@ export default class DrawableHitCircle
 		protected hasNumber = true,
 	) {
 		super(object);
+		this.context.provide<DrawableHitCircle>("drawable", this);
 		this.object = object;
 
 		this.wrapper.visible = false;
