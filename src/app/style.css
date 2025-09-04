@@ -75,7 +75,7 @@ main {
 
 	overflow: hidden;
 
-	transition: cubic-bezier(0, 0.4, 0, 1.0) 200ms;
+	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
 @keyframes show {
@@ -113,7 +113,7 @@ main {
 }
 
 #settings {
-	transition: cubic-bezier(0, 0.4, 0, 1.0) 200ms;
+	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 	left: -700px;
 }
 
@@ -222,7 +222,6 @@ input[type="range"]::-moz-range-track {
 	background: var(--color-overlay-2);
 	height: 4px;
 
-	margin: 20px 0;
 	border-radius: 20px;
 
 	margin: 10px 0;
@@ -305,4 +304,40 @@ input[type="checkbox"]:checked {
 input[type="checkbox"]:disabled:hover {
 	box-shadow: unset;
 	filter: unset;
+}
+
+input[type="radio"] {
+	appearance: none;
+	position: relative;
+
+	width: 15px;
+	height: 15px;
+
+	border-radius: 15px;
+	border: solid 2px var(--color-overlay-2);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 2px;
+
+	cursor: pointer;
+}
+
+input[type="radio"]::before {
+	content: "";
+
+	width: 0%;
+	height: 0%;
+
+	background-color: var(--color-overlay-2);
+	border-radius: 10px;
+
+	transition: ease-in-out 200ms;
+}
+
+input[type="radio"]:checked::before {
+	width: 100%;
+	height: 100%;
 }

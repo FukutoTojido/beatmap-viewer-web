@@ -4,15 +4,17 @@ export type Mirror = {
 	name: string;
 	urlTemplate: string;
 };
-type MirrorConfigEvents = "mirror";
 
 export type MirrorProps = {
-	mirror?: Mirror
-}
+	mirror?: Mirror;
+};
 
 export default class MirrorConfig extends ConfigSection {
 	constructor(defaultOptions?: MirrorProps) {
 		super();
+
+		this.loadEventListeners();
+
 		if (!defaultOptions) return;
 
 		const { mirror } = defaultOptions;
@@ -31,22 +33,36 @@ export default class MirrorConfig extends ConfigSection {
 	}
 	set mirror(val: Mirror) {
 		this._mirror = val;
+
+		for (const element of document.querySelectorAll<HTMLInputElement>(
+			"[name=beatmapMirror]",
+		)) {
+			element.checked = element.value === val.name;
+		}
+
 		this.emitChange("mirror", val);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	protected emitChange(key: MirrorConfigEvents, newValue: any): void {
-		super.emitChange(key, newValue);
-	}
+	loadEventListeners() {
+		for (const element of document.querySelectorAll<HTMLInputElement>(
+			"[name=beatmapMirror]",
+		)) {
+			element.addEventListener("change", (event) => {
+				const name = (event.target as HTMLInputElement).value;
+				const url = (event.target as HTMLInputElement).dataset.url;
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	onChange(key: MirrorConfigEvents, callback: (newValue: any) => void): void {
-		super.onChange(key, callback);
+				if (!url) return;
+				this.mirror = {
+					name,
+					urlTemplate: url,
+				};
+			});
+		}
 	}
 
 	jsonify(): MirrorProps {
 		return {
-			mirror: this.mirror
-		}
+			mirror: this.mirror,
+		};
 	}
 }
