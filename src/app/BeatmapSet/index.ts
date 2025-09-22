@@ -344,12 +344,6 @@ export default class BeatmapSet extends ScopedClass {
 
 		this.loadPeripherals(beatmap);
 
-		const player = this.context.consume<Audio>("audio")?.player;
-		if (player) {
-			player.grainSize = 60000 / beatmap.data.bpm / 4 / 1000;
-			player.overlap = 60000 / beatmap.data.bpm / 4 / 1000 / 16;
-		}
-
 		if (isSwitch && oldMaster) {
 			inject<Gameplays>("ui/main/viewer/gameplays")?.switchGameplay(
 				beatmap.container,

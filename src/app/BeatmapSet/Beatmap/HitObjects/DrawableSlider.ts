@@ -319,7 +319,7 @@ export default class DrawableSlider
 			} else {
 				this.nodes
 					.lineTo(point.position.x, point.position.y)
-					.stroke({ width: 0.5, alignment: 0.5, color: 0xefefef });
+					.stroke({ width: 1, alignment: 0.5, color: 0xefefef });
 			}
 		}
 

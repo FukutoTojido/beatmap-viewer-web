@@ -101,8 +101,18 @@ export default class Audio extends ScopedClass {
 		}
 
 		if (this.player) {
-			this.player.playbackRate =
+			const playbackRate =
 				this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1;
+			const baseWindow =
+				60000 /
+				(this.context.consume<BeatmapSet>("beatmapset")?.master?.data.bpm ??
+					120) /
+				4 /
+				1000;
+
+			this.player.playbackRate = playbackRate;
+			this.player.grainSize = playbackRate === 1 ? 0.1 : baseWindow;
+			this.player.overlap = playbackRate === 1 ? 0.03 : baseWindow / 16;
 		}
 
 		if (this.state === "STOPPED") {
