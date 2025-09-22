@@ -19,6 +19,8 @@ let previousTime = 0;
 
 let preempt = 1200;
 
+let playbackRate = 1;
+
 function getTimeRange(object: HitObjectMini) {
 	return {
 		start: object.startTime,
@@ -28,7 +30,7 @@ function getTimeRange(object: HitObjectMini) {
 
 function getCurrentTime() {
 	if (!isPlaying) return currentTime;
-	return currentTime + (performance.now() - startTime);
+	return currentTime + (performance.now() - startTime) * playbackRate;
 }
 
 function searchObjects(tree: IntervalTree, time: number) {
@@ -89,7 +91,7 @@ onmessage = (event) => {
 		}
 		case "stop": {
 			isPlaying = false;
-			currentTime += performance.now() - startTime;
+			currentTime += (performance.now() - startTime) * playbackRate;
 			break;
 		}
 		case "seek": {
@@ -103,6 +105,10 @@ onmessage = (event) => {
 			isPlaying = false;
 			objectsTree.clear();
 			connectorsTree.clear();
+			break;
+		}
+		case "playbackRate": {
+			playbackRate = event.data.playbackRate;
 			break;
 		}
 	}

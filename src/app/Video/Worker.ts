@@ -24,6 +24,7 @@ class VideoEngine {
 	currentFrame?: VideoFrame;
 
 	offset = 0;
+	playbackRate = 1;
 
 	constructor(origin: string) {
 		this.seek = debounce((timestamp: number) => this._seek(timestamp), 200);
@@ -99,7 +100,7 @@ class VideoEngine {
 		const frameTime = 1000 / this.frameRate;
 
 		if (
-			this.startTime + now - this.absStartTime - this.offset >
+			this.startTime + (now - this.absStartTime) * this.playbackRate - this.offset >
 			this.currentIndex * frameTime
 		) {
 			const i = this.currentIndex;
@@ -232,6 +233,7 @@ self.addEventListener("message", (event: { data: WorkerPayload }) => {
 		case MessageType.Play: {
 			if (!engine) return;
 			// console.log("play");
+			engine.playbackRate = event.data.playbackRate ?? 1;
 			engine.play(event.data.data);
 
 			break;

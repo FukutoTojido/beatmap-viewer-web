@@ -25,11 +25,13 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
+import ExperimentalConfig from "@/Config/ExperimentalConfig";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
 	audioContext = new AudioContext();
 	animationFrame: number;
+	playbackRate = 1;
 
 	constructor(private resources: Map<string, Resource>) {
 		super();
@@ -51,6 +53,15 @@ export default class BeatmapSet extends ScopedClass {
 
 		provide("beatmapset", this);
 		this.animationFrame = requestAnimationFrame(() => this.frame());
+
+		inject<ExperimentalConfig>("config/experimental")?.onChange(
+			"modsDT",
+			(val) => {
+				this.toggle();
+				this.playbackRate = val ? 1.5 : 1;
+				this.toggle();
+			},
+		);
 	}
 
 	async loadBeatmapSkin() {
@@ -331,6 +342,12 @@ export default class BeatmapSet extends ScopedClass {
 		const isSwitch = this.slaves.has(beatmap);
 
 		this.loadPeripherals(beatmap);
+
+		const player = this.context.consume<Audio>("audio")?.player;
+		if (player) {
+			player.grainSize = 60000 / beatmap.data.bpm / 4 / 1000;
+			player.overlap = 60000 / beatmap.data.bpm / 4 / 1000 / 16;
+		}
 
 		if (isSwitch && oldMaster) {
 			inject<Gameplays>("ui/main/viewer/gameplays")?.switchGameplay(

@@ -31,6 +31,7 @@ type WorkerFrame = {
 type WorkerPlay = {
 	type: MessageType.Play;
 	data: number;
+	playbackRate?: number;
 };
 
 type WorkerStop = {

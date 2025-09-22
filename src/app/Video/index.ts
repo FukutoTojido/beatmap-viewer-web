@@ -1,5 +1,5 @@
 import type Audio from "@/Audio";
-import type BeatmapSet from "@/BeatmapSet";
+import BeatmapSet from "@/BeatmapSet";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import { inject } from "@/Context";
 import type Background from "@/UI/main/viewer/Background";
@@ -61,6 +61,7 @@ export default class Video {
 		this.worker.postMessage({
 			type: MessageType.Play,
 			data: timestamp,
+			playbackRate: inject<BeatmapSet>("beatmapset")?.playbackRate ?? 1
 		});
 	}
 

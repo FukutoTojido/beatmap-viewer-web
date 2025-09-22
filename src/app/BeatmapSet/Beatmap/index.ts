@@ -20,7 +20,7 @@ import type Timeline from "@/UI/main/viewer/Timeline";
 import type Timing from "@/UI/sidepanel/Timing";
 import { difficultyRange, getDiffColour } from "@/utils";
 import { inject, ScopedClass } from "../../Context";
-import type BeatmapSet from "..";
+import BeatmapSet from "..";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
@@ -439,8 +439,10 @@ export default class Beatmap extends ScopedClass {
 
 	update(time: number, objects: Set<number>, connectors: Set<number>) {
 		if (!this.loaded) return;
-		
-		if (this.container.dragWindow[0].distance(this.container.dragWindow[1]) > 0) {
+
+		if (
+			this.container.dragWindow[0].distance(this.container.dragWindow[1]) > 0
+		) {
 			for (const idx of objects) {
 				const obj = this.objects[idx];
 				const isInBound = this.container.checkInBound(obj.object.startPosition);
@@ -490,6 +492,11 @@ export default class Beatmap extends ScopedClass {
 			);
 
 		const audio = this.context.consume<Audio>("audio");
+
+		this.worker.postMessage({
+			type: "playbackRate",
+			playbackRate: this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1,
+		});
 
 		if (audio?.state === "PLAYING") {
 			this.worker.postMessage({ type: "start" });

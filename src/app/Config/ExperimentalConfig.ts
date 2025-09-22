@@ -4,6 +4,7 @@ export type ExperimentalProps = {
 	asyncLoading?: boolean;
 	overlapGameplays?: boolean;
 	hardRock?: boolean;
+	doubleTime?: boolean
 };
 
 export default class ExperimentalConfig extends ConfigSection {
@@ -14,10 +15,11 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const { asyncLoading, overlapGameplays, hardRock } = defaultOptions;
+		const { asyncLoading, overlapGameplays, hardRock, doubleTime } = defaultOptions;
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
 		this.hardRock = hardRock ?? false;
+		this.doubleTime = doubleTime ?? false;
 	}
 
 	private _asyncLoading = true;
@@ -62,6 +64,20 @@ export default class ExperimentalConfig extends ConfigSection {
 		this.emitChange("modsHR", val);
 	}
 
+	private _doubleTime = true;
+	get doubleTime() {
+		return this._doubleTime;
+	}
+	set doubleTime(val: boolean) {
+		this._doubleTime = val;
+
+		const ele = document.querySelector<HTMLInputElement>("#modsDT");
+		if (!ele) return;
+		ele.checked = val;
+
+		this.emitChange("modsDT", val);
+	}
+
 	loadEventListeners() {
 		document
 			.querySelector<HTMLInputElement>("#overlapGameplays")
@@ -74,6 +90,12 @@ export default class ExperimentalConfig extends ConfigSection {
 			?.addEventListener("change", (event) => {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.hardRock = value;
+			});
+		document
+			.querySelector<HTMLInputElement>("#modsDT")
+			?.addEventListener("change", (event) => {
+				const value = (event.target as HTMLInputElement)?.checked ?? true;
+				this.doubleTime = value;
 			});
 	}
 

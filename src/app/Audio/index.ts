@@ -1,47 +1,38 @@
-import type { BitmapText } from "pixi.js";
 // @ts-ignore
-import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
-import { inject, ScopedClass } from "../Context";
-import type Beatmap from "../BeatmapSet/Beatmap";
+import * as Tone from "tone";
 import type BeatmapSet from "@/BeatmapSet";
 import type AudioConfig from "@/Config/AudioConfig";
-
-type AudioEvent = "time";
-type EventCallback = (time: number) => void;
+import { inject, ScopedClass } from "../Context";
 
 export default class Audio extends ScopedClass {
 	private localGainNode: GainNode;
-	private audioBuffer?: AudioBuffer;
-	private src?: AudioBufferSourceNode;
-
-	private startTime = 0;
 	private previousTimestamp = 0;
 	private _currentTime = 0;
 
+	player?: Tone.GrainPlayer;
+
 	state: "PLAYING" | "STOPPED" = "STOPPED";
+
+	init = false;
 
 	constructor(private audioContext: AudioContext) {
 		super();
 		this.localGainNode = audioContext.createGain();
-		this.localGainNode.gain.value = (inject<AudioConfig>("config/audio")?.musicVolume ?? 0.8)
+		this.localGainNode.gain.value =
+			inject<AudioConfig>("config/audio")?.musicVolume ?? 0.8;
 		inject<AudioConfig>("config/audio")?.onChange("musicVolume", (val) => {
 			this.localGainNode.gain.value = val;
 		});
+
+		Tone.setContext(audioContext);
+	}
+
+	get playbackRate() {
+		return this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1;
 	}
 
 	get currentTime() {
 		if (this.state === "STOPPED") return this._currentTime;
-
-		const offset =
-			performance.now() -
-			this.previousTimestamp -
-			(this.audioContext.currentTime * 1000 - this.startTime);
-
-		if (offset > 20) {
-			this.pause();
-			this.play();
-			console.warn(`Audio desynced: ${offset.toFixed(2)}ms`);
-		}
 
 		if (
 			this._currentTime + (performance.now() - this.previousTimestamp) >
@@ -51,11 +42,14 @@ export default class Audio extends ScopedClass {
 			return this.duration;
 		}
 
-		return this._currentTime + (performance.now() - this.previousTimestamp);
+		return (
+			this._currentTime +
+			(performance.now() - this.previousTimestamp) * this.playbackRate
+		);
 	}
 
 	set currentTime(val: number) {
-		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
+		if (!this.player) throw new Error("You haven't initiated audio yet!");
 		const previousState = this.state;
 
 		if (previousState === "PLAYING") {
@@ -63,7 +57,10 @@ export default class Audio extends ScopedClass {
 		}
 
 		this._currentTime =
-			val > this.audioBuffer.duration * 1000 || val < 0 ? 0 : val;
+			val > this.player.buffer.duration * 1000 || val < 0 ? 0 : val;
+
+		Tone.getTransport().seconds =
+			(this._currentTime / 1000) / this.playbackRate + 0.1;
 
 		if (previousState === "PLAYING") {
 			this.play();
@@ -71,13 +68,14 @@ export default class Audio extends ScopedClass {
 	}
 
 	async createBufferNode(blob: Blob) {
-		this.audioBuffer = await getFileAudioBuffer(blob, this.audioContext, {
-			native: true,
-		});
+		this.player = new Tone.GrainPlayer(URL.createObjectURL(blob));
+		this.player.sync().start(0);
 
-		this.src = this.audioContext.createBufferSource();
-		// biome-ignore lint/style/noNonNullAssertion: <explanation>
-		this.src.buffer = this.audioBuffer!;
+		await Tone.loaded();
+
+		Tone.getTransport().seconds = 0.1;
+
+		this.init = true;
 	}
 
 	toggle() {
@@ -86,7 +84,13 @@ export default class Audio extends ScopedClass {
 			return;
 		}
 
+		if (this.player) {
+			this.player.playbackRate =
+				this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1;
+		}
+
 		if (this.state === "STOPPED") {
+			Tone.getTransport().seconds = this._currentTime / 1000 / this.playbackRate + 0.1;
 			this.play();
 			return;
 		}
@@ -95,46 +99,35 @@ export default class Audio extends ScopedClass {
 	play() {
 		if (this.state === "PLAYING")
 			throw new Error("You cannot start an already started audio!");
-		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
+		if (!this.player) throw new Error("You haven't initiated audio yet!");
 		this.state = "PLAYING";
 
-		this.src = this.audioContext.createBufferSource();
-		this.src.buffer = this.audioBuffer;
+		Tone.getTransport().start();
 
-		this.src.connect(this.localGainNode);
-		this.src.onended = () => {
-			if (!this.audioBuffer)
-				throw new Error("You haven't initiated audio yet!");
-			if (this.currentTime < this.audioBuffer?.duration * 1000) return;
+		Tone.connect(this.player, this.localGainNode);
+		this.localGainNode.connect(
+			// biome-ignore lint/style/noNonNullAssertion: Ensured
+			this.context.consume<GainNode>("masterGainNode")!,
+		);
 
-			console.log("Audio Ended!");
-
-			const beatmapset = inject<BeatmapSet>("beatmapset");
-			beatmapset?.toggle();
-			beatmapset?.seek(0);
-		};
-		// biome-ignore lint/style/noNonNullAssertion: Ensured
-		this.localGainNode.connect(this.context.consume<GainNode>("masterGainNode")!);
-
-		this.startTime = this.audioContext.currentTime * 1000;
 		this.previousTimestamp = performance.now();
-		this.src.start(this.audioContext.currentTime, this._currentTime / 1000);
 	}
 
 	pause() {
 		if (this.state === "STOPPED")
 			throw new Error("You cannot stop an already stopped audio!");
-		if (!this.audioBuffer) throw new Error("You haven't initiated audio yet!");
+		if (!this.player) throw new Error("You haven't initiated audio yet!");
 		this.state = "STOPPED";
 
-		this.src?.stop();
-		this.src?.disconnect();
-		this.localGainNode.disconnect();
+		Tone.getTransport().pause();
+		this._currentTime +=
+			(performance.now() - this.previousTimestamp) * this.playbackRate;
 
-		this._currentTime += performance.now() - this.previousTimestamp;
+		Tone.disconnect(this.player, this.localGainNode);
+		this.localGainNode.disconnect();
 	}
 
 	get duration() {
-		return (this.src?.buffer?.duration ?? 0) * 1000;
+		return (this.player?.buffer.duration ?? 0) * 1000;
 	}
 }
