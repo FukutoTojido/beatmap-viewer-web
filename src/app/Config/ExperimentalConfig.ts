@@ -4,7 +4,7 @@ export type ExperimentalProps = {
 	asyncLoading?: boolean;
 	overlapGameplays?: boolean;
 	hardRock?: boolean;
-	doubleTime?: boolean
+	doubleTime?: boolean;
 };
 
 export default class ExperimentalConfig extends ConfigSection {
@@ -15,11 +15,15 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const { asyncLoading, overlapGameplays, hardRock, doubleTime } = defaultOptions;
+		const { asyncLoading, overlapGameplays, hardRock, doubleTime } =
+			defaultOptions;
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
 		this.hardRock = hardRock ?? false;
-		this.doubleTime = doubleTime ?? false;
+		this.doubleTime =
+			doubleTime ??
+			new URLSearchParams(window.location.search).get("m")?.includes("DT") ??
+			false;
 	}
 
 	private _asyncLoading = true;

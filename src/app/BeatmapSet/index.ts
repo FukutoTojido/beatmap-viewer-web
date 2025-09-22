@@ -4,6 +4,7 @@ import { Assets, type FederatedWheelEvent } from "pixi.js";
 import Audio from "@/Audio";
 import type AudioConfig from "@/Config/AudioConfig";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import Skin from "@/Skinning/Skin";
 import type Loading from "@/UI/loading";
@@ -25,7 +26,6 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
-import ExperimentalConfig from "@/Config/ExperimentalConfig";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -35,6 +35,7 @@ export default class BeatmapSet extends ScopedClass {
 
 	constructor(private resources: Map<string, Resource>) {
 		super();
+		this.playbackRate = inject<ExperimentalConfig>("config/experimental")?.doubleTime ? 1.5 : 1;
 		this.context.provide("audioContext", this.audioContext);
 		this.context.provide("resources", resources);
 		this.context.provide("beatmapset", this);

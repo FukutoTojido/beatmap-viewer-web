@@ -98,6 +98,8 @@ export default class Audio extends ScopedClass {
 		if (this.state === "STOPPED") {
 			Tone.getTransport().seconds =
 				this._currentTime / 1000 / this.playbackRate + 0.1;
+			this.player?.unsync();
+			this.player?.sync().start(0);
 			this.play();
 			return;
 		}
