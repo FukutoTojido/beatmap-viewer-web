@@ -8,6 +8,7 @@ export default class Audio extends ScopedClass {
 	private localGainNode: GainNode;
 	private previousTimestamp = 0;
 	private _currentTime = 0;
+	private startTime = 0;
 
 	player?: Tone.GrainPlayer;
 
@@ -34,6 +35,17 @@ export default class Audio extends ScopedClass {
 	get currentTime() {
 		if (this.state === "STOPPED") return this._currentTime;
 
+		const offset =
+			performance.now() -
+			this.previousTimestamp -
+			(this.audioContext.currentTime * 1000 - this.startTime);
+
+		if (offset > 20) {
+			this.pause();
+			this.play();
+			console.warn(`Audio desynced: ${offset.toFixed(2)}ms`);
+		}
+
 		if (
 			this._currentTime +
 				(performance.now() - this.previousTimestamp) * this.playbackRate >
@@ -41,10 +53,8 @@ export default class Audio extends ScopedClass {
 		) {
 			if (this.state === "PLAYING") {
 				this.context.consume<BeatmapSet>("beatmapset")?.toggle();
+				this.context.consume<BeatmapSet>("beatmapset")?.seek(0);
 			}
-			this.context.consume<BeatmapSet>("beatmapset")?.seek(0);
-			this.player?.unsync();
-			this.player?.sync().start(0);
 			return this.duration;
 		}
 
@@ -96,10 +106,6 @@ export default class Audio extends ScopedClass {
 		}
 
 		if (this.state === "STOPPED") {
-			Tone.getTransport().seconds =
-				this._currentTime / 1000 / this.playbackRate + 0.1;
-			this.player?.unsync();
-			this.player?.sync().start(0);
 			this.play();
 			return;
 		}
@@ -111,8 +117,13 @@ export default class Audio extends ScopedClass {
 		if (!this.player) throw new Error("You haven't initiated audio yet!");
 		this.state = "PLAYING";
 
-		Tone.getTransport().start();
+		Tone.getTransport().seconds =
+			this._currentTime / 1000 / this.playbackRate + 0.1;
+		this.startTime = this.audioContext.currentTime * 1000;
 
+		this.player?.unsync();
+		this.player?.sync().start(0);
+		Tone.getTransport().start();
 		Tone.connect(this.player, this.localGainNode);
 		this.localGainNode.connect(
 			// biome-ignore lint/style/noNonNullAssertion: Ensured
