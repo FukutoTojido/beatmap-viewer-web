@@ -1,6 +1,6 @@
 // @ts-ignore
 import * as Tone from "tone";
-import type BeatmapSet from "@/BeatmapSet";
+import BeatmapSet from "@/BeatmapSet";
 import type AudioConfig from "@/Config/AudioConfig";
 import { inject, ScopedClass } from "../Context";
 
@@ -35,10 +35,17 @@ export default class Audio extends ScopedClass {
 		if (this.state === "STOPPED") return this._currentTime;
 
 		if (
-			this._currentTime + (performance.now() - this.previousTimestamp) >
+			this._currentTime +
+				(performance.now() - this.previousTimestamp) * this.playbackRate >
 			this.duration
 		) {
-			this.pause();
+			if (this.state === "PLAYING") {
+				this.context.consume<BeatmapSet>("beatmapset")?.toggle();
+			}
+			this.currentTime = 0;
+			Tone.getTransport().seconds = 0.1;
+			this.player?.unsync();
+			this.player?.sync().start(0);
 			return this.duration;
 		}
 
@@ -60,7 +67,7 @@ export default class Audio extends ScopedClass {
 			val > this.player.buffer.duration * 1000 || val < 0 ? 0 : val;
 
 		Tone.getTransport().seconds =
-			(this._currentTime / 1000) / this.playbackRate + 0.1;
+			this._currentTime / 1000 / this.playbackRate + 0.1;
 
 		if (previousState === "PLAYING") {
 			this.play();
@@ -90,7 +97,8 @@ export default class Audio extends ScopedClass {
 		}
 
 		if (this.state === "STOPPED") {
-			Tone.getTransport().seconds = this._currentTime / 1000 / this.playbackRate + 0.1;
+			Tone.getTransport().seconds =
+				this._currentTime / 1000 / this.playbackRate + 0.1;
 			this.play();
 			return;
 		}
