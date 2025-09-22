@@ -111,8 +111,8 @@ export default class Audio extends ScopedClass {
 				1000;
 
 			this.player.playbackRate = playbackRate;
-			this.player.grainSize = playbackRate === 1 ? 0.1 : baseWindow;
-			this.player.overlap = playbackRate === 1 ? 0.03 : baseWindow / 16;
+			this.player.grainSize = baseWindow;
+			this.player.overlap = baseWindow / 16;
 		}
 
 		if (this.state === "STOPPED") {
