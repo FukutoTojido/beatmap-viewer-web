@@ -42,8 +42,7 @@ export default class Audio extends ScopedClass {
 			if (this.state === "PLAYING") {
 				this.context.consume<BeatmapSet>("beatmapset")?.toggle();
 			}
-			this.currentTime = 0;
-			Tone.getTransport().seconds = 0.1;
+			this.context.consume<BeatmapSet>("beatmapset")?.seek(0);
 			this.player?.unsync();
 			this.player?.sync().start(0);
 			return this.duration;
