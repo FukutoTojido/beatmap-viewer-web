@@ -50,7 +50,10 @@ export default class TimelineSliderTail extends TimelineHitCircle {
 		this.select.texture =
 			(skin.config.General.Argon ? BLANK_TEXTURE : select) ?? BLANK_TEXTURE;
 
-		const color = `rgb(${this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"})`;
+		const baseColor = this.context.consume<DrawableSlider>("object")?.color;
+		const color = baseColor?.includes("rgb")
+			? (baseColor ?? "rgb(0, 0, 0)")
+			: `rgb(${baseColor ?? "0,0,0"})`;
 		this.hitCircle.tint = color;
 	}
 }

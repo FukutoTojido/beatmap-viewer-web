@@ -1,5 +1,5 @@
 import type Audio from "@/Audio";
-import BeatmapSet from "@/BeatmapSet";
+import type BeatmapSet from "@/BeatmapSet";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import { inject } from "@/Context";
 import type Background from "@/UI/main/viewer/Background";
@@ -22,7 +22,10 @@ export default class Video {
 			(event: { data: WorkerPayload }) => {
 				switch (event.data.type) {
 					case MessageType.Frame: {
-						if (!inject<BackgroundConfig>("config/background")?.video) break;
+						if (!inject<BackgroundConfig>("config/background")?.video) {
+							(event.data.data as VideoFrame).close();
+							break;
+						}
 						inject<Background>("ui/main/viewer/background")?.updateFrame(
 							event.data.data as VideoFrame,
 						);

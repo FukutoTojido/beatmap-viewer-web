@@ -36,6 +36,8 @@ export async function getArgon() {
 		"sliderendcircle.png",
 		"sliderstartcircle@2x.png",
 		"sliderscorepoint@2x.png",
+		"spinner-approachcircle@2x.png",
+		"spinner-bottom@2x.png",
 		"skin.ini",
 	];
 
@@ -84,6 +86,8 @@ export async function getDefaultLegacy() {
 		"sliderfollowcircle@2x.png",
 		"reversearrow@2x.png",
 		"sliderscorepoint@2x.png",
+		"spinner-approachcircle@2x.png",
+		"spinner-bottom@2x.png",
 	];
 
 	const resources = new Map<string, Resource>();
@@ -130,6 +134,8 @@ export async function getYugen() {
 		"sliderfollowcircle@2x.png",
 		"reversearrow@2x.png",
 		"sliderscorepoint.png",
+		"spinner-approachcircle@2x.png",
+		"spinner-bottom@2x.png",
 	];
 
 	const resources = new Map<string, Resource>();

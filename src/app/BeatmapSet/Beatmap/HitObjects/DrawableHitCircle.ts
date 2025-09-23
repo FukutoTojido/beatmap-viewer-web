@@ -51,25 +51,25 @@ export default class DrawableHitCircle
 	) {
 		super(object);
 		this.context.provide<DrawableHitCircle>("drawable", this);
-		this.object = object;
-
+		
 		this.wrapper.visible = false;
-
+		
 		this.hitCircleSprite = new Sprite();
 		this.hitCircleOverlay = new Sprite();
 		this.flashPiece = new Sprite();
-
+		
 		this.flashPiece.anchor.set(0.5);
 		this.flashPiece.blendMode = "add";
-
+		
 		this.hitCircleSprite.anchor.set(0.5);
 		this.hitCircleSprite.alpha = 0.9;
-
+		
 		this.hitCircleOverlay.anchor.set(0.5);
 		this.sprite.addChild(this.hitCircleSprite, this.hitCircleOverlay);
-
+		
 		this.approachCircle = new DrawableApproachCircle(object).hook(this.context);
-
+		this.object = object;
+		
 		this.wrapper.addChild(this.sprite, this.flashPiece);
 
 		this.container.addChild(this.wrapper);
@@ -98,7 +98,9 @@ export default class DrawableHitCircle
 		this.select.visible = val;
 	}
 
-	checkCollide(x: number, y: number) {
+	checkCollide(x: number, y: number, time: number) {
+		if (!(this.object.startTime - this.object.timePreempt < time && time < this.object.startTime + 240)) return false;
+
 		const radius = 54.4 * this.object.scale;
 		const objectPosition = new Vector2(
 			this.object.startX + this.object.stackedOffset.x,

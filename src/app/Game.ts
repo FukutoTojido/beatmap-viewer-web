@@ -29,7 +29,20 @@ export class Game {
 
 	constructor() {
 		provide("skinManager", new SkinManager());
-		provide("config", new Config());
+		const config = provide("config", new Config());
+
+		config.experimental.onChange("mods", (modsString) => {
+			const url = window.location;
+			const params = new URLSearchParams(url.search);
+
+			if (modsString === "") {
+				params.delete("m");
+			} else {
+				params.set("m", modsString);
+			}
+
+			window.history.replaceState(null, "", `?${params.toString()}`);
+		});
 	}
 
 	async initApplication() {

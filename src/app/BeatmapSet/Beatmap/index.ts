@@ -20,13 +20,14 @@ import type Timeline from "@/UI/main/viewer/Timeline";
 import type Timing from "@/UI/sidepanel/Timing";
 import { difficultyRange, getDiffColour } from "@/utils";
 import { inject, ScopedClass } from "../../Context";
-import BeatmapSet from "..";
+import type BeatmapSet from "..";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import ObjectsWorker from "./Worker/Objects?worker";
+import DrawableSpinner from "./HitObjects/DrawableSpinner";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -54,14 +55,20 @@ export default class Beatmap extends ScopedClass {
 
 	constructor(public raw: string) {
 		super();
+
+		const initialMods =
+			inject<ExperimentalConfig>("config/experimental")?.getModsString() ?? "";
 		this.data = this.context.provide(
 			"beatmap",
-			ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
+			ruleset.applyToBeatmapWithMods(
+				decoder.decodeFromString(this.raw),
+				ruleset.createModCombination(initialMods),
+			),
 		);
 
 		this.difficultyCalculator = ruleset.createDifficultyCalculator(this.data);
 		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
-			ruleset.createModCombination(""),
+			ruleset.createModCombination(initialMods),
 		);
 
 		this.color = getDiffColour(this.difficultyAttributes.starRating);
@@ -80,28 +87,21 @@ export default class Beatmap extends ScopedClass {
 		});
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
-			"modsHR",
+			"mods",
 			(val) => {
-				if (val) {
-					this.data = this.context.provide(
-						"beatmap",
-						ruleset.applyToBeatmapWithMods(
-							decoder.decodeFromString(this.raw),
-							ruleset.createModCombination("HR"),
-						),
-					);
-				} else {
-					this.data = this.context.provide(
-						"beatmap",
-						ruleset.applyToBeatmap(decoder.decodeFromString(this.raw)),
-					);
-				}
+				this.data = this.context.provide(
+					"beatmap",
+					ruleset.applyToBeatmapWithMods(
+						decoder.decodeFromString(this.raw),
+						ruleset.createModCombination(val),
+					),
+				);
 
 				this.difficultyCalculator = ruleset.createDifficultyCalculator(
 					this.data,
 				);
 				this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
-					ruleset.createModCombination(val ? "HR" : ""),
+					ruleset.createModCombination(val),
 				);
 
 				this.recalculateDifficulty();
@@ -123,7 +123,7 @@ export default class Beatmap extends ScopedClass {
 		});
 
 		const objs = this.data.hitObjects.filter(
-			(object) => object instanceof Circle || object instanceof Slider,
+			(object) => object instanceof Circle || object instanceof Slider || object instanceof Spinner,
 		);
 		for (let i = 0; i < this.objects.length; i++) {
 			this.objects[i].object = objs[i];
@@ -310,6 +310,8 @@ export default class Beatmap extends ScopedClass {
 					return new DrawableHitCircle(object).hook(this.context);
 				if (object instanceof Slider)
 					return new DrawableSlider(object).hook(this.context);
+				if (object instanceof Spinner)
+					return new DrawableSpinner(object).hook(this.context);
 				return null;
 			})
 			.filter((object) => object !== null);
@@ -325,6 +327,8 @@ export default class Beatmap extends ScopedClass {
 								resolve(new DrawableHitCircle(object).hook(this.context));
 							if (object instanceof Slider)
 								resolve(new DrawableSlider(object).hook(this.context));
+							if (object instanceof Spinner)
+								resolve(new DrawableSpinner(object).hook(this.context));
 							resolve(null);
 						}, 5);
 					});
@@ -349,7 +353,6 @@ export default class Beatmap extends ScopedClass {
 			type: "init",
 			objects: this.data.hitObjects
 				.map((object) => {
-					if (object instanceof Spinner) return null;
 					return {
 						startTime: object.startTime,
 						endTime: (object as Slider).endTime,
@@ -495,7 +498,8 @@ export default class Beatmap extends ScopedClass {
 
 		this.worker.postMessage({
 			type: "playbackRate",
-			playbackRate: this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1,
+			playbackRate:
+				this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1,
 		});
 
 		if (audio?.state === "PLAYING") {

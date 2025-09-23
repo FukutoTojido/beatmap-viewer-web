@@ -19,7 +19,10 @@ export default class ExperimentalConfig extends ConfigSection {
 			defaultOptions;
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
-		this.hardRock = hardRock ?? false;
+		this.hardRock =
+			hardRock ??
+			new URLSearchParams(window.location.search).get("m")?.includes("HR") ??
+			false;
 		this.doubleTime =
 			doubleTime ??
 			new URLSearchParams(window.location.search).get("m")?.includes("DT") ??
@@ -65,7 +68,7 @@ export default class ExperimentalConfig extends ConfigSection {
 		if (!ele) return;
 		ele.checked = val;
 
-		this.emitChange("modsHR", val);
+		this.emitChange("mods", this.getModsString());
 	}
 
 	private _doubleTime = true;
@@ -79,7 +82,14 @@ export default class ExperimentalConfig extends ConfigSection {
 		if (!ele) return;
 		ele.checked = val;
 
-		this.emitChange("modsDT", val);
+		this.emitChange("mods", this.getModsString());
+	}
+
+	getModsString() {
+		const HR = this.hardRock ? "HR" : "";
+		const DT = this.doubleTime ? "DT" : "";
+
+		return `${HR}${DT}`;
 	}
 
 	loadEventListeners() {

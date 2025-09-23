@@ -123,6 +123,8 @@ export default class Skin {
 			"sliderendcircleoverlay",
 			"sliderfollowcircle",
 			"sliderscorepoint",
+			"spinner-approachcircle",
+			"spinner-bottom",
 			"reversearrow",
 			"repeat-edge-piece",
 		];

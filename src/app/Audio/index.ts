@@ -1,6 +1,5 @@
-// @ts-ignore
 import * as Tone from "tone";
-import BeatmapSet from "@/BeatmapSet";
+import type BeatmapSet from "@/BeatmapSet";
 import type AudioConfig from "@/Config/AudioConfig";
 import { inject, ScopedClass } from "../Context";
 

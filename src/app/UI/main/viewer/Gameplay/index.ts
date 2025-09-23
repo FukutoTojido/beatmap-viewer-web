@@ -1,5 +1,6 @@
 import type { LayoutOptions } from "@pixi/layout";
 import { LayoutContainer } from "@pixi/layout/components";
+import { Vector2 } from "osu-classes";
 import {
 	Assets,
 	Container,
@@ -10,6 +11,7 @@ import {
 	type TextStyleOptions,
 } from "pixi.js";
 import { BackdropBlurFilter } from "pixi-filters";
+import type Audio from "@/Audio";
 import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
@@ -18,7 +20,6 @@ import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import Spinner from "./Spinner";
-import { Vector2 } from "osu-classes";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -201,7 +202,12 @@ export default class Gameplay {
 			for (const idx of beatmap.previousObjects) {
 				const obj = beatmap.objects[idx];
 				if (obj instanceof DrawableHitCircle || obj instanceof DrawableSlider) {
-					const collided = obj.checkCollide(pos.x, pos.y);
+					const collided = obj.checkCollide(
+						pos.x,
+						pos.y,
+						inject<BeatmapSet>("beatmapset")?.context.consume<Audio>("audio")
+							?.currentTime ?? 0,
+					);
 
 					if (obj instanceof DrawableSlider) {
 						obj.isHover = collided;
@@ -221,7 +227,12 @@ export default class Gameplay {
 			for (const idx of beatmap.previousObjects) {
 				const obj = beatmap.objects[idx];
 				if (obj instanceof DrawableHitCircle || obj instanceof DrawableSlider) {
-					const collided = obj.checkCollide(pos.x, pos.y);
+					const collided = obj.checkCollide(
+						pos.x,
+						pos.y,
+						inject<BeatmapSet>("beatmapset")?.context.consume<Audio>("audio")
+							?.currentTime ?? 0,
+					);
 					if (collided) selected.push(idx);
 				}
 			}

@@ -1,5 +1,5 @@
 import type { HitSample as Sample } from "osu-classes";
-import type { Slider, SliderHead, SliderRepeat } from "osu-standard-stable";
+import type { Slider, SliderHead, SliderRepeat, StandardHitObject } from "osu-standard-stable";
 import { Container, Sprite } from "pixi.js";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonReverseArrow";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacyReverseArrow";
@@ -97,6 +97,14 @@ export default class DrawableSliderRepeat extends DrawableSliderTail {
 		const rotation = Math.atan2(endVec.y - startVec.y, endVec.x - startVec.x);
 		this.rotation = rotation;
 		this.arrowContainer.rotation = rotation;
+	}
+
+	get object(): SliderRepeat {
+		return super.object as SliderRepeat;
+	}
+
+	set object(val: StandardHitObject) {
+		super.object = val;
 	}
 
 	update(time: number) {

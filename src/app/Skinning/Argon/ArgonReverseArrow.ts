@@ -47,6 +47,8 @@ export const update = (drawable: DrawableSliderRepeat, time: number) => {
 		(time - startFadeInTime) / fadeInDuration,
 	);
 
+	drawable.ringPiece.alpha = Clamp((time - startFadeInTime) / fadeInDuration);
+
 	if (loopCurrentTime < moveOutDuration) {
 		drawable.reverseArrow.scale.set(
 			1 + Easings.Out(loopCurrentTime / moveOutDuration) * 0.3,

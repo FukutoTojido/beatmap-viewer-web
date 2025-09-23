@@ -56,10 +56,10 @@ export default class BeatmapSet extends ScopedClass {
 		this.animationFrame = requestAnimationFrame(() => this.frame());
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
-			"modsDT",
+			"mods",
 			(val) => {
 				this.toggle();
-				this.playbackRate = val ? 1.5 : 1;
+				this.playbackRate = val.includes("DT") ? 1.5 : 1;
 				this.toggle();
 			},
 		);

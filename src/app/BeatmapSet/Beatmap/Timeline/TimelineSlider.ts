@@ -3,11 +3,14 @@ import {
 	SliderHead,
 	SliderRepeat,
 	SliderTail,
+	SliderTick,
+	SpinnerBonusTick,
+	SpinnerTick,
+	type StandardHitObject,
 } from "osu-standard-stable";
 import {
 	AlphaFilter,
 	Color,
-	Container,
 	FillGradient,
 	Graphics,
 	Text,
@@ -77,9 +80,11 @@ export default class TimelineSlider extends TimelineHitObject {
 		for (const object of this.object.nestedHitObjects
 			.filter(
 				(object) =>
-					object instanceof SliderHead ||
-					object instanceof SliderTail ||
-					object instanceof SliderRepeat,
+					!(
+						object instanceof SliderTick ||
+						object instanceof SpinnerTick ||
+						object instanceof SpinnerBonusTick
+					),
 			)
 			.map((object) => {
 				const obj = object.clone();
@@ -94,7 +99,11 @@ export default class TimelineSlider extends TimelineHitObject {
 						)
 					: object instanceof SliderTail
 						? new TimelineSliderTail(object).hook(this.context)
-						: new TimelineSliderRepeat(object).hook(this.context);
+						: object instanceof SliderRepeat
+							? new TimelineSliderRepeat(object).hook(this.context)
+							: new TimelineSliderTail(object as unknown as SliderTail).hook(
+									this.context,
+								);
 
 			obj.container.y = 0;
 			obj.container.visible = true;
@@ -134,9 +143,11 @@ export default class TimelineSlider extends TimelineHitObject {
 		for (const object of val.nestedHitObjects
 			.filter(
 				(object) =>
-					object instanceof SliderHead ||
-					object instanceof SliderTail ||
-					object instanceof SliderRepeat,
+					!(
+						object instanceof SliderTick ||
+						object instanceof SpinnerTick ||
+						object instanceof SpinnerBonusTick
+					),
 			)
 			.map((object) => {
 				const obj = object.clone();
@@ -144,7 +155,7 @@ export default class TimelineSlider extends TimelineHitObject {
 				return obj;
 			})
 			.toReversed()) {
-			this.circles[idx++].object = object;
+			this.circles[idx++].object = object as unknown as StandardHitObject;
 		}
 
 		this.updateCircles();
@@ -192,12 +203,15 @@ export default class TimelineSlider extends TimelineHitObject {
 			(this.object as Slider).duration /
 			(DEFAULT_SCALE / (inject<TimelineConfig>("config/timeline")?.scale ?? 1));
 
-		this.select.clear().roundRect(-25, -25, this.length + 50, 50, 25).stroke({
-			width: 50 * 0.1,
-			cap: "round",
-			color: 0xffc02b,
-			alignment: 1
-		});
+		this.select
+			.clear()
+			.roundRect(-25, -25, this.length + 50, 50, 25)
+			.stroke({
+				width: 50 * 0.1,
+				cap: "round",
+				color: 0xffc02b,
+				alignment: 1,
+			});
 
 		this.select.visible =
 			(this.skinManager?.getCurrentSkin().config.General.Argon ?? false) &&
@@ -233,9 +247,14 @@ export default class TimelineSlider extends TimelineHitObject {
 			this.filter.alpha = 0.7;
 		}
 
-		this.body.tint = `rgb(${
-			this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"
-		})`;
+		this.body.tint = this.context
+			.consume<DrawableSlider>("object")
+			?.color.includes("rgb")
+			? (this.context.consume<DrawableSlider>("object")?.color ??
+				"rgb(0, 0, 0)")
+			: `rgb(${
+					this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"
+				})`;
 
 		for (const object of this.circles) {
 			object.refreshSprite();

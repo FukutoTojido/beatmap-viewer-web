@@ -42,7 +42,10 @@ export default class TimelineSliderHead extends TimelineHitCircle {
 		this.hitCircle.visible = !skin.config.General.Argon;
 		this.hitCircleOverlay.visible = !skin.config.General.Argon;
 
-		const color = `rgb(${this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"})`;
+		const baseColor = this.context.consume<DrawableSlider>("object")?.color;
+		const color = baseColor?.includes("rgb")
+			? (baseColor ?? "rgb(0, 0, 0)")
+			: `rgb(${baseColor ?? "0,0,0"})`;
 		this.hitCircle.tint = color;
 		this.defaults.container.tint = 0xffffff;
 		this.defaults.sprites.map((sprite) => {

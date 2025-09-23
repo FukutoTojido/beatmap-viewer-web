@@ -35,7 +35,7 @@ import type Beatmap from "..";
 import TimelineSlider from "../Timeline/TimelineSlider";
 import calculateSliderProgress from "./CalculateSliderProgress";
 import createGeometry from "./CreateSliderGeometry";
-import DrawableHitCircle from "./DrawableHitCircle";
+import type DrawableHitCircle from "./DrawableHitCircle";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
@@ -385,7 +385,15 @@ export default class DrawableSlider
 		this._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
 	}
 
-	checkCollide(x: number, y: number) {
+	checkCollide(x: number, y: number, time: number) {
+		if (
+			!(
+				this.object.startTime - this.object.timePreempt < time &&
+				time < this.object.endTime + 240
+			)
+		)
+			return false;
+
 		const radius = 54.4 * this.object.scale;
 		const point = new Vector2(x, y);
 		const objectPosition = new Vector2(
@@ -557,6 +565,8 @@ export default class DrawableSlider
 		}
 
 		this.updateFn(this, time);
+
+		if (this.isHover && time > this.object.endTime + 240) this.isHover = false;
 	}
 
 	destroy() {

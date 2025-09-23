@@ -36,7 +36,10 @@ export default class TimelineSliderRepeat extends TimelineSliderTail {
 			if (!this.graphics) return;
 
 			this.container.addChild(this.graphics);
-			const color = `rgb(${this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"})`;
+			const baseColor = this.context.consume<DrawableSlider>("object")?.color;
+			const color = baseColor?.includes("rgb")
+				? (baseColor ?? "rgb(0, 0, 0)")
+				: `rgb(${baseColor ?? "0,0,0"})`;
 			this.graphics.tint = color;
 		} else {
 			if (this.graphics) this.container.removeChild(this.graphics);
