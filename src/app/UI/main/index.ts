@@ -1,11 +1,10 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import Controls from "./controls";
-import { inject, provide } from "@/Context";
-import Viewer from "./viewer";
-import type ResponsiveHandler from "@/ResponsiveHandler";
-import type TimelineConfig from "@/Config/TimelineConfig";
 import type BeatmapSet from "@/BeatmapSet";
-import type Audio from "@/Audio";
+import type TimelineConfig from "@/Config/TimelineConfig";
+import { inject, provide } from "@/Context";
+import type ResponsiveHandler from "@/ResponsiveHandler";
+import Controls from "./controls";
+import Viewer from "./viewer";
 
 export default class Main {
 	container = new LayoutContainer({
@@ -24,10 +23,7 @@ export default class Main {
 		const controls = provide("ui/main/controls", new Controls());
 		const viewer = provide("ui/main/viewer", new Viewer());
 
-		this.container.addChild(
-			viewer.container, 
-			controls.container
-		);
+		this.container.addChild(viewer.container, controls.container);
 
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",

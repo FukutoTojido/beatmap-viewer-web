@@ -9,6 +9,8 @@ import Timing from "./Timing";
 import type State from "@/State";
 import type { SidebarState } from "@/State";
 import type ColorConfig from "@/Config/ColorConfig";
+import Spectrogram from "./Modding/Spectrogram";
+import Modding from "./Modding";
 
 export default class SidePanel {
 	tabs = [
@@ -19,6 +21,10 @@ export default class SidePanel {
 		{
 			title: "Timing",
 			content: provide("ui/sidepanel/timing", new Timing()),
+		},
+		{
+			title: "Modding",
+			content: provide("ui/sidepanel/modding", new Modding()),
 		},
 	];
 

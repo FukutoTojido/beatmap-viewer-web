@@ -2,6 +2,7 @@ import * as Tone from "tone";
 import type BeatmapSet from "@/BeatmapSet";
 import type AudioConfig from "@/Config/AudioConfig";
 import { inject, ScopedClass } from "../Context";
+import SpectrogramProcessor from "./SpectrogramProcessor";
 
 export default class Audio extends ScopedClass {
 	private localGainNode: GainNode;
@@ -15,6 +16,8 @@ export default class Audio extends ScopedClass {
 
 	init = false;
 
+	spectrogramProcessor: SpectrogramProcessor;
+
 	constructor(private audioContext: AudioContext) {
 		super();
 		this.localGainNode = audioContext.createGain();
@@ -25,6 +28,8 @@ export default class Audio extends ScopedClass {
 		});
 
 		Tone.setContext(audioContext);
+
+		this.spectrogramProcessor = new SpectrogramProcessor();
 	}
 
 	get playbackRate() {
@@ -83,7 +88,10 @@ export default class Audio extends ScopedClass {
 	}
 
 	async createBufferNode(blob: Blob) {
-		this.player = new Tone.GrainPlayer(URL.createObjectURL(blob));
+		const url = URL.createObjectURL(blob)
+		
+		this.spectrogramProcessor.initSpectrogram(url);
+		this.player = new Tone.GrainPlayer(url);
 		this.player.sync().start(0);
 
 		await Tone.loaded();

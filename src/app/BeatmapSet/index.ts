@@ -26,6 +26,7 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
+import Spectrogram from "@/UI/sidepanel/Modding/Spectrogram";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -176,6 +177,7 @@ export default class BeatmapSet extends ScopedClass {
 		if (!audioFile) throw new Error("Cannot find audio in resource?");
 
 		inject<Loading>("ui/loading")?.setText("Loading audio");
+		inject<Spectrogram>("ui/sidepanel/modding/spectrogram")?.unloadTexture();
 
 		const audio = this.context.provide(
 			"audio",
@@ -574,6 +576,7 @@ export default class BeatmapSet extends ScopedClass {
 		}
 
 		this.context.consume<Video>("video")?.destroy();
+		inject<Spectrogram>("ui/sidepanel/modding/spectrogram")?.unloadTexture();
 
 		provide("beatmapset", undefined);
 	}

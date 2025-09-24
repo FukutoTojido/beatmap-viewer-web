@@ -1,7 +1,7 @@
+import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
-import tailwindcss from "@tailwindcss/vite";
-import path from "node:path";
 
 export default defineConfig({
 	plugins: [tailwindcss(), nodePolyfills()],
@@ -12,7 +12,7 @@ export default defineConfig({
 		esbuildOptions: {
 			target: "esnext",
 		},
-		exclude: ["web-demuxer"],
+		exclude: ["web-demuxer", "wavesurfer.js"],
 	},
 	resolve: {
 		alias: {
