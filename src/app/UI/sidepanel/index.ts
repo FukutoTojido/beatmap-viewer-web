@@ -1,16 +1,15 @@
-import { LayoutContainer, LayoutText } from "@pixi/layout/components";
-import Metadata from "./Metadata";
-import ZContainer from "../core/ZContainer";
+import { LayoutContainer } from "@pixi/layout/components";
 import { Assets, Sprite, Text } from "pixi.js";
+import type ColorConfig from "@/Config/ColorConfig";
 import { inject, provide } from "@/Context";
 import type { Game } from "@/Game";
 import type ResponsiveHandler from "@/ResponsiveHandler";
-import Timing from "./Timing";
 import type State from "@/State";
 import type { SidebarState } from "@/State";
-import type ColorConfig from "@/Config/ColorConfig";
-import Spectrogram from "./Modding/Spectrogram";
+import ZContainer from "../core/ZContainer";
+import Metadata from "./Metadata";
 import Modding from "./Modding";
+import Timing from "./Timing";
 
 export default class SidePanel {
 	tabs = [
@@ -159,7 +158,7 @@ export default class SidePanel {
 
 		inject<ColorConfig>("config/color")?.onChange(
 			"color",
-			({ crust, mantle, surface0, surface2 }) => {
+			({ mantle, surface1, base }) => {
 				this.container.layout = {
 					backgroundColor: mantle,
 				};
@@ -167,11 +166,11 @@ export default class SidePanel {
 				for (let i = 0; i < this.headers.length; i++) {
 					if (i === this.index) {
 						this.headers[i].layout = {
-							backgroundColor: surface0,
+							backgroundColor: surface1,
 						};
 					} else {
 						this.headers[i].layout = {
-							backgroundColor: crust,
+							backgroundColor: base,
 						};
 					}
 				}
@@ -343,13 +342,13 @@ export default class SidePanel {
 	switchTab(index: number) {
 		this.container.removeChild(this.tabs[this.index].content.container);
 		this.headers[this.index].layout = {
-			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.base,
 		};
 		this.index = index;
 
 		this.container.addChild(this.tabs[this.index].content.container);
 		this.headers[this.index].layout = {
-			backgroundColor: inject<ColorConfig>("config/color")?.color.surface0,
+			backgroundColor: inject<ColorConfig>("config/color")?.color.surface1,
 		};
 	}
 }

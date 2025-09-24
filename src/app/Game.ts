@@ -52,8 +52,8 @@ export class Game {
 		await app.init({
 			// biome-ignore lint/style/noNonNullAssertion: It should be there already lol
 			resizeTo: document.querySelector<HTMLDivElement>("#app")!,
-			antialias: true,
-			powerPreference: "high-performance",
+			// antialias: true,
+			// powerPreference: "high-performance",
 			backgroundAlpha: 0,
 			useBackBuffer: true,
 			clearBeforeRender: true,
