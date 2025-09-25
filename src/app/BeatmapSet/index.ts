@@ -424,6 +424,8 @@ export default class BeatmapSet extends ScopedClass {
 			this.context.consume<Video>("video")?.stop(audio?.currentTime);
 		}
 
+		this._currentNextTick = audio?.currentTime ?? 0;
+
 		if (playButton) {
 			switch (this.context.consume<Audio>("audio")?.state) {
 				case "PLAYING": {
