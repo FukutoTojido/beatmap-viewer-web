@@ -29,6 +29,7 @@ import {
 } from "@/Skinning/Legacy/LegacySlider";
 import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import HitSample from "../../../Audio/HitSample";
 import { closestPointTo, darken, lighten } from "../../../utils";
 import type Beatmap from "..";
@@ -487,7 +488,8 @@ export default class DrawableSlider
 
 	playHitSound(time: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (!beatmap) return;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		if (!beatmap || isSeeking) return;
 
 		for (const object of this.drawableCircles) {
 			const offset =

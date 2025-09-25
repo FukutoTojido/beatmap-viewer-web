@@ -1,4 +1,4 @@
-import type { Tween } from "@tweenjs/tween.js";
+import { Tween } from "@tweenjs/tween.js";
 import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { Assets, type FederatedWheelEvent } from "pixi.js";
 import Audio from "@/Audio";
@@ -28,6 +28,8 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
+import { tweenGroup } from "@/UI/animation/AnimationController";
+import Easings from "@/UI/Easings";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -525,13 +527,8 @@ export default class BeatmapSet extends ScopedClass {
 		this.animationFrame = requestAnimationFrame(() => this.frame());
 	}
 
-	private _currentNextTick?: number;
-	private _currentTween?: Tween;
+	_currentNextTick?: number;
 	handleWheel(event: FederatedWheelEvent) {
-		if (this._currentTween) {
-			this._currentTween.stop();
-		}
-
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio) return;
 
@@ -540,10 +537,47 @@ export default class BeatmapSet extends ScopedClass {
 
 		if (!this._currentNextTick) this._currentNextTick = audio.currentTime;
 
-		const nextTick = this.getNextStep(direction);
+		const nextTick = this.getNextStep(
+			direction,
+			direction === 1
+				? Math.max(this._currentNextTick, audio.currentTime)
+				: Math.min(this._currentNextTick, audio.currentTime),
+		);
 		this._currentNextTick = Math.max(0, nextTick);
 
-		this.seek(nextTick);
+		this.smoothSeek(this._currentNextTick);
+	}
+
+	_currentTween?: Tween;
+	smoothSeek(time: number) {
+		if (this._currentTween) {
+			this._currentTween.stop();
+		}
+
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio) return;
+
+		const tween = new Tween({
+			value: audio.currentTime,
+		})
+			.easing(Easings.Out)
+			.to(
+				{
+					value: time,
+				},
+				100,
+			)
+			.onUpdate(({ value }) => this.seek(value))
+			.onComplete(() => {
+				tweenGroup.remove(tween);
+			})
+			.onStop(() => {
+				tweenGroup.remove(tween);
+			})
+			.start();
+
+		tweenGroup.add(tween);
+		this._currentTween = tween;
 	}
 
 	getNextStep(direction: -1 | 1, from?: number) {

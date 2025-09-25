@@ -3,7 +3,9 @@ import type {
     Spinner,
     StandardHitObject,
 } from "osu-standard-stable";
+import { inject } from "@/Context";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Beatmap from "..";
 import type TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import TimelineSlider from "../Timeline/TimelineSlider";
@@ -102,7 +104,8 @@ export default class DrawableSpinner extends DrawableHitCircle {
 	playHitSound(time: number, _?: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		const endTime = (this.object as Spinner).endTime;
-		if (!beatmap) return;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		if (!beatmap || isSeeking) return;
 		if (
 			!(
 				beatmap.previousTime <= endTime &&

@@ -12,6 +12,7 @@ import {
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacyHitCircle";
 import type SkinManager from "@/Skinning/SkinManager";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Beatmap from "..";
 import TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import DrawableApproachCircle from "./DrawableApproachCircle";
@@ -169,7 +170,8 @@ export default class DrawableHitCircle
 
 	playHitSound(time: number, _?: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		if (!beatmap) return;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		if (!beatmap || isSeeking) return;
 		if (
 			!(
 				beatmap.previousTime <= this.object.startTime &&

@@ -94,33 +94,43 @@ export default class ProgressBar {
 		);
 	}
 
+	isSeeking = false;
 	addEventHandler() {
-		let isSeeking = false;
-
-		const seekByPercentage = (event: FederatedPointerEvent) => {
+		const seekByPercentage = (event: FederatedPointerEvent, smooth = false) => {
 			const beatmapset = inject<BeatmapSet>("beatmapset");
 			const audio = beatmapset?.context.consume<Audio>("audio");
 
 			const percentage = this.getPercentage(event);
-			beatmapset?.seek(percentage * (audio?.duration ?? 0));
+
+			if (beatmapset) {
+				beatmapset._currentNextTick = percentage * (audio?.duration ?? 0);
+			}
+
+			if (!smooth) {
+				beatmapset?._currentTween?.stop();
+				beatmapset?.seek(percentage * (audio?.duration ?? 0));
+			}
+			if (smooth) {
+				beatmapset?.smoothSeek(percentage * (audio?.duration ?? 0));
+			}
 		};
 
 		this.container.addEventListener("pointerdown", (event) => {
-			isSeeking = true;
-			seekByPercentage(event);
+			this.isSeeking = true;
+			seekByPercentage(event, true);
 		});
 
 		this.container.addEventListener("pointermove", (event) => {
-			if (!isSeeking) return;
-			seekByPercentage(event);
+			if (!this.isSeeking) return;
+			seekByPercentage(event, false);
 		});
 
 		this.container.addEventListener("pointerup", () => {
-			isSeeking = false;
+			this.isSeeking = false;
 		});
 
 		this.container.addEventListener("pointerupoutside", () => {
-			isSeeking = false;
+			this.isSeeking = false;
 		});
 	}
 
