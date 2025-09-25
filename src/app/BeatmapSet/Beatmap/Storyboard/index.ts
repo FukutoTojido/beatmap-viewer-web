@@ -29,6 +29,7 @@ export default class Storyboard extends ScopedClass {
 	container: Container = new Container({
 		label: "storyboard",
 		isRenderGroup: true,
+		visible: inject<BackgroundConfig>("config/background")?.storyboard
 	});
 
 	backgroundLayer = new Container({
