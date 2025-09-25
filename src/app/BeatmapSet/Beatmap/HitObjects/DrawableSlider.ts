@@ -17,6 +17,7 @@ import {
 	Shader,
 } from "pixi.js";
 import { BackdropBlurFilter } from "pixi-filters";
+import type BeatmapSet from "@/BeatmapSet";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { type Context, inject } from "@/Context";
 import {
@@ -488,7 +489,7 @@ export default class DrawableSlider
 
 	playHitSound(time: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 
 		for (const object of this.drawableCircles) {

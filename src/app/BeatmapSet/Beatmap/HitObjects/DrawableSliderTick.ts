@@ -1,6 +1,7 @@
 import type { HitSample as Sample } from "osu-classes";
 import type { Slider, SliderTick } from "osu-standard-stable";
 import { Sprite } from "pixi.js";
+import type BeatmapSet from "@/BeatmapSet";
 import { inject } from "@/Context";
 import { update } from "@/Skinning/Legacy/LegacySliderTick";
 import type Skin from "@/Skinning/Skin";
@@ -92,7 +93,7 @@ export default class DrawableSliderTick extends DrawableHitObject {
 
 	playHitSound(time: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 		if (
 			!(

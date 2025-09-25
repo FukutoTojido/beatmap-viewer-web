@@ -2,6 +2,7 @@ import { type SamplePoint, Vector2 } from "osu-classes";
 import type { StandardHitObject } from "osu-standard-stable";
 import { type ColorSource, Container, Sprite } from "pixi.js";
 import HitSample from "@/Audio/HitSample";
+import type BeatmapSet from "@/BeatmapSet";
 import { type Context, inject } from "@/Context";
 import {
 	refreshSprite as argonRefreshSprite,
@@ -170,7 +171,7 @@ export default class DrawableHitCircle
 
 	playHitSound(time: number, _?: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 		if (
 			!(

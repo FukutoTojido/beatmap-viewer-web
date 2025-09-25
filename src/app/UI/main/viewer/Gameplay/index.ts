@@ -1,5 +1,6 @@
 import type { LayoutOptions } from "@pixi/layout";
 import { LayoutContainer } from "@pixi/layout/components";
+import {  Tween } from "@tweenjs/tween.js";
 import { Vector2 } from "osu-classes";
 import {
 	Assets,
@@ -20,10 +21,9 @@ import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
-import Spinner from "./Spinner";
-import { Easing, Tween } from "@tweenjs/tween.js";
 import { tweenGroup } from "@/UI/animation/AnimationController";
 import Easings from "@/UI/Easings";
+import Spinner from "./Spinner";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",

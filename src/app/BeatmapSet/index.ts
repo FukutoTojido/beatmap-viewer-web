@@ -531,11 +531,15 @@ export default class BeatmapSet extends ScopedClass {
 
 	_currentNextTick?: number;
 	handleWheel(event: FederatedWheelEvent) {
-		const audio = this.context.consume<Audio>("audio");
-		if (!audio) return;
-
 		const direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
 		if (direction === 0) return;
+
+		this.smoothTick(direction);
+	}
+
+	smoothTick(direction: 1 | -1) {
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio) return;
 
 		if (!this._currentNextTick) this._currentNextTick = audio.currentTime;
 
@@ -551,6 +555,7 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	_currentTween?: Tween;
+	isSeeking = false;
 	smoothSeek(time: number, duration = 200) {
 		if (this._currentTween) {
 			this._currentTween.stop();
@@ -558,6 +563,8 @@ export default class BeatmapSet extends ScopedClass {
 
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio) return;
+
+		this.isSeeking = true;
 
 		const tween = new Tween({
 			value: audio.currentTime,
@@ -572,9 +579,11 @@ export default class BeatmapSet extends ScopedClass {
 			.onUpdate(({ value }) => this.seek(value))
 			.onComplete(() => {
 				tweenGroup.remove(tween);
+				this.isSeeking = false;
 			})
 			.onStop(() => {
 				tweenGroup.remove(tween);
+				this.isSeeking = false;
 			})
 			.start();
 

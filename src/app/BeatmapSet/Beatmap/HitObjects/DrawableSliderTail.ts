@@ -1,5 +1,6 @@
 import type { HitSample as Sample } from "osu-classes";
 import type { Slider, SliderTail } from "osu-standard-stable";
+import type BeatmapSet from "@/BeatmapSet";
 import { inject } from "@/Context";
 import { update } from "@/Skinning/Argon/ArgonSliderTail";
 import type Skin from "@/Skinning/Skin";
@@ -72,7 +73,7 @@ export default class DrawableSliderTail extends DrawableSliderHead {
 
 	playHitSound(time: number, offset: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking;
+		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 		if (
 			!(
