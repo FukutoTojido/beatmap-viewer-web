@@ -75,7 +75,7 @@ main {
 
 	overflow: hidden;
 
-	/* transition: cubic-bezier(0, 0.4, 0, 1) 12000ms; */
+	transition: transform cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
 @keyframes show {
@@ -157,7 +157,6 @@ body.fullscreen {
 		zoom: 1.2;
 
 		pointer-events: initial;
-
 
 		& > div:nth-child(2) {
 			backdrop-filter: blur(50px);

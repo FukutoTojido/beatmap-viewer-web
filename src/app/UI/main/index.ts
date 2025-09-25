@@ -80,7 +80,6 @@ export default class Main {
 			},
 		);
 
-		let open = false;
 		this.container.addEventListener("pointermove", (event) => {
 			if (!inject<FullscreenConfig>("config/fullscreen")?.fullscreen) return;
 			if (
@@ -92,10 +91,10 @@ export default class Main {
 			const height = this.container.layout?.computedLayout.height ?? 0;
 			const shouldShowControls = height - pos.y < 60;
 
-			if (shouldShowControls === open) return;
-			open = shouldShowControls;
+			if (shouldShowControls === controls.open) return;
+			controls.open = shouldShowControls;
 
-			if (open) {
+			if (controls.open) {
 				controls.container.visible = true;
 				controls.container.triggerAnimation(
 					"height",
@@ -109,7 +108,7 @@ export default class Main {
 				);
 			}
 
-			if (!open) {
+			if (!controls.open) {
 				controls.container.triggerAnimation(
 					"height",
 					controls.container.layout?.computedLayout.height ?? 60,

@@ -24,6 +24,8 @@ export default class Controls {
 		},
 	});
 
+	open = false;
+
 	constructor() {
 		const timestamp = provide("ui/main/controls/timestamp", new Timestamp());
 		const metadata = provide("ui/main/controls/metadata", new Metadata());
@@ -66,8 +68,10 @@ export default class Controls {
 						isFullscreen && direction === "landscape" ? "absolute" : "relative",
 					borderRadius: isFullscreen || direction === "portrait" ? 0 : 20,
 					bottom: isFullscreen ? 0 : undefined,
+					height: isFullscreen && direction === "landscape" ? 0 : 60
 				};
 				this.container.visible = !(isFullscreen && direction === "landscape");
+				this.open = !(isFullscreen && direction === "landscape");
 			},
 		);
 
@@ -92,6 +96,7 @@ export default class Controls {
 							position: isFullscreen ? "absolute" : "relative",
 						};
 						this.container.visible = !isFullscreen;
+						this.open = !isFullscreen;
 						break;
 					}
 					case "portrait": {
@@ -109,6 +114,7 @@ export default class Controls {
 							position: "relative",
 						};
 						this.container.visible = true;
+						this.open = true;
 
 						break;
 					}
