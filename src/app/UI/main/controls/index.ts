@@ -68,7 +68,12 @@ export default class Controls {
 						isFullscreen && direction === "landscape" ? "absolute" : "relative",
 					borderRadius: isFullscreen || direction === "portrait" ? 0 : 20,
 					bottom: isFullscreen ? 0 : undefined,
-					height: isFullscreen && direction === "landscape" ? 0 : 60
+					height:
+						isFullscreen && direction === "landscape"
+							? 0
+							: direction === "portrait"
+								? "auto"
+								: 60,
 				};
 				this.container.visible = !(isFullscreen && direction === "landscape");
 				this.open = !(isFullscreen && direction === "landscape");
