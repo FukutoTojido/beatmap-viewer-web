@@ -220,7 +220,7 @@ export default class Metadata {
 		const mapperEl = document.querySelector("#mapper");
 		const titleEl = document.querySelector("#title");
 
-		if (mapperEl) mapperEl.textContent = `by ${metadata.creator}`;
+		if (mapperEl) mapperEl.innerHTML = `by <span class="font-medium">${metadata.creator}</span>`;
 		if (titleEl) titleEl.textContent = `${metadata.artist} - ${metadata.title}`;
 	}
 }
