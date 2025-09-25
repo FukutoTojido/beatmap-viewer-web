@@ -192,8 +192,10 @@ export default class Gameplay {
 		const scale = width / 512;
 		const height = 384 * scale;
 		const unit = 32 * scale;
+		const halfUnit = unit / 2;
+		const cornerRadius = 10 * scale;
 
-		this.grid.clear().rect(0, 0, width, height).stroke({
+		this.grid.clear().roundRect(0, 0, width, height, cornerRadius).stroke({
 			color: 0xffffff,
 			alpha: 0.8,
 			width: 2,
@@ -201,31 +203,44 @@ export default class Gameplay {
 		});
 
 		for (let i = unit; i < width; i += unit) {
-			this.grid
-				.moveTo(i, 0)
-				.lineTo(i, height)
-				.stroke({
+			if (i === width / 2) {
+				this.grid.moveTo(i, 0).lineTo(i, height).stroke({
 					color: 0xffffff,
-					alpha: i === width / 2 ? 0.6 : 0.4,
-					pixelLine: true,
+					alpha: 0.6,
+					width: 2,
+					alignment: 0.5,
 				});
+				continue;
+			}
+			this.grid.moveTo(i, 0).lineTo(i, height).stroke({
+				color: 0xffffff,
+				alpha: 0.4,
+				pixelLine: true,
+			});
 		}
 
 		for (let i = unit; i < height; i += unit) {
-			this.grid
-				.moveTo(0, i)
-				.lineTo(width, i)
-				.stroke({
+			if (i === height / 2) {
+				this.grid.moveTo(0, i).lineTo(width, i).stroke({
 					color: 0xffffff,
-					alpha: i === height / 2 ? 0.6 : 0.4,
-					pixelLine: true,
+					alpha: 0.6,
+					width: 2,
+					alignment: 0.5,
 				});
+				continue;
+			}
+			this.grid.moveTo(0, i).lineTo(width, i).stroke({
+				color: 0xffffff,
+				alpha: 0.4,
+				pixelLine: true,
+			});
 		}
 
 		this.grid
-			.moveTo(0, unit / 2)
-			.lineTo(0, 0)
-			.lineTo(unit / 2, 0)
+			.moveTo(0, halfUnit)
+			.lineTo(0, cornerRadius)
+			.arc(cornerRadius, cornerRadius, cornerRadius, Math.PI, -Math.PI / 2)
+			.lineTo(halfUnit, 0)
 			.stroke({
 				color: 0xffffff,
 				alpha: 1,
@@ -234,9 +249,10 @@ export default class Gameplay {
 				cap: "round",
 				join: "round",
 			})
-			.moveTo(width - unit / 2, 0)
-			.lineTo(width, 0)
-			.lineTo(width, unit / 2)
+			.moveTo(width - halfUnit, 0)
+			.lineTo(width - cornerRadius, 0)
+			.arc(width - cornerRadius, cornerRadius, cornerRadius, -Math.PI / 2, 0)
+			.lineTo(width, halfUnit)
 			.stroke({
 				color: 0xffffff,
 				alpha: 1,
@@ -245,9 +261,16 @@ export default class Gameplay {
 				cap: "round",
 				join: "round",
 			})
-			.moveTo(width, height - unit / 2)
-			.lineTo(width, height)
-			.lineTo(width - unit / 2, height)
+			.moveTo(width, height - halfUnit)
+			.lineTo(width, height - cornerRadius)
+			.arc(
+				width - cornerRadius,
+				height - cornerRadius,
+				cornerRadius,
+				0,
+				Math.PI / 2,
+			)
+			.lineTo(width - halfUnit, height)
 			.stroke({
 				color: 0xffffff,
 				alpha: 1,
@@ -256,9 +279,10 @@ export default class Gameplay {
 				cap: "round",
 				join: "round",
 			})
-			.moveTo(unit / 2, height)
-			.lineTo(0, height)
-			.lineTo(0, height - unit / 2)
+			.moveTo(halfUnit, height)
+			.lineTo(cornerRadius, height)
+			.arc(cornerRadius, height - cornerRadius, cornerRadius, Math.PI / 2, Math.PI)
+			.lineTo(0, height - halfUnit)
 			.stroke({
 				color: 0xffffff,
 				alpha: 1,
