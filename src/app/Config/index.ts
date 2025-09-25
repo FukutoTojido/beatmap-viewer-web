@@ -6,6 +6,7 @@ import ExperimentalConfig, {
 	type ExperimentalProps,
 } from "./ExperimentalConfig";
 import FullscreenConfig from "./FullscreenConfig";
+import GameplayConfig, { type GameplayProps } from "./GameplayConfig";
 import MirrorConfig, { type MirrorProps } from "./MirrorConfig";
 import RendererConfig, { type RendererProps } from "./RendererConfig";
 import SkinningConfig, { type SkinningProps } from "./SkinningConfig";
@@ -19,6 +20,7 @@ type Configs = {
 	skinning: SkinningProps;
 	audio: AudioProps;
 	experimental: ExperimentalProps;
+	gameplay: GameplayProps;
 };
 
 export default class Config {
@@ -31,6 +33,7 @@ export default class Config {
 	color: ColorConfig;
 	experimental: ExperimentalConfig;
 	fullscreen: FullscreenConfig;
+	gameplay: GameplayConfig;
 
 	constructor() {
 		const savedSettings = this.loadSettings();
@@ -94,6 +97,14 @@ export default class Config {
 				fullscreen: false,
 			}),
 		);
+		this.gameplay = provide(
+			"config/gameplay",
+			new GameplayConfig(
+				savedSettings?.gameplay ?? {
+					showGrid: true,
+				},
+			),
+		);
 
 		const overlay = document.querySelector<HTMLDivElement>("#overlay");
 		const settings = document.querySelector<HTMLDivElement>("#settings");
@@ -130,6 +141,7 @@ export default class Config {
 				skinning: this.skinning.jsonify(),
 				timeline: this.timeline.jsonify(),
 				experimental: this.experimental.jsonify(),
+				gameplay: this.gameplay.jsonify(),
 			}),
 		);
 	}

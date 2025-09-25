@@ -18,6 +18,7 @@ import DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle
 import DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
+import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 import Spinner from "./Spinner";
 
@@ -122,6 +123,7 @@ export default class Gameplay {
 		this.grid = new Graphics({
 			interactive: false,
 			eventMode: "none",
+			visible: inject<GameplayConfig>("config/gameplay")?.showGrid ?? true,
 		});
 		this.drawGrid(512);
 
@@ -184,6 +186,13 @@ export default class Gameplay {
 			"backgroundBlur",
 			(value: number) => {
 				backdropFilter.strength = (value / 100) * 20;
+			},
+		);
+
+		inject<GameplayConfig>("config/gameplay")?.onChange(
+			"showGrid",
+			(val: boolean) => {
+				this.grid.visible = val;
 			},
 		);
 	}
@@ -281,7 +290,13 @@ export default class Gameplay {
 			})
 			.moveTo(halfUnit, height)
 			.lineTo(cornerRadius, height)
-			.arc(cornerRadius, height - cornerRadius, cornerRadius, Math.PI / 2, Math.PI)
+			.arc(
+				cornerRadius,
+				height - cornerRadius,
+				cornerRadius,
+				Math.PI / 2,
+				Math.PI,
+			)
 			.lineTo(0, height - halfUnit)
 			.stroke({
 				color: 0xffffff,
