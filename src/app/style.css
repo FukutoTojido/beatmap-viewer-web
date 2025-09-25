@@ -104,12 +104,16 @@ main {
 	display: block;
 	opacity: 1;
 	animation: ease-in-out 200ms show forwards;
+
+	z-index: 9999;
 }
 
 .overlayHidden {
 	display: none;
 	opacity: 0;
 	animation: ease-in-out 200ms hide forwards;
+
+	z-index: 9999;
 }
 
 #settings {
@@ -151,6 +155,8 @@ body.fullscreen {
 		zoom: 1.5;
 
 		pointer-events: none;
+
+		text-shadow: 0 2px 8px rgba(0 0 0 / 0.8);
 	}
 
 	#diffsLabel {
@@ -160,6 +166,8 @@ body.fullscreen {
 
 		& > div:nth-child(2) {
 			backdrop-filter: blur(50px);
+
+			box-shadow: 0 2px 8px rgba(0 0 0 / 0.8);
 		}
 	}
 }
@@ -194,6 +202,10 @@ body.fullscreen {
 			display: none;
 		}
 	}
+}
+
+#loading {
+	z-index: 9999;
 }
 
 .loader {

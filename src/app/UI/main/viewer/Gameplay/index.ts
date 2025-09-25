@@ -37,6 +37,7 @@ const defaultLayout: Omit<LayoutOptions, "target"> = {
 export default class Gameplay {
 	container: Container;
 	wrapper: Container;
+	grid: Graphics;
 	background: LayoutContainer;
 	objectsContainer: Container;
 	selector: Graphics;
@@ -118,12 +119,19 @@ export default class Gameplay {
 		this.spinner = new Spinner(this);
 		this.spinner.spin = true;
 
+		this.grid = new Graphics({
+			interactive: false,
+			eventMode: "none",
+		});
+		this.drawGrid(512);
+
 		this.createStats();
 		this.createCloseButton();
 
 		this.container.addChild(this.wrapper, this.spinner.graphics);
 		this.wrapper.addChild(
 			this.background,
+			this.grid,
 			this.objectsContainer,
 			this.selectContainer,
 			this.selector,
@@ -140,6 +148,11 @@ export default class Gameplay {
 
 			this.objectsContainer.x = (width - _w) / 2;
 			this.objectsContainer.y = (height - _h) / 2;
+
+			this.grid.x = (width - _w) / 2;
+			this.grid.y = (height - _h) / 2;
+
+			this.drawGrid(_w);
 
 			this.selectContainer.scale.set(scale);
 
@@ -173,6 +186,87 @@ export default class Gameplay {
 				backdropFilter.strength = (value / 100) * 20;
 			},
 		);
+	}
+
+	drawGrid(width = 512) {
+		const scale = width / 512;
+		const height = 384 * scale;
+		const unit = 32 * scale;
+
+		this.grid.clear().rect(0, 0, width, height).stroke({
+			color: 0xffffff,
+			alpha: 0.8,
+			width: 2,
+			alignment: 0.5,
+		});
+
+		for (let i = unit; i < width; i += unit) {
+			this.grid
+				.moveTo(i, 0)
+				.lineTo(i, height)
+				.stroke({
+					color: 0xffffff,
+					alpha: i === width / 2 ? 0.6 : 0.4,
+					pixelLine: true,
+				});
+		}
+
+		for (let i = unit; i < height; i += unit) {
+			this.grid
+				.moveTo(0, i)
+				.lineTo(width, i)
+				.stroke({
+					color: 0xffffff,
+					alpha: i === height / 2 ? 0.6 : 0.4,
+					pixelLine: true,
+				});
+		}
+
+		this.grid
+			.moveTo(0, unit / 2)
+			.lineTo(0, 0)
+			.lineTo(unit / 2, 0)
+			.stroke({
+				color: 0xffffff,
+				alpha: 1,
+				width: 4,
+				alignment: 0.5,
+				cap: "round",
+				join: "round",
+			})
+			.moveTo(width - unit / 2, 0)
+			.lineTo(width, 0)
+			.lineTo(width, unit / 2)
+			.stroke({
+				color: 0xffffff,
+				alpha: 1,
+				width: 4,
+				alignment: 0.5,
+				cap: "round",
+				join: "round",
+			})
+			.moveTo(width, height - unit / 2)
+			.lineTo(width, height)
+			.lineTo(width - unit / 2, height)
+			.stroke({
+				color: 0xffffff,
+				alpha: 1,
+				width: 4,
+				alignment: 0.5,
+				cap: "round",
+				join: "round",
+			})
+			.moveTo(unit / 2, height)
+			.lineTo(0, height)
+			.lineTo(0, height - unit / 2)
+			.stroke({
+				color: 0xffffff,
+				alpha: 1,
+				width: 4,
+				alignment: 0.5,
+				cap: "round",
+				join: "round",
+			});
 	}
 
 	dragWindow: [Vector2, Vector2] = [new Vector2(0, 0), new Vector2(0, 0)];
