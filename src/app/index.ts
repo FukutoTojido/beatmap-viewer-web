@@ -13,11 +13,11 @@ document.addEventListener("keydown", (event) => {
 
 	switch (event.key) {
 		case "ArrowLeft": {
-			bms.smoothTick(-1);
+			bms.smoothTick(-1, event.shiftKey);
 			break;
 		}
 		case "ArrowRight": {
-			bms.smoothTick(1);
+			bms.smoothTick(1, event.shiftKey);
 			break;
 		}
 		case " ": {

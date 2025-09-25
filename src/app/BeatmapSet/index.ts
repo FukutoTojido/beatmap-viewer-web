@@ -534,10 +534,10 @@ export default class BeatmapSet extends ScopedClass {
 		const direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
 		if (direction === 0) return;
 
-		this.smoothTick(direction);
+		this.smoothTick(direction, event.shiftKey);
 	}
 
-	smoothTick(direction: 1 | -1) {
+	smoothTick(direction: 1 | -1, miliStep = false) {
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio) return;
 
@@ -548,6 +548,7 @@ export default class BeatmapSet extends ScopedClass {
 			direction === 1
 				? Math.max(this._currentNextTick, audio.currentTime)
 				: Math.min(this._currentNextTick, audio.currentTime),
+			miliStep,
 		);
 		this._currentNextTick = Math.max(0, nextTick);
 
@@ -591,7 +592,7 @@ export default class BeatmapSet extends ScopedClass {
 		this._currentTween = tween;
 	}
 
-	getNextStep(direction: -1 | 1, from?: number) {
+	getNextStep(direction: -1 | 1, from?: number, miliStep = false) {
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio || !this.master) return 0;
 
@@ -609,7 +610,7 @@ export default class BeatmapSet extends ScopedClass {
 				0.00000001) *
 				beatLength;
 
-		return nextTick;
+		return miliStep ? currentTime + direction : nextTick;
 	}
 
 	destroy() {
