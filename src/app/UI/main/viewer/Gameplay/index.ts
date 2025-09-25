@@ -21,8 +21,9 @@ import type ColorConfig from "@/Config/ColorConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 import Spinner from "./Spinner";
-import { Tween } from "@tweenjs/tween.js";
+import { Easing, Tween } from "@tweenjs/tween.js";
 import { tweenGroup } from "@/UI/animation/AnimationController";
+import Easings from "@/UI/Easings";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -199,6 +200,7 @@ export default class Gameplay {
 				const tween = new Tween({
 					value: this.background.alpha,
 				})
+					.easing(Easings.Out)
 					.to(
 						{
 							value: isBreak ? 0.5 : 1,
