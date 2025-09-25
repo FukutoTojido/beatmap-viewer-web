@@ -68,12 +68,12 @@ export class Game {
 		await app.init({
 			// // biome-ignore lint/style/noNonNullAssertion: It should be there already lol
 			// resizeTo: document.querySelector<HTMLDivElement>("#app")!,
-			// antialias: true,
+			antialias: true,
 			// powerPreference: "high-performance",
 			backgroundAlpha: 0,
-			useBackBuffer: true,
-			clearBeforeRender: true,
-			depth: true,
+			// useBackBuffer: true,
+			// clearBeforeRender: true,
+			// depth: true,
 			autoDensity: true,
 			resolution: devicePixelRatio,
 		});
@@ -97,7 +97,10 @@ export class Game {
 						+getComputedStyle(divApp).height.replaceAll("px", ""),
 					);
 
-					app.renderer.resize(width, height);
+					requestAnimationFrame(() => {
+						app.renderer.resize(width, height);
+						app.render();
+					}) 
 				}
 			});
 
