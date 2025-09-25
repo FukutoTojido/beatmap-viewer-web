@@ -1,9 +1,5 @@
 import { sort } from "fast-sort";
-import {
-	DifficultyPoint,
-	SamplePoint,
-	TimingPoint,
-} from "osu-classes";
+import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { BeatmapDecoder } from "osu-parsers";
 import {
 	Circle,
@@ -17,6 +13,7 @@ import {
 } from "osu-standard-stable";
 import type { ColorSource } from "pixi.js";
 import type Audio from "@/Audio";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import Gameplay from "@/UI/main/viewer/Gameplay";
@@ -444,6 +441,30 @@ export default class Beatmap extends ScopedClass {
 			switch (event.data.type) {
 				case "update": {
 					const { objects, connectors, currentTime, previousTime } = event.data;
+
+					const currentInBreak = this.data.events.breaks.some(
+						({ startTime, endTime }) =>
+							startTime <= currentTime && currentTime <= endTime,
+					);
+
+					const previousInBreak = this.data.events.breaks.some(
+						({ startTime, endTime }) =>
+							startTime <= previousTime && previousTime <= endTime,
+					);
+
+					const backgroundConfig =
+						inject<BackgroundConfig>("config/background");
+
+					if (backgroundConfig) {
+						if (currentInBreak && !previousInBreak) {
+							backgroundConfig.breakSection = true;
+						}
+						
+						if (!currentInBreak && previousInBreak) {
+							backgroundConfig.breakSection = false;
+						}
+					}
+
 					this.previousTime = previousTime;
 					this.update(currentTime, objects, connectors);
 					break;

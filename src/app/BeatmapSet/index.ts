@@ -549,7 +549,7 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	_currentTween?: Tween;
-	smoothSeek(time: number) {
+	smoothSeek(time: number, duration = 200) {
 		if (this._currentTween) {
 			this._currentTween.stop();
 		}
@@ -565,7 +565,7 @@ export default class BeatmapSet extends ScopedClass {
 				{
 					value: time,
 				},
-				100,
+				duration,
 			)
 			.onUpdate(({ value }) => this.seek(value))
 			.onComplete(() => {

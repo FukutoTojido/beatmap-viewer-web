@@ -58,6 +58,7 @@ export default class Config {
 					backgroundBlur: 0,
 					storyboard: true,
 					video: true,
+					breakSection: false,
 				},
 			),
 		);

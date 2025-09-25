@@ -21,6 +21,8 @@ import type ColorConfig from "@/Config/ColorConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 import Spinner from "./Spinner";
+import { Tween } from "@tweenjs/tween.js";
+import { tweenGroup } from "@/UI/animation/AnimationController";
 
 const defaultStyle: TextStyleOptions = {
 	fontFamily: "Rubik",
@@ -189,6 +191,36 @@ export default class Gameplay {
 			},
 		);
 
+		inject<BackgroundConfig>("config/background")?.onChange(
+			"breakSection",
+			(isBreak: boolean) => {
+				this._currentTween?.stop();
+
+				const tween = new Tween({
+					value: this.background.alpha,
+				})
+					.to(
+						{
+							value: isBreak ? 0.5 : 1,
+						},
+						500,
+					)
+					.onUpdate(({ value }) => {
+						this.background.alpha = value;
+					})
+					.onComplete(() => {
+						tweenGroup.remove(tween);
+					})
+					.onStop(() => {
+						tweenGroup.remove(tween);
+					})
+					.start();
+
+				tweenGroup.add(tween);
+				this._currentTween = tween;
+			},
+		);
+
 		inject<GameplayConfig>("config/gameplay")?.onChange(
 			"showGrid",
 			(val: boolean) => {
@@ -196,6 +228,8 @@ export default class Gameplay {
 			},
 		);
 	}
+
+	private _currentTween?: Tween;
 
 	drawGrid(width = 512) {
 		const scale = width / 512;

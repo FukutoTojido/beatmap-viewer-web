@@ -5,6 +5,7 @@ export type BackgroundProps = {
 	backgroundBlur?: number;
 	video?: boolean;
 	storyboard?: boolean;
+	breakSection?: boolean;
 };
 
 export default class BackgroundConfig extends ConfigSection {
@@ -14,11 +15,13 @@ export default class BackgroundConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const { backgroundDim, backgroundBlur, video, storyboard } = defaultOptions;
+		const { backgroundDim, backgroundBlur, video, storyboard, breakSection } =
+			defaultOptions;
 		this.backgroundDim = backgroundDim ?? 70;
 		this.backgroundBlur = backgroundBlur ?? 0;
 		this.video = video ?? true;
 		this.storyboard = storyboard ?? true;
+		this.breakSection = breakSection ?? false;
 	}
 
 	private _backgroundDim = 60;
@@ -57,6 +60,16 @@ export default class BackgroundConfig extends ConfigSection {
 		if (ele) ele.value = `${val}`;
 
 		this.emitChange("backgroundBlur", val);
+	}
+
+	private _breakSection = false;
+	get breakSection() {
+		return this._breakSection;
+	}
+	set breakSection(val: boolean) {
+		this._breakSection = val;
+
+		this.emitChange("breakSection", val);
 	}
 
 	private _video = true;
@@ -122,7 +135,7 @@ export default class BackgroundConfig extends ConfigSection {
 			backgroundDim: this.backgroundDim,
 			backgroundBlur: this.backgroundBlur,
 			video: this.video,
-			storyboard: this.storyboard
-		}
+			storyboard: this.storyboard,
+		};
 	}
 }

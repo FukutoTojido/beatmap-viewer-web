@@ -111,7 +111,7 @@ export default class ProgressBar {
 				beatmapset?.seek(percentage * (audio?.duration ?? 0));
 			}
 			if (smooth) {
-				beatmapset?.smoothSeek(percentage * (audio?.duration ?? 0));
+				beatmapset?.smoothSeek(percentage * (audio?.duration ?? 0), 100);
 			}
 		};
 
