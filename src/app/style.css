@@ -75,7 +75,7 @@ main {
 
 	overflow: hidden;
 
-	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+	/* transition: cubic-bezier(0, 0.4, 0, 1) 12000ms; */
 }
 
 @keyframes show {
@@ -125,6 +125,46 @@ main:has(.overlay) {
 	transform: translateX(40px);
 }
 
+body.fullscreen {
+	main {
+		padding: 0;
+	}
+
+	#topBar {
+		position: fixed;
+		z-index: 9999;
+		padding: 20px;
+
+		pointer-events: none;
+	}
+
+	#settingsButton {
+		display: none;
+	}
+
+	#search {
+		display: none;
+	}
+
+	#metadata {
+		padding: 0;
+		zoom: 1.5;
+
+		pointer-events: none;
+	}
+
+	#diffsLabel {
+		zoom: 1.2;
+
+		pointer-events: initial;
+
+
+		& > div:nth-child(2) {
+			backdrop-filter: blur(50px);
+		}
+	}
+}
+
 @media screen and (max-aspect-ratio: 1 / 1) {
 	main {
 		padding: 0px;
@@ -143,6 +183,17 @@ main:has(.overlay) {
 
 	#search {
 		display: none;
+	}
+
+	body.fullscreen {
+		#metadata {
+			zoom: 1;
+		}
+
+		#diffsLabel {
+			zoom: 1;
+			display: none;
+		}
 	}
 }
 

@@ -1,12 +1,10 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import FPS from "./FPS";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject, provide } from "@/Context";
-import Timeline from "./Timeline";
-import Gameplay from "./Gameplay";
-import Background from "./Background";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
-import type ColorConfig from "@/Config/ColorConfig";
+import Timeline from "./Timeline";
 
 export default class Viewer {
 	container = new LayoutContainer({
@@ -19,7 +17,7 @@ export default class Viewer {
 			borderRadius: 20,
 			overflow: "hidden",
 		},
-			interactive: true
+		interactive: true,
 	});
 
 	constructor() {
@@ -33,13 +31,26 @@ export default class Viewer {
 			gameplays.container,
 		);
 
+		inject<FullscreenConfig>("config/fullscreen")?.onChange(
+			"fullscreen",
+			(isFullscreen) => {
+				const direction =
+					inject<ResponsiveHandler>("responsiveHandler")?.direction;
+				this.container.layout = {
+					borderRadius: isFullscreen || direction === "portrait" ? 0 : 20,
+				};
+			},
+		);
+
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
 			(direction) => {
+				const isFullscreen =
+					inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
-							borderRadius: 20,
+							borderRadius: isFullscreen ? 0 : 20,
 							flex: 1,
 							aspectRatio: undefined,
 						};

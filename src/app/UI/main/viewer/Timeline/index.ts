@@ -1,5 +1,4 @@
 import IntervalTree from "@flatten-js/interval-tree";
-import { LayoutContainer } from "@pixi/layout/components";
 import type { TimingPoint } from "osu-classes";
 import type { Slider } from "osu-standard-stable";
 import { Container, Graphics, GraphicsContext } from "pixi.js";
@@ -10,8 +9,11 @@ import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitC
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type TimelineHitObject from "@/BeatmapSet/Beatmap/Timeline/TimelineHitObject";
 import TimelineTimingPoint from "@/BeatmapSet/Beatmap/Timeline/TimelineTimingPoint";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject } from "@/Context";
+import ZContainer from "@/UI/core/ZContainer";
+import Easings from "@/UI/Easings";
 import { binarySearch, gcd } from "@/utils";
 
 export const DEFAULT_SCALE = 1;
@@ -28,7 +30,7 @@ const BEAT_LINE_COLOR = {
 };
 
 export default class Timeline {
-	container = new LayoutContainer({
+	container = new ZContainer({
 		label: "timeline",
 		layout: {
 			width: "100%",
@@ -112,6 +114,41 @@ export default class Timeline {
 			const width = this.container.layout?.computedLayout.width ?? 0;
 			this._range = (width / 2) * (DEFAULT_SCALE / newScale) + 120;
 		});
+
+		inject<FullscreenConfig>("config/fullscreen")?.onChange(
+			"fullscreen",
+			(isFullscreen) => {
+				if (isFullscreen) {
+					this.container.triggerAnimation(
+						"height",
+						this.container.layout?.computedLayout.height ?? 80,
+						0,
+						(val) => {
+							this.container.layout = { height: val };
+						},
+						200,
+						Easings.InOut,
+						() => {
+							this.container.visible = false;
+						},
+					);
+				}
+
+				if (!isFullscreen) {
+					this.container.visible = true;
+					this.container.triggerAnimation(
+						"height",
+						this.container.layout?.computedLayout.height ?? 0,
+						80,
+						(val) => {
+							this.container.layout = { height: val };
+						},
+						200,
+						Easings.InOut,
+					);
+				}
+			},
+		);
 
 		this.container.addEventListener(
 			"wheel",

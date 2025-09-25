@@ -1,4 +1,4 @@
-import { inject, ScopedClass } from "@/Context";
+import IntervalTree from "@flatten-js/interval-tree";
 import type { Storyboard as StoryboardData } from "@rian8337/osu-base";
 import {
 	StoryboardAnimation as StoryboardAnimationData,
@@ -6,22 +6,20 @@ import {
 	StoryboardLayerType,
 	StoryboardSprite as StoryboardSpriteData,
 } from "@rian8337/osu-base";
-import StoryboardSprite from "./StoryboardSprite";
 import {
 	Assets,
 	Container,
 	Graphics,
 	GraphicsContext,
 	Rectangle,
-	RenderLayer,
 	type Texture,
 } from "pixi.js";
-import IntervalTree from "@flatten-js/interval-tree";
-import { LayerType } from "osu-classes";
-import type { Resource } from "@/ZipHandler";
 import type BeatmapSet from "@/BeatmapSet";
-import { StoryboardAnimation } from "./StoryboardAnimation";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
+import { inject, ScopedClass } from "@/Context";
+import type { Resource } from "@/ZipHandler";
+import { StoryboardAnimation } from "./StoryboardAnimation";
+import StoryboardSprite from "./StoryboardSprite";
 
 export default class Storyboard extends ScopedClass {
 	private data!: StoryboardData;

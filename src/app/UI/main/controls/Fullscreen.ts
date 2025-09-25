@@ -1,10 +1,10 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import { Assets, Sprite } from "pixi.js";
-import type BeatmapSet from "@/BeatmapSet";
 import type ColorConfig from "@/Config/ColorConfig";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject } from "@/Context";
 
-export default class Play {
+export default class Fullscreen {
 	container = new LayoutContainer({
 		label: "play",
 		layout: {
@@ -21,7 +21,7 @@ export default class Play {
 
 	constructor() {
 		(async () => {
-			const texture = await Assets.load("./assets/play.png");
+			const texture = await Assets.load("./assets/maximize.png");
 			this.sprite.texture = texture;
 			this.sprite.width = 20;
 			this.sprite.height = 20;
@@ -45,8 +45,11 @@ export default class Play {
 
 		this.container.cursor = "pointer";
 
-		this.container.addEventListener("pointertap", () =>
-			inject<BeatmapSet>("beatmapset")?.toggle(),
-		);
+		this.container.addEventListener("pointertap", () => {
+			const config = inject<FullscreenConfig>("config/fullscreen");
+			if (!config) return;
+
+			config.fullscreen = !config.fullscreen;
+		});
 	}
 }

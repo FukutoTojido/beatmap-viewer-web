@@ -27,14 +27,18 @@ export default class ZContainer extends LayoutContainer {
 		callback: (currentValue: number) => void,
 		duration?: number,
 		easing?: (t: number) => number,
+		onComplete?: () => void,
+		onStop?: () => void
 	) {
-		this.animationControler.addAnimation(
+		return this.animationControler.addAnimation(
 			key,
 			from,
 			to,
 			callback,
 			duration,
 			easing,
+			onComplete,
+			onStop
 		);
 	}
 }

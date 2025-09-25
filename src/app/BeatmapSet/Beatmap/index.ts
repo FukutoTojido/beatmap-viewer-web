@@ -1,5 +1,9 @@
 import { sort } from "fast-sort";
-import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import {
+	DifficultyPoint,
+	SamplePoint,
+	TimingPoint,
+} from "osu-classes";
 import { BeatmapDecoder } from "osu-parsers";
 import {
 	Circle,
@@ -9,6 +13,7 @@ import {
 	type StandardDifficultyAttributes,
 	type StandardDifficultyCalculator,
 	StandardRuleset,
+	type StandardStrainSkill,
 } from "osu-standard-stable";
 import type { ColorSource } from "pixi.js";
 import type Audio from "@/Audio";
@@ -17,6 +22,7 @@ import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import Gameplay from "@/UI/main/viewer/Gameplay";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Timeline from "@/UI/main/viewer/Timeline";
+import type { StrainPoint } from "@/UI/sidepanel/Modding/DifficultyGraph";
 import type Timing from "@/UI/sidepanel/Timing";
 import { difficultyRange, getDiffColour } from "@/utils";
 import { inject, ScopedClass } from "../../Context";
@@ -26,8 +32,8 @@ import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableSlider from "./HitObjects/DrawableSlider";
-import ObjectsWorker from "./Worker/Objects?worker";
 import DrawableSpinner from "./HitObjects/DrawableSpinner";
+import ObjectsWorker from "./Worker/Objects?worker";
 
 const decoder = new BeatmapDecoder();
 const ruleset = new StandardRuleset();
@@ -70,6 +76,7 @@ export default class Beatmap extends ScopedClass {
 		this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
 			ruleset.createModCombination(initialMods),
 		);
+		this.calculateStrainGraph(initialMods);
 
 		this.color = getDiffColour(this.difficultyAttributes.starRating);
 
@@ -103,10 +110,72 @@ export default class Beatmap extends ScopedClass {
 				this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
 					ruleset.createModCombination(val),
 				);
+				this.calculateStrainGraph(val);
 
 				this.recalculateDifficulty();
 			},
 		);
+	}
+
+	// Taken from https://github.com/Rian8337/osu-droid-module/blob/master/packages/osu-strain-graph-generator/src/index.ts
+	strains: StrainPoint[] = [];
+	private calculateStrainGraph(mods: string) {
+		const modsCombination = ruleset.createModCombination(mods);
+		const beatmap: StandardBeatmap =
+			// biome-ignore lint/complexity/useLiteralKeys: Access Private
+			this.difficultyCalculator["_getWorkingBeatmap"](modsCombination);
+
+		const sectionLength = 400;
+		const currentSectionEnd =
+			Math.ceil(beatmap.hitObjects[0].startTime / sectionLength) *
+			sectionLength;
+
+		const clockRate = beatmap.difficulty.clockRate ?? 1;
+
+		// @ts-ignore
+		const skills: StandardStrainSkill[] = this.difficultyCalculator[
+			// biome-ignore lint/complexity/useLiteralKeys: Access Private
+			"_createSkills"
+		](beatmap, modsCombination);
+
+		// biome-ignore lint/complexity/useLiteralKeys: Access Private
+		const aimStrainPeaks = skills[1]["_strainPeaks"];
+		// biome-ignore lint/complexity/useLiteralKeys: Access Private
+		const speedStrainPeaks = skills[1]["_strainPeaks"];
+
+		// @ts-ignore
+		for (const hitObject of this.difficultyCalculator._getDifficultyHitObjects(
+			beatmap,
+			clockRate,
+		)) {
+			for (const skill of skills) {
+				skill.process(hitObject);
+			}
+		}
+
+		const strainInformations: {
+			time: number;
+			strain: number;
+		}[] = new Array(
+			Math.max(aimStrainPeaks.length, speedStrainPeaks.length) + 1,
+		);
+
+		strainInformations[0] = {
+			strain: 0,
+			time: (currentSectionEnd - sectionLength) / 1000,
+		};
+
+		for (let i = 1; i < strainInformations.length; ++i) {
+			const aimStrain = aimStrainPeaks[i] ?? 0;
+			const speedStrain = speedStrainPeaks[i] ?? 0;
+
+			strainInformations[i] = {
+				time: (currentSectionEnd + sectionLength * (i - 1)) / 1000,
+				strain: (aimStrain + speedStrain) / 2,
+			};
+		}
+
+		this.strains = strainInformations;
 	}
 
 	private recalculateDifficulty() {
@@ -123,7 +192,10 @@ export default class Beatmap extends ScopedClass {
 		});
 
 		const objs = this.data.hitObjects.filter(
-			(object) => object instanceof Circle || object instanceof Slider || object instanceof Spinner,
+			(object) =>
+				object instanceof Circle ||
+				object instanceof Slider ||
+				object instanceof Spinner,
 		);
 		for (let i = 0; i < this.objects.length; i++) {
 			this.objects[i].object = objs[i];

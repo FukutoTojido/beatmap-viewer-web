@@ -1,15 +1,12 @@
-import type BackgroundConfig from "@/Config/BackgroundConfig";
-import { inject } from "@/Context";
-import type ResponsiveHandler from "@/ResponsiveHandler";
-import { LayoutContainer } from "@pixi/layout/components";
 import {
 	Container,
-	ImageSource,
 	Sprite,
 	Texture,
 	type TextureSource,
-	type VideoSource,
 } from "pixi.js";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
+import { inject } from "@/Context";
 
 export default class Background {
 	container = new Container({
@@ -56,7 +53,12 @@ export default class Background {
 			const { width, height } = layout.computedLayout;
 			const timelineHeight = 80;
 
-			const scale = Math.min(width / 640, (height - timelineHeight) / 480);
+			const isFullscreen =
+				inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
+
+			const _timelineHeight = isFullscreen ? 0 : timelineHeight;
+
+			const scale = Math.min(width / 640, (height - _timelineHeight) / 480);
 			const _w = 640 * scale;
 			const _h = 480 * scale;
 
@@ -64,7 +66,7 @@ export default class Background {
 
 			this.storyboardContainer.x = (width - _w) / 2;
 			this.storyboardContainer.y =
-				timelineHeight + (height - timelineHeight - _h) / 2;
+				_timelineHeight + (height - _timelineHeight - _h) / 2;
 		});
 
 		inject<BackgroundConfig>("config/background")?.onChange("video", (val) => {

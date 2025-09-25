@@ -1,10 +1,12 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import type BeatmapSet from "@/BeatmapSet";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject, provide } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import Controls from "./controls";
 import Viewer from "./viewer";
+import Easings from "../Easings";
 
 export default class Main {
 	container = new LayoutContainer({
@@ -28,10 +30,12 @@ export default class Main {
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
 			(direction) => {
+				const isFullscreen =
+					inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
-							gap: 10,
+							gap: isFullscreen ? 0 : 10,
 						};
 						break;
 					}
@@ -42,6 +46,17 @@ export default class Main {
 						break;
 					}
 				}
+			},
+		);
+
+		inject<FullscreenConfig>("config/fullscreen")?.onChange(
+			"fullscreen",
+			(isFullscreen) => {
+				const direction =
+					inject<ResponsiveHandler>("responsiveHandler")?.direction;
+				this.container.layout = {
+					gap: isFullscreen || direction === "portrait" ? 0 : 10,
+				};
 			},
 		);
 
@@ -64,5 +79,54 @@ export default class Main {
 				passive: false,
 			},
 		);
+
+		let open = false;
+		this.container.addEventListener("pointermove", (event) => {
+			if (!inject<FullscreenConfig>("config/fullscreen")?.fullscreen) return;
+			if (
+				inject<ResponsiveHandler>("responsiveHandler")?.direction === "portrait"
+			)
+				return;
+
+			const pos = this.container.toLocal(event.global);
+			const height = this.container.layout?.computedLayout.height ?? 0;
+			const shouldShowControls = height - pos.y < 60;
+
+			if (shouldShowControls === open) return;
+			open = shouldShowControls;
+
+			if (open) {
+				controls.container.visible = true;
+				controls.container.triggerAnimation(
+					"height",
+					controls.container.layout?.computedLayout.height ?? 0,
+					60,
+					(val) => {
+						controls.container.layout = { height: val };
+					},
+					200,
+					Easings.InOut,
+				);
+			}
+
+			if (!open) {
+				controls.container.triggerAnimation(
+					"height",
+					controls.container.layout?.computedLayout.height ?? 60,
+					0,
+					(val) => {
+						controls.container.layout = { height: val };
+					},
+					200,
+					Easings.InOut,
+					() => {
+						controls.container.visible = false;
+					},
+					() => {
+						controls.container.visible = false;
+					},
+				);
+			}
+		});
 	}
 }

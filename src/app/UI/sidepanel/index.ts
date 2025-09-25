@@ -58,7 +58,7 @@ export default class SidePanel {
 			padding: 20,
 			paddingInline: 0,
 			gap: 20,
-			borderWidth: 1,
+			// borderWidth: 1,
 			borderColor: [0, 0, 0, 0],
 		},
 	});

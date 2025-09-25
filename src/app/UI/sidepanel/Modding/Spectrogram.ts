@@ -1,7 +1,9 @@
-import { Container, Graphics, Sprite, type Texture } from "pixi.js";
+import { LayoutContainer } from "@pixi/layout/components";
+import { Container, FillGradient, Graphics, Sprite, Text, type Texture } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import { defaultStyle } from "../Metadata";
 
 export default class Spectrogram {
 	container = new Container();
@@ -10,12 +12,15 @@ export default class Spectrogram {
 	spinner = new Graphics({
 		layout: true,
 	});
-
+	scale: LayoutContainer;
 	background = new Graphics();
+	overlay = new Graphics();
 
 	constructor() {
 		this.container.layout = {
 			width: "100%",
+			aspectRatio: 1,
+			flexShrink: 0
 		};
 
 		this.background.roundRect(0, 0, 360, 360, 10).fill({
@@ -32,6 +37,36 @@ export default class Spectrogram {
 		this.sprite.width = 360;
 		this.sprite.height = 360;
 
+		this.scale = new LayoutContainer({
+			layout: {
+				flexDirection: "column",
+				justifyContent: "space-between",
+				paddingLeft: 10,
+				paddingTop: 10,
+				paddingBottom: 10
+			},
+			x: 0,
+			y: 0,
+		});
+
+		const scaleValues = this.generateScale();
+		this.scale.addChild(...scaleValues);
+
+		const gradient = new FillGradient({
+			start: { x: 0, y: 0 },
+			end: { x: 0.2, y: 0 },
+			colorStops: [
+				{ offset: 0, color: 'rgba(0, 0, 0, 0.5)' },
+				{ offset: 1, color: 'rgba(0, 0, 0, 0)' },
+			],
+			textureSpace: "local",
+			type: "linear",
+			textureSize: 256,
+			wrapMode: "clamp-to-edge",
+		});
+		
+		this.overlay.rect(0, 0, 360, 360).fill(gradient);
+
 		this.mask.roundRect(0, 0, 360, 360, 10).fill({
 			color: 0x0,
 			alpha: 0.1,
@@ -41,6 +76,8 @@ export default class Spectrogram {
 			this.background,
 			this.spinner,
 			this.sprite,
+			this.overlay,
+			this.scale,
 			this.mask,
 		);
 		this.container.mask = this.mask;
@@ -59,8 +96,12 @@ export default class Spectrogram {
 				});
 			this.sprite.width = width;
 			this.sprite.height = width;
-			this.spinner.x = width / 2 - 15;
-			this.spinner.y = width / 2 - 15;
+			this.spinner.x = width / 2;
+			this.spinner.y = width / 2;
+			this.overlay.clear().rect(0, 0, width, width).fill(gradient)
+			this.scale.layout = {
+				height: width,
+			};
 		});
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ surface0 }) => {
@@ -112,5 +153,37 @@ export default class Spectrogram {
 		if (val) {
 			requestAnimationFrame((time) => this.spinFn(time));
 		}
+	}
+
+	private generateScale() {
+		const scaleValues = [
+			"22kHz",
+			"20kHz",
+			"",
+			"16kHz",
+			"",
+			"12kHz",
+			"",
+			"8kHz",
+			"",
+			"4kHz",
+			"",
+			"0kHz",
+		];
+
+		const containers = scaleValues.map(
+			(value) =>
+				new Text({
+					text: value,
+					style: {
+						...defaultStyle,
+						fontSize: 12,
+						fill: 0xffffff,
+					},
+					layout: true
+				}),
+		);
+
+		return containers;
 	}
 }

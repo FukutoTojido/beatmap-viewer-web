@@ -5,6 +5,7 @@ import ColorConfig from "./ColorConfig";
 import ExperimentalConfig, {
 	type ExperimentalProps,
 } from "./ExperimentalConfig";
+import FullscreenConfig from "./FullscreenConfig";
 import MirrorConfig, { type MirrorProps } from "./MirrorConfig";
 import RendererConfig, { type RendererProps } from "./RendererConfig";
 import SkinningConfig, { type SkinningProps } from "./SkinningConfig";
@@ -29,6 +30,7 @@ export default class Config {
 	audio: AudioConfig;
 	color: ColorConfig;
 	experimental: ExperimentalConfig;
+	fullscreen: FullscreenConfig;
 
 	constructor() {
 		const savedSettings = this.loadSettings();
@@ -85,6 +87,12 @@ export default class Config {
 					overlapGameplays: false,
 				},
 			),
+		);
+		this.fullscreen = provide(
+			"config/fullscreen",
+			new FullscreenConfig({
+				fullscreen: false,
+			}),
 		);
 
 		const overlay = document.querySelector<HTMLDivElement>("#overlay");

@@ -15,6 +15,8 @@ import type Background from "@/UI/main/viewer/Background";
 import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Timeline from "@/UI/main/viewer/Timeline";
 import type Metadata from "@/UI/sidepanel/Metadata";
+import type DifficultyGraph from "@/UI/sidepanel/Modding/DifficultyGraph";
+import type Spectrogram from "@/UI/sidepanel/Modding/Spectrogram";
 import type Timing from "@/UI/sidepanel/Timing";
 import { getDiffColour, loadColorPalette } from "@/utils";
 import Video from "@/Video";
@@ -26,7 +28,6 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
-import Spectrogram from "@/UI/sidepanel/Modding/Spectrogram";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
@@ -36,7 +37,10 @@ export default class BeatmapSet extends ScopedClass {
 
 	constructor(private resources: Map<string, Resource>) {
 		super();
-		this.playbackRate = inject<ExperimentalConfig>("config/experimental")?.doubleTime ? 1.5 : 1;
+		this.playbackRate = inject<ExperimentalConfig>("config/experimental")
+			?.doubleTime
+			? 1.5
+			: 1;
 		this.context.provide("audioContext", this.audioContext);
 		this.context.provide("resources", resources);
 		this.context.provide("beatmapset", this);
@@ -357,6 +361,12 @@ export default class BeatmapSet extends ScopedClass {
 		} else {
 			this.master?.destroy();
 			await this.loadBeatmap(beatmap, 0);
+		}
+
+		const graph = inject<DifficultyGraph>("ui/sidepanel/modding/difficulty");
+
+		if (graph) {
+			graph.data = beatmap.strains;
 		}
 
 		inject<Timeline>("ui/main/viewer/timeline")?.loadObjects(

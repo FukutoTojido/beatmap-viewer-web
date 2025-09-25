@@ -1,21 +1,22 @@
 import { initDevtools } from "@pixi/devtools";
 import { Application, RenderTarget } from "pixi.js";
+import State from "./State";
 import AnimationController, {
 	tweenGroup,
 } from "./UI/animation/AnimationController";
-import State from "./State";
 import "./FPSSystem";
-import SidePanel from "./UI/sidepanel";
-import Main from "./UI/main";
-import { inject, provide } from "./Context";
-import Config from "./Config";
-import SkinManager from "./Skinning/SkinManager";
-import ResponsiveHandler from "./ResponsiveHandler";
-import Loading from "./UI/loading";
-import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
 import ky from "ky";
-import ZipHandler from "./ZipHandler";
 import BeatmapSet from "./BeatmapSet";
+import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
+import Config from "./Config";
+import type FullscreenConfig from "./Config/FullscreenConfig";
+import { inject, provide } from "./Context";
+import ResponsiveHandler from "./ResponsiveHandler";
+import SkinManager from "./Skinning/SkinManager";
+import Loading from "./UI/loading";
+import Main from "./UI/main";
+import SidePanel from "./UI/sidepanel";
+import ZipHandler from "./ZipHandler";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -43,6 +44,21 @@ export class Game {
 
 			window.history.replaceState(null, "", `?${params.toString()}`);
 		});
+
+		config.fullscreen.onChange("fullscreen", (isFullscreen) => {
+			const url = window.location;
+			const params = new URLSearchParams(url.search);
+
+			if (isFullscreen) {
+				params.set("fullscreen", "true");
+				document.body.classList.add("fullscreen");
+			} else {
+				params.delete("fullscreen");
+				document.body.classList.remove("fullscreen");
+			}
+
+			window.history.replaceState(null, "", `?${params.toString()}`);
+		});
 	}
 
 	async initApplication() {
@@ -50,8 +66,8 @@ export class Game {
 		RenderTarget.defaultOptions.stencil = true;
 		const app = new Application();
 		await app.init({
-			// biome-ignore lint/style/noNonNullAssertion: It should be there already lol
-			resizeTo: document.querySelector<HTMLDivElement>("#app")!,
+			// // biome-ignore lint/style/noNonNullAssertion: It should be there already lol
+			// resizeTo: document.querySelector<HTMLDivElement>("#app")!,
 			// antialias: true,
 			// powerPreference: "high-performance",
 			backgroundAlpha: 0,
@@ -68,6 +84,26 @@ export class Game {
 			gap: 0,
 		};
 
+		const divApp = document.querySelector<HTMLDivElement>("#app");
+		if (divApp) {
+			const resizeObserver = new ResizeObserver((entries) => {
+				for (const entry of entries) {
+					if (entry.target !== divApp) continue;
+
+					const width = Math.round(
+						+getComputedStyle(divApp).width.replaceAll("px", ""),
+					);
+					const height = Math.round(
+						+getComputedStyle(divApp).height.replaceAll("px", ""),
+					);
+
+					app.renderer.resize(width, height);
+				}
+			});
+
+			resizeObserver.observe(divApp);
+		}
+
 		return app;
 	}
 
@@ -75,6 +111,11 @@ export class Game {
 		const app = provide("ui/app", await this.initApplication());
 		const main = provide("ui/main", new Main());
 		const sidepanel = provide("ui/sidepanel", new SidePanel());
+
+		// biome-ignore lint/style/noNonNullAssertion: I'm tired boss
+		inject<FullscreenConfig>("config/fullscreen")!.fullscreen =
+			!!new URLSearchParams(window.location.search).get("fullscreen");
+
 		provide("ui/loading", new Loading());
 
 		app.stage.addChild(main.container, sidepanel.container);
