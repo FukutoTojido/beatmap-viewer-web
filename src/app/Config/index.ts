@@ -125,6 +125,15 @@ export default class Config {
 				overlay?.classList.remove("overlayHidden");
 			});
 		}
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key !== "o" || !event.ctrlKey) return;
+
+			event.preventDefault();
+			settings?.classList.toggle("show");
+			overlay?.classList.toggle("overlay");
+			overlay?.classList.toggle("overlayHidden");
+		});
 	}
 
 	loadSettings(): Configs | null {
