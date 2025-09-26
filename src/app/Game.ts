@@ -1,5 +1,5 @@
 import { initDevtools } from "@pixi/devtools";
-import { Application, DOMContainer, RenderTarget } from "pixi.js";
+import { Application, RenderTarget } from "pixi.js";
 import State from "./State";
 import AnimationController, {
 	tweenGroup,
