@@ -10,7 +10,7 @@ import BeatmapSet from "./BeatmapSet";
 import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
 import Config from "./Config";
 import type FullscreenConfig from "./Config/FullscreenConfig";
-import RendererConfig from "./Config/RendererConfig";
+import type RendererConfig from "./Config/RendererConfig";
 import { inject, provide } from "./Context";
 import ResponsiveHandler from "./ResponsiveHandler";
 import SkinManager from "./Skinning/SkinManager";

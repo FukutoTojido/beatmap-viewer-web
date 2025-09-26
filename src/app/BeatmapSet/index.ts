@@ -549,9 +549,11 @@ export default class BeatmapSet extends ScopedClass {
 
 		const nextTick = this.getNextStep(
 			direction,
-			direction === 1
-				? Math.max(this._currentNextTick, audio.currentTime)
-				: Math.min(this._currentNextTick, audio.currentTime),
+			instant
+				? audio.currentTime
+				: direction === 1
+					? Math.max(this._currentNextTick, audio.currentTime)
+					: Math.min(this._currentNextTick, audio.currentTime),
 			miliStep,
 		);
 		this._currentNextTick = Math.max(0, nextTick);
