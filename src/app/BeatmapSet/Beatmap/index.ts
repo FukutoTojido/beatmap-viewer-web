@@ -452,17 +452,41 @@ export default class Beatmap extends ScopedClass {
 							startTime <= previousTime && previousTime <= endTime,
 					);
 
+					const currentInMap =
+						currentTime >
+							this.data.hitObjects[0].startTime -
+								this.data.hitObjects[0].timePreempt &&
+						currentTime <
+							((this.data.hitObjects.at(-1) as Slider).endTime ??
+								this.data.hitObjects.at(-1)?.startTime);
+					const previousInMap =
+						previousTime >
+							this.data.hitObjects[0].startTime -
+								this.data.hitObjects[0].timePreempt &&
+						previousTime <
+							((this.data.hitObjects.at(-1) as Slider).endTime ??
+								this.data.hitObjects.at(-1)?.startTime);
+
 					const backgroundConfig =
 						inject<BackgroundConfig>("config/background");
 
 					if (backgroundConfig) {
-						if (currentInBreak && !previousInBreak) {
-							backgroundConfig.breakSection = true;
-						}
-						
-						if (!currentInBreak && previousInBreak) {
-							backgroundConfig.breakSection = false;
-						}
+						const shouldBreak = !(!currentInBreak && currentInMap);
+
+						if (backgroundConfig.breakSection !== shouldBreak)
+							backgroundConfig.breakSection = shouldBreak;
+
+						// if (currentInMap !== previousInMap) {
+						// 	backgroundConfig.breakSection = true;
+						// }
+
+						// if (currentInMap === previousInMap && currentInMap && backgroundConfig.breakSection) {
+						// 	backgroundConfig.breakSection = false;
+						// }
+
+						// if (currentInMap === previousInMap && !currentInMap && !backgroundConfig.breakSection) {
+						// 	backgroundConfig.breakSection = true;
+						// }
 					}
 
 					this.previousTime = previousTime;

@@ -67,8 +67,9 @@ export default class BackgroundConfig extends ConfigSection {
 		return this._breakSection;
 	}
 	set breakSection(val: boolean) {
-		this._breakSection = val;
+		if (val === this._breakSection) return;
 
+		this._breakSection = val;
 		this.emitChange("breakSection", val);
 	}
 
