@@ -6,7 +6,7 @@ export default class DrawableSpinnerApproachCircle extends DrawableApproachCircl
 	constructor(object: Spinner) {
 		super(object);
 		this.container.visible = true;
-		this.container.scale.set(480 / 384);
+		this.container.scale.set(1);
 	}
 
 	refreshSprite(): void {
@@ -14,7 +14,7 @@ export default class DrawableSpinnerApproachCircle extends DrawableApproachCircl
 		this.container.texture =
 			this.skinManager?.getCurrentSkin().getTexture("spinner-approachcircle") ??
 			BLANK_TEXTURE;
-		this.container.scale.set(480 / 384);
+		this.container.scale.set(1);
 		this.container.tint = 0xffffff;
 	}
 
@@ -30,7 +30,7 @@ export default class DrawableSpinnerApproachCircle extends DrawableApproachCircl
 
 		if (time < startFadeInTime || time >= endTime + fadeOutDuration) {
 			this.container.visible = false;
-			this.container.scale.set(480 / 384);
+			this.container.scale.set(1);
 			return;
 		}
 
@@ -59,11 +59,11 @@ export default class DrawableSpinnerApproachCircle extends DrawableApproachCircl
 			this.container.alpha = (1 - opacity) * 0.9;
 
 			this.container.scale.set(
-				(480 - (480 - 32 * this.object.scale) * scale) / 384,
+				(384 - (384 - 32 * this.object.scale) * scale) / 384,
 			);
 			return;
 		}
 
-		this.container.scale.set(480 / 384);
+		this.container.scale.set(1);
 	}
 }
