@@ -203,9 +203,9 @@ export default class Gameplay {
 					.easing(Easings.Out)
 					.to(
 						{
-							value: isBreak ? 0.5 : 1,
+							value: isBreak ? 0.8 : 1,
 						},
-						500,
+						1000,
 					)
 					.onUpdate(({ value }) => {
 						this.background.alpha = value;
