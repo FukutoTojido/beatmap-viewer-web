@@ -78,6 +78,10 @@ main {
 	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
+#topBar {
+	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+}
+
 @keyframes show {
 	from {
 		display: none;
@@ -142,6 +146,12 @@ body.fullscreen {
 		pointer-events: none;
 	}
 
+	&.sidepanel {
+		#topBar {
+			width: calc(100% - 400px);
+		}
+	}
+
 	#settingsButton {
 		display: none;
 	}
@@ -181,15 +191,15 @@ body.fullscreen {
 		padding: 20px 10px 0 10px;
 		flex-direction: column;
 		height: auto;
-	}
 
-	#metadata,
-	#diffsLabel {
-		width: 100%;
-	}
+		#metadata,
+		#diffsLabel {
+			width: 100%;
+		}
 
-	#search {
-		display: none;
+		#search {
+			display: none;
+		}
 	}
 
 	body.fullscreen {
@@ -200,6 +210,12 @@ body.fullscreen {
 		#diffsLabel {
 			zoom: 1;
 			display: none;
+		}
+
+		&.sidepanel {
+			#topBar {
+				width: 100%;
+			}
 		}
 	}
 }

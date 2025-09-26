@@ -1,5 +1,5 @@
 import { initDevtools } from "@pixi/devtools";
-import { Application, RenderTarget } from "pixi.js";
+import { Application, DOMContainer, RenderTarget } from "pixi.js";
 import State from "./State";
 import AnimationController, {
 	tweenGroup,
@@ -100,7 +100,7 @@ export class Game {
 					requestAnimationFrame(() => {
 						app.renderer.resize(width, height);
 						app.render();
-					}) 
+					});
 				}
 			});
 
@@ -153,6 +153,7 @@ export class Game {
 						},
 						ANIMATION_DURATION,
 					);
+					document.body.classList.add("sidepanel");
 					break;
 				}
 				case "CLOSED": {
@@ -165,6 +166,7 @@ export class Game {
 						},
 						ANIMATION_DURATION,
 					);
+					document.body.classList.remove("sidepanel");
 					break;
 				}
 			}
