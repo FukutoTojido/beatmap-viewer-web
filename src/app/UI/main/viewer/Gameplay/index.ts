@@ -203,7 +203,7 @@ export default class Gameplay {
 					.easing(Easings.Out)
 					.to(
 						{
-							value: isBreak ? 0.8 : 1,
+							value: isBreak ? 0.6 : 1,
 						},
 						1000,
 					)
