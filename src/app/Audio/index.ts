@@ -28,6 +28,7 @@ export default class Audio extends ScopedClass {
 		});
 
 		Tone.setContext(audioContext);
+		this.lookahead = 0.05;
 
 		this.spectrogramProcessor = new SpectrogramProcessor();
 	}
@@ -80,7 +81,7 @@ export default class Audio extends ScopedClass {
 			val > this.player.buffer.duration * 1000 || val < 0 ? 0 : val;
 
 		Tone.getTransport().seconds =
-			this._currentTime / 1000 / this.playbackRate + 0.1;
+			this._currentTime / 1000 / this.playbackRate + this.lookahead;
 
 		if (previousState === "PLAYING") {
 			this.play();
@@ -96,9 +97,19 @@ export default class Audio extends ScopedClass {
 
 		await Tone.loaded();
 
-		Tone.getTransport().seconds = 0.1;
+		Tone.getTransport().seconds = this.lookahead;
 
 		this.init = true;
+	}
+
+	private _lookahead = 0.1;
+	get lookahead() {
+		return this._lookahead;
+	}
+
+	set lookahead(val: number) {	
+		this._lookahead = val;
+		Tone.getContext().lookAhead = val;
 	}
 
 	toggle() {
@@ -135,12 +146,13 @@ export default class Audio extends ScopedClass {
 		this.state = "PLAYING";
 
 		Tone.getTransport().seconds =
-			this._currentTime / 1000 / this.playbackRate + 0.1;
+			this._currentTime / 1000 / this.playbackRate + this.lookahead;
+
 		this.startTime = this.audioContext.currentTime * 1000;
 
 		this.player?.unsync();
 		this.player?.sync().start(0);
-		Tone.getTransport().start();
+		Tone.getTransport().start(undefined);
 		Tone.connect(this.player, this.localGainNode);
 		this.localGainNode.connect(
 			// biome-ignore lint/style/noNonNullAssertion: Ensured
