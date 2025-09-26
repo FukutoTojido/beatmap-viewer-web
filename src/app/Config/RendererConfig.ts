@@ -44,13 +44,12 @@ export default class RendererConfig extends ConfigSection {
 		return this._antialiasing;
 	}
 	set antialiasing(val: boolean) {
-		this._antialiasing = val;
-
 		const ele = document.querySelector<HTMLInputElement>("#antialiasing");
 		if (!ele) return;
 		ele.checked = val;
 
 		if (this._antialiasing === val) return;
+		this._antialiasing = val;
 		this.emitChange("antialiasing", val);
 	}
 
