@@ -120,10 +120,7 @@ export default class Main {
 					Easings.InOut,
 					() => {
 						controls.container.visible = false;
-					},
-					() => {
-						controls.container.visible = false;
-					},
+					}
 				);
 			}
 		});
