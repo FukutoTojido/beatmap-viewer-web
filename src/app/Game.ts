@@ -10,6 +10,7 @@ import BeatmapSet from "./BeatmapSet";
 import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
 import Config from "./Config";
 import type FullscreenConfig from "./Config/FullscreenConfig";
+import RendererConfig from "./Config/RendererConfig";
 import { inject, provide } from "./Context";
 import ResponsiveHandler from "./ResponsiveHandler";
 import SkinManager from "./Skinning/SkinManager";
@@ -68,7 +69,7 @@ export class Game {
 		await app.init({
 			// // biome-ignore lint/style/noNonNullAssertion: It should be there already lol
 			// resizeTo: document.querySelector<HTMLDivElement>("#app")!,
-			antialias: true,
+			antialias: inject<RendererConfig>("config/renderer")?.antialiasing,
 			// powerPreference: "high-performance",
 			backgroundAlpha: 0,
 			// useBackBuffer: true,
@@ -221,6 +222,10 @@ export class Game {
 				inject<Loading>("ui/loading")?.off();
 			}
 		});
+
+		inject<RendererConfig>("config/renderer")?.onChange("antialiasing", () => {
+			window.location.reload();
+		})
 
 		await inject<SkinManager>("skinManager")?.loadSkins();
 		await this.loadFromQuery();

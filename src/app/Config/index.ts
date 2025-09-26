@@ -40,7 +40,9 @@ export default class Config {
 
 		this.renderer = provide(
 			"config/renderer",
-			new RendererConfig(savedSettings?.renderer),
+			new RendererConfig(savedSettings?.renderer ?? {
+				antialiasing: true
+			}),
 		);
 		this.mirror = provide(
 			"config/mirror",

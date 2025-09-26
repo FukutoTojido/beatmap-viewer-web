@@ -1,8 +1,6 @@
 import ConfigSection from "./ConfigSection";
 
 export type RENDERER = "WEBGL2" | "WEBGPU" | "AUTO";
-type RendererConfigEvents = "renderer" | "resolution" | "antialiasing";
-
 export type RendererProps = {
 	renderer?: RENDERER;
 	resolution?: number;
@@ -12,6 +10,9 @@ export type RendererProps = {
 export default class RendererConfig extends ConfigSection {
 	constructor(defaultOptions?: RendererProps) {
 		super();
+
+		this.loadEventListeners();
+
 		if (!defaultOptions) return;
 
 		const { renderer, resolution, antialiasing } = defaultOptions;
@@ -44,17 +45,30 @@ export default class RendererConfig extends ConfigSection {
 	}
 	set antialiasing(val: boolean) {
 		this._antialiasing = val;
+
+		const ele = document.querySelector<HTMLInputElement>("#antialiasing");
+		if (!ele) return;
+		ele.checked = val;
+
+		if (this._antialiasing === val) return;
 		this.emitChange("antialiasing", val);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	protected emitChange(key: RendererConfigEvents, newValue: any): void {
+	async emitChange(key: keyof RendererProps, newValue: unknown) {
 		super.emitChange(key, newValue);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	onChange(key: RendererConfigEvents, callback: (newValue: any) => void): void {
+	onChange(key: keyof RendererProps, callback: (newValue: unknown) => void) {
 		super.onChange(key, callback);
+	}
+
+	loadEventListeners() {
+		document
+			.querySelector<HTMLInputElement>("#antialiasing")
+			?.addEventListener("change", (event) => {
+				const value = (event.target as HTMLInputElement)?.checked ?? true;
+				this.antialiasing = value;
+			});
 	}
 
 	jsonify(): RendererProps {
