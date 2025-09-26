@@ -166,7 +166,7 @@ body.fullscreen {
 
 		pointer-events: none;
 
-		text-shadow: 0 2px 8px rgba(0 0 0 / 0.8);
+		filter: drop-shadow(0 2px 4px rgba(0 0 0 / 0.8));
 	}
 
 	#diffsLabel {
