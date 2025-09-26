@@ -89,8 +89,8 @@ export default class Audio extends ScopedClass {
 	}
 
 	async createBufferNode(blob: Blob) {
-		const url = URL.createObjectURL(blob)
-		
+		const url = URL.createObjectURL(blob);
+
 		this.spectrogramProcessor.initSpectrogram(url);
 		this.player = new Tone.GrainPlayer(url);
 		this.player.sync().start(0);
@@ -107,7 +107,7 @@ export default class Audio extends ScopedClass {
 		return this._lookahead;
 	}
 
-	set lookahead(val: number) {	
+	set lookahead(val: number) {
 		this._lookahead = val;
 		Tone.getContext().lookAhead = val;
 	}
@@ -130,7 +130,7 @@ export default class Audio extends ScopedClass {
 
 			this.player.playbackRate = playbackRate;
 			this.player.grainSize = baseWindow;
-			this.player.overlap = playbackRate !== 1 ? baseWindow / 16 : baseWindow / 8;
+			this.player.overlap = baseWindow / 16;
 		}
 
 		if (this.state === "STOPPED") {
