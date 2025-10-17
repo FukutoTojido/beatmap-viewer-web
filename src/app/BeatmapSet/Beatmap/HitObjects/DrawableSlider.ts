@@ -1,4 +1,9 @@
-import { HitSample as Sample, Vector2 } from "osu-classes";
+import {
+	HitResult,
+	LegacyReplayFrame,
+	HitSample as Sample,
+	Vector2,
+} from "osu-classes";
 import {
 	type Slider,
 	SliderHead,
@@ -32,8 +37,9 @@ import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import HitSample from "../../../Audio/HitSample";
-import { closestPointTo, darken, lighten } from "../../../utils";
+import { Clamp, closestPointTo, darken, lighten } from "../../../utils";
 import type Beatmap from "..";
+import type { SliderEvaluation } from "../Replay";
 import TimelineSlider from "../Timeline/TimelineSlider";
 import calculateSliderProgress from "./CalculateSliderProgress";
 import createGeometry from "./CreateSliderGeometry";
@@ -41,6 +47,7 @@ import type DrawableHitCircle from "./DrawableHitCircle";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
+import DrawableJudgement from "./DrawableJudgement";
 import DrawableSliderBall from "./DrawableSliderBall";
 import DrawableSliderFollowCircle from "./DrawableSliderFollowCircle";
 import DrawableSliderHead from "./DrawableSliderHead";
@@ -114,7 +121,7 @@ export default class DrawableSlider
 		quality: 10,
 	});
 
-	private drawableCircles: DrawableHitObject[] = [];
+	public drawableCircles: DrawableHitObject[] = [];
 	public body: Mesh<Geometry, Shader> = new Mesh({
 		geometry: this._geometry,
 		shader: this._shader,
@@ -163,6 +170,8 @@ export default class DrawableSlider
 	private layer3 = new RenderLayer();
 
 	wrapper = new Container();
+
+	judgement: DrawableJudgement;
 
 	constructor(object: Slider) {
 		super(object);
@@ -240,7 +249,8 @@ export default class DrawableSlider
 		);
 
 		// this.container.visible = false;
-		this.container.addChild(this.wrapper, this.nodes);
+		const judgementLayer = new RenderLayer();
+		this.container.addChild(judgementLayer, this.wrapper, this.nodes);
 		this.select.addChild(this.selectBody);
 
 		for (const drawable of this.drawableCircles.toReversed()) {
@@ -276,6 +286,17 @@ export default class DrawableSlider
 			(object.radius / 54.4) * (236 / 256);
 
 		this.timelineObject = new TimelineSlider(object).hook(this.context);
+
+		this.judgement = new DrawableJudgement(this);
+		judgementLayer.attach(this.judgement.container);
+		this.container.addChild(this.judgement.container);
+		this.judgement.container.position.x = object.endPosition.add(
+			object.stackedOffset,
+		).x;
+		this.judgement.container.position.y = object.endPosition.add(
+			object.stackedOffset,
+		).y;
+		this.judgement.container.scale.set(object.scale);
 	}
 
 	private _isHover = false;
@@ -369,6 +390,16 @@ export default class DrawableSlider
 		if (this.followCircle) this.followCircle.object = val;
 		if (this.timelineObject) this.timelineObject.object = val;
 
+		if (this.judgement) {
+			this.judgement.container.position.x = val.endPosition.add(
+				val.stackedOffset,
+			).x;
+			this.judgement.container.position.y = val.endPosition.add(
+				val.stackedOffset,
+			).y;
+			this.judgement.container.scale.set(val.scale);
+		}
+
 		const path = calculateSliderProgress(this.object.path, 0, 1);
 		if (!path.length) return;
 
@@ -396,7 +427,7 @@ export default class DrawableSlider
 		)
 			return false;
 
-		const radius = 54.4 * this.object.scale;
+		const radius = 64 * this.object.scale;
 		const point = new Vector2(x, y);
 		const objectPosition = new Vector2(
 			this.object.startX + this.object.stackedOffset.x,
@@ -489,7 +520,9 @@ export default class DrawableSlider
 
 	playHitSound(time: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
+		const isSeeking =
+			inject<ProgressBar>("ui/main/controls/progress")?.isSeeking ||
+			inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 
 		for (const object of this.drawableCircles) {
@@ -569,7 +602,109 @@ export default class DrawableSlider
 
 		this.updateFn(this, time);
 
+		this.judgement.frame(time);
+
 		if (this.isHover && time > this.object.endTime + 240) this.isHover = false;
+	}
+
+	declare _evaluation?: SliderEvaluation | undefined;
+	get evaluation(): SliderEvaluation | undefined {
+		return this._evaluation;
+	}
+
+	set evaluation(value: SliderEvaluation | undefined) {
+		this._evaluation = value;
+
+		if (value) {
+			for (let i = 0; i < this.drawableCircles.length; i++) {
+				const circle = this.drawableCircles[i];
+				const evaluation = value.circlesEvals[i];
+				circle.evaluation = evaluation;
+			}
+		}
+
+		if (!value) {
+			for (const circle of this.drawableCircles) {
+				circle.evaluation = undefined;
+			}
+		}
+
+		this.judgement.evaluation = value;
+	}
+
+	override eval(frames: LegacyReplayFrame[]) {
+		let state = false;
+		const raw = [];
+
+		const getFrameTrackingState = (frame: LegacyReplayFrame) => {
+			if (!frame.mouseLeft && !frame.mouseRight) return false;
+			if (
+				frame.startTime < this.object.startTime ||
+				frame.startTime > this.object.endTime
+			)
+				return false;
+
+			const completionProgress = Clamp(
+				(frame.startTime - this.object.startTime) / this.object.duration,
+			);
+
+			const position = this.object.path.curvePositionAt(
+				completionProgress,
+				this.object.spans,
+			);
+
+			const x = frame.position.x;
+			const y = frame.position.y;
+			const pointer = new Vector2(x, y);
+
+			const radius = 64 * this.object.scale * 2.4;
+			const dist = pointer.distance(
+				position.add(this.object.stackedOffset).add(this.object.startPosition),
+			);
+			return dist <= radius && (frame.mouseLeft || frame.mouseRight);
+		};
+
+		for (const frame of frames) {
+			const trackingState = getFrameTrackingState(frame);
+			if (state !== trackingState) {
+				raw.push(frame);
+				state = trackingState;
+			}
+		}
+
+		const trackingStates = [];
+		for (let i = 0; i < raw.length; i += 2) {
+			trackingStates.push([raw[i], raw[i + 1] ?? new LegacyReplayFrame(this.object.endTime)]);
+		}
+
+		const circlesEvals = this.drawableCircles.map((circle) =>
+			circle.eval(frames),
+		);
+
+		const value = circlesEvals.every((e) =>
+			[HitResult.LargeTickMiss, HitResult.SmallTickMiss].includes(e.value),
+		)
+			? HitResult.Miss
+			: circlesEvals.every((e) =>
+						[HitResult.LargeTickHit, HitResult.SmallTickHit].includes(e.value),
+					)
+				? HitResult.Great
+				: circlesEvals.filter((e) =>
+							[HitResult.LargeTickHit, HitResult.SmallTickHit].includes(
+								e.value,
+							),
+						).length *
+							2 >=
+						this.drawableCircles.length
+					? HitResult.Ok
+					: HitResult.Meh;
+
+		return {
+			value,
+			hitTime: trackingStates[0]?.[0]?.startTime ?? Infinity,
+			circlesEvals,
+			trackingStates,
+		};
 	}
 
 	destroy() {

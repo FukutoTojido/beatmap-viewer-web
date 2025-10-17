@@ -1,3 +1,4 @@
+import md5 from "crypto-js/md5";
 import { sort } from "fast-sort";
 import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { BeatmapDecoder } from "osu-parsers";
@@ -30,6 +31,7 @@ import type DrawableHitObject from "./HitObjects/DrawableHitObject";
 import type { IHasApproachCircle } from "./HitObjects/DrawableHitObject";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import DrawableSpinner from "./HitObjects/DrawableSpinner";
+import type Replay from "./Replay";
 import ObjectsWorker from "./Worker/Objects?worker";
 
 const decoder = new BeatmapDecoder();
@@ -56,8 +58,12 @@ export default class Beatmap extends ScopedClass {
 
 	container: Gameplay;
 
+	md5: string;
+
 	constructor(public raw: string) {
 		super();
+
+		this.md5 = md5(raw).toString();
 
 		const initialMods =
 			inject<ExperimentalConfig>("config/experimental")?.getModsString() ?? "";
@@ -233,6 +239,8 @@ export default class Beatmap extends ScopedClass {
 		const sr = document.querySelector<HTMLSpanElement>("#masterSR");
 		if (sr)
 			sr.textContent = `${this.difficultyAttributes.starRating.toFixed(2)}★`;
+
+		this.replay?.evaluate(this);
 	}
 
 	private async constructConnectorsAsync() {
@@ -284,6 +292,10 @@ export default class Beatmap extends ScopedClass {
 
 	load() {
 		this.loaded = true;
+
+		if (this.replay) {
+			this.hookReplay(this.replay);
+		}
 	}
 
 	async loadTimingPoints() {
@@ -512,6 +524,8 @@ export default class Beatmap extends ScopedClass {
 
 		this.container.selector.scale.set(dragWindowVector.x, dragWindowVector.y);
 		this.container.selector.position.set(pos.x, pos.y);
+
+		this.replay?.frame(time);
 	}
 
 	getNearestSamplePoint(time: number) {
@@ -611,6 +625,31 @@ export default class Beatmap extends ScopedClass {
 			);
 
 		this.worker.postMessage({ type: "seek", time });
+	}
+
+	replay?: Replay;
+	hookReplay(replay: Replay) {
+		this.unhookReplay();
+
+		const mods = ruleset.createModCombination(replay?.data?.info.rawMods);
+		const config = inject<ExperimentalConfig>("config/experimental");
+		if (config) {
+			config.hardRock = mods.acronyms.includes("HR") ?? false;
+			config.doubleTime = mods.acronyms.includes("DT") ?? false;
+		}
+
+		this.container.cursorLayer.addChild(
+			...replay.trails.toReversed(),
+			replay.cursor,
+		);
+		this.replay = replay;
+	}
+	unhookReplay() {
+		if (this.replay) this.container.cursorLayer.removeChildren();
+		this.replay = undefined;
+		for (const object of this.objects) {
+			object.evaluation = undefined;
+		}
 	}
 
 	destroy() {

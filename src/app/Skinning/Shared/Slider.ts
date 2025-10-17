@@ -1,5 +1,6 @@
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import { Clamp } from "@/utils";
+import { HitResult } from "osu-classes";
 
 export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 	const startFadeInTime =
@@ -44,6 +45,12 @@ export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 			start = spanProgress;
 		}
 	}
+
+	const startTime = drawable.evaluation?.hitTime ?? drawable.object.startTime;
+	const hittable =
+		drawable.evaluation?.circlesEvals[0].value !== HitResult.LargeTickMiss;
+
+	start = time >= startTime && hittable ? start : 0;
 
 	if (time < drawable.object.startTime) {
 		const opacity = Math.min(

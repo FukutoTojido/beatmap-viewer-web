@@ -13,6 +13,7 @@ import TimelineSlider from "../Timeline/TimelineSlider";
 import DrawableHitCircle from "./DrawableHitCircle";
 import { TAIL_LENIENCY } from "./DrawableSliderTail";
 import DrawableSpinnerApproachCircle from "./DrawableSpinnerApproachCircle";
+import { HitResult, type LegacyReplayFrame } from "osu-classes";
 
 export default class DrawableSpinner extends DrawableHitCircle {
 	constructor(object: Spinner) {
@@ -68,6 +69,7 @@ export default class DrawableSpinner extends DrawableHitCircle {
 
 	update(time: number) {
 		this.approachCircle.update(time);
+		this.judgement.frame(time);
 
 		const startFadeInTime = this.object.startTime - this.object.timePreempt;
 		const fadeOutDuration = 800;
@@ -118,5 +120,12 @@ export default class DrawableSpinner extends DrawableHitCircle {
 
 		const currentSamplePoint = beatmap.getNearestSamplePoint(endTime);
 		this.hitSound?.play(currentSamplePoint);
+	}
+
+	override eval(_: LegacyReplayFrame[]) {
+		return {
+			value: HitResult.Great,
+			hitTime: (this.object as Spinner).endTime
+		}
 	}
 }

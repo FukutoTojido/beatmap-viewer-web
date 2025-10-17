@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { Easing } from "osu-classes";
+import { Easing, HitResult } from "osu-classes";
 import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
 import Easings from "@/UI/Easings";
 import { sharedRefreshSprite } from "../Shared/HitCircle";
@@ -18,6 +18,14 @@ export const refreshSprite = (drawable: DrawableHitCircle) => {
 };
 
 export const update = (drawable: DrawableHitCircle, time: number) => {
+	const maxThreshold =
+		drawable.object.startTime +
+		drawable.object.hitWindows.windowFor(HitResult.Meh);
+	const startTime = Math.min(
+		maxThreshold,
+		drawable.evaluation?.hitTime ?? drawable.object.startTime,
+	);
+
 	const startFadeInTime =
 		drawable.object.startTime - drawable.object.timePreempt;
 	const fadeOutDuration = 800;
@@ -36,7 +44,13 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	drawable.sprite.scale.set(1);
 	drawable.hitCircleSprite.tint = drawable.color;
 
-	if (time < drawable.object.startTime) {
+	const shouldHit = ![
+		HitResult.Miss,
+		HitResult.LargeTickMiss,
+		HitResult.SmallTickMiss,
+	].includes(drawable.evaluation?.value as HitResult);
+
+	if (time < startTime) {
 		const baseTexture = drawable.skinManager
 			?.getCurrentSkin()
 			.getTexture("hitcircle");
@@ -56,7 +70,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		return;
 	}
 
-	if (time >= drawable.object.startTime) {
+	if (time >= startTime && shouldHit) {
 		drawable.hitCircleSprite.tint = drawable.color;
 
 		const flashTexture = drawable.skinManager
@@ -69,41 +83,27 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 
 		const opacity = Math.min(
 			1,
-			Math.max(0, (time - drawable.object.startTime) / fadeOutDuration),
+			Math.max(0, (time - startTime) / fadeOutDuration),
 		);
 		const fadeProgress = Math.min(
 			1,
-			Math.max(0, (time - drawable.object.startTime) / fadeColourDuration),
+			Math.max(0, (time - startTime) / fadeColourDuration),
 		);
 		const flashOpacity = Math.min(
 			1,
-			Math.max(
-				0,
-				(time - (drawable.object.startTime + fadeColourDuration)) /
-					flashInDuration,
-			),
+			Math.max(0, (time - (startTime + fadeColourDuration)) / flashInDuration),
 		);
 		const flashPieceOpacity =
-			2 *
-				Math.min(
-					1,
-					Math.max(
-						0,
-						(time - drawable.object.startTime) / (flashInDuration * 2),
-					),
-				) -
+			2 * Math.min(1, Math.max(0, (time - startTime) / (flashInDuration * 2))) -
 			1;
-		const scale = Math.min(
-			1,
-			Math.max(0, (time - drawable.object.startTime) / 400),
-		);
+		const scale = Math.min(1, Math.max(0, (time - startTime) / 400));
 
 		const color = d3.color(drawable.color as string);
 		const white = d3.color("white");
 
 		if (color && white) {
 			const interpolator = d3.interpolateRgb(color, white);
-			const interpolated = interpolator(fadeProgress);
+			const interpolated = interpolator(0.5 * fadeProgress);
 
 			drawable.hitCircleSprite.tint = interpolated;
 		}
@@ -121,5 +121,10 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		drawable.flashPiece.scale.set(1.0 - 0.2 * Easing.outElasticHalf(scale));
 
 		return;
+	}
+
+	if (!shouldHit && time > maxThreshold) {
+		const opacity = 1 - Math.min(1, Math.max(0, (time - maxThreshold) / 100));
+		drawable.wrapper.alpha = opacity;
 	}
 };

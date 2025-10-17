@@ -1,7 +1,9 @@
 import type DrawableSliderHead from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderHead";
 
 export const update = (drawable: DrawableSliderHead, time: number) => {
-	if (time < drawable.object.startTime) {
+	const startTime = drawable.evaluation?.hitTime ?? drawable.object.startTime;
+
+	if (time < startTime) {
 		const skin = drawable.skinManager?.getCurrentSkin();
 		const sliderStartCircle = skin?.getTexture("sliderstartcircle");
 		const hitCircle = skin?.getTexture("hitcircle");
@@ -10,7 +12,7 @@ export const update = (drawable: DrawableSliderHead, time: number) => {
 		if (baseTexture) drawable.hitCircleSprite.texture = baseTexture;
 	}
 
-	if (time >= drawable.object.startTime) {
+	if (time >= startTime) {
 		const flashTexture = drawable.skinManager
 			?.getCurrentSkin()
 			.getTexture("hitcircleflash");

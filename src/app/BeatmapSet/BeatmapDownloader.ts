@@ -24,6 +24,22 @@ async function getBeatmapsetId(beatmapId: string) {
 	}
 }
 
+async function getBeatmapsetIdFromHash(hash: string) {
+	try {
+		if (!/\d+[a-f]+/g.test(hash))
+			throw new Error("checksum is not in valid format!");
+		inject<Loading>("ui/loading")?.setText("Getting beatmapsetId...");
+		const beatmap: BeatmapData = await ky
+			.get(`https://api.try-z.net/b/h/${hash}`)
+			.json();
+
+		return beatmap.beatmapset_id ?? null;
+	} catch (e) {
+		console.error(e);
+		return null;
+	}
+}
+
 export async function getBeatmapFromId(beatmapId: string) {
 	const mirrorConfig = inject<MirrorConfig>("config/mirror");
 	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
@@ -35,6 +51,37 @@ export async function getBeatmapFromId(beatmapId: string) {
 	const beatmapsetId = await getBeatmapsetId(beatmapId);
 	if (!beatmapsetId)
 		throw new Error(`Map with id ${beatmapId} does not exist!!!`);
+
+	try {
+		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
+		const blob = await ky
+			.get(urlTemplate.replaceAll("$setId", beatmapsetId.toString()), {
+				headers: { Accept: "application/x-osu-beatmap-archive" },
+				onDownloadProgress(progressEvent) {
+					inject<Loading>("ui/loading")?.setText(
+						`Downloading map: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,
+					);
+				},
+			})
+			.blob();
+
+		return blob;
+	} catch (e) {
+		console.error(e);
+		return null;
+	}
+}
+
+export async function getBeatmapFromHash(hash: string) {
+	const mirrorConfig = inject<MirrorConfig>("config/mirror");
+	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
+
+	const {
+		mirror: { urlTemplate },
+	} = mirrorConfig;
+
+	const beatmapsetId = await getBeatmapsetIdFromHash(hash);
+	if (!beatmapsetId) throw new Error(`Map with hash ${hash} does not exist!!!`);
 
 	try {
 		inject<Loading>("ui/loading")?.setText("Getting beatmap...");

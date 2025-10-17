@@ -1,4 +1,9 @@
-import type { HitSample as Sample } from "osu-classes";
+import {
+	HitResult,
+	Vector2,
+	type LegacyReplayFrame,
+	type HitSample as Sample,
+} from "osu-classes";
 import type { Slider, SliderTick } from "osu-standard-stable";
 import { Sprite } from "pixi.js";
 import type BeatmapSet from "@/BeatmapSet";
@@ -93,7 +98,9 @@ export default class DrawableSliderTick extends DrawableHitObject {
 
 	playHitSound(time: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
+		const isSeeking =
+			inject<ProgressBar>("ui/main/controls/progress")?.isSeeking ||
+			inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 		if (
 			!(
@@ -119,6 +126,41 @@ export default class DrawableSliderTick extends DrawableHitObject {
 
 	update(time: number) {
 		update(this, time);
+	}
+
+	override eval(frames: LegacyReplayFrame[]) {
+		const frame = frames.findLast(
+			(frames) => frames.startTime <= this.object.startTime,
+		);
+
+		if (!frame || !(frame.mouseLeft || frame.mouseRight))
+			return {
+				value: HitResult.SmallTickMiss,
+				hitTime: Infinity,
+			};
+
+		const position = new Vector2(
+			this.object.startX + this.object.stackedOffset.x,
+			this.object.startY + this.object.stackedOffset.y,
+		);
+
+		const x = frame.position.x;
+		const y = frame.position.y;
+		const pointer = new Vector2(x, y);
+
+		const radius = 64 * this.object.scale * 2.4;
+		const dist = pointer.distance(position);
+
+		if (dist > radius)
+			return {
+				value: HitResult.SmallTickMiss,
+				hitTime: Infinity,
+			};
+
+		return {
+			value: HitResult.SmallTickHit,
+			hitTime: this.object.startTime,
+		};
 	}
 
 	destroy() {

@@ -1,4 +1,8 @@
-import type { HitSample as Sample } from "osu-classes";
+import {
+	HitResult,
+	type LegacyReplayFrame,
+	type HitSample as Sample,
+} from "osu-classes";
 import type { Slider, SliderHead } from "osu-standard-stable";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderHead";
 import type Skin from "@/Skinning/Skin";
@@ -15,14 +19,14 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 
 	constructor(
 		object: SliderHead,
-		parent: Slider,
+		public parent: Slider,
 		samples: Sample[],
 		hasNumber = true,
 	) {
 		super(object, false);
 
 		if (hasNumber) {
-			this.defaults = new DrawableDefaults(parent);
+			this.defaults = new DrawableDefaults(parent).hook(this.context);
 			this.approachCircle = new DrawableApproachCircle(parent).hook(
 				this.context,
 			);
@@ -43,6 +47,7 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 	updateObjects(object: SliderHead, parent: Slider, samples: Sample[]) {
 		super.object = object;
 		this._object = object;
+		this.parent = parent;
 		if (this.defaults) this.defaults.object = parent;
 		if (this.approachCircle) this.approachCircle.object = parent;
 		if (this.hitSound) this.hitSound.hitSamples = samples;
@@ -97,5 +102,21 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 	update(time: number) {
 		super.update(time);
 		this.headUpdateFn?.(this, time);
+	}
+
+	override eval(frames: LegacyReplayFrame[]) {
+		const e = super.eval(frames);
+
+		if (e.value === HitResult.None || e.value === HitResult.Miss) {
+			return {
+				...e,
+				value: HitResult.LargeTickMiss,
+			};
+		}
+
+		return {
+			...e,
+			value: HitResult.LargeTickHit,
+		};
 	}
 }

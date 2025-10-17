@@ -1,4 +1,9 @@
-import type { HitSample as Sample } from "osu-classes";
+import {
+	HitResult,
+	Vector2,
+	type LegacyReplayFrame,
+	type HitSample as Sample,
+} from "osu-classes";
 import type { Slider, SliderTail } from "osu-standard-stable";
 import type BeatmapSet from "@/BeatmapSet";
 import { inject } from "@/Context";
@@ -9,12 +14,17 @@ import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import DrawableSliderHead from "./DrawableSliderHead";
+import { Clamp } from "@/utils";
 
 export const TAIL_LENIENCY = 36;
 export default class DrawableSliderTail extends DrawableSliderHead {
 	hitSound?: HitSample;
 
-	constructor(object: SliderTail, parent: Slider, samples: Sample[]) {
+	constructor(
+		object: SliderTail,
+		public parent: Slider,
+		samples: Sample[],
+	) {
 		super(object, parent, samples, false);
 		this.hitSound = new HitSample(samples).hook(this.context);
 		this.refreshSprite();
@@ -73,7 +83,9 @@ export default class DrawableSliderTail extends DrawableSliderHead {
 
 	playHitSound(time: number, offset: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
+		const isSeeking =
+			inject<ProgressBar>("ui/main/controls/progress")?.isSeeking ||
+			inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 		if (
 			!(
@@ -89,6 +101,47 @@ export default class DrawableSliderTail extends DrawableSliderHead {
 		);
 
 		this.hitSound?.play(currentSamplePoint);
+	}
+
+	override eval(frames: LegacyReplayFrame[]) {
+		const frame = frames.findLast(
+			(frames) => frames.startTime <= this.object.startTime,
+		);
+
+		if (!frame || !(frame.mouseLeft || frame.mouseRight))
+			return {
+				value: HitResult.LargeTickMiss,
+				hitTime: Infinity,
+			};
+
+		const completionProgress = Clamp(
+			(this.object.startTime - this.parent.startTime) / this.parent.duration,
+		);
+
+		const position = this.parent.path.curvePositionAt(
+			completionProgress,
+			this.parent.spans,
+		);
+
+		const x = frame.position.x;
+		const y = frame.position.y;
+		const pointer = new Vector2(x, y);
+
+		const radius = 64 * this.object.scale * 2.4;
+		const dist = pointer.distance(
+			position.add(this.parent.stackedOffset).add(this.parent.startPosition),
+		);
+
+		if (dist > radius)
+			return {
+				value: HitResult.LargeTickMiss,
+				hitTime: Infinity,
+			};
+
+		return {
+			value: HitResult.LargeTickHit,
+			hitTime: this.object.startTime,
+		};
 	}
 
 	update(time: number): void {

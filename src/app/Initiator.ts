@@ -23,6 +23,10 @@ export async function getArgon() {
 		}, []),
 		"followpoint.png",
 		"timelinehitcircle@2x.png",
+		"hit300@2x.png",
+		"hit100@2x.png",
+		"hit50@2x.png",
+		"hit0@2x.png",
 		"hitcircle@2x.png",
 		"hitcircleflash@2x.png",
 		"hitcircleglow@2x.png",
@@ -47,7 +51,7 @@ export async function getArgon() {
 			try {
 				const data = await ky.get<Blob>(`./skinning/argon/${filename}`).blob();
 				resources.set(filename, data);
-			} catch (e) {
+			} catch {
 				return;
 			}
 		}),
@@ -77,7 +81,13 @@ export async function getDefaultLegacy() {
 			accm.push(...curr);
 			return accm;
 		}, []),
+		"cursor@2x.png",
+		"cursortrail.png",
 		"followpoint@2x.png",
+		"hit300@2x.png",
+		"hit100@2x.png",
+		"hit50@2x.png",
+		"hit0@2x.png",
 		"hitcircle@2x.png",
 		"hitcircleoverlay@2x.png",
 		"hitcircleselect@2x.png",
@@ -96,7 +106,7 @@ export async function getDefaultLegacy() {
 			try {
 				const data = await ky.get<Blob>(`./skinning/legacy/${filename}`).blob();
 				resources.set(filename, data);
-			} catch (e) {
+			} catch {
 				return;
 			}
 		}),
@@ -127,6 +137,10 @@ export async function getYugen() {
 			return accm;
 		}, []),
 		"followpoint@2x.png",
+		"hit300.png",
+		"hit100.png",
+		"hit50.png",
+		"hit0.png",
 		"hitcircle@2x.png",
 		"hitcircleoverlay@2x.png",
 		"skin.ini",
@@ -144,7 +158,7 @@ export async function getYugen() {
 			try {
 				const data = await ky.get<Blob>(`./skinning/yugen/${filename}`).blob();
 				resources.set(filename, data);
-			} catch (e) {
+			} catch {
 				return;
 			}
 		}),

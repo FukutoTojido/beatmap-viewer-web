@@ -1,11 +1,23 @@
+import { HitResult } from "osu-classes";
 import type DrawableSliderTick from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderTick";
 
 export const update = (drawable: DrawableSliderTick, time: number) => {
-	const startFadeInTime = drawable.object.startTime - drawable.object.timePreempt;
+	const startFadeInTime =
+		drawable.object.startTime - drawable.object.timePreempt;
 	const fadeOutDuration = 200;
 
-	drawable.container.x = drawable.object.startX + drawable.object.stackedOffset.x;
-	drawable.container.y = drawable.object.startY + drawable.object.stackedOffset.y;
+	const shouldHit =
+		!drawable.evaluation ||
+		![
+			HitResult.Miss,
+			HitResult.LargeTickMiss,
+			HitResult.SmallTickMiss,
+		].includes(drawable.evaluation.value);
+
+	drawable.container.x =
+		drawable.object.startX + drawable.object.stackedOffset.x;
+	drawable.container.y =
+		drawable.object.startY + drawable.object.stackedOffset.y;
 
 	drawable.container.scale.set(1 * drawable.object.scale);
 
@@ -32,7 +44,9 @@ export const update = (drawable: DrawableSliderTick, time: number) => {
 		);
 
 		drawable.container.alpha = opacity;
-		drawable.container.scale.set(scale * drawable.object.scale);
+		drawable.container.scale.set(
+			(shouldHit ? scale : 1) * drawable.object.scale,
+		);
 
 		return;
 	}

@@ -7,7 +7,10 @@ import AnimationController, {
 import "./FPSSystem";
 import ky from "ky";
 import BeatmapSet from "./BeatmapSet";
-import { getBeatmapFromId } from "./BeatmapSet/BeatmapDownloader";
+import {
+	getBeatmapFromHash,
+	getBeatmapFromId,
+} from "./BeatmapSet/BeatmapDownloader";
 import Config from "./Config";
 import type FullscreenConfig from "./Config/FullscreenConfig";
 import type RendererConfig from "./Config/RendererConfig";
@@ -18,6 +21,7 @@ import Loading from "./UI/loading";
 import Main from "./UI/main";
 import SidePanel from "./UI/sidepanel";
 import ZipHandler from "./ZipHandler";
+import Replay from "./BeatmapSet/Beatmap/Replay";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -70,7 +74,7 @@ export class Game {
 			// // biome-ignore lint/style/noNonNullAssertion: It should be there already lol
 			// resizeTo: document.querySelector<HTMLDivElement>("#app")!,
 			antialias: inject<RendererConfig>("config/renderer")?.antialiasing,
-			// powerPreference: "high-performance",
+			powerPreference: "high-performance",
 			backgroundAlpha: 0,
 			// useBackBuffer: true,
 			// clearBeforeRender: true,
@@ -197,7 +201,7 @@ export class Game {
 			const file = e.dataTransfer.files[0];
 			const fileExt = file.name.split(".").at(-1);
 			if (!fileExt) return;
-			if (!["osz", "osk"].includes(fileExt)) return;
+			if (!["osz", "osk", "osr"].includes(fileExt)) return;
 
 			if (fileExt === "osz") {
 				inject<Loading>("ui/loading")?.on();
@@ -221,11 +225,127 @@ export class Game {
 				await inject<SkinManager>("skinManager")?.addSkin(resource);
 				inject<Loading>("ui/loading")?.off();
 			}
+
+			if (fileExt === "osr") {
+				const bms = inject<BeatmapSet>("beatmapset");
+
+				const replay = new Replay();
+				await replay.process(new Blob([file]));
+
+				const bm = bms?.difficulties.findIndex(
+					(bm) => bm.md5 === replay.data?.info.beatmapHashMD5,
+				);
+
+				if (bm === -1 || bm === undefined || bm === null) {
+					const container = document.createElement("div");
+					const text = document.createElement("div");
+					const buttons = document.createElement("div");
+					const fetch = document.createElement("button");
+					const force = document.createElement("button");
+					const cancel = document.createElement("button");
+
+					text.innerText =
+						"Cannot find beatmap matching with the replay hash. Please select the following options.";
+					fetch.innerText = "Fetch from online source";
+					force.innerText = "Force using replay";
+					cancel.innerText = "Cancel";
+
+					if (replay.data?.info.beatmapHashMD5) {
+						buttons.append(fetch);
+					}
+					buttons.append(force, cancel);
+
+					container.append(text, buttons);
+
+					container.classList.add(
+						"absolute",
+						"top-[50%]",
+						"left-[50%]",
+						"-translate-[50%]",
+						"w-[600px]",
+						"max-w-full",
+						"p-8",
+						"flex",
+						"flex-col",
+						"gap-5",
+						"rounded-xl",
+						"border",
+						"border-surface-1",
+						"bg-base",
+						"text-text",
+					);
+					buttons.classList.add(
+						"flex",
+						"items-center",
+						"justify-end",
+						"gap-2.5",
+					);
+					cancel.classList.add(
+						"p-2",
+						"px-4",
+						"bg-crust",
+						"rounded-lg",
+						"hover:bg-mantle",
+						"text-text",
+						"text-sm",
+						"cursor-pointer",
+					);
+					fetch.classList.add(
+						"p-2",
+						"px-4",
+						"bg-text",
+						"rounded-lg",
+						"hover:bg-subtext-0",
+						"text-mantle",
+						"text-sm",
+						"cursor-pointer",
+					);
+					force.classList.add(
+						"p-2",
+						"px-4",
+						"bg-surface-0",
+						"rounded-lg",
+						"hover:bg-surface-1",
+						"text-text",
+						"text-sm",
+						"cursor-pointer",
+					);
+
+					cancel.addEventListener("click", () => {
+						document.body.removeChild(container);
+					});
+
+					force.addEventListener("click", () => {
+						bms?.master?.hookReplay(replay);
+						document.body.removeChild(container);
+					});
+
+					fetch.addEventListener("click", async () => {
+						if (!replay.data?.info.beatmapHashMD5) return;
+						await this.loadHash(replay.data?.info.beatmapHashMD5);
+
+						const bms = inject<BeatmapSet>("beatmapset");
+
+						const bm = bms?.difficulties.findIndex(
+							(bm) => bm.md5 === replay.data?.info.beatmapHashMD5,
+						);
+						if (bm !== -1 && bm !== undefined && bm !== null)
+							bms?.difficulties[bm].hookReplay(replay);
+
+						document.body.removeChild(container);
+					});
+
+					document.body.append(container);
+				} else {
+					if (bms?.master !== bms?.difficulties[bm]) await bms?.loadMaster(bm);
+					bms?.difficulties[bm]?.hookReplay(replay);
+				}
+			}
 		});
 
 		inject<RendererConfig>("config/renderer")?.onChange("antialiasing", () => {
 			window.location.reload();
-		})
+		});
 
 		await inject<SkinManager>("skinManager")?.loadSkins();
 		await this.loadFromQuery();
@@ -298,6 +418,30 @@ export class Game {
 				if (i === 0) await bms.loadMaster(idx);
 				if (i !== 0) bms.loadSlave(idx);
 			}
+		} catch (e) {
+			console.error(e);
+		}
+
+		inject<Loading>("ui/loading")?.off();
+	}
+
+	private async loadHash(hash: string) {
+		inject<Loading>("ui/loading")?.on();
+
+		try {
+			let bms = inject<BeatmapSet>("beatmapset");
+			if (!bms || !bms?.difficulties.some((diff) => diff.md5 === hash)) {
+				bms?.destroy();
+				const blob = await getBeatmapFromHash(hash);
+
+				if (blob === null) throw new Error("Cannot download beatmap");
+				console.log("Download Completed!");
+
+				bms = await this.loadBlob(blob);
+			}
+
+			const idx = bms.difficulties.findIndex((diff) => diff.md5 === hash);
+			if (idx !== -1) await bms.loadMaster(idx);
 		} catch (e) {
 			console.error(e);
 		}

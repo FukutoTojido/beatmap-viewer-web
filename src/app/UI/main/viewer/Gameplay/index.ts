@@ -1,6 +1,6 @@
 import type { LayoutOptions } from "@pixi/layout";
 import { LayoutContainer } from "@pixi/layout/components";
-import {  Tween } from "@tweenjs/tween.js";
+import { Tween } from "@tweenjs/tween.js";
 import { Vector2 } from "osu-classes";
 import {
 	Assets,
@@ -50,6 +50,7 @@ export default class Gameplay {
 	statsContainer!: LayoutContainer;
 	closeButton!: LayoutContainer;
 	spinner: Spinner;
+	cursorLayer: Container;
 
 	csText!: Text;
 	arText!: Text;
@@ -115,6 +116,11 @@ export default class Gameplay {
 			boundsArea: new Rectangle(0, 0, 512, 384),
 		});
 
+		this.cursorLayer = new Container({
+			label: "cursorContainer",
+			boundsArea: new Rectangle(0, 0, 512, 384),
+		});
+
 		this.selectContainer = new Container({
 			label: "selectContainer",
 			boundsArea: new Rectangle(0, 0, 512, 384),
@@ -140,6 +146,7 @@ export default class Gameplay {
 			this.objectsContainer,
 			this.selectContainer,
 			this.selector,
+			this.cursorLayer,
 		);
 		this.wrapper.on("layout", () => {
 			const width = this.wrapper.layout?.computedLayout.width ?? 0;
@@ -153,6 +160,10 @@ export default class Gameplay {
 
 			this.objectsContainer.x = (width - _w) / 2;
 			this.objectsContainer.y = (height - _h) / 2;
+
+			this.cursorLayer.scale.set(scale);
+			this.cursorLayer.x =  (width - _w) / 2;
+			this.cursorLayer.y = (height - _h) / 2;
 
 			this.grid.x = (width - _w) / 2;
 			this.grid.y = (height - _h) / 2;

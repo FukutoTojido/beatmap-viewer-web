@@ -1,6 +1,11 @@
-import { type SamplePoint, Vector2 } from "osu-classes";
+import {
+	HitResult,
+	type LegacyReplayFrame,
+	type SamplePoint,
+	Vector2,
+} from "osu-classes";
 import type { StandardHitObject } from "osu-standard-stable";
-import { type ColorSource, Container, Sprite } from "pixi.js";
+import { type ColorSource, Container, RenderLayer, Sprite } from "pixi.js";
 import HitSample from "@/Audio/HitSample";
 import type BeatmapSet from "@/BeatmapSet";
 import { type Context, inject } from "@/Context";
@@ -21,6 +26,8 @@ import DrawableDefaults from "./DrawableDefaults";
 import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
+import DrawableJudgement from "./DrawableJudgement";
+import type { BaseObjectEvaluation } from "../Replay";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -47,37 +54,40 @@ export default class DrawableHitCircle
 
 	updateFn = legacyUpdate;
 
+	judgement: DrawableJudgement;
+
 	constructor(
 		object: StandardHitObject,
 		protected hasNumber = true,
 	) {
 		super(object);
 		this.context.provide<DrawableHitCircle>("drawable", this);
-		
+
 		this.wrapper.visible = false;
-		
+
 		this.hitCircleSprite = new Sprite();
 		this.hitCircleOverlay = new Sprite();
 		this.flashPiece = new Sprite();
-		
+
 		this.flashPiece.anchor.set(0.5);
 		this.flashPiece.blendMode = "add";
-		
+
 		this.hitCircleSprite.anchor.set(0.5);
 		this.hitCircleSprite.alpha = 0.9;
-		
+
 		this.hitCircleOverlay.anchor.set(0.5);
 		this.sprite.addChild(this.hitCircleSprite, this.hitCircleOverlay);
-		
+
 		this.approachCircle = new DrawableApproachCircle(object).hook(this.context);
 		this.object = object;
-		
+
 		this.wrapper.addChild(this.sprite, this.flashPiece);
 
-		this.container.addChild(this.wrapper);
+		const judgementLayer = new RenderLayer();
+		this.container.addChild(judgementLayer, this.wrapper);
 
 		if (this.hasNumber) {
-			this.defaults = new DrawableDefaults(object);
+			this.defaults = new DrawableDefaults(object).hook(this.context);
 			this.wrapper.addChild(this.defaults.container);
 		}
 
@@ -89,6 +99,10 @@ export default class DrawableHitCircle
 		);
 
 		this.timelineObject = new TimelineHitCircle(object).hook(this.context);
+
+		this.judgement = new DrawableJudgement(this);
+		judgementLayer.attach(this.judgement.container);
+		this.container.addChild(this.judgement.container);
 	}
 
 	private _isSelected = false;
@@ -101,9 +115,15 @@ export default class DrawableHitCircle
 	}
 
 	checkCollide(x: number, y: number, time: number) {
-		if (!(this.object.startTime - this.object.timePreempt < time && time < this.object.startTime + 240)) return false;
+		if (
+			!(
+				this.object.startTime - this.object.timePreempt < time &&
+				time < this.object.startTime + 240
+			)
+		)
+			return false;
 
-		const radius = 54.4 * this.object.scale;
+		const radius = 64 * this.object.scale * (256 / 236);
 		const objectPosition = new Vector2(
 			this.object.startX + this.object.stackedOffset.x,
 			this.object.startY + this.object.stackedOffset.y,
@@ -171,12 +191,16 @@ export default class DrawableHitCircle
 
 	playHitSound(time: number, _?: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
+		const isSeeking =
+			inject<ProgressBar>("ui/main/controls/progress")?.isSeeking ||
+			inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
+
+		const startTime = this.evaluation?.hitTime ?? this.object.startTime;
 		if (
 			!(
-				beatmap.previousTime <= this.object.startTime &&
-				this.object.startTime < time &&
+				beatmap.previousTime <= startTime &&
+				startTime < time &&
 				time - beatmap.previousTime < 30
 			)
 		)
@@ -199,6 +223,77 @@ export default class DrawableHitCircle
 		this.approachCircle.update(time);
 		this.defaults?.update(time);
 		this.updateFn(this, time);
+
+		this.judgement.frame(time);
+	}
+
+	get evaluation(): BaseObjectEvaluation | undefined {
+		return this._evaluation;
+	}
+
+	set evaluation(value: BaseObjectEvaluation | undefined) {
+		this._evaluation = value;
+
+		this.judgement.evaluation = value;
+	}
+
+	override eval(frames: LegacyReplayFrame[]) {
+		const hitInstance = frames.find((frame, idx, arr) => {
+			if (
+				Math.abs(frame.startTime - this.object.startTime) >
+				this.object.hitWindows.windowFor(HitResult.Meh)
+			)
+				return false;
+
+			const previousFrame = arr[idx - 1];
+			if (!previousFrame) return false;
+
+			const leftOn = !previousFrame.mouseLeft && frame.mouseLeft;
+			const rightOn = !previousFrame.mouseRight && frame.mouseRight;
+			if (!(leftOn || rightOn)) return false;
+
+			const x = frame.position.x;
+			const y = frame.position.y;
+
+			const radius = 64 * this.object.scale;
+			const objectPosition = new Vector2(
+				this.object.startX + this.object.stackedOffset.x,
+				this.object.startY + this.object.stackedOffset.y,
+			);
+			const pointer = new Vector2(x, y);
+
+			const dist = pointer.distance(objectPosition);
+
+			return dist <= radius;
+		});
+
+		if (!hitInstance)
+			return {
+				value: HitResult.Miss,
+				hitTime: Infinity,
+			};
+
+		const resultFor = (timeOffset: number): HitResult => {
+			timeOffset = Math.abs(timeOffset);
+
+			for (let result = HitResult.Perfect; result >= HitResult.Miss; --result) {
+				if (
+					this.object.hitWindows.isHitResultAllowed(result) &&
+					timeOffset < Math.round(this.object.hitWindows.windowFor(result))
+				) {
+					return result;
+				}
+			}
+
+			return HitResult.None;
+		};
+
+		const hitResult = resultFor(hitInstance.startTime - this.object.startTime);
+
+		return {
+			value: hitResult,
+			hitTime: hitInstance.startTime,
+		};
 	}
 
 	destroy() {
