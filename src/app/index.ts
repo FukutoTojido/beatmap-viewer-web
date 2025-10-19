@@ -13,11 +13,19 @@ document.addEventListener("keydown", (event) => {
 
 	switch (event.key) {
 		case "ArrowLeft": {
-			bms.smoothTick(-1, event.shiftKey, bms.context.consume<Audio>("audio")?.state === "PLAYING");
+			bms.smoothTick(
+				-1,
+				event.shiftKey,
+				bms.context.consume<Audio>("audio")?.state === "PLAYING",
+			);
 			break;
 		}
 		case "ArrowRight": {
-			bms.smoothTick(1, event.shiftKey, bms.context.consume<Audio>("audio")?.state === "PLAYING");
+			bms.smoothTick(
+				1,
+				event.shiftKey,
+				bms.context.consume<Audio>("audio")?.state === "PLAYING",
+			);
 			break;
 		}
 		case " ": {
@@ -66,6 +74,13 @@ document
 	});
 
 (async () => {
+	try {
+		await navigator.wakeLock.request("screen");
+	} catch (e) {
+		// the wake lock request fails - usually system related, such being low on battery
+		console.log(e);
+	}
+
 	await Promise.all([
 		Assets.load({ src: "./assets/metadata.png", parser: "texture" }),
 		Assets.load({ src: "./assets/back.png", parser: "texture" }),
