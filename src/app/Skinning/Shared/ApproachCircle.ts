@@ -1,12 +1,25 @@
 import type DrawableApproachCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableApproachCircle";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { inject } from "@/Context";
 
-export const sharedUpdate = (drawable: DrawableApproachCircle, time: number) => {
-	const startFadeInTime = drawable.object.startTime - drawable.object.timePreempt;
+export const sharedUpdate = (
+	drawable: DrawableApproachCircle,
+	time: number,
+) => {
+	const isHD = inject<ExperimentalConfig>("config/experimental")?.hidden;
+
+	const startFadeInTime =
+		drawable.object.startTime - drawable.object.timePreempt;
 	const fadeInDuration = Math.min(
 		drawable.object.timeFadeIn * 2,
 		drawable.object.timePreempt,
 	);
 	const fadeOutDuration = 50;
+
+	if (isHD) {
+		drawable.container.visible = false;
+		return 3;
+	}
 
 	if (
 		time < startFadeInTime ||
@@ -44,5 +57,5 @@ export const sharedUpdate = (drawable: DrawableApproachCircle, time: number) => 
 		return 3;
 	}
 
-	return 3
+	return 3;
 };

@@ -11,7 +11,6 @@ import {
 	Text,
 	type TextStyleOptions,
 } from "pixi.js";
-import { BackdropBlurFilter } from "pixi-filters";
 import type Audio from "@/Audio";
 import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
@@ -60,14 +59,6 @@ export default class Gameplay {
 	selected: Set<number> = new Set();
 
 	constructor(public beatmap: Beatmap) {
-		const backdropFilter = new BackdropBlurFilter({
-			strength:
-				((inject<BackgroundConfig>("config/background")?.backgroundBlur ?? 0) /
-					100) *
-				20,
-			quality: 6,
-		});
-
 		this.container = new Container({
 			label: "gameplay",
 			layout: {
@@ -104,7 +95,6 @@ export default class Gameplay {
 				],
 				borderRadius: 20,
 			},
-			filters: [backdropFilter],
 		});
 		this.selector = new Graphics()
 			.rect(0, 0, 1, 1)
@@ -193,13 +183,6 @@ export default class Gameplay {
 				this.background.layout = {
 					backgroundColor: [0, 0, 0, Math.max(0.01, value / 100)],
 				};
-			},
-		);
-
-		inject<BackgroundConfig>("config/background")?.onChange(
-			"backgroundBlur",
-			(value: number) => {
-				backdropFilter.strength = (value / 100) * 20;
 			},
 		);
 

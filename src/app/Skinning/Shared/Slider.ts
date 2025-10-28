@@ -1,8 +1,12 @@
-import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
-import { Clamp } from "@/utils";
 import { HitResult } from "osu-classes";
+import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { inject } from "@/Context";
+import { Clamp } from "@/utils";
 
 export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
+	const isHD = inject<ExperimentalConfig>("config/experimental")?.hidden;
+
 	const startFadeInTime =
 		drawable.object.startTime - drawable.object.timePreempt;
 	const fadeOutDuration = 240;
@@ -58,6 +62,27 @@ export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 			Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
 		);
 		drawable._alphaFilter.alpha = opacity;
+
+		if (isHD && opacity >= 1) {
+			const fadeOutTime = startFadeInTime + drawable.object.timeFadeIn;
+			const opacity = Clamp(
+				(time - fadeOutTime) / (drawable.object.endTime - fadeOutTime),
+			);
+
+			drawable._alphaFilter.alpha = 1 - opacity;
+			return { start, end };
+		}
+
+		return { start, end };
+	}
+
+	if (isHD && time >= drawable.object.startTime) {
+		const fadeOutTime = startFadeInTime + drawable.object.timeFadeIn;
+		const opacity = Clamp(
+			(time - fadeOutTime) / (drawable.object.endTime - fadeOutTime),
+		);
+
+		drawable._alphaFilter.alpha = 1 - opacity;
 		return { start, end };
 	}
 

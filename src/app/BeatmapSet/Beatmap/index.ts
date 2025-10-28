@@ -636,6 +636,7 @@ export default class Beatmap extends ScopedClass {
 		if (config) {
 			config.hardRock = mods.acronyms.includes("HR") ?? false;
 			config.doubleTime = mods.acronyms.includes("DT") ?? false;
+			config.hidden = mods.acronyms.includes("HD") ?? false;
 		}
 
 		this.container.cursorLayer.addChild(

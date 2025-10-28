@@ -3,6 +3,7 @@ import ConfigSection from "./ConfigSection";
 export type ExperimentalProps = {
 	asyncLoading?: boolean;
 	overlapGameplays?: boolean;
+	hidden?: boolean;
 	hardRock?: boolean;
 	doubleTime?: boolean;
 };
@@ -15,10 +16,14 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const { asyncLoading, overlapGameplays, hardRock, doubleTime } =
+		const { asyncLoading, overlapGameplays, hidden, hardRock, doubleTime } =
 			defaultOptions;
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
+		this.hidden =
+			hidden ??
+			new URLSearchParams(window.location.search).get("m")?.includes("HD") ??
+			false;
 		this.hardRock =
 			hardRock ??
 			new URLSearchParams(window.location.search).get("m")?.includes("HR") ??
@@ -85,11 +90,26 @@ export default class ExperimentalConfig extends ConfigSection {
 		this.emitChange("mods", this.getModsString());
 	}
 
+	private _hidden = true;
+	get hidden() {
+		return this._hidden;
+	}
+	set hidden(val: boolean) {
+		this._hidden = val;
+
+		const ele = document.querySelector<HTMLInputElement>("#modsHD");
+		if (!ele) return;
+		ele.checked = val;
+
+		// this.emitChange("mods", this.getModsString());
+	}
+
 	getModsString() {
 		const HR = this.hardRock ? "HR" : "";
 		const DT = this.doubleTime ? "DT" : "";
+		const HD = this.doubleTime ? "HD" : "";
 
-		return `${HR}${DT}`;
+		return `${HD}${HR}${DT}`;
 	}
 
 	loadEventListeners() {
@@ -98,6 +118,12 @@ export default class ExperimentalConfig extends ConfigSection {
 			?.addEventListener("change", (event) => {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.overlapGameplays = value;
+			});
+		document
+			.querySelector<HTMLInputElement>("#modsHD")
+			?.addEventListener("change", (event) => {
+				const value = (event.target as HTMLInputElement)?.checked ?? true;
+				this.hidden = value;
 			});
 		document
 			.querySelector<HTMLInputElement>("#modsHR")

@@ -1,4 +1,5 @@
 import {
+	BlurFilter,
 	Container,
 	Sprite,
 	Texture,
@@ -9,6 +10,14 @@ import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject } from "@/Context";
 
 export default class Background {
+	blurFilter = new BlurFilter({
+		strength:
+			((inject<BackgroundConfig>("config/background")?.backgroundBlur ?? 0) /
+				100) *
+			50,
+		quality: 4,
+	});
+
 	container = new Container({
 		label: "background",
 		layout: {
@@ -30,6 +39,7 @@ export default class Background {
 			objectPosition: "center",
 			objectFit: "cover",
 		},
+		filters: [this.blurFilter],
 	});
 
 	private video = new Sprite({
@@ -72,6 +82,13 @@ export default class Background {
 		inject<BackgroundConfig>("config/background")?.onChange("video", (val) => {
 			this.video.visible = val;
 		});
+
+		inject<BackgroundConfig>("config/background")?.onChange(
+			"backgroundBlur",
+			(value: number) => {
+				this.blurFilter.strength = (value / 100) * 50;
+			},
+		);
 	}
 
 	updateTexture(texture: Texture) {

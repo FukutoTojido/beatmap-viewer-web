@@ -1,7 +1,10 @@
+import { HitResult } from "osu-classes";
 import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { inject } from "@/Context";
+import { Clamp } from "@/utils";
 import { sharedRefreshSprite } from "../Shared/HitCircle";
 import { BLANK_TEXTURE } from "../Skin";
-import { HitResult } from "osu-classes";
 
 export const refreshSprite = (drawable: DrawableHitCircle) => {
 	sharedRefreshSprite(drawable);
@@ -13,6 +16,8 @@ export const refreshSprite = (drawable: DrawableHitCircle) => {
 };
 
 export const update = (drawable: DrawableHitCircle, time: number) => {
+	const isHD = inject<ExperimentalConfig>("config/experimental")?.hidden;
+
 	const maxThreshold =
 		drawable.object.startTime +
 		drawable.object.hitWindows.windowFor(HitResult.Meh);
@@ -37,6 +42,25 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 
 	drawable.wrapper.visible = true;
 	drawable.sprite.scale.set(1);
+
+	if (isHD) {
+		const opacity = Math.min(
+			1,
+			Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
+		);
+
+		if (opacity >= 1) {
+			const opacity = Clamp(
+				(time - (startFadeInTime + drawable.object.timeFadeIn)) /
+					(drawable.object.timePreempt * 0.3),
+			);
+			drawable.wrapper.alpha = 1 - opacity;
+			return;
+		}
+
+		drawable.wrapper.alpha = opacity;
+		return;
+	}
 
 	if (time < startTime) {
 		const opacity = Math.min(
