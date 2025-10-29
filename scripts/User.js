@@ -44,7 +44,7 @@ export class User {
                 "SpunOut",
                 "SuddenDeath",
             ]) {
-                loadAsync(async () => this.textures[mod] = await PIXI.Assets.load({ src: `/static/mods/${mod}.png`, loadParser: "loadTextures" }));
+                loadAsync(async () => this.textures[mod] = await PIXI.Assets.load({ src: `./static/mods/${mod}.png`, loadParser: "loadTextures" }));
             }
         })
     }

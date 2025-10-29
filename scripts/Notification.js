@@ -1,7 +1,7 @@
 const typeEnum = {
-    "message": "/static/info.svg",
-    "warning": "/static/alert-triangle.svg",
-    "error": "/static/badge-alert.svg",
+    "message": "./static/info.svg",
+    "warning": "./static/alert-triangle.svg",
+    "error": "./static/badge-alert.svg",
 }
 
 export class Notification {
@@ -27,7 +27,7 @@ export class Notification {
         button.classList.add("notiDismiss");
 
         const img2 = document.createElement("img");
-        img2.src = "/static/close.png";
+        img2.src = "./static/close.png";
         img2.width = 24;
         img2.height = 24;
 

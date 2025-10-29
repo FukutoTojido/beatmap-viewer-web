@@ -156,7 +156,7 @@ export class Database {
                 }
 
                 if (type === "base64s") {
-                    const base64 = await imageToBase64(`/static/${skin}/${value}.png`);
+                    const base64 = await imageToBase64(`./static/${skin}/${value}.png`);
                     skinJson[type][value] = base64;
 
                     console.log(skinJson);
@@ -179,7 +179,7 @@ export class Database {
                 }
 
                 const res = (
-                    await axios.get(`/static/${skin}/${value}.wav`, {
+                    await axios.get(`./static/${skin}/${value}.wav`, {
                         responseType: "arraybuffer",
                     })
                 ).data;

@@ -14,8 +14,8 @@ export class Cursor {
 		const container = new PIXI.Container();
 
 		const [cursorTexture, trailTexture] = await Promise.all([
-			PIXI.Assets.load("/static/cursor.png"),
-			PIXI.Assets.load("/static/cursortrail.png"),
+			PIXI.Assets.load("./static/cursor.png"),
+			PIXI.Assets.load("./static/cursortrail.png"),
 		]);
 		this.cursor = PIXI.Sprite.from(cursorTexture);
 		this.cursor.anchor.set(0.5);

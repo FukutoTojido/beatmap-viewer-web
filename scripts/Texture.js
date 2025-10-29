@@ -203,7 +203,7 @@ export class Texture {
                 isHD: false,
             });
             loadAsync(async () => Texture.FOLLOWPOINT = {
-                texture: await PIXI.Assets.load("/static/followpoint@2x.png"),
+                texture: await PIXI.Assets.load("./static/followpoint@2x.png"),
                 isHD: true
             });
             loadAsync(async () => Texture.ARGON.HIT_CIRCLE = {
@@ -217,7 +217,7 @@ export class Texture {
             loadAsync(async () => {
                 const [ring, arrow, gradient] = await Promise.all([
                     Texture.createTexture("SLIDER_BALL"),
-                    PIXI.Assets.load("/static/arrow.png"),
+                    PIXI.Assets.load("./static/arrow.png"),
                     Texture.createTexture("SLIDER_BALL_BG")
                 ])
 
