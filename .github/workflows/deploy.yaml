@@ -3,7 +3,7 @@ name: JoSu! 2.0 Deployment
 
 on:
   push:
-    branches: ['feature/2.0']
+    branches: ['master']
 
 jobs:
   deploy:
