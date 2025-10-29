@@ -5,7 +5,7 @@ import Easings from "@/UI/Easings";
 import { Clamp } from "@/utils";
 
 export const update = (drawable: DrawableJudgement, timestamp: number) => {
-	if (!drawable.drawable.evaluation) {
+	if (!drawable.evaluation) {
 		drawable.container.visible = false;
 		return;
 	}
@@ -17,7 +17,7 @@ export const update = (drawable: DrawableJudgement, timestamp: number) => {
 	const startTime =
 		(drawable.drawable.object as Slider | Spinner).endTime ??
 		Math.min(
-			drawable.drawable.evaluation.hitTime,
+			drawable.evaluation.hitTime,
 			drawable.drawable.object.startTime +
 				drawable.drawable.object.hitWindows.windowFor(HitResult.Meh) +
 				1,
@@ -46,7 +46,7 @@ export const update = (drawable: DrawableJudgement, timestamp: number) => {
 		drawable.text.alpha = alpha;
 	}
 
-	if (drawable.drawable.evaluation.value !== HitResult.Miss) {
+	if (drawable.evaluation.value !== HitResult.Miss) {
 		const step1 = fadeInLength * 0.8;
 		const step2 = fadeInLength * 0.2;
 		const step3 = fadeInLength * 0.2;
@@ -81,7 +81,7 @@ export const update = (drawable: DrawableJudgement, timestamp: number) => {
 		drawable.text.scale.set(t);
 	}
 
-	if (drawable.drawable.evaluation.value === HitResult.Miss) {
+	if (drawable.evaluation.value === HitResult.Miss) {
 		const r = drawable.legacyRotation;
 
 		const scale = 1.6 - 0.6 * Easings.In(Clamp((timestamp - startTime) / 100));
