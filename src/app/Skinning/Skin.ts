@@ -13,6 +13,7 @@ export type SkinConfig = {
 		Version: number | string;
 		AnimationFrameRate?: number;
 		HitCircleOverlayAboveNumber?: 0 | 1;
+		AllowSliderBallTint?: 0 | 1;
 		SliderBallFlip?: 0 | 1;
 		Argon?: boolean;
 	};
@@ -58,6 +59,7 @@ export default class Skin {
 	};
 
 	textures = new Map<string, Texture>();
+	animatedTextures = new Map<string, Texture[]>();
 	hitsounds = new Map<string, AudioBuffer>();
 	colorsLength = 4;
 
@@ -109,8 +111,8 @@ export default class Skin {
 			...defaults,
 			"cursor",
 			"cursortrail",
-			"followpoint",
 			"timelinehitcircle",
+			"followpoint",
 			"hit300",
 			"hit100",
 			"hit50",
@@ -121,8 +123,8 @@ export default class Skin {
 			"hitcircleglow",
 			"hitcircleselect",
 			"sliderb",
-			"sliderb0",
-			"slidernd",
+			"sliderb-nd",
+			"sliderb-spec",
 			"sliderstartcircle",
 			"sliderstartcircleoverlay",
 			"sliderendcircle",
@@ -134,9 +136,17 @@ export default class Skin {
 			"reversearrow",
 			"repeat-edge-piece",
 		];
+		const animatedFilenames = [
+			"followpoint",
+			"hit300",
+			"hit100",
+			"hit50",
+			"hit0",
+			"sliderb",
+		];
 
-		await Promise.all(
-			[...filenames].map(async (filename) => {
+		await Promise.all([
+			...filenames.map(async (filename) => {
 				const blob =
 					this.resources?.get(`${filename}@2x.png`) ??
 					this.resources?.get(`${filename}.png`);
@@ -157,7 +167,55 @@ export default class Skin {
 					return;
 				}
 			}),
-		);
+			...animatedFilenames.map(async (filenameBase) => {
+				const regex =
+					filenameBase === "sliderb"
+						? new RegExp(`^${filenameBase}[0-9]+`)
+						: new RegExp(`^${filenameBase}-[0-9]+`);
+
+				const entries = new Set(
+					this.resources
+						?.keys()
+						.filter((filename) => regex.test(filename))
+						.map((filename) =>
+							filename.replaceAll("@2x", "").replaceAll(".png", ""),
+						),
+				);
+
+				const blobs: [string, Texture][] = (
+					await Promise.all(
+						[...entries].map(async (filename) => {
+							const blob =
+								this.resources?.get(`${filename}@2x.png`) ??
+								this.resources?.get(`${filename}.png`);
+							const isHD = this.resources?.has(`${filename}@2x.png`) ?? false;
+
+							if (!blob) return null;
+
+							const texture = await Assets.load<Texture>({
+								src: `${URL.createObjectURL(blob)}`,
+								parser: "texture",
+							});
+							texture.source.resolution = isHD ? 2 : 1;
+							texture.update();
+
+							return [filename, texture] as [string, Texture];
+						}),
+					)
+				).filter((t) => t !== null);
+
+				if (blobs.length === 0) return;
+
+				const sorted = blobs.toSorted(
+					(a, b) =>
+						+(a[0].split("-").at(-1) ?? 0) - +(b[0].split("-").at(-1) ?? 0),
+				);
+				this.animatedTextures.set(
+					filenameBase,
+					sorted.map(([_, texture]) => texture),
+				);
+			}),
+		]);
 	}
 
 	private async loadHitsounds() {
@@ -219,6 +277,36 @@ export default class Skin {
 			beatmapSkin?.textures.get(filename) ??
 			this.textures.get(filename) ??
 			inject<SkinManager>("skinManager")?.defaultSkin?.textures.get(filename)
+		);
+	}
+
+	getAnimatedTexture(filename: string, beatmapSkin?: Skin): Texture[] {
+		const disableBeatmapSkin =
+			inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin;
+
+		const beatmapTexture = beatmapSkin?.textures.get(filename);
+		const beatmapTextures =
+			beatmapSkin?.animatedTextures.get(filename) ??
+			(beatmapTexture ? [beatmapTexture] : undefined);
+
+		const skinTexture = this.textures.get(filename);
+		const skinTextures =
+			this?.animatedTextures.get(filename) ??
+			(skinTexture ? [skinTexture] : undefined);
+
+		const defaultTexture =
+			inject<SkinManager>("skinManager")?.defaultSkin?.textures.get(filename);
+		const defaultTextures =
+			inject<SkinManager>("skinManager")?.defaultSkin?.animatedTextures.get(
+				filename,
+			) ?? (defaultTexture ? [defaultTexture] : undefined);
+
+		if (disableBeatmapSkin || this.config.General.Argon) {
+			return skinTextures ?? defaultTextures ?? [BLANK_TEXTURE];
+		}
+
+		return (
+			beatmapTextures ?? skinTextures ?? defaultTextures ?? [BLANK_TEXTURE]
 		);
 	}
 

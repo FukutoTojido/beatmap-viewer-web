@@ -3,9 +3,11 @@ import type { Slider, StandardHitObject } from "osu-standard-stable";
 import { Container, Sprite } from "pixi.js";
 import { update } from "@/Skinning/Shared/FollowPoints";
 import type Skin from "@/Skinning/Skin";
-import SkinnableElement from "./SkinnableElement";
+import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
+import { Clamp } from "@/utils";
 
-export default class DrawableFollowPoints extends SkinnableElement {
+export default class DrawableFollowPoints extends AnimatedSkinnableElement {
 	container: Container = new Container();
 	sprites: Sprite[] = [];
 
@@ -30,17 +32,13 @@ export default class DrawableFollowPoints extends SkinnableElement {
 		this.updateObjects(startObject, endObject);
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener((skin) => {
-			const followpoint = skin.getTexture(
+			const followpoint = skin.getAnimatedTexture(
 				"followpoint",
 				this.context.consume<Skin>("beatmapSkin"),
 			);
 
 			this.container.blendMode = skin.config.General.Argon ? "add" : "normal";
-
-			if (!followpoint) return;
-			for (const sprite of this.sprites) {
-				sprite.texture = followpoint;
-			}
+			this.texturesList = followpoint;
 		});
 	}
 
@@ -78,20 +76,39 @@ export default class DrawableFollowPoints extends SkinnableElement {
 			this.distance < 80 ? 0 : Math.floor((this.distance - 48) / (512 / 16));
 		this.sprites = [];
 		for (let i = 0; i < numberOfSprites; i++) {
-			const sprite = new Sprite(
-				this.skinManager?.getCurrentSkin().getTexture("followpoint"),
-			);
+			const sprite = new Sprite();
 			sprite.anchor.set(0.5);
 			sprite.x = (1.5 + i) * (512 / 16);
 
 			this.sprites.push(sprite);
 		}
 
+		this.texturesList = this.skinManager
+			?.getCurrentSkin()
+			.getAnimatedTexture("followpoint") ?? [BLANK_TEXTURE];
+
 		if (this.sprites.length) this.container.addChild(...this.sprites);
 	}
 
 	update(time: number) {
 		update(this, time);
+
+		for (const [idx, sprite] of Object.entries(this.sprites)) {
+			const d = 32 * 1.5 + 32 * +idx;
+			const f = d / this.distance;
+
+			const fadeOutTime = this.startTime + f * this.duration;
+			const fadeInTime = fadeOutTime - this.startObject.timePreempt;
+			const frameLength = (fadeOutTime - fadeInTime) / this.texturesList.length;
+
+			const frameIndex = Clamp(
+				Math.floor((time - fadeInTime) / frameLength),
+				0,
+				this.texturesList.length - 1,
+			);
+
+			sprite.texture = this.texturesList[frameIndex];
+		}
 	}
 
 	destroy() {

@@ -60,7 +60,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	if (!inject<GameplayConfig>("config/gameplay")?.hitAnimation)
 		return surpressAnimation(drawable, time);
 
-	if (time < startTime) {
+	if (time <= startTime) {
 		const baseTexture = drawable.skinManager
 			?.getCurrentSkin()
 			.getTexture("hitcircle");
@@ -80,7 +80,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		return;
 	}
 
-	if (time >= startTime && shouldHit) {
+	if (time > startTime && shouldHit) {
 		drawable.hitCircleSprite.tint = drawable.color;
 
 		const flashTexture = drawable.skinManager
@@ -89,31 +89,23 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		if (flashTexture) drawable.hitCircleSprite.texture = flashTexture;
 
 		drawable.flashPiece.visible = true;
-		drawable.sprite.blendMode = "add";
+		// drawable.sprite.blendMode = "add";
 
-		const opacity = Math.min(
-			1,
-			Math.max(0, (time - startTime) / fadeOutDuration),
-		);
-		const fadeProgress = Math.min(
-			1,
-			Math.max(0, (time - startTime) / fadeColourDuration),
-		);
-		const flashOpacity = Math.min(
-			1,
-			Math.max(0, (time - (startTime + fadeColourDuration)) / flashInDuration),
+		const opacity = Clamp((time - startTime) / fadeOutDuration);
+		const fadeProgress = Clamp((time - startTime) / fadeColourDuration);
+		const flashOpacity = Clamp(
+			(time - (startTime + fadeColourDuration)) / flashInDuration,
 		);
 		const flashPieceOpacity =
-			2 * Math.min(1, Math.max(0, (time - startTime) / (flashInDuration * 2))) -
-			1;
-		const scale = Math.min(1, Math.max(0, (time - startTime) / 400));
+			2 * Clamp((time - startTime) / (flashInDuration * 2)) - 1;
+		const scale = Clamp((time - startTime) / 400);
 
 		const color = d3.color(drawable.color as string);
 		const white = d3.color("white");
 
 		if (color && white) {
 			const interpolator = d3.interpolateRgb(color, white);
-			const interpolated = interpolator(0.5 * fadeProgress);
+			const interpolated = interpolator(0.1 * fadeProgress);
 
 			drawable.hitCircleSprite.tint = interpolated;
 		}
@@ -122,13 +114,13 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 
 		drawable.hitCircleOverlay.alpha = 0.5 * (1 - Easings.OutQuad(opacity));
 		drawable.hitCircleSprite.alpha = 1 - Easings.OutQuint(flashOpacity);
-		drawable.sprite.scale.set(1 - 0.2 * Easing.outElasticHalf(scale));
+		drawable.sprite.scale.set(1 - 0.15 * Easing.outElasticHalf(scale));
 
 		drawable.flashPiece.alpha =
 			flashPieceOpacity < 0
 				? Easings.OutQuint(1 - Math.abs(flashPieceOpacity))
 				: 1 - Easings.OutQuint(flashPieceOpacity);
-		drawable.flashPiece.scale.set(1.0 - 0.2 * Easing.outElasticHalf(scale));
+		drawable.flashPiece.scale.set(1.0 - 0.15 * Easing.outElasticHalf(scale));
 
 		return;
 	}

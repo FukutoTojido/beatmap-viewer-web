@@ -1,10 +1,9 @@
+import type SkinningConfig from "@/Config/SkinningConfig";
 import type { Resource } from "@/ZipHandler";
-import { inject, provide } from "../Context";
+import { inject } from "../Context";
 import { getArgon, getDefaultLegacy, getYugen } from "../Initiator";
 import Database from "./Database";
 import Skin from "./Skin";
-import type SkinningConfig from "@/Config/SkinningConfig";
-import Loading from "@/UI/loading";
 
 export type SkinEventCallback = (skin: Skin) => void;
 
@@ -35,7 +34,7 @@ export default class SkinManager {
 			if (currentSkin?.metadata?.type === "CUSTOM") return;
 
 			const idx = this.skins.findIndex(skin => skin.name === currentSkin?.metadata?.name);
-			if (this.skins[idx].type === "CUSTOM" || idx === -1) return;
+			if (idx === -1 || this.skins[idx].type === "CUSTOM") return;
 
 			await this.loadSkin(idx);
 		})
