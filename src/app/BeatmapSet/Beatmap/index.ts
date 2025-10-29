@@ -1,6 +1,11 @@
 import md5 from "crypto-js/md5";
 import { sort } from "fast-sort";
-import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
+import {
+	DifficultyPoint,
+	HardRock,
+	SamplePoint,
+	TimingPoint,
+} from "osu-classes";
 import { BeatmapDecoder } from "osu-parsers";
 import {
 	Circle,
@@ -634,9 +639,14 @@ export default class Beatmap extends ScopedClass {
 		const mods = ruleset.createModCombination(replay?.data?.info.rawMods);
 		const config = inject<ExperimentalConfig>("config/experimental");
 		if (config) {
-			config.hardRock = mods.acronyms.includes("HR") ?? false;
-			config.doubleTime = mods.acronyms.includes("DT") ?? false;
-			config.hidden = mods.acronyms.includes("HD") ?? false;
+			if (config.hardRock !== mods.acronyms.includes("HR"))
+				config.hardRock = mods.acronyms.includes("HR") ?? false;
+
+			if (config.doubleTime !== mods.acronyms.includes("DT"))
+				config.doubleTime = mods.acronyms.includes("DT") ?? false;
+
+			if (config.hidden !== mods.acronyms.includes("HD"))
+				config.hidden = mods.acronyms.includes("HD") ?? false;
 		}
 
 		this.container.cursorLayer.addChild(
