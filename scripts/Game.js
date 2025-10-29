@@ -171,7 +171,7 @@ export class Game {
 
 	static async FPSInit() {
 		await PIXI.Assets.load({
-			src: "/static/NICOLATTE.ttf",
+			src: "./static/NICOLATTE.ttf",
 			loadParser: "loadWebFont",
 		});
 
