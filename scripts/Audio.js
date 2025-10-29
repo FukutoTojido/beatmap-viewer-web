@@ -55,7 +55,7 @@ export class PAudio {
 		// );
 		// dt_buf.getChannelData(0).set(dt_output);
 
-		await Game.AUDIO_CTX.audioWorklet.addModule("../lib/phase-vocoder.min.js");
+		await Game.AUDIO_CTX.audioWorklet.addModule("./lib/phase-vocoder.min.js");
 		this.phazeNode = new AudioWorkletNode(
 			Game.AUDIO_CTX,
 			"phase-vocoder-processor",
