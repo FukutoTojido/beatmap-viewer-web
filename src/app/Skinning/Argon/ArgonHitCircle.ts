@@ -105,7 +105,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 
 		if (color && white) {
 			const interpolator = d3.interpolateRgb(color, white);
-			const interpolated = interpolator(0.1 * fadeProgress);
+			const interpolated = interpolator(0.3 * fadeProgress);
 
 			drawable.hitCircleSprite.tint = interpolated;
 		}
@@ -115,6 +115,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		drawable.hitCircleOverlay.alpha = 0.5 * (1 - Easings.OutQuad(opacity));
 		drawable.hitCircleSprite.alpha = 1 - Easings.OutQuint(flashOpacity);
 		drawable.sprite.scale.set(1 - 0.15 * Easing.outElasticHalf(scale));
+		drawable.sprite.blendMode = "add";
 
 		drawable.flashPiece.alpha =
 			flashPieceOpacity < 0
