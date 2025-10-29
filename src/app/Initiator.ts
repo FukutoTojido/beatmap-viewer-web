@@ -142,12 +142,17 @@ export async function getYugen() {
 
 	const filenames = [
 		"approachcircle.png",
+		"cursor@2x.png",
+		"cursortrail.png",
 		...defaults,
 		...hitSounds.reduce((accm, curr) => {
 			accm.push(...curr);
 			return accm;
 		}, []),
 		"followpoint@2x.png",
+		"followpoint-0.png",
+		"followpoint-1.png",
+		"followpoint-2.png",
 		"hit300.png",
 		"hit100.png",
 		"hit50.png",
