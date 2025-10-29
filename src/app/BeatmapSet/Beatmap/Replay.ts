@@ -101,7 +101,7 @@ export default class Replay {
 			}
 			const objectFrames: LegacyReplayFrame[] = [];
 
-			while (frames[frameIndex] && frames[frameIndex].startTime < endTime) {
+			while (frames[frameIndex] && frames[frameIndex].startTime <= endTime) {
 				objectFrames.push(frames[frameIndex++]);
 			}
 
@@ -112,7 +112,7 @@ export default class Replay {
 			frameIndex =
 				frames.findLastIndex(
 					(frame) =>
-						frame.startTime <
+						frame.startTime <=
 						Math.min(
 							evaluation.hitTime,
 							drawable.object.startTime +

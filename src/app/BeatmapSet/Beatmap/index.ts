@@ -2,7 +2,6 @@ import md5 from "crypto-js/md5";
 import { sort } from "fast-sort";
 import {
 	DifficultyPoint,
-	HardRock,
 	SamplePoint,
 	TimingPoint,
 } from "osu-classes";
