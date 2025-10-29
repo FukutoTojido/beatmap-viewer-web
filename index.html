@@ -3,7 +3,7 @@
     <div class="absolute top-0 left-0 w-full h-full bg-black/50 backdrop-blur-lg"></div>
     <main>
         <div class="relative w-full min-h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
-            <div class="flex items-center flex-1 gap-2.5 w-full h-full">
+            <div class="flex items-center gap-2.5 h-full">
                 <button class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer"
                     id="settingsButton">
                     <i class="ri-settings-3-fill text-white text-[24px]"></i>
@@ -17,35 +17,36 @@
                         <i class="ri-search-line text-white text-[24px]"></i>
                     </button>
                 </div>
+            </div>
+            <div class="flex items-center flex-1 gap-2.5 h-full">
                 <div class="flex-1 flex flex-col px-5" id="metadata">
                     <div class="text-sm font-medium text-white line-clamp-1" id="title">Artist - Title</div>
                     <div class="text-xs text-white line-clamp-1" id="mapper">by Mapper</div>
                 </div>
+                <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
+                    <button id="diffs" class="hidden"></button>
+                    <div
+                        class="w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            id="extraMode">
+                            <g clip-path="url(#clip0_1_34)">
+                                <rect x="1" y="1" width="18" height="18" rx="9" stroke="white" stroke-width="2" />
+                                <rect x="5" y="5" width="10" height="10" rx="5" fill="white" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_1_34">
+                                    <rect width="20" height="20" fill="white" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        <span id="masterDiff" class="flex-1 text-left truncate">Choose Difficulty</span>
+                        <span id="masterSR">SR★</span>
+                    </div>
+                    <div id="diffsContainer"
+                        class="absolute w-full min-w-max top-[100%] right-0 mt-2.5 bg-black/70 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
+                    </div>
+                </label>
             </div>
-
-            <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
-                <button id="diffs" class="hidden"></button>
-                <div
-                    class="w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        id="extraMode">
-                        <g clip-path="url(#clip0_1_34)">
-                            <rect x="1" y="1" width="18" height="18" rx="9" stroke="white" stroke-width="2" />
-                            <rect x="5" y="5" width="10" height="10" rx="5" fill="white" />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_1_34">
-                                <rect width="20" height="20" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
-                    <span id="masterDiff" class="flex-1 text-left truncate">Choose Difficulty</span>
-                    <span id="masterSR">SR★</span>
-                </div>
-                <div id="diffsContainer"
-                    class="absolute w-full top-[100%] left-0 mt-2.5 bg-black/70 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
-                </div>
-            </label>
         </div>
         <div id="app" class="relative w-full flex-1 overflow-hidden"></div>
         <div class="absolute bottom-0 right-0 invisible" id="a"></div>
@@ -255,15 +256,15 @@
             <div class="flex gap-2.5">
                 <a href="https://osu.ppy.sh/users/8266808" target="_blank" rel="noopener noreferrer"
                     class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center">
-                    <i class="ri-user-3-fill"></i>ANON TOKYO
+                    <i class="ri-user-3-fill"></i><span class="contactLabel">ANON TOKYO</span>
                 </a>
                 <a href="https://github.com/FukutoTojido" target="_blank" rel="noopener noreferrer"
                     class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center">
-                    <i class="ri-github-fill"></i>FukutoTojido
+                    <i class="ri-github-fill"></i><span class="contactLabel">FukutoTojido</span>
                 </a>
                 <a href="https://twitter.com/FukutoTojido" target="_blank" rel="noopener noreferrer"
                     class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center">
-                    <i class="ri-twitter-fill"></i>@FukutoTojido
+                    <i class="ri-twitter-fill"></i><span class="contactLabel">@FukutoTojido</span>
                 </a>
             </div>
         </div>

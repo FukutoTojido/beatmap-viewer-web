@@ -192,13 +192,20 @@ body.fullscreen {
 		flex-direction: column;
 		height: auto;
 
-		#metadata,
-		#diffsLabel {
+		& > div {
 			width: 100%;
 		}
 
 		#search {
+			flex: 1;
+		}
+
+		& #masterDiff {
 			display: none;
+		}
+
+		& #diffsLabel {
+			width: max-content;
 		}
 	}
 
@@ -217,6 +224,10 @@ body.fullscreen {
 				width: 100%;
 			}
 		}
+	}
+
+	.contactLabel {
+		display: none;
 	}
 }
 

@@ -22,6 +22,7 @@ import Main from "./UI/main";
 import SidePanel from "./UI/sidepanel";
 import ZipHandler from "./ZipHandler";
 import Replay from "./BeatmapSet/Beatmap/Replay";
+import { debounce } from "./utils";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -69,6 +70,11 @@ export class Game {
 		});
 	}
 
+	resizeFrame = debounce((app: Application, width: number, height: number) => {
+		app.renderer.resize(width, height);
+		app.render();
+	}, 50);
+
 	async initApplication() {
 		RenderTarget.defaultOptions.depth = true;
 		RenderTarget.defaultOptions.stencil = true;
@@ -105,10 +111,7 @@ export class Game {
 						+getComputedStyle(divApp).height.replaceAll("px", ""),
 					);
 
-					requestAnimationFrame(() => {
-						app.renderer.resize(width, height);
-						app.render();
-					});
+					requestAnimationFrame(() => this.resizeFrame(app, width, height));
 				}
 			});
 
