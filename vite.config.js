@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             crossOriginIsolation()
-        ]
+        ],
+        base: "./"
     };
 });

@@ -63,7 +63,7 @@ export class BeatmapFile {
 
 	async getOsuFile() {
 		const rawOsuFile = (
-			await axios.get(`https://preview.tryz.id.vn/api/b/${this.mapId}/osu`)
+			await axios.get(`https://preview.tryz.id.vn/v1/api/b/${this.mapId}/osu`)
 		).data;
 		this.md5Map = md5(rawOsuFile).toString();
 		this.osuFile = rawOsuFile.replaceAll("\r", "");
@@ -89,7 +89,7 @@ export class BeatmapFile {
 
 		try {
 			const blob = (
-				await axios.get(`https://preview.tryz.id.vn/download/${url}`, {
+				await axios.get(`https://preview.tryz.id.vn/v1/download/${url}`, {
 					signal: BeatmapFile.SIGNALER.signal,
 					responseType: "blob",
 					onDownloadProgress: (progressEvent) => {
@@ -163,7 +163,7 @@ export class BeatmapFile {
 		let mapsetData;
 		if (!this.isFromFile) {
 			mapsetData = (
-				await axios.get(`https://preview.tryz.id.vn/api/b/${this.mapId}`)
+				await axios.get(`https://preview.tryz.id.vn/v1/api/b/${this.mapId}`)
 			).data;
 			this.artist = mapsetData.artist_unicode;
 			this.title = mapsetData.title_unicode;

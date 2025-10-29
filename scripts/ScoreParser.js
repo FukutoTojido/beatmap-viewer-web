@@ -82,7 +82,7 @@ export class ScoreParser {
 	};
 
 	async getMapData(md5) {
-		return (await axios.get(`https://preview.tryz.id.vn/api/h/${md5}`)).data;
+		return (await axios.get(`https://preview.tryz.id.vn/v1/api/h/${md5}`)).data;
 	}
 
 	getIsOldVersion(version) {
@@ -530,7 +530,7 @@ export class ScoreParser {
 
 		const data = (
 			await axios.get(
-				`https://preview.tryz.id.vn/api/u/${ScoreParser.REPLAY_DATA.player}`,
+				`https://preview.tryz.id.vn/v1/api/u/${ScoreParser.REPLAY_DATA.player}`,
 			)
 		).data;
 		console.log(data);
