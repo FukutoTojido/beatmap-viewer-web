@@ -127,10 +127,33 @@ app
 									<meta name="twitter:image" content={data.cover} />
 								</>
 							) : (
-								<meta
-									property="og:image"
-									content="https://fukutotojido.s-ul.eu/YuVf9ZAd"
-								/>
+								<>
+									<meta
+										property="og:title"
+										content={`JoSu! - osu! Beatmap Viewer`}
+									/>
+									<meta
+										name="twitter:title"
+										content={`JoSu! - osu! Beatmap Viewer`}
+									/>
+									<meta property="og:type" content="website" />
+									<meta
+										property="og:description"
+										content={`osu! Beatmap Viewer on the Web`}
+									/>
+									<meta
+										name="twitter:description"
+										content={`osu! Beatmap Viewer on the Web`}
+									/>
+									<meta
+										property="og:image"
+										content="https://fukutotojido.s-ul.eu/YuVf9ZAd"
+									/>
+									<meta
+										property="twitter:image"
+										content="https://fukutotojido.s-ul.eu/YuVf9ZAd"
+									/>
+								</>
 							)}
 						</head>
 						{template}
