@@ -64,7 +64,7 @@ export default class BeatmapSet extends ScopedClass {
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
 			"mods",
-			(val) => {
+			({ mods: val } : { mods: string }) => {
 				this.toggle();
 				this.playbackRate = val.includes("DT") ? 1.5 : 1;
 				this.toggle();

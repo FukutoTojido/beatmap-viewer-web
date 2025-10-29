@@ -233,7 +233,6 @@ export default class DrawableHitCircle
 
 	set evaluation(value: BaseObjectEvaluation | undefined) {
 		this._evaluation = value;
-
 		this.judgement.evaluation = value;
 	}
 

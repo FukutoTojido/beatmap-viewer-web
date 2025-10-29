@@ -37,7 +37,7 @@ export class Game {
 		provide("skinManager", new SkinManager());
 		const config = provide("config", new Config());
 
-		config.experimental.onChange("mods", (modsString) => {
+		config.experimental.onChange("mods", ({ mods: modsString }: { mods: string }) => {
 			const url = window.location;
 			const params = new URLSearchParams(url.search);
 

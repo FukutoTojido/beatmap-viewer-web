@@ -73,7 +73,10 @@ export default class ExperimentalConfig extends ConfigSection {
 		if (!ele) return;
 		ele.checked = val;
 
-		this.emitChange("mods", this.getModsString());
+		this.emitChange("mods", {
+			shouldRecalculate: true,
+			mods: this.getModsString(),
+		});
 	}
 
 	private _doubleTime = true;
@@ -87,7 +90,10 @@ export default class ExperimentalConfig extends ConfigSection {
 		if (!ele) return;
 		ele.checked = val;
 
-		this.emitChange("mods", this.getModsString());
+		this.emitChange("mods", {
+			shouldRecalculate: true,
+			mods: this.getModsString(),
+		});
 	}
 
 	private _hidden = true;
@@ -101,13 +107,16 @@ export default class ExperimentalConfig extends ConfigSection {
 		if (!ele) return;
 		ele.checked = val;
 
-		// this.emitChange("mods", this.getModsString());
+		this.emitChange("mods", {
+			shouldRecalculate: false,
+			mods: this.getModsString(),
+		});
 	}
 
 	getModsString() {
+		const HD = this.hidden ? "HD" : "";
 		const HR = this.hardRock ? "HR" : "";
 		const DT = this.doubleTime ? "DT" : "";
-		const HD = this.doubleTime ? "HD" : "";
 
 		return `${HD}${HR}${DT}`;
 	}

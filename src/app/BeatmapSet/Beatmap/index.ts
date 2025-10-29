@@ -1,10 +1,6 @@
 import md5 from "crypto-js/md5";
 import { sort } from "fast-sort";
-import {
-	DifficultyPoint,
-	SamplePoint,
-	TimingPoint,
-} from "osu-classes";
+import { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { BeatmapDecoder } from "osu-parsers";
 import {
 	Circle,
@@ -102,7 +98,9 @@ export default class Beatmap extends ScopedClass {
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
 			"mods",
-			(val) => {
+			({ mods: val, shouldRecalculate }: { mods: string, shouldRecalculate: boolean }) => {
+				if (!shouldRecalculate) return;
+				
 				this.data = this.context.provide(
 					"beatmap",
 					ruleset.applyToBeatmapWithMods(
@@ -637,12 +635,18 @@ export default class Beatmap extends ScopedClass {
 
 		const mods = ruleset.createModCombination(replay?.data?.info.rawMods);
 		const config = inject<ExperimentalConfig>("config/experimental");
-		if (config) {
-			if (config.hardRock !== mods.acronyms.includes("HR"))
-				config.hardRock = mods.acronyms.includes("HR") ?? false;
 
-			if (config.doubleTime !== mods.acronyms.includes("DT"))
+		let hasModChange = false;
+		if (config) {
+			if (config.hardRock !== mods.acronyms.includes("HR")) {
+				hasModChange = true;
+				config.hardRock = mods.acronyms.includes("HR") ?? false;
+			}
+
+			if (config.doubleTime !== mods.acronyms.includes("DT")) {
+				hasModChange = true;
 				config.doubleTime = mods.acronyms.includes("DT") ?? false;
+			}
 
 			if (config.hidden !== mods.acronyms.includes("HD"))
 				config.hidden = mods.acronyms.includes("HD") ?? false;
@@ -653,6 +657,8 @@ export default class Beatmap extends ScopedClass {
 			replay.cursor,
 		);
 		this.replay = replay;
+
+		if (!hasModChange) this.replay?.evaluate(this);
 	}
 	unhookReplay() {
 		if (this.replay) this.container.cursorLayer.removeChildren();
