@@ -14,7 +14,7 @@ export default class Video {
 			type: MessageType.Init,
 			data: import.meta.env.DEV
 				? window.location.origin
-				: `${window.location.origin}/dev`,
+				: `${window.location.href}`,
 		});
 
 		this.worker.addEventListener(
