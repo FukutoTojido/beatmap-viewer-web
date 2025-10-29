@@ -12,9 +12,7 @@ export default class Video {
 	constructor() {
 		this.worker.postMessage({
 			type: MessageType.Init,
-			data: import.meta.env.DEV
-				? window.location.origin
-				: `${window.location.href}`,
+			data: window.location.origin,
 		});
 
 		this.worker.addEventListener(
@@ -64,7 +62,7 @@ export default class Video {
 		this.worker.postMessage({
 			type: MessageType.Play,
 			data: timestamp,
-			playbackRate: inject<BeatmapSet>("beatmapset")?.playbackRate ?? 1
+			playbackRate: inject<BeatmapSet>("beatmapset")?.playbackRate ?? 1,
 		});
 	}
 
