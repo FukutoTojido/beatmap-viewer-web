@@ -18,7 +18,7 @@ export default class Audio extends ScopedClass {
 
 	spectrogramProcessor: SpectrogramProcessor;
 
-	constructor(private audioContext: AudioContext) {
+	constructor(private audioContext: Tone.Context) {
 		super();
 		this.localGainNode = audioContext.createGain();
 		this.localGainNode.gain.value =
@@ -125,12 +125,12 @@ export default class Audio extends ScopedClass {
 				60000 /
 				(this.context.consume<BeatmapSet>("beatmapset")?.master?.data.bpm ??
 					120) /
-				4 /
+				2 /
 				1000;
 
 			this.player.playbackRate = playbackRate;
 			this.player.grainSize = baseWindow;
-			this.player.overlap = baseWindow / 4;
+			this.player.overlap = baseWindow / 16;
 		}
 
 		if (this.state === "STOPPED") {

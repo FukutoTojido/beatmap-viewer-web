@@ -1,11 +1,9 @@
 // @ts-ignore
 import { getFileAudioBuffer } from "@soundcut/decode-audio-data-fast";
-
-import type { Resource } from "../ZipHandler";
-import ky from "ky";
+import type { Context } from "tone";
 import { inject } from "../Context";
-import type Skin from "../Skinning/Skin";
 import type SkinManager from "../Skinning/SkinManager";
+import type { Resource } from "../ZipHandler";
 
 const HITSOUND_REGEX =
 	/(normal|soft|drum)-(hitnormal|hitwhistle|hitclap|hitfinish|slidertick|sliderwhistle|sliderslide)([1-9][0-9]*)?/;
@@ -14,7 +12,7 @@ export default class SampleManager {
 	private map = new Map<string, AudioBuffer>();
 
 	constructor(
-		private audioContext: AudioContext,
+		private audioContext: Context,
 		private files: Map<string, Resource>,
 	) {}
 

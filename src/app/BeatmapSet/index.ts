@@ -1,12 +1,16 @@
 import { Tween } from "@tweenjs/tween.js";
 import type { DifficultyPoint, SamplePoint, TimingPoint } from "osu-classes";
 import { Assets, type FederatedWheelEvent } from "pixi.js";
+import * as Tone from "tone";
+import { Context } from "tone";
 import Audio from "@/Audio";
 import type AudioConfig from "@/Config/AudioConfig";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import Skin from "@/Skinning/Skin";
+import { tweenGroup } from "@/UI/animation/AnimationController";
+import Easings from "@/UI/Easings";
 import type Loading from "@/UI/loading";
 import type Play from "@/UI/main/controls/Play";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
@@ -28,12 +32,11 @@ import type DrawableHitCircle from "./Beatmap/HitObjects/DrawableHitCircle";
 import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
-import { tweenGroup } from "@/UI/animation/AnimationController";
-import Easings from "@/UI/Easings";
+
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
-	audioContext = new AudioContext();
+	audioContext = new Context();
 	animationFrame: number;
 	playbackRate = 1;
 
@@ -51,7 +54,8 @@ export default class BeatmapSet extends ScopedClass {
 			"masterGainNode",
 			this.audioContext.createGain(),
 		);
-		gainNode.connect(this.audioContext.destination);
+		// gainNode.connect();
+		Tone.connect(gainNode, this.audioContext.destination);
 		gainNode.gain.value =
 			inject<AudioConfig>("config/audio")?.masterVolume ?? 0.8;
 
