@@ -1,6 +1,7 @@
 import { HitResult } from "osu-classes";
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 import { Clamp } from "@/utils";
 
@@ -9,13 +10,14 @@ export const sharedUpdate = (drawable: DrawableSlider, time: number) => {
 
 	const startFadeInTime =
 		drawable.object.startTime - drawable.object.timePreempt;
-	const fadeOutDuration = 240;
-	const bodyFadeOutDuration = 40;
 
-	if (
-		time < startFadeInTime ||
-		time > drawable.object.endTime + fadeOutDuration
-	) {
+	const fadeOutDuration = 240;
+	const bodyFadeOutDuration = inject<GameplayConfig>("config/gameplay")
+		?.snakeOutSlider
+		? 40
+		: fadeOutDuration;
+
+	if (time < startFadeInTime || time > drawable.object.endTime + 800) {
 		drawable._alphaFilter.alpha = 0;
 		drawable.wrapper.visible = false;
 

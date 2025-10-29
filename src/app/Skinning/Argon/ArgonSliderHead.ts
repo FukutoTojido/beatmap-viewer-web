@@ -1,7 +1,11 @@
 import type DrawableSliderHead from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderHead";
+import type GameplayConfig from "@/Config/GameplayConfig";
+import { inject } from "@/Context";
 
 export const update = (drawable: DrawableSliderHead, time: number) => {
 	const startTime = drawable.evaluation?.hitTime ?? drawable.object.startTime;
+
+	if (!inject<GameplayConfig>("config/gameplay")?.hitAnimation) return;
 
 	if (time < startTime) {
 		const skin = drawable.skinManager?.getCurrentSkin();

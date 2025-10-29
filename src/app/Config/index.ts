@@ -105,6 +105,9 @@ export default class Config {
 			new GameplayConfig(
 				savedSettings?.gameplay ?? {
 					showGrid: true,
+					hitAnimation: true,
+					snakeInSlider: true,
+					snakeOutSlider: true,
 				},
 			),
 		);

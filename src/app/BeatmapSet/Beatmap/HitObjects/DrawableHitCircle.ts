@@ -8,6 +8,7 @@ import type { StandardHitObject } from "osu-standard-stable";
 import { type ColorSource, Container, RenderLayer, Sprite } from "pixi.js";
 import HitSample from "@/Audio/HitSample";
 import type BeatmapSet from "@/BeatmapSet";
+import type GameplayConfig from "@/Config/GameplayConfig";
 import { type Context, inject } from "@/Context";
 import {
 	refreshSprite as argonRefreshSprite,
@@ -20,6 +21,7 @@ import {
 import type SkinManager from "@/Skinning/SkinManager";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type Beatmap from "..";
+import type { BaseObjectEvaluation } from "../Replay";
 import TimelineHitCircle from "../Timeline/TimelineHitCircle";
 import DrawableApproachCircle from "./DrawableApproachCircle";
 import DrawableDefaults from "./DrawableDefaults";
@@ -27,7 +29,6 @@ import DrawableHitObject, {
 	type IHasApproachCircle,
 } from "./DrawableHitObject";
 import DrawableJudgement from "./DrawableJudgement";
-import type { BaseObjectEvaluation } from "../Replay";
 
 export default class DrawableHitCircle
 	extends DrawableHitObject
@@ -103,6 +104,15 @@ export default class DrawableHitCircle
 		this.judgement = new DrawableJudgement(this);
 		judgementLayer.attach(this.judgement.container);
 		this.container.addChild(this.judgement.container);
+
+		inject<GameplayConfig>("config/gameplay")?.onChange(
+			"hitAnimation",
+			(val) => {
+				if (!val) return;
+
+			this.hitCircleSprite.tint = this.color;
+			},
+		);
 	}
 
 	private _isSelected = false;

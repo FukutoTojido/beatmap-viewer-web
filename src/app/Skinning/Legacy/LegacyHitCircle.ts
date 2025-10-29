@@ -1,6 +1,7 @@
 import { HitResult } from "osu-classes";
 import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 import { Clamp } from "@/utils";
 import { sharedRefreshSprite } from "../Shared/HitCircle";
@@ -43,24 +44,9 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 	drawable.wrapper.visible = true;
 	drawable.sprite.scale.set(1);
 
-	if (isHD) {
-		const opacity = Math.min(
-			1,
-			Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
-		);
-
-		if (opacity >= 1) {
-			const opacity = Clamp(
-				(time - (startFadeInTime + drawable.object.timeFadeIn)) /
-					(drawable.object.timePreempt * 0.3),
-			);
-			drawable.wrapper.alpha = 1 - opacity;
-			return;
-		}
-
-		drawable.wrapper.alpha = opacity;
-		return;
-	}
+	if (isHD) return applyHidden(drawable, time);
+	if (!inject<GameplayConfig>("config/gameplay")?.hitAnimation)
+		return surpressAnimation(drawable, time);
 
 	if (time < startTime) {
 		const opacity = Math.min(
@@ -91,4 +77,46 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 		drawable.wrapper.alpha = opacity;
 		drawable.sprite.scale.set(1);
 	}
+};
+
+const applyHidden = (drawable: DrawableHitCircle, time: number) => {
+	const startFadeInTime =
+		drawable.object.startTime - drawable.object.timePreempt;
+	const opacity = Math.min(
+		1,
+		Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
+	);
+
+	if (opacity >= 1) {
+		const opacity = Clamp(
+			(time - (startFadeInTime + drawable.object.timeFadeIn)) /
+				(drawable.object.timePreempt * 0.3),
+		);
+		drawable.wrapper.alpha = 1 - opacity;
+		return;
+	}
+
+	drawable.wrapper.alpha = opacity;
+	return;
+};
+
+const surpressAnimation = (drawable: DrawableHitCircle, time: number) => {
+	const startFadeInTime =
+		drawable.object.startTime - drawable.object.timePreempt;
+
+	const opacity = Math.min(
+		1,
+		Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
+	);
+	drawable.hitCircleSprite.tint = drawable.color;
+
+	if (time > drawable.object.startTime) {
+		const opacity = Clamp((time - drawable.object.startTime) / 800);
+		drawable.wrapper.alpha = 1 - opacity;
+		drawable.hitCircleSprite.tint = 0xffffff;
+		return;
+	}
+
+	drawable.wrapper.alpha = opacity;
+	return;
 };

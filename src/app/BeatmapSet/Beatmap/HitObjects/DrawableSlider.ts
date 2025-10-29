@@ -23,6 +23,7 @@ import {
 } from "pixi.js";
 import { BackdropBlurFilter } from "pixi-filters";
 import type BeatmapSet from "@/BeatmapSet";
+import type GameplayConfig from "@/Config/GameplayConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { type Context, inject } from "@/Context";
 import {
@@ -554,6 +555,9 @@ export default class DrawableSlider
 	}
 
 	updateGeometry(progressHead = 0, progressTail = 0, scale = 1) {
+		const snakeIn = inject<GameplayConfig>("config/gameplay")?.snakeInSlider;
+		const snakeOut = inject<GameplayConfig>("config/gameplay")?.snakeOutSlider;
+
 		let head = progressHead;
 		let tail = progressTail;
 
@@ -562,6 +566,9 @@ export default class DrawableSlider
 			head = Math.min(1 - checkDistance, progressHead);
 			tail = Math.min(1, progressHead + checkDistance);
 		}
+
+		head = snakeOut ? head : 0;
+		tail = snakeIn ? tail : 1;
 
 		const path = calculateSliderProgress(this.object.path, head, tail);
 		this.path = path;
@@ -674,7 +681,10 @@ export default class DrawableSlider
 
 		const trackingStates = [];
 		for (let i = 0; i < raw.length; i += 2) {
-			trackingStates.push([raw[i], raw[i + 1] ?? new LegacyReplayFrame(this.object.endTime)]);
+			trackingStates.push([
+				raw[i],
+				raw[i + 1] ?? new LegacyReplayFrame(this.object.endTime),
+			]);
 		}
 
 		const circlesEvals = this.drawableCircles.map((circle) =>
