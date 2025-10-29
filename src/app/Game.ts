@@ -37,18 +37,21 @@ export class Game {
 		provide("skinManager", new SkinManager());
 		const config = provide("config", new Config());
 
-		config.experimental.onChange("mods", ({ mods: modsString }: { mods: string }) => {
-			const url = window.location;
-			const params = new URLSearchParams(url.search);
+		config.experimental.onChange(
+			"mods",
+			({ mods: modsString }: { mods: string }) => {
+				const url = window.location;
+				const params = new URLSearchParams(url.search);
 
-			if (modsString === "") {
-				params.delete("m");
-			} else {
-				params.set("m", modsString);
-			}
+				if (modsString === "") {
+					params.delete("m");
+				} else {
+					params.set("m", modsString);
+				}
 
-			window.history.replaceState(null, "", `?${params.toString()}`);
-		});
+				window.history.replaceState(null, "", `?${params.toString()}`);
+			},
+		);
 
 		config.fullscreen.onChange("fullscreen", (isFullscreen) => {
 			const url = window.location;
@@ -337,7 +340,12 @@ export class Game {
 
 					document.body.append(container);
 				} else {
-					if (bms?.master !== bms?.difficulties[bm]) await bms?.loadMaster(bm);
+					if (
+						bms?.master !== bms?.difficulties[bm] &&
+						!bms?.slaves.has(bms?.difficulties[bm])
+					) {
+						await bms?.loadMaster(bm);
+					}
 					bms?.difficulties[bm]?.hookReplay(replay);
 				}
 			}
