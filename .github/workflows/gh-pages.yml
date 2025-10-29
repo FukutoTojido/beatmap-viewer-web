@@ -60,7 +60,7 @@ jobs:
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             cd ~/beatmap-viewer-web
-            git pull origin master
+            git pull
             git status
             npm install --only=prod
             npm run build
