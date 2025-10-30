@@ -351,18 +351,18 @@ export default class Gameplay {
 			clicked = false;
 			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
 
-			if (canvas) {
-				canvas.style.touchAction = "auto";
-			}
+			// if (canvas) {
+			// 	canvas.style.touchAction = "auto";
+			// }
 		});
 
 		this.wrapper.on("pointerupoutside", () => {
 			clicked = false;
 			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
 
-			if (canvas) {
-				canvas.style.touchAction = "auto";
-			}
+			// if (canvas) {
+			// 	canvas.style.touchAction = "auto";
+			// }
 		});
 
 		this.wrapper.on("globalpointermove", (event) => {
@@ -390,9 +390,9 @@ export default class Gameplay {
 		});
 
 		this.wrapper.on("pointerdown", (event) => {
-			if (canvas) {
-				canvas.style.touchAction = "none";
-			}
+			// if (canvas) {
+			// 	canvas.style.touchAction = "none";
+			// }
 
 			clicked = true;
 			this.dragWindow[0] = new Vector2(event.global.x, event.global.y);
