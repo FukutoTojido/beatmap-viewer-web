@@ -3,7 +3,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import { Tween } from "@tweenjs/tween.js";
 import { Vector2 } from "osu-classes";
 import {
-	Application,
+	// Application,
 	Assets,
 	Container,
 	Graphics,
@@ -343,7 +343,7 @@ export default class Gameplay {
 
 	loadEventListeners() {
 		const beatmap = this.beatmap;
-		const canvas = inject<Application>("ui/app")?.canvas;
+		// const canvas = inject<Application>("ui/app")?.canvas;
 
 		let clicked = false;
 

@@ -10,7 +10,9 @@ export default class Audio extends ScopedClass {
 	private _currentTime = 0;
 	private startTime = 0;
 
-	player?: Tone.GrainPlayer;
+	player?: Tone.Player | Tone.GrainPlayer;
+	normalPlayer?: Tone.Player;
+	grainPlayer?: Tone.GrainPlayer;
 
 	state: "PLAYING" | "STOPPED" = "STOPPED";
 
@@ -92,7 +94,10 @@ export default class Audio extends ScopedClass {
 		const url = URL.createObjectURL(blob);
 
 		this.spectrogramProcessor.initSpectrogram(url);
-		this.player = new Tone.GrainPlayer(url);
+		this.grainPlayer = new Tone.GrainPlayer(url);
+		this.normalPlayer = new Tone.Player(url);
+
+		this.player = this.normalPlayer;
 		this.player.sync().start(0);
 
 		await Tone.loaded();
@@ -118,9 +123,12 @@ export default class Audio extends ScopedClass {
 			return;
 		}
 
-		if (this.player) {
-			const playbackRate =
-				this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1;
+		const playbackRate =
+			this.context.consume<BeatmapSet>("beatmapset")?.playbackRate ?? 1;
+
+		this.player = playbackRate !== 1 ? this.grainPlayer : this.normalPlayer;
+
+		if (this.grainPlayer) {
 			const baseWindow =
 				60000 /
 				(this.context.consume<BeatmapSet>("beatmapset")?.master?.data.bpm ??
@@ -128,9 +136,9 @@ export default class Audio extends ScopedClass {
 				2 /
 				1000;
 
-			this.player.playbackRate = playbackRate;
-			this.player.grainSize = baseWindow;
-			this.player.overlap = baseWindow / 16;
+			this.grainPlayer.playbackRate = playbackRate;
+			this.grainPlayer.grainSize = baseWindow;
+			this.grainPlayer.overlap = baseWindow / 16;
 		}
 
 		if (this.state === "STOPPED") {
