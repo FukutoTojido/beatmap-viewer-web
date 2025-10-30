@@ -662,8 +662,8 @@ export default class BeatmapSet extends ScopedClass {
 
 		const ids = [masterId, ...slavesId].filter((id) => id !== undefined);
 
-		const url = window.location;
-		const params = new URLSearchParams(url.search);
+		const url = new URL(window.location.href);
+		const params = url.searchParams;
 
 		for (let i = 0; i < ids.length; i++) {
 			const id = ids[i];
@@ -676,7 +676,7 @@ export default class BeatmapSet extends ScopedClass {
 			params.append("b", id.toString());
 		}
 
-		window.history.replaceState(null, "", `?${params.toString()}`);
+		window.history.replaceState(null, "", url);
 
 		const input = document.querySelector<HTMLInputElement>("#idInput");
 		if (!input) return;

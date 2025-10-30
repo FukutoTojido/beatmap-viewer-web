@@ -1,7 +1,7 @@
+import ky from "ky";
 import type Loading from "@/UI/loading";
 import type MirrorConfig from "../Config/MirrorConfig";
 import { inject } from "../Context";
-import ky from "ky";
 
 type BeatmapData = {
 	beatmapset_id: number;
@@ -88,6 +88,30 @@ export async function getBeatmapFromHash(hash: string) {
 		const blob = await ky
 			.get(urlTemplate.replaceAll("$setId", beatmapsetId.toString()), {
 				headers: { Accept: "application/x-osu-beatmap-archive" },
+				onDownloadProgress(progressEvent) {
+					inject<Loading>("ui/loading")?.setText(
+						`Downloading map: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,
+					);
+				},
+			})
+			.blob();
+
+		return blob;
+	} catch (e) {
+		console.error(e);
+		return null;
+	}
+}
+
+export async function getBeatmapFromExternalUrl(url: string) {
+	try {
+		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
+		
+		const formData = new FormData();
+		formData.append("url", url);
+		const blob = await ky
+			.post(`./api/download`, {
+				body: formData,
 				onDownloadProgress(progressEvent) {
 					inject<Loading>("ui/loading")?.setText(
 						`Downloading map: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,

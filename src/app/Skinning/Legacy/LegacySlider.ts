@@ -1,11 +1,11 @@
+import type Beatmap from "@/BeatmapSet/Beatmap";
+import calculateSliderProgress from "@/BeatmapSet/Beatmap/HitObjects/CalculateSliderProgress";
+import createGeometry from "@/BeatmapSet/Beatmap/HitObjects/CreateSliderGeometry";
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
-import { lighten, darken } from "@/utils";
-import type Beatmap from "@/BeatmapSet/Beatmap";
+import { darken, lighten } from "@/utils";
 import { sharedUpdate } from "../Shared/Slider";
-import createGeometry from "@/BeatmapSet/Beatmap/HitObjects/CreateSliderGeometry";
-import calculateSliderProgress from "@/BeatmapSet/Beatmap/HitObjects/CalculateSliderProgress";
 
 const blur = new URLSearchParams(window.location.search).get("blur");
 

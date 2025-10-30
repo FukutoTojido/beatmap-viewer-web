@@ -8,6 +8,7 @@ import "./FPSSystem";
 import ky from "ky";
 import BeatmapSet from "./BeatmapSet";
 import {
+	getBeatmapFromExternalUrl,
 	getBeatmapFromHash,
 	getBeatmapFromId,
 } from "./BeatmapSet/BeatmapDownloader";
@@ -55,8 +56,8 @@ export class Game {
 		);
 
 		config.fullscreen.onChange("fullscreen", (isFullscreen) => {
-			const url = window.location;
-			const params = new URLSearchParams(url.search);
+			const url = new URL(window.location.href);
+			const params = url.searchParams;
 
 			if (isFullscreen) {
 				params.set("fullscreen", "true");
@@ -66,7 +67,7 @@ export class Game {
 				document.body.classList.remove("fullscreen");
 			}
 
-			window.history.replaceState(null, "", `?${params.toString()}`);
+			window.history.replaceState(null, "", url);
 		});
 	}
 
@@ -218,6 +219,10 @@ export class Game {
 		});
 
 		await inject<SkinManager>("skinManager")?.loadSkins();
+
+		const hasUrl = await this.loadFromHash();
+
+		if (hasUrl) return;
 		await this.loadFromQuery();
 	}
 
@@ -364,6 +369,28 @@ export class Game {
 				bms?.difficulties[bm]?.hookReplay(replay);
 			}
 		}
+	}
+
+	private async loadFromHash() {
+		const url = new URL(window.location.href).hash.slice(1);
+		if (!url) return false;
+
+
+		const blob = await getBeatmapFromExternalUrl(url);
+		if (!blob) return false;
+
+		inject<Loading>("ui/loading")?.on();
+		inject<Loading>("ui/loading")?.setText("Importing beatmapset ");
+		await this.loadBlob(blob);
+		inject<Loading>("ui/loading")?.off();
+		document
+			.querySelector<HTMLDivElement>("#diffsContainer")
+			?.classList.remove("hidden");
+		document
+			.querySelector<HTMLDivElement>("#diffsContainer")
+			?.classList.add("flex");
+
+		return true;
 	}
 
 	private async loadFromQuery() {

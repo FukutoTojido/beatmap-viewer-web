@@ -5,6 +5,7 @@ import { staticPlugin } from "@elysiajs/static";
 import axios from "axios";
 import { Elysia, t } from "elysia";
 import type { ViteDevServer } from "vite";
+import download from "./download";
 
 const isProduction = process.env.NODE_ENV === "production";
 const htmlTemplate = isProduction
@@ -41,6 +42,7 @@ if (vite) {
 app
 	.use(cors())
 	.use(html())
+	.use(download)
 	.get(
 		"/",
 		async ({ vite, request, set, query: { b: beatmapId } }) => {
