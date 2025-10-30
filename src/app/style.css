@@ -303,7 +303,7 @@ body.fullscreen {
 }
 
 canvas {
-	touch-action: auto;
+	touch-action: auto !important;
 }
 
 @keyframes pulsIn {
