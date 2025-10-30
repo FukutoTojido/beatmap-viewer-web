@@ -36,7 +36,7 @@ import SampleManager from "./SampleManager";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
-	audioContext = new Context();
+	audioContext = new Context({ latencyHint: "interactive" });
 	animationFrame: number;
 	playbackRate = 1;
 
