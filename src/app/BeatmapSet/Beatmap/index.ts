@@ -98,20 +98,26 @@ export default class Beatmap extends ScopedClass {
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
 			"mods",
-			({ mods: val, shouldRecalculate }: { mods: string, shouldRecalculate: boolean }) => {
-				if (!shouldRecalculate) return;
-				
-				this.data = this.context.provide(
-					"beatmap",
-					ruleset.applyToBeatmapWithMods(
-						decoder.decodeFromString(this.raw),
-						ruleset.createModCombination(val),
-					),
+			({
+				mods: val,
+				shouldRecalculate,
+			}: {
+				mods: string;
+				shouldRecalculate: boolean;
+			}) => {
+				const appliedMods = ruleset.applyToBeatmapWithMods(
+					decoder.decodeFromString(this.raw),
+					ruleset.createModCombination(val),
 				);
 
-				this.difficultyCalculator = ruleset.createDifficultyCalculator(
-					this.data,
-				);
+				if (shouldRecalculate) {
+					this.data = this.context.provide("beatmap", appliedMods);
+					this.reassignObjects();
+					this.replay?.evaluate(this);
+				}
+
+				this.difficultyCalculator =
+					ruleset.createDifficultyCalculator(appliedMods);
 				this.difficultyAttributes = this.difficultyCalculator.calculateWithMods(
 					ruleset.createModCombination(val),
 				);
@@ -183,9 +189,7 @@ export default class Beatmap extends ScopedClass {
 		this.strains = strainInformations;
 	}
 
-	private recalculateDifficulty() {
-		this.color = getDiffColour(this.difficultyAttributes.starRating);
-
+	private reassignObjects() {
 		this.worker.postMessage({
 			type: "preempt",
 			preempt: difficultyRange(
@@ -216,9 +220,12 @@ export default class Beatmap extends ScopedClass {
 			this.connectors[j]?.updateObjects(startObject, endObject);
 			j++;
 		}
+	}
 
+	private recalculateDifficulty() {
 		if (this.context.consume<BeatmapSet>("beatmapset")?.master !== this) return;
 
+		this.color = getDiffColour(this.difficultyAttributes.starRating);
 		const el = document.querySelector<HTMLSpanElement>("#masterDiff");
 		if (el) {
 			el.innerHTML = `
@@ -241,8 +248,6 @@ export default class Beatmap extends ScopedClass {
 		const sr = document.querySelector<HTMLSpanElement>("#masterSR");
 		if (sr)
 			sr.textContent = `${this.difficultyAttributes.starRating.toFixed(2)}★`;
-
-		this.replay?.evaluate(this);
 	}
 
 	private async constructConnectorsAsync() {

@@ -33,7 +33,6 @@ import type DrawableSlider from "./Beatmap/HitObjects/DrawableSlider";
 import Storyboard from "./Beatmap/Storyboard";
 import SampleManager from "./SampleManager";
 
-
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
 	audioContext = new Context({ latencyHint: "interactive" });
@@ -68,7 +67,15 @@ export default class BeatmapSet extends ScopedClass {
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
 			"mods",
-			({ mods: val } : { mods: string }) => {
+			({
+				mods: val,
+				shouldPlaybackChange,
+			}: {
+				mods: string;
+				shouldPlaybackChange: boolean;
+			}) => {
+				if (!shouldPlaybackChange) return;
+				
 				this.toggle();
 				this.playbackRate = val.includes("DT") ? 1.5 : 1;
 				this.toggle();

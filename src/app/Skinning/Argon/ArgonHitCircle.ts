@@ -140,6 +140,9 @@ const applyHidden = (drawable: DrawableHitCircle, time: number) => {
 		Math.max(0, (time - startFadeInTime) / drawable.object.timeFadeIn),
 	);
 
+	drawable.flashPiece.visible = false;
+	drawable.sprite.blendMode = "normal";
+
 	if (opacity >= 1) {
 		const opacity = Clamp(
 			(time - (startFadeInTime + drawable.object.timeFadeIn)) /

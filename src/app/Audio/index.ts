@@ -30,7 +30,7 @@ export default class Audio extends ScopedClass {
 		});
 
 		Tone.setContext(audioContext);
-		this.lookahead = 0.05;
+		this.lookahead = 0.1;
 
 		this.spectrogramProcessor = new SpectrogramProcessor();
 	}

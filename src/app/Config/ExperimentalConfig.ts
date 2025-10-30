@@ -75,6 +75,7 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		this.emitChange("mods", {
 			shouldRecalculate: true,
+			shouldPlaybackChange: false,
 			mods: this.getModsString(),
 		});
 	}
@@ -91,7 +92,8 @@ export default class ExperimentalConfig extends ConfigSection {
 		ele.checked = val;
 
 		this.emitChange("mods", {
-			shouldRecalculate: true,
+			shouldRecalculate: false,
+			shouldPlaybackChange: true,
 			mods: this.getModsString(),
 		});
 	}
@@ -109,6 +111,7 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		this.emitChange("mods", {
 			shouldRecalculate: false,
+			shouldPlaybackChange: false,
 			mods: this.getModsString(),
 		});
 	}
