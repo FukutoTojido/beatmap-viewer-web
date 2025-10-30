@@ -4,7 +4,8 @@
     <main>
         <div class="relative w-full min-h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
             <div class="flex items-center gap-2.5 h-full">
-                <button class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer"
+                <button
+                    class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer transition"
                     id="settingsButton">
                     <i class="ri-settings-3-fill text-white text-[24px]"></i>
                 </button>
@@ -17,6 +18,11 @@
                         <i class="ri-search-line text-white text-[24px]"></i>
                     </button>
                 </div>
+                <label for="fileInput"
+                    class="h-full p-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer text-white aspect-square flex items-center justify-center transition">
+                    <i class="ri-folder-add-fill"></i>
+                    <input type="file" name="fileInput" id="fileInput" hidden />
+                </label>
             </div>
             <div class="flex items-center flex-1 gap-2.5 h-full">
                 <div class="flex-1 flex flex-col px-5" id="metadata">

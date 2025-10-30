@@ -198,6 +198,13 @@ body.fullscreen {
 
 		#search {
 			flex: 1;
+			min-width: 0;
+
+			& #idInput {
+				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
 		}
 
 		& #masterDiff {
