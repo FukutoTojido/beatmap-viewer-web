@@ -206,9 +206,11 @@ export default class Skin {
 
 				if (blobs.length === 0) return;
 
-				const sorted = blobs.toSorted(
-					(a, b) =>
-						+(a[0].split("-").at(-1) ?? 0) - +(b[0].split("-").at(-1) ?? 0),
+				const sorted = blobs.toSorted((a, b) =>
+					filenameBase === "sliderb"
+						? +(a[0].replaceAll("sliderb", "") ?? 0) -
+							+(b[0].replaceAll("sliderb", "") ?? 0)
+						: +(a[0].split("-").at(-1) ?? 0) - +(b[0].split("-").at(-1) ?? 0),
 				);
 				this.animatedTextures.set(
 					filenameBase,
