@@ -5,7 +5,6 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
-import { Container } from "pixi.js";
 
 export default class Viewer {
 	container = new LayoutContainer({
