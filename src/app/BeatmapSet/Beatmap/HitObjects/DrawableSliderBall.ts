@@ -146,7 +146,7 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		const diff = start.subtract(end);
 
 		const frameDelay = Math.max(
-			0.15 * this.object.velocity * (1000 / 60),
+			0.15 / this.object.velocity * (1000 / 60),
 			1000 / 60,
 		);
 

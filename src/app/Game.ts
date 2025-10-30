@@ -375,14 +375,19 @@ export class Game {
 		const url = new URL(window.location.href).hash.slice(1);
 		if (!url) return false;
 
-
-		const blob = await getBeatmapFromExternalUrl(url);
-		if (!blob) return false;
-
 		inject<Loading>("ui/loading")?.on();
-		inject<Loading>("ui/loading")?.setText("Importing beatmapset ");
-		await this.loadBlob(blob);
+
+		try {
+			const blob = await getBeatmapFromExternalUrl(url);
+			if (!blob) return false;
+
+			await this.loadBlob(blob);
+		} catch (e) {
+			console.error(e);
+		}
+
 		inject<Loading>("ui/loading")?.off();
+		
 		document
 			.querySelector<HTMLDivElement>("#diffsContainer")
 			?.classList.remove("hidden");
