@@ -245,12 +245,14 @@ export default class Gameplays {
 			if (w !== 100) {
 				gameplay.showDiffName();
 
-				gameplay.statsContainer.scale.set(
-					1 / Math.max(1, (columnsCount - 1) / 2),
-				);
+				const scale = Math.min(1, 1 / columnsCount * 1.5);
+
+				gameplay.statsContainer.scale.set(scale);
+				gameplay.closeButton.scale.set(scale);
 			} else {
 				gameplay.hideDiffName();
 				gameplay.statsContainer.scale.set(1);
+				gameplay.closeButton.scale.set(1);
 			}
 		}
 	}

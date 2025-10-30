@@ -477,6 +477,7 @@ export default class Gameplay {
 				position: "absolute",
 				top: 20,
 				right: 20,
+				transformOrigin: "top right",
 			},
 		});
 

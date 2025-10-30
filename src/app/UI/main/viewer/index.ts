@@ -5,6 +5,7 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
+import { Container } from "pixi.js";
 
 export default class Viewer {
 	container = new LayoutContainer({
@@ -25,11 +26,22 @@ export default class Viewer {
 		const gameplays = provide("ui/main/viewer/gameplays", new Gameplays());
 		const background = provide("ui/main/viewer/background", new Background());
 
-		this.container.addChild(
-			background.container,
-			timeline.container,
-			gameplays.container,
-		);
+		const wrapper = new LayoutContainer({
+			layout: {
+				width: "100%",
+				height: 80,
+				backgroundColor: {
+					r: 0,
+					g: 0,
+					b: 0,
+					a: 0.8,
+				},
+			},
+		});
+
+		wrapper.addChild(timeline.container);
+
+		this.container.addChild(background.container, wrapper, gameplays.container);
 
 		inject<FullscreenConfig>("config/fullscreen")?.onChange(
 			"fullscreen",
@@ -39,6 +51,8 @@ export default class Viewer {
 				this.container.layout = {
 					borderRadius: isFullscreen || direction === "portrait" ? 0 : 20,
 				};
+
+				wrapper.layout = { height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80 };
 			},
 		);
 
@@ -65,6 +79,8 @@ export default class Viewer {
 						break;
 					}
 				}
+
+				wrapper.layout = { height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80 };
 			},
 		);
 	}

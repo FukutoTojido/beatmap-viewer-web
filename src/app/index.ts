@@ -36,6 +36,31 @@ document.addEventListener("keydown", (event) => {
 			)
 				return;
 			bms.toggle();
+
+			break;
+		}
+		case "c":
+		case "C": {
+			if (!event.ctrlKey) return;
+			if (!bms.master) return;
+
+			const selected = [];
+			for (const idx of bms.master.container.selected) {
+				selected.push(bms.master.objects[idx].object);
+			}
+
+			if (!selected.length) return;
+
+			const timestamp = selected[0].startTime;
+			const indexes = selected.toSorted((a, b) => a.startTime - b.startTime).map((o) => o.currentComboIndex + 1).join(",");
+
+			const m = Math.floor(timestamp / 1000 / 60);
+			const s = Math.floor((timestamp - m * 1000 * 60) / 1000);
+			const ms = timestamp % 1000;
+
+			navigator.clipboard.writeText(
+				`${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}:${ms.toString().padStart(3, "0")} (${indexes})`,
+			);
 		}
 	}
 });

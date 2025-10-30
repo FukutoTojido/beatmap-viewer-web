@@ -133,6 +133,25 @@ main:has(.overlay) {
 	transform: translateX(40px);
 }
 
+.toasts {
+	& > div {
+		transition: ease-in-out;
+	}
+
+	& > div:not(:nth-last-child(-n + 3)) {
+		opacity: 0;
+		transform: scale(0.7) translateY(150px);
+	}
+
+	& > div:nth-last-child(2) {
+		transform: scale(0.9) translateY(30px);
+	}
+
+	& > div:nth-last-child(3) {
+		transform: scale(0.8) translateY(80px);
+	}
+}
+
 body.fullscreen {
 	main {
 		padding: 0;
@@ -144,6 +163,10 @@ body.fullscreen {
 		padding: 20px;
 
 		pointer-events: none;
+
+		& > div:first-child {
+			display: none;
+		}
 	}
 
 	&.sidepanel {
@@ -157,6 +180,10 @@ body.fullscreen {
 	}
 
 	#search {
+		display: none;
+	}
+
+	label[for=fileInput] {
 		display: none;
 	}
 
@@ -217,13 +244,16 @@ body.fullscreen {
 	}
 
 	body.fullscreen {
+		#topBar {
+			height: 80px;
+		}
+		
 		#metadata {
 			zoom: 1;
 		}
 
 		#diffsLabel {
 			zoom: 1;
-			display: none;
 		}
 
 		&.sidepanel {

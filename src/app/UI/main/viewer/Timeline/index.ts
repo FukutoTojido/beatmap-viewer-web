@@ -35,12 +35,7 @@ export default class Timeline {
 		layout: {
 			width: "100%",
 			height: 80,
-			backgroundColor: {
-				r: 0,
-				g: 0,
-				b: 0,
-				a: 0.8,
-			},
+
 			overflow: "hidden",
 		},
 	});

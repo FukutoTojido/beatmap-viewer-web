@@ -20,7 +20,7 @@ export default defineConfig({
 		},
 	},
 	preview: {
-		allowedHosts: ["beatmap.try-z.net"],
+		allowedHosts: ["beatmap.try-z.net", "previe.tryz.id.vn"],
 	},
 	base: "",
 	server: {
