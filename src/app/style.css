@@ -302,10 +302,6 @@ body.fullscreen {
 	box-shadow: 0 0 0 0 #fff;
 }
 
-canvas {
-	touch-action: auto !important;
-}
-
 @keyframes pulsIn {
 	0% {
 		box-shadow: inset 0 0 0 1rem #fff;

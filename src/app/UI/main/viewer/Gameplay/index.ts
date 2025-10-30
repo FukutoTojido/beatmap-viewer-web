@@ -3,6 +3,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import { Tween } from "@tweenjs/tween.js";
 import { Vector2 } from "osu-classes";
 import {
+	Application,
 	Assets,
 	Container,
 	Graphics,
@@ -152,7 +153,7 @@ export default class Gameplay {
 			this.objectsContainer.y = (height - _h) / 2;
 
 			this.cursorLayer.scale.set(scale);
-			this.cursorLayer.x =  (width - _w) / 2;
+			this.cursorLayer.x = (width - _w) / 2;
 			this.cursorLayer.y = (height - _h) / 2;
 
 			this.grid.x = (width - _w) / 2;
@@ -342,17 +343,26 @@ export default class Gameplay {
 
 	loadEventListeners() {
 		const beatmap = this.beatmap;
+		const canvas = inject<Application>("ui/app")?.canvas;
 
 		let clicked = false;
 
 		this.wrapper.on("pointerup", () => {
 			clicked = false;
 			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
+
+			if (canvas) {
+				canvas.style.touchAction = "auto";
+			}
 		});
 
 		this.wrapper.on("pointerupoutside", () => {
 			clicked = false;
 			this.dragWindow = [new Vector2(0, 0), new Vector2(0, 0)];
+
+			if (canvas) {
+				canvas.style.touchAction = "auto";
+			}
 		});
 
 		this.wrapper.on("globalpointermove", (event) => {
@@ -380,6 +390,10 @@ export default class Gameplay {
 		});
 
 		this.wrapper.on("pointerdown", (event) => {
+			if (canvas) {
+				canvas.style.touchAction = "none";
+			}
+
 			clicked = true;
 			this.dragWindow[0] = new Vector2(event.global.x, event.global.y);
 			this.dragWindow[1] = new Vector2(event.global.x, event.global.y);
