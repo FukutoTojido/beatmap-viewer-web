@@ -52,7 +52,10 @@ document.addEventListener("keydown", (event) => {
 			if (!selected.length) return;
 
 			const timestamp = selected[0].startTime;
-			const indexes = selected.toSorted((a, b) => a.startTime - b.startTime).map((o) => o.currentComboIndex + 1).join(",");
+			const indexes = selected
+				.toSorted((a, b) => a.startTime - b.startTime)
+				.map((o) => o.currentComboIndex + 1)
+				.join(",");
 
 			const m = Math.floor(timestamp / 1000 / 60);
 			const s = Math.floor((timestamp - m * 1000 * 60) / 1000);
@@ -76,34 +79,56 @@ document.addEventListener(
 	},
 );
 
-document
-	.querySelector<HTMLButtonElement>("#diffs")
-	?.addEventListener("click", () => {
-		document
-			.querySelector<HTMLDivElement>("#diffsContainer")
-			?.classList.toggle("hidden");
-		document
-			.querySelector<HTMLDivElement>("#diffsContainer")
-			?.classList.toggle("flex");
-	});
+for (const ele of document.querySelectorAll(".flyout-toggle")) {
+	const parent = ele.parentElement;
+	if (!parent) continue;
 
-document
-	.querySelector<HTMLButtonElement>("#skins")
-	?.addEventListener("click", () => {
-		document
-			.querySelector<HTMLDivElement>("#skinsContainer")
-			?.classList.toggle("hidden");
-		document
-			.querySelector<HTMLDivElement>("#skinsContainer")
-			?.classList.toggle("flex");
+	const container = parent.querySelector(".flyout");
+	if (!container) continue;
+
+	ele.addEventListener("click", (e) => {
+		e.stopPropagation();
+
+		if (container.classList.contains("hidden")) {
+			container.classList.remove("hidden");
+			container.classList.add("showIn");
+
+			return;
+		}
+
+		container.classList.toggle("showOut");
+		container.classList.toggle("showIn");
 	});
+}
+
+document.body.addEventListener("click", (e) => {
+	const flyouts = document.querySelectorAll(".flyout");
+
+	for (const ele of flyouts) {
+		const boundingRect = ele.getBoundingClientRect();
+		const isOutBound =
+			e.clientX < boundingRect.left ||
+			e.clientX > boundingRect.right ||
+			e.clientY < boundingRect.top ||
+			e.clientY > boundingRect.bottom;
+		const isOpen = ele.classList.contains("showIn");
+
+		if (isOpen && isOutBound) {
+			e.preventDefault();
+
+			ele.classList.add("showOut");
+			ele.classList.remove("showIn");
+
+			return;
+		}
+	}
+});
 
 (async () => {
 	try {
 		await navigator.wakeLock.request("screen");
-	} catch (e) {
+	} catch {
 		// the wake lock request fails - usually system related, such being low on battery
-		console.log(e);
 	}
 
 	await Promise.all([

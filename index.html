@@ -30,9 +30,9 @@
                     <div class="text-xs text-white line-clamp-1" id="mapper">by Mapper</div>
                 </div>
                 <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
-                    <button id="diffs" class="hidden"></button>
+                    <button id="diffs" class="hidden flyout-toggle"></button>
                     <div
-                        class="w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none">
+                        class="relative w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none z-[100]">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
                             id="extraMode">
                             <g clip-path="url(#clip0_1_34)">
@@ -49,7 +49,7 @@
                         <span id="masterSR">SR★</span>
                     </div>
                     <div id="diffsContainer"
-                        class="absolute w-full min-w-max top-[100%] right-0 mt-2.5 bg-black/70 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
+                        class="flyout absolute w-full min-w-max top-[100%] right-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
                     </div>
                 </label>
             </div>
@@ -93,13 +93,13 @@
         <div class="bg-base p-10 flex flex-col w-full gap-5">
             <div class="font-medium">Skinning</div>
             <label for="skins" class="relative h-full min-h-[50px] w-full text-xs" id="skinsLabel">
-                <button id="skins" class="hidden"></button>
+                <button id="skins" class="hidden flyout-toggle"></button>
                 <div
                     class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none">
                     <span id="currentSkin" class="flex-1 text-left truncate">Current Skin</span>
                 </div>
                 <div id="skinsContainer"
-                    class="absolute w-full top-[100%] left-0 mt-2.5 bg-black/70 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
+                    class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
                 </div>
             </label>
             <div class="flex flex-col w-full gap-2.5">
@@ -301,8 +301,6 @@
             </div>
         </div>
     </div>
-
-    <script type="module" src="/src/app/index.ts"></script>
     <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50 z-[999]"
         id="loading">
         <span class="loader scale-50"></span>
@@ -313,4 +311,5 @@
             </div>
         </div>
     </div>
+    <script type="module" src="/src/app/index.ts"></script>
 </body>

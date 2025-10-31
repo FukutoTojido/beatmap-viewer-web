@@ -95,13 +95,52 @@ main {
 
 @keyframes hide {
 	from {
-		display: block;
+		display: flex;
 		opacity: 1;
 	}
 	to {
 		display: none;
 		opacity: 0;
 	}
+}
+
+@keyframes slideIn {
+	from {
+		display: none;
+		opacity: 0;
+		height: 0;
+	}
+	to {
+		display: flex;
+		opacity: 1;
+		height: auto;
+	}
+}
+
+@keyframes slideOut {
+	from {
+		display: block;
+		opacity: 1;
+		height: auto;
+	}
+	to {
+		display: none;
+		opacity: 0;
+		height: 0;
+	}
+}
+
+.showIn {
+	animation: cubic-bezier(0, 0.4, 0, 1) 200ms slideIn forwards;
+}
+
+.showOut {
+	animation: cubic-bezier(0, 0.4, 0, 1) 200ms slideOut forwards;
+}
+
+.flyout {
+	interpolate-size: allow-keywords;
+	overflow: hidden;
 }
 
 .overlay {
@@ -183,7 +222,7 @@ body.fullscreen {
 		display: none;
 	}
 
-	label[for=fileInput] {
+	label[for="fileInput"] {
 		display: none;
 	}
 
@@ -247,7 +286,7 @@ body.fullscreen {
 		#topBar {
 			height: 80px;
 		}
-		
+
 		#metadata {
 			zoom: 1;
 		}
