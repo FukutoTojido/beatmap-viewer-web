@@ -81,6 +81,7 @@ export default class Controls {
 				};
 				this.container.visible = !isFullscreen;
 				this.open = !isFullscreen;
+				this.container.alpha = direction === "portrait" && isFullscreen ? 0 : 1;
 			},
 		);
 
@@ -106,6 +107,7 @@ export default class Controls {
 						};
 						this.container.visible = !isFullscreen;
 						this.open = !isFullscreen;
+						this.container.alpha = 1;
 						break;
 					}
 					case "portrait": {
@@ -124,7 +126,7 @@ export default class Controls {
 						};
 						this.container.visible = !isFullscreen;
 						this.open = !isFullscreen;
-
+						this.container.alpha = isFullscreen ? 0 : 1;
 						break;
 					}
 				}

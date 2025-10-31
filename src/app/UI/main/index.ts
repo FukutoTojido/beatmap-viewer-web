@@ -90,7 +90,36 @@ export default class Main {
 				return;
 
 			controls.open = !controls.open;
-			controls.container.visible = controls.open;
+
+			if (controls.open) {
+				controls.container.visible = true;
+				controls.container.triggerAnimation(
+					"alpha",
+					controls.container.alpha ?? 0,
+					1,
+					(val) => {
+						controls.container.alpha = val;
+					},
+					200,
+					Easings.InOut,
+				);
+			}
+
+			if (!controls.open) {
+				controls.container.triggerAnimation(
+					"alpha",
+					controls.container.alpha ?? 1,
+					0,
+					(val) => {
+						controls.container.alpha = val;
+					},
+					200,
+					Easings.InOut,
+					() => {
+						controls.container.visible = false;
+					},
+				);
+			}
 		});
 
 		this.container.addEventListener("pointermove", (event) => {
