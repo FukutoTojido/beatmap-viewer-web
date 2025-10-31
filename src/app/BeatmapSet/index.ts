@@ -35,7 +35,8 @@ import SampleManager from "./SampleManager";
 
 export default class BeatmapSet extends ScopedClass {
 	difficulties: Beatmap[] = [];
-	audioContext: AudioContext | Context = ("userAgentData" in navigator) ? new AudioContext() : new Context();
+	audioContext: AudioContext | Context =
+		"userAgentData" in navigator ? new AudioContext() : new Context();
 	animationFrame: number;
 	playbackRate = 1;
 
@@ -75,7 +76,7 @@ export default class BeatmapSet extends ScopedClass {
 				shouldPlaybackChange: boolean;
 			}) => {
 				if (!shouldPlaybackChange) return;
-				
+
 				this.toggle();
 				this.playbackRate = val.includes("DT") ? 1.5 : 1;
 				this.toggle();
@@ -150,10 +151,10 @@ export default class BeatmapSet extends ScopedClass {
 				this.loadMaster(i);
 				document
 					.querySelector<HTMLDivElement>("#diffsContainer")
-					?.classList.add("hidden");
+					?.classList.add("showOut");
 				document
 					.querySelector<HTMLDivElement>("#diffsContainer")
-					?.classList.remove("flex");
+					?.classList.remove("showIn");
 			});
 
 			const button2 = document.createElement("button");
@@ -166,10 +167,10 @@ export default class BeatmapSet extends ScopedClass {
 
 				document
 					.querySelector<HTMLDivElement>("#diffsContainer")
-					?.classList.add("hidden");
+					?.classList.add("showOut");
 				document
 					.querySelector<HTMLDivElement>("#diffsContainer")
-					?.classList.remove("flex");
+					?.classList.remove("showIn");
 			});
 
 			div?.append(button, button2);

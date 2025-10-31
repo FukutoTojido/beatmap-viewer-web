@@ -241,7 +241,10 @@ export class Game {
 				?.classList.remove("hidden");
 			document
 				.querySelector<HTMLDivElement>("#diffsContainer")
-				?.classList.add("flex");
+				?.classList.remove("showOut");
+			document
+				.querySelector<HTMLDivElement>("#diffsContainer")
+				?.classList.add("showIn");
 
 			return;
 		}
@@ -387,13 +390,16 @@ export class Game {
 		}
 
 		inject<Loading>("ui/loading")?.off();
-		
+
 		document
 			.querySelector<HTMLDivElement>("#diffsContainer")
 			?.classList.remove("hidden");
 		document
 			.querySelector<HTMLDivElement>("#diffsContainer")
-			?.classList.add("flex");
+			?.classList.remove("showOut");
+		document
+			.querySelector<HTMLDivElement>("#diffsContainer")
+			?.classList.add("showIn");
 
 		return true;
 	}
@@ -464,6 +470,18 @@ export class Game {
 				if (idx === -1) continue;
 				if (i === 0) await bms.loadMaster(idx);
 				if (i !== 0) bms.loadSlave(idx);
+			}
+
+			if (!bms.master) {
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("hidden");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("showOut");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("showIn");
 			}
 		} catch (e) {
 			console.error(e);
