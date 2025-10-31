@@ -20,7 +20,7 @@ export default class Audio extends ScopedClass {
 
 	spectrogramProcessor: SpectrogramProcessor;
 
-	constructor(private audioContext: Tone.Context) {
+	constructor(private audioContext: Tone.Context | AudioContext) {
 		super();
 		this.localGainNode = audioContext.createGain();
 		this.localGainNode.gain.value =

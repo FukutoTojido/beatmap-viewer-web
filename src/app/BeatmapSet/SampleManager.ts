@@ -12,7 +12,7 @@ export default class SampleManager {
 	private map = new Map<string, AudioBuffer>();
 
 	constructor(
-		private audioContext: Context,
+		private audioContext: Context | AudioContext,
 		private files: Map<string, Resource>,
 	) {}
 

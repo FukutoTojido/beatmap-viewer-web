@@ -5,11 +5,11 @@
         <div class="relative w-full min-h-[50px] shrink-0 flex items-center gap-2.5" id="topBar">
             <div class="flex items-center gap-2.5 h-full">
                 <button
-                    class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer transition"
+                    class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 outline-white/10 outline cursor-pointer transition"
                     id="settingsButton">
                     <i class="ri-settings-3-fill text-white text-[24px]"></i>
                 </button>
-                <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full min-h-10"
+                <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full outline-white/10 outline min-h-10"
                     id="search">
                     <input type="text" name="" id="idInput"
                         class="min-w-[264px] h-full rounded-full rounded-r-none focus-within:outline-0 bg-black/40 px-5 placeholder:text-white/60 text-white text-xs flex-1"
@@ -19,7 +19,7 @@
                     </button>
                 </div>
                 <label for="fileInput"
-                    class="h-full p-5 rounded-full bg-black/40 hover:bg-white/10 cursor-pointer text-white aspect-square flex items-center justify-center transition">
+                    class="h-full p-5 rounded-full bg-black/40 hover:bg-white/10 outline-white/10 outline cursor-pointer text-white aspect-square flex items-center justify-center transition">
                     <i class="ri-folder-add-fill"></i>
                     <input type="file" name="fileInput" id="fileInput" hidden />
                 </label>
@@ -32,7 +32,7 @@
                 <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
                     <button id="diffs" class="hidden flyout-toggle"></button>
                     <div
-                        class="relative w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-white select-none z-[100]">
+                        class="relative w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 outline-white/10 outline transition-colors cursor-pointer text-white select-none z-[100]">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
                             id="extraMode">
                             <g clip-path="url(#clip0_1_34)">
@@ -49,7 +49,7 @@
                         <span id="masterSR">SR★</span>
                     </div>
                     <div id="diffsContainer"
-                        class="flyout absolute w-full min-w-max top-[100%] right-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
+                        class="flyout absolute w-full min-w-max top-[100%] right-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline">
                     </div>
                 </label>
             </div>
@@ -95,11 +95,11 @@
             <label for="skins" class="relative h-full min-h-[50px] w-full text-xs" id="skinsLabel">
                 <button id="skins" class="hidden flyout-toggle"></button>
                 <div
-                    class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none">
+                    class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none outline-white/10 outline">
                     <span id="currentSkin" class="flex-1 text-left truncate">Current Skin</span>
                 </div>
                 <div id="skinsContainer"
-                    class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto">
+                    class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline">
                 </div>
             </label>
             <div class="flex flex-col w-full gap-2.5">
