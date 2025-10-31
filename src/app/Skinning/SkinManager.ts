@@ -170,11 +170,11 @@ export default class SkinManager {
 				// biome-ignore lint/style/noNonNullAssertion: This is ensured to be loaded
 				inject<SkinningConfig>("config/skinning")!.skinningIdx = i;
 				document
-					.querySelector<HTMLDivElement>("#skinsContainer")
-					?.classList.add("hidden");
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("showOut");
 				document
-					.querySelector<HTMLDivElement>("#skinsContainer")
-					?.classList.remove("flex");
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("showIn");
 			});
 
 			const button2 = document.createElement("button");
@@ -184,13 +184,12 @@ export default class SkinManager {
 			button2.style.aspectRatio = "1 / 1";
 			button2.addEventListener("click", () => {
 				this.removeSkin((key as string[])[i]);
-
 				document
-					.querySelector<HTMLDivElement>("#skinsContainer")
-					?.classList.add("hidden");
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("showOut");
 				document
-					.querySelector<HTMLDivElement>("#skinsContainer")
-					?.classList.remove("flex");
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("showIn");
 			});
 
 			div?.append(button);
