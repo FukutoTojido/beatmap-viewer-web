@@ -44,10 +44,7 @@ export default class Metadata {
 		);
 
 		this.container.cursor = "pointer";
-		this.container.addEventListener("click", () => {
-			inject<Game>("game")?.state.toggleSidebar();
-		});
-		this.container.addEventListener("tap", () => {
+		this.container.addEventListener("pointertap", () => {
 			inject<Game>("game")?.state.toggleSidebar();
 		});
 	}

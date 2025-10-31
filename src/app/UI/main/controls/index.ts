@@ -51,6 +51,10 @@ export default class Controls {
 
 		this.container.addChild(timestamp.container, restContainer);
 
+		this.container.addEventListener("pointertap", (event) => {
+			event.stopPropagation();
+		});
+
 		inject<ColorConfig>("config/color")?.onChange("color", ({ crust }) => {
 			this.container.layout = {
 				backgroundColor: crust,
@@ -75,8 +79,8 @@ export default class Controls {
 								? "auto"
 								: 60,
 				};
-				this.container.visible = !(isFullscreen && direction === "landscape");
-				this.open = !(isFullscreen && direction === "landscape");
+				this.container.visible = !isFullscreen;
+				this.open = !isFullscreen;
 			},
 		);
 
@@ -118,8 +122,8 @@ export default class Controls {
 						this.container.layout = {
 							position: "relative",
 						};
-						this.container.visible = true;
-						this.open = true;
+						this.container.visible = !isFullscreen;
+						this.open = !isFullscreen;
 
 						break;
 					}

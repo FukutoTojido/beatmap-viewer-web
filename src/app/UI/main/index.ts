@@ -81,6 +81,18 @@ export default class Main {
 			},
 		);
 
+		this.container.addEventListener("pointertap", () => {
+			if (!inject<FullscreenConfig>("config/fullscreen")?.fullscreen) return;
+			if (
+				inject<ResponsiveHandler>("responsiveHandler")?.direction ===
+				"landscape"
+			)
+				return;
+
+			controls.open = !controls.open;
+			controls.container.visible = controls.open;
+		});
+
 		this.container.addEventListener("pointermove", (event) => {
 			if (!inject<FullscreenConfig>("config/fullscreen")?.fullscreen) return;
 			if (
@@ -121,7 +133,7 @@ export default class Main {
 					Easings.InOut,
 					() => {
 						controls.container.visible = false;
-					}
+					},
 				);
 			}
 		});
