@@ -170,10 +170,10 @@ export default class SkinManager {
 				// biome-ignore lint/style/noNonNullAssertion: This is ensured to be loaded
 				inject<SkinningConfig>("config/skinning")!.skinningIdx = i;
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#skinsContainer")
 					?.classList.add("showOut");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#skinsContainer")
 					?.classList.remove("showIn");
 			});
 
@@ -185,10 +185,10 @@ export default class SkinManager {
 			button2.addEventListener("click", () => {
 				this.removeSkin((key as string[])[i]);
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#skinsContainer")
 					?.classList.add("showOut");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#skinsContainer")
 					?.classList.remove("showIn");
 			});
 
