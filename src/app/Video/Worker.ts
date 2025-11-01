@@ -92,7 +92,7 @@ class VideoEngine {
 		this.currentFrame = frame;
 	}
 
-	frameTimer?: number;
+	frameTimer?: NodeJS.Timeout;
 
 	async readFrame() {
 		const now = performance.now();
@@ -125,9 +125,9 @@ class VideoEngine {
 		}
 
 		try {
-			this.frameTimer = requestAnimationFrame(() => {
+			this.frameTimer = setTimeout(() => {
 				this.readFrame();
-			});
+			}, 0);
 		} catch (error) {
 			console.error(error);
 		}
@@ -160,7 +160,7 @@ class VideoEngine {
 	async _seek(timestamp: number) {
 		try {
 			if (this.status === "PLAY") {
-				if (this.frameTimer) cancelAnimationFrame(this.frameTimer);
+				if (this.frameTimer) clearTimeout(this.frameTimer);
 				this.pauseResolver = undefined;
 			}
 
