@@ -71,10 +71,10 @@ export class Game {
 		});
 	}
 
-	resizeFrame = debounce((app: Application, width: number, height: number) => {
+	resizeFrame = (app: Application, width: number, height: number) => {
 		app.renderer.resize(width, height);
 		app.render();
-	}, 50);
+	};
 
 	async initApplication() {
 		RenderTarget.defaultOptions.depth = true;
