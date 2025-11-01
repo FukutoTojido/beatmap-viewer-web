@@ -12,9 +12,9 @@ export type Vector3 = {
 const VECS = 3;
 
 export default function createGeometry(
-	// path: Vector3[], 
-	path: Vector2[], 
-	radius = RADIUS
+	// path: Vector3[],
+	path: Vector2[],
+	radius = RADIUS,
 ) {
 	const vertices: number[] = [];
 	const indices: number[] = [];
@@ -25,8 +25,8 @@ export default function createGeometry(
 
 	const pointsCount = path.length - 1;
 	for (let i = 1; i <= pointsCount; i++) {
-		const { x, y, /* t */ } = path[i];
-		const { x: _x, y: _y, /* t: _t */ } = path[i - 1];
+		const { x, y /* t */ } = path[i];
+		const { x: _x, y: _y /* t: _t */ } = path[i - 1];
 
 		const dx = x - _x;
 		const dy = y - _y;
@@ -39,30 +39,23 @@ export default function createGeometry(
 			_x + ox,
 			_y + oy,
 			1,
-			// _t,
-			// 0,
+
 			_x - ox,
 			_y - oy,
 			1,
-			// _t,
-			// 0,
+
 			x + ox,
 			y + oy,
 			1,
-			// t,
-			// 0,
+
 			x - ox,
 			y - oy,
 			1,
-			// t,
-			// 0,
+
 			x,
 			y,
 			0,
-			// t,
-			// 0,
 		);
-		// isCirc.push(0, 0, 0, 0, 0);
 
 		const n = 5 * i + 1;
 		indices.push(
@@ -104,10 +97,7 @@ export default function createGeometry(
 				vertices[VECS * c] + radius * Math.cos(theta1 + i * theta),
 				vertices[VECS * c + 1] + radius * Math.sin(theta1 + i * theta),
 				1,
-				// t,
-				// 0,
 			);
-			// isCirc.push(0);
 
 			const newVert = vertices.length / VECS - 1;
 			indices.push(c, last, newVert);
@@ -136,44 +126,8 @@ export default function createGeometry(
 	addArc(0, 1, 2);
 	addArc(5 * path.length - 5, 5 * path.length - 6, 5 * path.length - 7);
 
-	// const circleGeometry = () => {
-	// 	const vertices: number[] = [];
-	// 	const indices: number[] = [];
-	// 	const isCirc: number[] = [];
-
-	// 	vertices.push(0.0, 0.0, 0.0, 1.0);
-	// 	isCirc.push(1.0);
-	// 	for (let i = 0; i < DIVIDES; ++i) {
-	// 		const theta = ((2 * Math.PI) / DIVIDES) * i;
-	// 		vertices.push(
-	// 			radius * Math.cos(theta),
-	// 			radius * Math.sin(theta),
-	// 			1.0,
-	// 			1.0,
-	// 		);
-	// 		isCirc.push(1.0);
-	// 		indices.push(0, i + 1, ((i + 1) % DIVIDES) + 1);
-	// 	}
-
-	// 	return {
-	// 		vertices,
-	// 		isCirc,
-	// 		indices,
-	// 	};
-	// };
-
-	// const circle = circleGeometry();
-
 	return {
-		// body: {
 		aPosition: vertices,
 		indexBuffer: indices,
-		// isCirc,
-		// },
-		// circle: {
-		// 	aPosition: circle.vertices,
-		// 	indexBuffer: circle.indices,
-		// 	isCirc: circle.isCirc,
-		// },
 	};
 }

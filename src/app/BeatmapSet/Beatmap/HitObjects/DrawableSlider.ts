@@ -14,8 +14,10 @@ import {
 } from "osu-standard-stable";
 import {
 	AlphaFilter,
+	BufferUsage,
 	Container,
 	Geometry,
+	GpuProgram,
 	Graphics,
 	Mesh,
 	RenderLayer,
@@ -57,14 +59,24 @@ import DrawableSliderTail, { TAIL_LENIENCY } from "./DrawableSliderTail";
 import DrawableSliderTick from "./DrawableSliderTick";
 import fragment from "./Shaders/sliderShader.frag?raw";
 import vertex from "./Shaders/sliderShader.vert?raw";
+import gpuSrc from "./Shaders/sliderShader.wgsl?raw";
+import { Buffer } from "pixi.js";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
 
 const GL = { vertex, fragment };
-// const COLOR: [number, number, number, number] = [
-// 	0.21176470588, 0.52156862745, 0.72549019607, 0,
-// ];
+const GPU = GpuProgram.from({
+	vertex: {
+		source: gpuSrc,
+		entryPoint: "vsMain",
+	},
+	fragment: {
+		source: gpuSrc,
+		entryPoint: "fsMain",
+	},
+});
+
 const COLOR: [number, number, number, number] = [
 	69 / 255,
 	71 / 255,
@@ -80,12 +92,20 @@ export default class DrawableSlider
 {
 	private _geometry: Geometry = new Geometry({
 		attributes: {
-			aPosition: new Float32Array([]),
+			aPosition: {
+				buffer: new Buffer({
+					data: new Float32Array([]),
+					usage: BufferUsage.VERTEX | BufferUsage.COPY_DST,
+				}),
+				format: "float32x3",
+				stride: 3 * 4,
+			},
 		},
 		indexBuffer: [],
 	});
 	public _shader = Shader.from({
 		gl: GL,
+		gpu: GPU,
 		resources: {
 			customUniforms: {
 				borderColor: {
@@ -93,7 +113,6 @@ export default class DrawableSlider
 					type: "vec4<f32>",
 				},
 				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
-				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				borderWidth: { value: 0.128, type: "f32" },
 				bodyAlpha: { value: 0.7, type: "f32" },
@@ -102,6 +121,7 @@ export default class DrawableSlider
 	});
 	public _selectShader = Shader.from({
 		gl: GL,
+		gpu: GPU,
 		resources: {
 			customUniforms: {
 				borderColor: {
@@ -109,7 +129,6 @@ export default class DrawableSlider
 					type: "vec4<f32>",
 				},
 				innerColor: { value: lighten(COLOR, 0.5), type: "vec4<f32>" },
-				// innerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				outerColor: { value: darken(COLOR, 0.1), type: "vec4<f32>" },
 				borderWidth: { value: 0.128, type: "f32" },
 				bodyAlpha: { value: 0.0, type: "f32" },
@@ -126,10 +145,7 @@ export default class DrawableSlider
 	public body: Mesh<Geometry, Shader> = new Mesh({
 		geometry: this._geometry,
 		shader: this._shader,
-		filters: [
-			this._alphaFilter,
-			// this._backdropBlurFilter
-		],
+		filters: [this._alphaFilter],
 		x: 0,
 		y: 0,
 		blendMode: "none",

@@ -4,9 +4,9 @@ import type FullscreenConfig from "@/Config/FullscreenConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject, provide } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import Easings from "../Easings";
 import Controls from "./controls";
 import Viewer from "./viewer";
-import Easings from "../Easings";
 
 export default class Main {
 	container = new LayoutContainer({

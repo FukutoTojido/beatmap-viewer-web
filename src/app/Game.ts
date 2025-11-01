@@ -91,6 +91,7 @@ export class Game {
 			// depth: true,
 			autoDensity: true,
 			resolution: devicePixelRatio,
+			// preference: "webgpu"
 		});
 		app.stage.layout = {
 			width: app.screen.width,

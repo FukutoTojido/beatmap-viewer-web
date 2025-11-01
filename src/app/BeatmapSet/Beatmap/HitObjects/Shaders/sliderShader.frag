@@ -43,14 +43,8 @@ void main() {
         float mu = (position - innerWidth) / blurRate;
         color = borderColor * mu + (1.0 - mu) * color;
 
-        // a = 1.0;
-        // if (skinning != 0.0) a = 1.0 * mu + (1.0 - mu) * 0.7;
         a = 1.0 * mu + (1.0 - mu) * 1.0 * bodyAlpha;
     }
-
-    // if (isCircle < 0.5 && (progress < progressHead || progress > progressTail)) {
-    //     a = 0.0;
-    // }
 
     color.a = 1.0;
     finalColor = vec4(color.rgb, 1.0) * a;
