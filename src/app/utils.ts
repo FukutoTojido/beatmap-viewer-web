@@ -125,15 +125,15 @@ export async function loadColorPalette(url: string) {
 
 			palette = {
 				...palette,
-				crust: Number.parseInt(color.darker(2.5).formatHex().slice(1), 16),
-				mantle: Number.parseInt(color.darker(2.25).formatHex().slice(1), 16),
-				base: Number.parseInt(color.darker(2.0).formatHex().slice(1), 16),
-				surface0: Number.parseInt(color.darker(1.5).formatHex().slice(1), 16),
-				surface1: Number.parseInt(color.darker(1.0).formatHex().slice(1), 16),
-				surface2: Number.parseInt(color.darker(0.5).formatHex().slice(1), 16),
-				overlay0: Number.parseInt(color.formatHex().slice(1), 16),
-				overlay1: Number.parseInt(color.brighter(0.5).formatHex().slice(1), 16),
-				overlay2: Number.parseInt(color.brighter(1).formatHex().slice(1), 16),
+				crust: Number.parseInt(color.darker(3.0).formatHex().slice(1), 16),
+				mantle: Number.parseInt(color.darker(2.0).formatHex().slice(1), 16),
+				base: Number.parseInt(color.darker(1.0).formatHex().slice(1), 16),
+				surface0: Number.parseInt(color.darker(0.5).formatHex().slice(1), 16),
+				surface1: Number.parseInt(color.formatHex().slice(1), 16),
+				surface2: Number.parseInt(color.brighter(0.5).formatHex().slice(1), 16),
+				overlay0: Number.parseInt(color.brighter(1.0).formatHex().slice(1), 16),
+				overlay1: Number.parseInt(color.brighter(1.5).formatHex().slice(1), 16),
+				overlay2: Number.parseInt(color.brighter(2).formatHex().slice(1), 16),
 			};
 		}
 	}
