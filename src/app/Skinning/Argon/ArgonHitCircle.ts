@@ -105,7 +105,7 @@ export const update = (drawable: DrawableHitCircle, time: number) => {
 
 		if (color && white) {
 			const interpolator = d3.interpolateRgb(color, white);
-			const interpolated = interpolator(0.3 * fadeProgress);
+			const interpolated = interpolator(fadeProgress);
 
 			drawable.hitCircleSprite.tint = interpolated;
 		}

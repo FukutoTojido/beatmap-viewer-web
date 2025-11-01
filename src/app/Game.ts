@@ -23,7 +23,7 @@ import Main from "./UI/main";
 import SidePanel from "./UI/sidepanel";
 import ZipHandler from "./ZipHandler";
 import Replay from "./BeatmapSet/Beatmap/Replay";
-import { debounce } from "./utils";
+// import { debounce } from "./utils";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
