@@ -48,5 +48,19 @@ export default class Play {
 		this.container.addEventListener("pointertap", () =>
 			inject<BeatmapSet>("beatmapset")?.toggle(),
 		);
+
+		this.container.addEventListener("pointerenter", () => {
+			this.container.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
+			};
+		});
+
+		this.container.addEventListener("pointerleave", () => {
+			this.container.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.crust ?? 0xffffff,
+			};
+		});
 	}
 }

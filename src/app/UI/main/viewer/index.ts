@@ -5,6 +5,8 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
+import Zoomer from "./Timeline/Zoomer";
+import Beatsnap from "./Timeline/Beatsnap";
 
 export default class Viewer {
 	container = new LayoutContainer({
@@ -22,6 +24,8 @@ export default class Viewer {
 
 	constructor() {
 		const timeline = provide("ui/main/viewer/timeline", new Timeline());
+		const zoomer = provide("ui/main/viewer/zoomer", new Zoomer());
+		const beatsnap = provide("ui/main/viewer/beatsnap", new Beatsnap());
 		const gameplays = provide("ui/main/viewer/gameplays", new Gameplays());
 		const background = provide("ui/main/viewer/background", new Background());
 
@@ -38,7 +42,7 @@ export default class Viewer {
 			},
 		});
 
-		wrapper.addChild(timeline.container);
+		wrapper.addChild(timeline.container, zoomer.container, beatsnap.container);
 
 		this.container.addChild(background.container, wrapper, gameplays.container);
 
@@ -51,7 +55,9 @@ export default class Viewer {
 					borderRadius: isFullscreen || direction === "portrait" ? 0 : 20,
 				};
 
-				wrapper.layout = { height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80 };
+				wrapper.layout = {
+					height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80,
+				};
 			},
 		);
 
@@ -79,7 +85,9 @@ export default class Viewer {
 					}
 				}
 
-				wrapper.layout = { height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80 };
+				wrapper.layout = {
+					height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80,
+				};
 			},
 		);
 	}

@@ -33,9 +33,8 @@ export default class Timeline {
 	container = new ZContainer({
 		label: "timeline",
 		layout: {
-			width: "100%",
+			flex: 1,
 			height: 80,
-
 			overflow: "hidden",
 		},
 	});

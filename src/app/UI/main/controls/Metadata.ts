@@ -47,5 +47,19 @@ export default class Metadata {
 		this.container.addEventListener("pointertap", () => {
 			inject<Game>("game")?.state.toggleSidebar();
 		});
+
+		this.container.addEventListener("pointerenter", () => {
+			this.container.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
+			};
+		});
+
+		this.container.addEventListener("pointerleave", () => {
+			this.container.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.mantle ?? 0xffffff,
+			};
+		});
 	}
 }

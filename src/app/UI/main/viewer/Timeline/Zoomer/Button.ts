@@ -1,16 +1,16 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import { Assets, Sprite } from "pixi.js";
+import { Assets, type FederatedPointerEvent, Sprite } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
-import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject } from "@/Context";
 
-export default class Fullscreen {
+export default class Button {
 	container = new LayoutContainer({
 		label: "play",
 		layout: {
 			aspectRatio: 1,
-			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
-			height: "100%",
+			backgroundColor: inject<ColorConfig>("config/color")?.color.base,
+			height: 40,
+			width: 40,
 			flexShrink: 0,
 			alignItems: "center",
 			justifyContent: "center",
@@ -19,9 +19,12 @@ export default class Fullscreen {
 
 	sprite = new Sprite();
 
-	constructor() {
+	constructor(
+		icon: string,
+		public onClick?: (e?: FederatedPointerEvent) => void,
+	) {
 		(async () => {
-			const texture = await Assets.load("./assets/maximize.png");
+			const texture = await Assets.load(icon);
 			this.sprite.texture = texture;
 			this.sprite.width = 20;
 			this.sprite.height = 20;
@@ -35,21 +38,15 @@ export default class Fullscreen {
 			this.container.addChild(this.sprite);
 		})();
 
-		inject<ColorConfig>("config/color")?.onChange(
-			"color",
-			({ crust, text }) => {
-				this.container.layout = { backgroundColor: crust };
-				this.sprite.tint = text;
-			},
-		);
+		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
+			this.container.layout = { backgroundColor: base };
+			this.sprite.tint = text;
+		});
 
 		this.container.cursor = "pointer";
 
-		this.container.addEventListener("pointertap", () => {
-			const config = inject<FullscreenConfig>("config/fullscreen");
-			if (!config) return;
-
-			config.fullscreen = !config.fullscreen;
+		this.container.addEventListener("pointertap", (e) => {
+			this.onClick?.(e);
 		});
 
 		this.container.addEventListener("pointerenter", () => {
@@ -62,7 +59,7 @@ export default class Fullscreen {
 		this.container.addEventListener("pointerleave", () => {
 			this.container.layout = {
 				backgroundColor:
-					inject<ColorConfig>("config/color")?.color.crust ?? 0xffffff,
+					inject<ColorConfig>("config/color")?.color.base ?? 0xffffff,
 			};
 		});
 	}

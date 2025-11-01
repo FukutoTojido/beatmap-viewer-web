@@ -1,4 +1,4 @@
-import type { FederatedEvent, FederatedWheelEvent } from "pixi.js";
+import type { FederatedWheelEvent } from "pixi.js";
 import ConfigSection from "./ConfigSection";
 
 type TimelineConfigEvents = "scale" | "divisor";

@@ -125,8 +125,8 @@ export async function loadColorPalette(url: string) {
 
 			palette = {
 				...palette,
-				crust: Number.parseInt(color.darker(3.0).formatHex().slice(1), 16),
-				mantle: Number.parseInt(color.darker(2.5).formatHex().slice(1), 16),
+				crust: Number.parseInt(color.darker(2.5).formatHex().slice(1), 16),
+				mantle: Number.parseInt(color.darker(2.25).formatHex().slice(1), 16),
 				base: Number.parseInt(color.darker(2.0).formatHex().slice(1), 16),
 				surface0: Number.parseInt(color.darker(1.5).formatHex().slice(1), 16),
 				surface1: Number.parseInt(color.darker(1.0).formatHex().slice(1), 16),
