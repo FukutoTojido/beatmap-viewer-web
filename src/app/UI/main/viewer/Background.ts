@@ -106,7 +106,7 @@ export default class Background {
 
 	init = false;
 
-	timer?: NodeJS.Timeout;
+	timer?: number;
 	lastFrame?: VideoFrame;
 
 	updateFrame(frame?: VideoFrame) {
@@ -116,11 +116,11 @@ export default class Background {
 		}
 
 		if (this.timer) {
-			clearTimeout(this.timer);
+			cancelAnimationFrame(this.timer);
 			this.lastFrame?.close();
 		}
 
-		this.timer = setTimeout(() => {
+		this.timer = requestAnimationFrame(() => {
 			const now = performance.now();
 			this.frameTime = now - this.lastFrameTime;
 			this.currentFrame?.close();
@@ -145,7 +145,7 @@ export default class Background {
 				);
 				this.init = true;
 			}
-		}, 15);
+		});
 
 		this.lastFrame = frame;
 	}
