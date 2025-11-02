@@ -19,12 +19,13 @@ import {
 	Geometry,
 	GpuProgram,
 	Graphics,
-	Mesh,
+	Mesh, 
 	RenderLayer,
 	Shader
 } from "pixi.js";
 import type BeatmapSet from "@/BeatmapSet";
 import type GameplayConfig from "@/Config/GameplayConfig";
+import type RendererConfig from "@/Config/RendererConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { type Context, inject } from "@/Context";
 import {
@@ -140,7 +141,7 @@ export default class DrawableSlider
 		filters: [this._alphaFilter],
 		x: 0,
 		y: 0,
-		blendMode: "max",
+		blendMode: inject<RendererConfig>("config/renderer")?.renderer === "webgl" ? "none" : "max",
 	});
 
 	public select = new Container();
