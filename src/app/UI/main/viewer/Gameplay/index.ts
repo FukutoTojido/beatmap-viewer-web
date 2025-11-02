@@ -471,7 +471,13 @@ export default class Gameplay {
 		this.container.removeChild(this.closeButton);
 	}
 
-	showDiffName() {
+	showDiffName(withCloseButton: boolean = false) {
+		if (withCloseButton) {
+			this.statsContainer.addChild(this.closeButton);
+		} else {
+			this.statsContainer.removeChild(this.closeButton);
+		}
+
 		this.container.addChild(this.statsContainer);
 	}
 
@@ -482,16 +488,12 @@ export default class Gameplay {
 	createCloseButton() {
 		const closeButtonContainer = new LayoutContainer({
 			layout: {
-				width: 30,
-				height: 30,
+				width: 20,
+				height: 20,
 				alignItems: "center",
 				justifyContent: "center",
 				backgroundColor: inject<ColorConfig>("config/color")?.color.base,
 				borderRadius: 15,
-				position: "absolute",
-				top: 20,
-				right: 20,
-				transformOrigin: "top right",
 			},
 		});
 
@@ -520,6 +522,11 @@ export default class Gameplay {
 
 		closeButtonContainer.cursor = "pointer";
 		const unloadSelf = () => {
+			closeButtonContainer.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.base ?? 0xffffff,
+			};
+
 			const bms = this.beatmap.context.consume<BeatmapSet>("beatmapset");
 			if (!bms) return;
 
@@ -528,6 +535,20 @@ export default class Gameplay {
 		};
 		closeButtonContainer.addEventListener("click", () => unloadSelf());
 		closeButtonContainer.addEventListener("tap", () => unloadSelf());
+
+		closeButtonContainer.addEventListener("pointerenter", () => {
+			closeButtonContainer.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
+			};
+		});
+
+		closeButtonContainer.addEventListener("pointerleave", () => {
+			closeButtonContainer.layout = {
+				backgroundColor:
+					inject<ColorConfig>("config/color")?.color.base ?? 0xffffff,
+			};
+		});
 
 		closeButtonContainer.addChild(closeButton);
 		this.closeButton = closeButtonContainer;

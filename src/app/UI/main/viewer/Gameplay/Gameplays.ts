@@ -233,26 +233,18 @@ export default class Gameplays {
 
 			tweenGroup.add(tween);
 
-			if (i !== 0 && !overlapGameplays) {
-				gameplay.showCloseButton();
-			} else {
-				gameplay.hideCloseButton();
-			}
-
 			gameplay.background.visible =
 				!overlapGameplays || i === deserialized.length - 1;
 
 			if (w !== 100) {
-				gameplay.showDiffName();
+				gameplay.showDiffName(i !== 0 && !overlapGameplays);
 
 				const scale = Math.min(1, 1 / columnsCount * 1.5);
 
 				gameplay.statsContainer.scale.set(scale);
-				gameplay.closeButton.scale.set(scale);
 			} else {
 				gameplay.hideDiffName();
 				gameplay.statsContainer.scale.set(1);
-				gameplay.closeButton.scale.set(1);
 			}
 		}
 	}
