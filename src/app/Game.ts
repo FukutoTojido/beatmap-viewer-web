@@ -92,7 +92,8 @@ export class Game {
 			// depth: true,
 			autoDensity: true,
 			resolution: devicePixelRatio,
-			preference: inject<RendererConfig>("config/renderer")?.renderer ?? "webgl"
+			preference:
+				inject<RendererConfig>("config/renderer")?.renderer ?? "webgl",
 		});
 		app.stage.layout = {
 			width: app.screen.width,
@@ -100,6 +101,19 @@ export class Game {
 			flexDirection: "row",
 			gap: 0,
 		};
+
+		// GpuBlendModesToPixi.max = {
+		// 	color: {
+		// 		operation: "max",
+		// 		srcFactor: "one",
+		// 		dstFactor: "one",
+		// 	},
+		// 	alpha: {
+		// 		operation: "add",
+		// 		srcFactor: "one",
+		// 		dstFactor: "one-minus-dst-alpha",
+		// 	},
+		// };
 
 		const divApp = document.querySelector<HTMLDivElement>("#app");
 		if (divApp) {
@@ -222,7 +236,7 @@ export class Game {
 
 		inject<RendererConfig>("config/renderer")?.onChange("renderer", () => {
 			window.location.reload();
-		})
+		});
 
 		await inject<SkinManager>("skinManager")?.loadSkins();
 
