@@ -1,4 +1,4 @@
-import { type BitmapText, extensions, ExtensionType, type Renderer } from "pixi.js";
+import { type BitmapText, ExtensionType, extensions, type Renderer } from "pixi.js";
 import { inject } from "./Context";
 
 export const frameData = {

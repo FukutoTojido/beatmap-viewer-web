@@ -270,7 +270,7 @@
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5 text-sm">
-                <div class="font-normal flex-1 cursor-pointer flex flex-col">
+                <div class="font-normal flex-1 flex flex-col">
                     <span>Renderer</span>
                     <span class="text-xs">Highly experimental and might cause performance drop on WebGPU</span>
                 </div>
@@ -284,12 +284,14 @@
                         class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline">
                         <div class="flex gap-2.5 items-center">
                             <button
-                                class="flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white renderer-select" data-renderer="webgl">WebGL
-                                2</button>
+                                class="flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white renderer-select"
+                                data-renderer="webgl">WebGL
+                            </button>
                         </div>
                         <div class="flex gap-2.5 items-center">
                             <button
-                                class="flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white renderer-select" data-renderer="webgpu">WebGPU</button>
+                                class="flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white renderer-select"
+                                data-renderer="webgpu">WebGPU</button>
                         </div>
                     </div>
                 </label>

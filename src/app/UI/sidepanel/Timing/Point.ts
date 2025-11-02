@@ -1,5 +1,5 @@
 import { DifficultyPoint, type SamplePoint, TimingPoint } from "osu-classes";
-import { BitmapText, type ColorSource, Container, Graphics } from "pixi.js";
+import { type ColorSource, Container, Graphics, Text } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import { millisecondsToMinutesString } from "@/utils";
@@ -7,9 +7,9 @@ import { millisecondsToMinutesString } from "@/utils";
 export default class Point {
 	container: Container;
 	private indicator: Graphics;
-	private timestamp: BitmapText;
-	private content1: BitmapText;
-	private content2: BitmapText;
+	private timestamp: Text;
+	private content1: Text;
+	private content2: Text;
 	private color: Graphics;
 
 	private accent: ColorSource;
@@ -47,7 +47,7 @@ export default class Point {
 			if (!this.indicator.visible) this.unselect();
 		});
 
-		this.timestamp = new BitmapText({
+		this.timestamp = new Text({
 			text: millisecondsToMinutesString(data.startTime),
 			style: {
 				fontSize: 14,
@@ -58,7 +58,7 @@ export default class Point {
 			layout: false,
 		});
 
-		this.content1 = new BitmapText({
+		this.content1 = new Text({
 			text:
 				data instanceof TimingPoint
 					? `${Math.round(data.bpm)} BPM`
@@ -76,7 +76,7 @@ export default class Point {
 		});
 		this.content1.x = 80;
 
-		this.content2 = new BitmapText({
+		this.content2 = new Text({
 			text:
 				data instanceof TimingPoint
 					? `Signature ${data.timeSignature}/4`

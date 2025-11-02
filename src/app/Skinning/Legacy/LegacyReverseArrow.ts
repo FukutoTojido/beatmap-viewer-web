@@ -34,7 +34,7 @@ export const update = (drawable: DrawableSliderRepeat, time: number) => {
 	}
 
 	const fadeInDuration = 150;
-	const rotation = 5.625;
+	// const rotation = 5.625;
 
 	drawable.reverseArrow.alpha = Math.min(
 		1,
