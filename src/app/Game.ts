@@ -1,5 +1,5 @@
 import { initDevtools } from "@pixi/devtools";
-import { Application, RenderTarget } from "pixi.js";
+import { Application, GpuBlendModesToPixi, RenderTarget } from "pixi.js";
 import State from "./State";
 import AnimationController, {
 	tweenGroup,
@@ -102,18 +102,18 @@ export class Game {
 			gap: 0,
 		};
 
-		// GpuBlendModesToPixi.max = {
-		// 	color: {
-		// 		operation: "max",
-		// 		srcFactor: "one",
-		// 		dstFactor: "one",
-		// 	},
-		// 	alpha: {
-		// 		operation: "add",
-		// 		srcFactor: "one",
-		// 		dstFactor: "one-minus-dst-alpha",
-		// 	},
-		// };
+		GpuBlendModesToPixi.max = {
+			color: {
+				operation: "add",
+				srcFactor: "one",
+				dstFactor: "zero",
+			},
+			alpha: {
+				operation: "add",
+				srcFactor: "one",
+				dstFactor: "zero",
+			},
+		};
 
 		const divApp = document.querySelector<HTMLDivElement>("#app");
 		if (divApp) {
