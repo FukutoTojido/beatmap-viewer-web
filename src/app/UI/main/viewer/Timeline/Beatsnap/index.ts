@@ -58,20 +58,6 @@ export default class Beatsnap {
 			const timeline = inject<TimelineConfig>("config/timeline");
 			if (!timeline) return;
 
-			timeline.divisor = Math.min(
-				16,
-				timeline.divisor === 9
-					? 12
-					: timeline.divisor === 12
-						? 16
-						: timeline.divisor + 1,
-			);
-		});
-
-		const divisorUp = new Button("./assets/right.png", () => {
-			const timeline = inject<TimelineConfig>("config/timeline");
-			if (!timeline) return;
-
 			timeline.divisor = Math.max(
 				1,
 				timeline.divisor === 16
@@ -79,6 +65,20 @@ export default class Beatsnap {
 					: timeline.divisor === 12
 						? 9
 						: timeline.divisor - 1,
+			);
+		});
+
+		const divisorUp = new Button("./assets/right.png", () => {
+			const timeline = inject<TimelineConfig>("config/timeline");
+			if (!timeline) return;
+
+			timeline.divisor = Math.min(
+				16,
+				timeline.divisor === 9
+					? 12
+					: timeline.divisor === 12
+						? 16
+						: timeline.divisor + 1,
 			);
 		});
 
