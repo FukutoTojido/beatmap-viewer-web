@@ -93,7 +93,7 @@ export default class DifficultyGraph {
 
 		newContext.moveTo(0, height);
 		newContext.fill({ color: 0xffffff, alpha: 0.2 });
-		newContext.stroke(0xffffff);
+		newContext.stroke({ color: 0xffffff, width: 1 });
 
 		this.graph.context = newContext;
 		this.context.destroy();

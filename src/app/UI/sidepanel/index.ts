@@ -145,8 +145,7 @@ export default class SidePanel {
 		});
 
 		closeButtonContainer.cursor = "pointer";
-		closeButtonContainer.addEventListener("click", () => this.closeSidePanel());
-		closeButtonContainer.addEventListener("tap", () => this.closeSidePanel());
+		closeButtonContainer.addEventListener("pointertap", () => this.closeSidePanel());
 
 		closeButtonContainer.addChild(closeButton);
 

@@ -1,8 +1,4 @@
-import type {
-    Slider,
-    Spinner,
-    StandardHitObject,
-} from "osu-standard-stable";
+import type { Slider, Spinner, StandardHitObject } from "osu-standard-stable";
 import type BeatmapSet from "@/BeatmapSet";
 import { inject } from "@/Context";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
@@ -14,6 +10,7 @@ import DrawableHitCircle from "./DrawableHitCircle";
 import { TAIL_LENIENCY } from "./DrawableSliderTail";
 import DrawableSpinnerApproachCircle from "./DrawableSpinnerApproachCircle";
 import { HitResult, type LegacyReplayFrame } from "osu-classes";
+import { Clamp } from "@/utils";
 
 export default class DrawableSpinner extends DrawableHitCircle {
 	constructor(object: Spinner) {
@@ -32,7 +29,7 @@ export default class DrawableSpinner extends DrawableHitCircle {
 		const cloned = object.clone();
 		const head = object.clone();
 		const tail = object.clone();
-        head.startTime = head.startTime - TAIL_LENIENCY;
+		head.startTime = head.startTime - TAIL_LENIENCY;
 		tail.startTime = tail.endTime - TAIL_LENIENCY;
 		cloned.nestedHitObjects = [head, tail];
 		this.timelineObject = new TimelineSlider(cloned as unknown as Slider).hook(
@@ -63,7 +60,7 @@ export default class DrawableSpinner extends DrawableHitCircle {
 			BLANK_TEXTURE;
 		this.hitCircleSprite.texture = BLANK_TEXTURE;
 		this.flashPiece.texture = BLANK_TEXTURE;
-        this.select.texture = BLANK_TEXTURE;
+		this.select.texture = BLANK_TEXTURE;
 		this.container.tint = 0xffffff;
 	}
 
@@ -83,19 +80,14 @@ export default class DrawableSpinner extends DrawableHitCircle {
 		this.wrapper.visible = true;
 
 		if (time < this.object.startTime) {
-			const opacity = Math.min(
-				1,
-				Math.max(0, (time - startFadeInTime) / this.object.timeFadeIn),
-			);
+			const opacity = Clamp((time - startFadeInTime) / this.object.timeFadeIn);
 			this.wrapper.alpha = opacity;
 
 			return;
 		}
 
 		if (time >= this.object.startTime) {
-			const opacity =
-				1 - Math.min(1, Math.max(0, (time - endTime) / fadeOutDuration));
-
+			const opacity = 1 - Clamp((time - endTime) / fadeOutDuration);
 			this.wrapper.alpha = opacity;
 
 			return;
@@ -107,7 +99,9 @@ export default class DrawableSpinner extends DrawableHitCircle {
 	playHitSound(time: number, _?: number): void {
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
 		const endTime = (this.object as Spinner).endTime;
-		const isSeeking = inject<ProgressBar>("ui/main/controls/progress")?.isSeeking || inject<BeatmapSet>("beatmapset")?.isSeeking;
+		const isSeeking =
+			inject<ProgressBar>("ui/main/controls/progress")?.isSeeking ||
+			inject<BeatmapSet>("beatmapset")?.isSeeking;
 		if (!beatmap || isSeeking) return;
 		if (
 			!(
@@ -125,7 +119,7 @@ export default class DrawableSpinner extends DrawableHitCircle {
 	override eval(_: LegacyReplayFrame[]) {
 		return {
 			value: HitResult.Great,
-			hitTime: (this.object as Spinner).endTime
-		}
+			hitTime: (this.object as Spinner).endTime,
+		};
 	}
 }

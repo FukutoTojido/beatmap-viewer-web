@@ -242,7 +242,7 @@ export default class Gameplay {
 			alignment: 0.5,
 		});
 
-		for (let i = unit; i < width; i += unit) {
+		for (let i = unit; i < width - 1; i += unit) {
 			if (i === width / 2) {
 				this.grid.moveTo(i, 0).lineTo(i, height).stroke({
 					color: 0xffffff,
@@ -533,8 +533,7 @@ export default class Gameplay {
 			const idx = bms.difficulties.findIndex((b) => b === this.beatmap);
 			bms.unloadSlave(idx);
 		};
-		closeButtonContainer.addEventListener("click", () => unloadSelf());
-		closeButtonContainer.addEventListener("tap", () => unloadSelf());
+		closeButtonContainer.addEventListener("pointertap", () => unloadSelf());
 
 		closeButtonContainer.addEventListener("pointerenter", () => {
 			closeButtonContainer.layout = {
