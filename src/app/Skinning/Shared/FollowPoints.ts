@@ -1,3 +1,4 @@
+import { Spinner } from "osu-standard-stable";
 import type DrawableFollowPoints from "@/BeatmapSet/Beatmap/HitObjects/DrawableFollowPoints";
 import Easings from "@/UI/Easings";
 
@@ -5,7 +6,7 @@ export const update = (drawable: DrawableFollowPoints, time: number) => {
 	const timeFadeIn = drawable.startObject.timeFadeIn;
 	const preempt = drawable.startObject.timePreempt;
 
-	if (time < drawable.startTime - preempt) {
+	if (drawable.endObject instanceof Spinner || time < drawable.startTime - preempt) {
 		drawable.container.visible = false;
 		return;
 	}
