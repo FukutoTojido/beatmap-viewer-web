@@ -1,11 +1,16 @@
 import ConfigSection from "./ConfigSection";
 
-export type RENDERER = "WEBGL2" | "WEBGPU" | "AUTO";
+export type RENDERER = "webgl" | "webgpu";
 export type RendererProps = {
 	renderer?: RENDERER;
 	resolution?: number;
 	antialiasing?: boolean;
 };
+
+enum RENDERER_VAL {
+	"webgl" = "WebGL",
+	"webgpu" = "WebGPU"
+}
 
 export default class RendererConfig extends ConfigSection {
 	constructor(defaultOptions?: RendererProps) {
@@ -16,17 +21,23 @@ export default class RendererConfig extends ConfigSection {
 		if (!defaultOptions) return;
 
 		const { renderer, resolution, antialiasing } = defaultOptions;
-		this.renderer = renderer ?? "WEBGL2";
+		this.renderer =
+			(renderer as string) === "WEBGL2" ? "webgl" : (renderer ?? "webgl");
 		this.resolution = resolution ?? 1;
 		this.antialiasing = antialiasing ?? true;
 	}
 
-	private _renderer: RENDERER = "WEBGL2";
+	private _renderer: RENDERER = "webgl";
 	get renderer() {
 		return this._renderer;
 	}
 	set renderer(val: RENDERER) {
 		this._renderer = val;
+
+		const ele = document.querySelector<HTMLSpanElement>("#currentRenderer");
+		if (!ele) return;
+		ele.innerText = RENDERER_VAL[val];
+
 		this.emitChange("renderer", val);
 	}
 
@@ -68,6 +79,17 @@ export default class RendererConfig extends ConfigSection {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.antialiasing = value;
 			});
+
+		for (const ele of document.querySelectorAll<HTMLButtonElement>(
+			".renderer-select",
+		)) {
+			ele.addEventListener("click", (event) => {
+				const value =
+					((event.target as HTMLButtonElement)?.dataset.renderer as RENDERER) ??
+					"webgl";
+				this.renderer = value;
+			});
+		}
 	}
 
 	jsonify(): RendererProps {

@@ -13,7 +13,7 @@ import {
 	StandardHitObject,
 } from "osu-standard-stable";
 import {
-	AlphaFilter,
+	AlphaFilter,Buffer, 
 	BufferUsage,
 	Container,
 	Geometry,
@@ -21,9 +21,8 @@ import {
 	Graphics,
 	Mesh,
 	RenderLayer,
-	Shader,
+	Shader
 } from "pixi.js";
-import { BackdropBlurFilter } from "pixi-filters";
 import type BeatmapSet from "@/BeatmapSet";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
@@ -60,7 +59,6 @@ import DrawableSliderTick from "./DrawableSliderTick";
 import fragment from "./Shaders/sliderShader.frag?raw";
 import vertex from "./Shaders/sliderShader.vert?raw";
 import gpuSrc from "./Shaders/sliderShader.wgsl?raw";
-import { Buffer } from "pixi.js";
 
 // import init, { calculate_slider_geometry, vector2 } from "../../../../lib/calculate_slider_geometry";
 // await init();
@@ -83,8 +81,6 @@ const COLOR: [number, number, number, number] = [
 	90 / 255,
 	0,
 ];
-
-const blur = new URLSearchParams(window.location.search).get("blur");
 
 export default class DrawableSlider
 	extends DrawableHitObject
@@ -136,10 +132,6 @@ export default class DrawableSlider
 		},
 	});
 	_alphaFilter = new AlphaFilter();
-	private _backdropBlurFilter = new BackdropBlurFilter({
-		strength: 20,
-		quality: 10,
-	});
 
 	public drawableCircles: DrawableHitObject[] = [];
 	public body: Mesh<Geometry, Shader> = new Mesh({
@@ -148,7 +140,7 @@ export default class DrawableSlider
 		filters: [this._alphaFilter],
 		x: 0,
 		y: 0,
-		blendMode: "none",
+		blendMode: "max",
 	});
 
 	public select = new Container();
@@ -194,10 +186,6 @@ export default class DrawableSlider
 		super(object);
 		this.object = object;
 		this.context.provide<DrawableSlider>("drawable", this);
-
-		if (blur) {
-			this.body.filters = [this._alphaFilter, this._backdropBlurFilter];
-		}
 
 		let idx = -1;
 		this.drawableCircles.push(

@@ -7,6 +7,7 @@ import AnimationController, {
 import "./FPSSystem";
 import ky from "ky";
 import BeatmapSet from "./BeatmapSet";
+import Replay from "./BeatmapSet/Beatmap/Replay";
 import {
 	getBeatmapFromExternalUrl,
 	getBeatmapFromHash,
@@ -22,7 +23,7 @@ import Loading from "./UI/loading";
 import Main from "./UI/main";
 import SidePanel from "./UI/sidepanel";
 import ZipHandler from "./ZipHandler";
-import Replay from "./BeatmapSet/Beatmap/Replay";
+
 // import { debounce } from "./utils";
 
 RenderTarget.defaultOptions.depth = true;
@@ -91,7 +92,7 @@ export class Game {
 			// depth: true,
 			autoDensity: true,
 			resolution: devicePixelRatio,
-			// preference: "webgpu"
+			preference: inject<RendererConfig>("config/renderer")?.renderer ?? "webgl"
 		});
 		app.stage.layout = {
 			width: app.screen.width,
@@ -218,6 +219,10 @@ export class Game {
 		inject<RendererConfig>("config/renderer")?.onChange("antialiasing", () => {
 			window.location.reload();
 		});
+
+		inject<RendererConfig>("config/renderer")?.onChange("renderer", () => {
+			window.location.reload();
+		})
 
 		await inject<SkinManager>("skinManager")?.loadSkins();
 

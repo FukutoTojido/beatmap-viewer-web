@@ -41,7 +41,8 @@ export default class Config {
 		this.renderer = provide(
 			"config/renderer",
 			new RendererConfig(savedSettings?.renderer ?? {
-				antialiasing: true
+				antialiasing: true,
+				renderer: "webgl"
 			}),
 		);
 		this.mirror = provide(
