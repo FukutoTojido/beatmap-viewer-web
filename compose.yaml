@@ -1,0 +1,12 @@
+services:
+  server:
+    image: josu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+      - "12345:12345"

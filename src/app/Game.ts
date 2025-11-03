@@ -241,9 +241,28 @@ export class Game {
 		await inject<SkinManager>("skinManager")?.loadSkins();
 
 		const hasUrl = await this.loadFromHash();
-
 		if (hasUrl) return;
-		await this.loadFromQuery();
+
+		const hasQuery = await this.loadFromQuery();
+		if (hasQuery) return;
+
+		document.querySelector("#splash")?.classList.add("showSplash", "flex");
+		document.querySelector("#splash")?.classList.remove("hidden");
+		document.querySelector("#splashContainer")?.classList.add("showContainer");
+
+		document
+			.querySelector("#splashContainer button")
+			?.addEventListener("click", () => {
+				document.querySelector("#splash")?.classList.remove("showSplash");
+				document
+					.querySelector("#splashContainer")
+					?.classList.remove("showContainer");
+
+				document.querySelector("#splash")?.classList.add("hideSplash");
+				document
+					.querySelector("#splashContainer")
+					?.classList.add("hideContainer");
+			});
 	}
 
 	private async processFile(file: File) {
@@ -254,7 +273,14 @@ export class Game {
 		if (fileExt === "osz") {
 			inject<Loading>("ui/loading")?.on();
 			inject<Loading>("ui/loading")?.setText("Importing beatmapset ");
-			await this.loadBlob(new Blob([file]));
+
+			try {
+				inject<BeatmapSet>("beatmapset")?.destroy();
+				await this.loadBlob(new Blob([file]));
+			} catch (e) {
+				console.error(e);
+			}
+			
 			inject<Loading>("ui/loading")?.off();
 			document
 				.querySelector<HTMLDivElement>("#diffsContainer")
@@ -430,10 +456,11 @@ export class Game {
 
 		if (IDs.length === 0) {
 			inject<Loading>("ui/loading")?.off();
-			return;
+			return false;
 		}
 
 		await this.loadIDs(IDs);
+		return true;
 	}
 
 	private async loadFromInput() {

@@ -57,6 +57,24 @@
         </div>
         <div id="app" class="relative w-full flex-1 overflow-hidden"></div>
         <div class="absolute bottom-0 right-0 invisible" id="a"></div>
+        <div class="fixed w-full h-full hidden items-center justify-center bg-black/60 top-0 left-0 z-9999 p-5" id="splash">
+            <div
+                class="max-w-full max-h-full w-[800px] min-h-[400px] bg-base border-surface-1 rounded-4xl border flex flex-col gap-5 drop-shadow-2xl overflow-hidden p-2.5 text-text" id="splashContainer">
+                <img src="./splash.png" alt="" class="w-full rounded-3xl border-surface-1 border">
+                <button class="absolute text-white right-5 top-5 flex items-center justify-center h-10 w-10 p-2.5 bg-black/10 cursor-pointer rounded-full hover:bg-white/10 transition"><i class="ri-close-line"></i></button>
+                <div class="flex flex-col gap-2 p-5 pt-0">
+                    <div class="text-3xl font-bold">Welcome to JoSu!</div>
+                    <ul>
+                        <li class="list-disc list-inside">To start JoSu!, please select a beatmap ID from <a
+                                href="https://osu.ppy.sh/beatmapsets" class="underline" target="_blank"
+                                rel="noopener noreferrer">osu! beatmap listing page</a>.
+                        </li>
+                        <li class="list-disc list-inside">Alternatively, you can import a local beatmap or replay by using
+                            the import button or drag and drop the .osz/.osr into the site.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <!-- <div class="absolute bottom-[120px] left-0 right-0 mx-auto flex items-center flex-col justify-end toasts">
             <div
                 class="w-[320px] p-5 min-h-[50px] bg-base border-surface-1 rounded-xl drop-shadow-lg text-text text-sm flex items-center gap-2.5">
