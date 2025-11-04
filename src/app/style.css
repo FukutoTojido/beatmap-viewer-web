@@ -531,10 +531,12 @@ input[type="radio"]:checked::before {
 
 .showSplash {
 	animation: ease-in-out 200ms showSplash forwards;
+	pointer-events: all;
 }
 
 .hideSplash {
 	animation: ease-in-out 200ms hideSplash forwards;
+	pointer-events: none;
 }
 
 @keyframes showContainer {
