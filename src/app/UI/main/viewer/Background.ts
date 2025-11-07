@@ -1,10 +1,4 @@
-import {
-	BlurFilter,
-	Container,
-	Sprite,
-	Texture,
-	type TextureSource,
-} from "pixi.js";
+import { BlurFilter, Container, Sprite, Texture } from "pixi.js";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject } from "@/Context";
@@ -98,56 +92,45 @@ export default class Background {
 		this.container.addChild(this.sprite, this.video, this.storyboardContainer);
 	}
 
-	currentFrame?: VideoFrame;
-	lastFrameTime = 0;
-	frameTime = 0;
-
-	currentSource?: TextureSource;
-
 	init = false;
 
 	timer?: number;
 	lastFrame?: VideoFrame;
+	lastTexture?: Texture;
+
+	frameQueue: VideoFrame[] = [];
 
 	updateFrame(frame?: VideoFrame) {
 		if (!frame) {
-			this.video.texture = new Texture();
+			this.lastFrame?.close();
+			this.lastTexture?.destroy();
+
+			this.lastFrame = undefined;
+			this.lastTexture = undefined;
 			return;
 		}
 
-		if (this.timer) {
-			cancelAnimationFrame(this.timer);
-			this.lastFrame?.close();
+		const texture = Texture.from(frame);
+		this.video.texture = texture;
+
+		if (!this.init) {
+			this.video.texture.destroy();
+			this.video.texture = Texture.from(frame);
+			this.video.texture.update();
+			this.container.removeChild(this.video);
+			this.container.addChild(
+				this.sprite,
+				this.video,
+				this.storyboardContainer,
+			);
+			this.init = true;
 		}
 
-		this.timer = requestAnimationFrame(() => {
-			const now = performance.now();
-			this.frameTime = now - this.lastFrameTime;
-			this.currentFrame?.close();
-			this.lastFrame = undefined;
-
-			this.video.texture.source.resource = frame;
-			this.video.texture.source.update();
-			this.video.texture.update();
-
-			this.currentFrame = frame;
-			this.lastFrameTime = now;
-
-			if (!this.init) {
-				this.video.texture.destroy();
-				this.video.texture = Texture.from(frame);
-				this.video.texture.update();
-				this.container.removeChild(this.video);
-				this.container.addChild(
-					this.sprite,
-					this.video,
-					this.storyboardContainer,
-				);
-				this.init = true;
-			}
-		});
+		this.lastFrame?.close();
+		this.lastTexture?.destroy();
 
 		this.lastFrame = frame;
+		this.lastTexture = texture;
 	}
 
 	injectStoryboardContainer(container: Container) {
