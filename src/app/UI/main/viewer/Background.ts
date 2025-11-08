@@ -111,24 +111,22 @@ export default class Background {
 		}
 		const texture = Texture.from(frame);
 
-		requestAnimationFrame(() => {
-			if (!this.init) {
-				this.video.texture.destroy();
-			}
+		if (!this.init) {
+			this.video.texture.destroy();
+		}
 
-			this.video.texture = texture;
-			
-			if (!this.init) {
-				this.video.texture.update();
-				this.container.removeChild(this.video);
-				this.container.addChild(
-					this.sprite,
-					this.video,
-					this.storyboardContainer,
-				);
-				this.init = true;
-			}
-		});
+		this.video.texture = texture;
+
+		if (!this.init) {
+			this.video.texture.update();
+			this.container.removeChild(this.video);
+			this.container.addChild(
+				this.sprite,
+				this.video,
+				this.storyboardContainer,
+			);
+			this.init = true;
+		}
 
 		this.lastFrame?.close();
 		this.lastTexture?.destroy();

@@ -24,9 +24,13 @@ export default class Video {
 							(event.data.data as VideoFrame).close();
 							break;
 						}
-						inject<Background>("ui/main/viewer/background")?.updateFrame(
-							event.data.data as VideoFrame,
-						);
+
+						requestAnimationFrame(() => {
+							inject<Background>("ui/main/viewer/background")?.updateFrame(
+								event.data.data as VideoFrame,
+							);
+						});
+
 						break;
 					}
 				}
