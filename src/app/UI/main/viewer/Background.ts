@@ -109,22 +109,26 @@ export default class Background {
 			this.lastTexture = undefined;
 			return;
 		}
-
 		const texture = Texture.from(frame);
-		this.video.texture = texture;
 
-		if (!this.init) {
-			this.video.texture.destroy();
-			this.video.texture = Texture.from(frame);
-			this.video.texture.update();
-			this.container.removeChild(this.video);
-			this.container.addChild(
-				this.sprite,
-				this.video,
-				this.storyboardContainer,
-			);
-			this.init = true;
-		}
+		requestAnimationFrame(() => {
+			if (!this.init) {
+				this.video.texture.destroy();
+			}
+
+			this.video.texture = texture;
+			
+			if (!this.init) {
+				this.video.texture.update();
+				this.container.removeChild(this.video);
+				this.container.addChild(
+					this.sprite,
+					this.video,
+					this.storyboardContainer,
+				);
+				this.init = true;
+			}
+		});
 
 		this.lastFrame?.close();
 		this.lastTexture?.destroy();
