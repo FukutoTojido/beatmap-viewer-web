@@ -21,6 +21,9 @@ export default class Background {
 			width: "100%",
 			height: "100%",
 		},
+		eventMode: "none",
+		interactive: false,
+		interactiveChildren: false
 	});
 
 	private sprite = new Sprite({
