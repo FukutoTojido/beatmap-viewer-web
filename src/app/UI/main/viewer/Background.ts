@@ -23,7 +23,7 @@ export default class Background {
 		},
 		eventMode: "none",
 		interactive: false,
-		interactiveChildren: false
+		interactiveChildren: false,
 	});
 
 	private sprite = new Sprite({
@@ -49,6 +49,7 @@ export default class Background {
 			objectPosition: "center",
 			objectFit: "cover",
 		},
+		dynamic: true,
 	});
 
 	private storyboardContainer = new Container();
@@ -98,30 +99,19 @@ export default class Background {
 	init = false;
 
 	timer?: number;
-	lastFrame?: VideoFrame;
-	lastTexture?: Texture;
 
-	frameQueue: VideoFrame[] = [];
+	lastFrame?: VideoFrame;
 
 	updateFrame(frame?: VideoFrame) {
 		if (!frame) {
 			this.lastFrame?.close();
-			this.lastTexture?.destroy();
-
-			this.lastFrame = undefined;
-			this.lastTexture = undefined;
 			return;
 		}
-		const texture = Texture.from(frame);
+
+		this.video.texture.destroy();
+		this.video.texture = Texture.from(frame);
 
 		if (!this.init) {
-			this.video.texture.destroy();
-		}
-
-		this.video.texture = texture;
-
-		if (!this.init) {
-			this.video.texture.update();
 			this.container.removeChild(this.video);
 			this.container.addChild(
 				this.sprite,
@@ -132,10 +122,7 @@ export default class Background {
 		}
 
 		this.lastFrame?.close();
-		this.lastTexture?.destroy();
-
 		this.lastFrame = frame;
-		this.lastTexture = texture;
 	}
 
 	injectStoryboardContainer(container: Container) {

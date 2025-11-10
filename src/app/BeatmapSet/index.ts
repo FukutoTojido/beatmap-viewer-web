@@ -231,6 +231,9 @@ export default class BeatmapSet extends ScopedClass {
 
 		inject<Loading>("ui/loading")?.setText("Loading video");
 
+		const bg = inject<Background>("ui/main/viewer/background");
+		if (bg) bg.init = false;
+
 		const video = this.context.provide("video", new Video());
 		try {
 			await video.load(
