@@ -125,13 +125,6 @@ class VideoEngine {
 		const videoDecoderConfig = await this.demuxer.getDecoderConfig("video");
 		const videoMediaInfo = await this.demuxer.getMediaInfo();
 
-		
-		// const codecInfo = h264avc_to_string(videoDecoderConfig.codec);
-		// if (codecInfo?.profile_idc === "Unknown") {
-		// 	const { level_idc } = codecInfo;
-		// 	videoDecoderConfig.codec = `avc1.640033`
-		// }
-		
 		console.log(videoDecoderConfig, videoMediaInfo);
 		this.config = videoDecoderConfig;
 		this.decoder.configure(videoDecoderConfig);
@@ -172,44 +165,63 @@ class VideoEngine {
 
 	frameTimer?: number;
 
+	async reInitDecoder() {
+		console.log("Decoder Borked!");
+		console.log("Attempt to restart VideoDecoder...");
+
+		this.decoder = new VideoDecoder({
+			output: (frame) => {
+				this.output(frame);
+			},
+			error: (e) => {
+				console.error(e);
+			},
+		});
+		this.decoder.configure(this.config);
+		await this.seekToChunk(this.currentIndex);
+	}
+
 	async readFrame() {
-		const now = performance.now();
-		// if (this.last === 0) this.last = 1000 / this.frameRate - 1;
-		const frameTime = 1000 / this.frameRate;
-
-		if (
-			this.startTime +
-				(now - this.absStartTime) * this.playbackRate -
-				this.offset >
-			this.currentIndex * frameTime
-		) {
-			const i = this.currentIndex;
-
-			if (this.status === "STOP") {
-				return;
-			}
-
-			if (i >= this.encodedChunks.length) {
-				this.status = "STOP";
-				this.decoder.flush();
-				this.currentIndex = 0;
-				return;
-			}
-
-			this.currentIndex = i;
-
-			const chunk = this.encodedChunks[i];
-			this.decoder.decode(chunk);
-
-			this.currentIndex += 1;
-		}
-
 		try {
+			const now = performance.now();
+			const frameTime = 1000 / this.frameRate;
+
+			if (
+				this.startTime +
+					(now - this.absStartTime) * this.playbackRate -
+					this.offset >
+				this.currentIndex * frameTime
+			) {
+				const i = this.currentIndex;
+
+				if (this.status === "STOP") {
+					return;
+				}
+
+				if (i >= this.encodedChunks.length) {
+					this.status = "STOP";
+					this.decoder.flush();
+					this.currentIndex = 0;
+					return;
+				}
+
+				this.currentIndex = i;
+
+				const chunk = this.encodedChunks[i];
+				this.decoder.decode(chunk);
+
+				this.currentIndex += 1;
+			}
+
 			this.frameTimer = requestAnimationFrame(() => {
 				this.readFrame();
 			});
-		} catch (error) {
-			console.error(error);
+		} catch {
+			await this.reInitDecoder();
+
+			this.frameTimer = requestAnimationFrame(() => {
+				this.readFrame();
+			});
 		}
 	}
 
@@ -238,22 +250,23 @@ class VideoEngine {
 	absStartTime = 0;
 	startTime = 0;
 	async _seek(timestamp: number) {
+		const index = this.binarySearch(timestamp * 1000);
+		this.currentIndex = index;
+
+		if (this.status === "PLAY") {
+			if (this.frameTimer) cancelAnimationFrame(this.frameTimer);
+			this.pauseResolver = undefined;
+		}
+
 		try {
-			if (this.status === "PLAY") {
-				if (this.frameTimer) cancelAnimationFrame(this.frameTimer);
-				this.pauseResolver = undefined;
-			}
-
-			const index = this.binarySearch(timestamp * 1000);
-			this.currentIndex = index;
-
 			await this.seekToChunk(index);
+		} catch {
+			await this.reInitDecoder();
+			await this.seekToChunk(index);
+		}
 
-			if (this.status === "PLAY") {
-				this.play(timestamp);
-			}
-		} catch (e) {
-			console.error(e);
+		if (this.status === "PLAY") {
+			this.play(timestamp);
 		}
 	}
 
