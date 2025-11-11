@@ -29,7 +29,7 @@ export default class Storyboard extends ScopedClass {
 	container: Container = new Container({
 		label: "storyboard",
 		isRenderGroup: true,
-		visible: inject<BackgroundConfig>("config/background")?.storyboard
+		visible: inject<BackgroundConfig>("config/background")?.storyboard,
 	});
 
 	backgroundLayer = new Container({
@@ -89,9 +89,12 @@ export default class Storyboard extends ScopedClass {
 		);
 		this.container.mask = mask;
 
-		inject<BackgroundConfig>("config/background")?.onChange("storyboard", (val) => {
-			this.container.visible = val;
-		})
+		inject<BackgroundConfig>("config/background")?.onChange(
+			"storyboard",
+			(val) => {
+				this.container.visible = val;
+			},
+		);
 	}
 
 	async loadTextures() {
@@ -100,16 +103,23 @@ export default class Storyboard extends ScopedClass {
 			// biome-ignore lint/style/noNonNullAssertion: Hooked
 			...this.context.consume<Map<string, Resource>>("resources")!,
 		].map(async ([key, resource]) => {
-			// biome-ignore lint/style/noNonNullAssertion: Always have extension
-			if (!["png", "jpg", "jpeg"].includes(key.split(".").at(-1)!.toLowerCase())) return;
+			if (
+				// biome-ignore lint/style/noNonNullAssertion: Always have extension
+				!["png", "jpg", "jpeg"].includes(key.split(".").at(-1)!.toLowerCase())
+			)
+				return;
 
-			const texture = await Assets.load<Texture>({
-				// biome-ignore lint/style/noNonNullAssertion: Should be able to be found
-				src: URL.createObjectURL(resource!),
-				parser: "texture",
-			});
+			try {
+				const texture = await Assets.load<Texture>({
+					// biome-ignore lint/style/noNonNullAssertion: Should be able to be found
+					src: URL.createObjectURL(resource!),
+					parser: "texture",
+				});
 
-			textureMap.set(key.toLowerCase(), texture);
+				textureMap.set(key.toLowerCase(), texture);
+			} catch {
+				console.log(`Cannot load resource with name: ${key}`);
+			}
 		});
 
 		await Promise.all(promises);
@@ -230,7 +240,7 @@ export default class Storyboard extends ScopedClass {
 
 	update(timestamp: number) {
 		if (!inject<BackgroundConfig>("config/background")?.storyboard) return;
-		
+
 		const set = new Set<number>(
 			this._tree?.search([timestamp - 1, timestamp + 1]) as Array<number>,
 		);
@@ -373,7 +383,7 @@ export default class Storyboard extends ScopedClass {
 
 	destroy() {
 		for (const sprite of this.masterSprites) {
-			sprite.destroy()
+			sprite.destroy();
 		}
 
 		for (const sprite of this.sprites) {

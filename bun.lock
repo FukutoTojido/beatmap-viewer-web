@@ -44,7 +44,7 @@
         "vite": "^6.3.5",
         "vite-plugin-node-polyfills": "^0.24.0",
         "wavesurfer.js": "^7.10.2",
-        "web-demuxer": "^3.0.2",
+        "web-demuxer": "^3.0.3",
       },
       "devDependencies": {
         "@types/bun": "^1.2.20",
@@ -1075,7 +1075,7 @@
 
     "wavesurfer.js": ["wavesurfer.js@7.10.2", "", {}, "sha512-7ajXQ1x3nHfAxdkUavUfmVEYraCWYO6iV02Z5vnNqZf4qTkjQDVBO9/FjI3Ui0IrIrhPkklzDbZIhdo8qZIB6w=="],
 
-    "web-demuxer": ["web-demuxer@3.0.2", "", {}, "sha512-T4TzLeVhULO10XSyYNffxWTlYmw9rkwN8YfIAHye2g34sHEXP8FbTa9mqOQMuNt3ZWkgWnKw4nWJLe0XZhWDRA=="],
+    "web-demuxer": ["web-demuxer@3.0.3", "", {}, "sha512-JP/wvZKxzKj3JWMqTo3S4sBg7yeIi4pEdHv22qOEpSfHbYNMlrEsAE1LVom+xoRE1QzBE7pl0BUQ/ah0uf4Z8w=="],
 
     "webidl-conversions": ["webidl-conversions@3.0.1", "", {}, "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ=="],
 

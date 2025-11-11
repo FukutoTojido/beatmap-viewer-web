@@ -8,6 +8,68 @@ type BeatmapData = {
 	id: number;
 };
 
+export enum IDType {
+	BEATMAP_SET = "s",
+	BEATMAP = "b",
+}
+
+const sanitizeID = (id: string) => {
+	if (!/^[0-9]+$/g.test(id)) {
+		return null;
+	}
+
+	return id;
+};
+
+export function processID(id: string): {
+	id: string;
+	type: IDType;
+} | null {
+	if (/^[0-9]+$/g.test(id)) return { id, type: IDType.BEATMAP };
+
+	try {
+		const url = new URL(id);
+
+		if (url.hostname !== "osu.ppy.sh") {
+			return null;
+		}
+
+		const params = url.pathname.split("/");
+		if (!params[1] || !params[2]) return null;
+
+		switch (params[1]) {
+			case "beatmapsets": {
+				if (!url.hash) {
+					const id = sanitizeID(params[2]);
+					return id ? { id, type: IDType.BEATMAP_SET } : null;
+				}
+
+				const [_, strId] = url.hash.split("/");
+				if (!strId) {
+					const id = sanitizeID(params[2]);
+					return id ? { id, type: IDType.BEATMAP_SET } : null;
+				}
+
+				const id = sanitizeID(strId);
+				return id ? { id, type: IDType.BEATMAP } : null;
+			}
+			case "s": {
+				const id = sanitizeID(params[2]);
+				return id ? { id, type: IDType.BEATMAP_SET } : null;
+			}
+			case "beatmaps":
+			case "b": {
+				const id = sanitizeID(params[2]);
+				return id ? { id, type: IDType.BEATMAP } : null;
+			}
+		}
+
+		return null
+	} catch {
+		return null;
+	}
+}
+
 async function getBeatmapsetId(beatmapId: string) {
 	try {
 		if (!/\d+/g.test(beatmapId)) throw new Error("beatmapId is not a number!");
@@ -40,7 +102,10 @@ async function getBeatmapsetIdFromHash(hash: string) {
 	}
 }
 
-export async function getBeatmapFromId(beatmapId: string) {
+export async function getBeatmapFromId(
+	beatmapId: string,
+	beatmapSetId?: string,
+) {
 	const mirrorConfig = inject<MirrorConfig>("config/mirror");
 	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
 
@@ -48,9 +113,11 @@ export async function getBeatmapFromId(beatmapId: string) {
 		mirror: { urlTemplate },
 	} = mirrorConfig;
 
-	const beatmapsetId = await getBeatmapsetId(beatmapId);
+	const beatmapsetId = beatmapSetId ?? (await getBeatmapsetId(beatmapId));
 	if (!beatmapsetId)
-		throw new Error(`Map with id ${beatmapId} does not exist!!!`);
+		throw new Error(
+			`Map(set) with id ${beatmapId ?? beatmapSetId} does not exist!!!`,
+		);
 
 	try {
 		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
@@ -106,7 +173,7 @@ export async function getBeatmapFromHash(hash: string) {
 export async function getBeatmapFromExternalUrl(url: string) {
 	try {
 		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
-		
+
 		const formData = new FormData();
 		formData.append("url", url);
 		const blob = await ky

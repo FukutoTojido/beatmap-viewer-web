@@ -5,13 +5,14 @@ import AnimationController, {
 	tweenGroup,
 } from "./UI/animation/AnimationController";
 import "./FPSSystem";
-import ky from "ky";
 import BeatmapSet from "./BeatmapSet";
 import Replay from "./BeatmapSet/Beatmap/Replay";
 import {
 	getBeatmapFromExternalUrl,
 	getBeatmapFromHash,
 	getBeatmapFromId,
+	IDType,
+	processID,
 } from "./BeatmapSet/BeatmapDownloader";
 import Config from "./Config";
 import type FullscreenConfig from "./Config/FullscreenConfig";
@@ -280,7 +281,7 @@ export class Game {
 			} catch (e) {
 				console.error(e);
 			}
-			
+
 			inject<Loading>("ui/loading")?.off();
 			document
 				.querySelector<HTMLDivElement>("#diffsContainer")
@@ -465,15 +466,23 @@ export class Game {
 
 	private async loadFromInput() {
 		const input = document.querySelector<HTMLInputElement>("#idInput");
-		const ids =
-			input?.value
-				.split(",")
-				.map((id) => id.trim())
-				.filter((id) => /\d+/g.test(id)) ?? [];
+		const entries = input?.value.split(",").map((id) => processID(id.trim()));
 
 		input?.blur();
 
-		await this.loadIDs(ids);
+		if (!entries?.length) return;
+
+		if (entries[0]?.type === IDType.BEATMAP_SET) {
+			await this.loadSetID(entries[0].id);
+			return;
+		}
+
+		await this.loadIDs(
+			entries
+				.filter((entry) => entry?.type === IDType.BEATMAP)
+				.map((entry) => entry?.id ?? null)
+				.filter((entry) => entry !== null),
+		);
 	}
 
 	private async loadIDs(IDs: string[]) {
@@ -488,14 +497,7 @@ export class Game {
 				)
 			) {
 				bms?.destroy();
-				const blob =
-					IDs.length !== 0
-						? await getBeatmapFromId(IDs[0])
-						: await (
-								await ky.get("./beatmapsets/test.osz", {
-									headers: { Accept: "application/x-osu-beatmap-archive" },
-								})
-							).blob();
+				const blob = await getBeatmapFromId(IDs[0]);
 
 				if (blob === null) throw new Error("Cannot download beatmap");
 				console.log("Download Completed!");
@@ -517,6 +519,44 @@ export class Game {
 				if (idx === -1) continue;
 				if (i === 0) await bms.loadMaster(idx);
 				if (i !== 0) bms.loadSlave(idx);
+			}
+
+			if (!bms.master) {
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("hidden");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.remove("showOut");
+				document
+					.querySelector<HTMLDivElement>("#diffsContainer")
+					?.classList.add("showIn");
+			}
+		} catch (e) {
+			console.error(e);
+		}
+
+		inject<Loading>("ui/loading")?.off();
+	}
+
+	private async loadSetID(ID: string) {
+		inject<Loading>("ui/loading")?.on();
+
+		try {
+			let bms = inject<BeatmapSet>("beatmapset");
+			if (
+				!bms ||
+				!bms?.difficulties.some(
+					(diff) => diff.data.metadata.beatmapSetId === +ID,
+				)
+			) {
+				bms?.destroy();
+				const blob = await getBeatmapFromId("", ID);
+
+				if (blob === null) throw new Error("Cannot download beatmap");
+				console.log("Download Completed!");
+
+				bms = await this.loadBlob(blob);
 			}
 
 			if (!bms.master) {

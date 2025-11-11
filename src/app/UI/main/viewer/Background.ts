@@ -49,7 +49,6 @@ export default class Background {
 			objectPosition: "center",
 			objectFit: "cover",
 		},
-		dynamic: true,
 	});
 
 	private storyboardContainer = new Container();
@@ -105,13 +104,32 @@ export default class Background {
 	updateFrame(frame?: VideoFrame) {
 		if (!frame) {
 			this.lastFrame?.close();
+
+			this.video = new Sprite({
+				layout: {
+					position: "absolute",
+					top: 0,
+					left: 0,
+					width: "100%",
+					height: "100%",
+					objectPosition: "center",
+					objectFit: "cover",
+				},
+			});
+
+			this.container.removeChild(this.video);
+			this.container.addChild(
+				this.sprite,
+				this.video,
+				this.storyboardContainer,
+			);
 			return;
 		}
 
-		this.video.texture.destroy();
-		this.video.texture = Texture.from(frame);
-
 		if (!this.init) {
+			this.video.texture.destroy();
+			this.video.texture = Texture.from(frame);
+
 			this.container.removeChild(this.video);
 			this.container.addChild(
 				this.sprite,
@@ -119,7 +137,16 @@ export default class Background {
 				this.storyboardContainer,
 			);
 			this.init = true;
+
+			this.lastFrame?.close();
+			this.lastFrame = frame;
+
+			return;
 		}
+
+		this.video.texture.source.resource = frame;
+		this.video.texture.source.update();
+		this.video.texture.update();
 
 		this.lastFrame?.close();
 		this.lastFrame = frame;
