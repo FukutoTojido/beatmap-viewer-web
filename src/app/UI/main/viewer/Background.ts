@@ -144,9 +144,17 @@ export default class Background {
 			return;
 		}
 
-		this.video.texture.source.resource = frame;
-		this.video.texture.source.update();
-		this.video.texture.update();
+		// this.video.texture.source.resource = frame;
+		// this.video.texture.source.update();
+		// this.video.texture.update();
+
+		const texture = this.video.texture;
+		const newTexture = Texture.from(frame);
+		this.video.texture = newTexture;
+
+		texture.source.destroy();
+		texture.baseTexture.destroy();
+		texture.destroy();
 
 		this.lastFrame?.close();
 		this.lastFrame = frame;
