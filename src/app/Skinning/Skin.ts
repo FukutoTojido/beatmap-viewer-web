@@ -77,7 +77,7 @@ export default class Skin {
 		const configFile = await this.resources?.get("skin.ini")?.text();
 		if (!configFile) return;
 
-		const config = parse(configFile, {
+		const config = parse(configFile.replaceAll(/\/\/.*/g, ""), {
 			comment: ["//", "--", ";", "=="],
 			delimiter: ":",
 		});
@@ -105,7 +105,7 @@ export default class Skin {
 	}
 
 	private async loadTextures() {
-		const defaults = [...Array(10)].map((_, idx) => `default-${idx}`);
+		const defaults = [...Array(10)].map((_, idx) => `${this.config.Fonts.HitCirclePrefix}-${idx}`);
 		const filenames = [
 			"approachcircle",
 			...defaults,
@@ -162,7 +162,9 @@ export default class Skin {
 					texture.source.resolution = isHD ? 2 : 1;
 					texture.update();
 
-					this.textures.set(filename, texture);
+					const extracted = filename.split("/").at(-1);
+					const isDefault = extracted ? /default-[0-9]+/g.test(extracted) : false;
+					this.textures.set(isDefault ? extracted as string : filename, texture);
 				} catch {
 					return;
 				}
