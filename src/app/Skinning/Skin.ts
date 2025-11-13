@@ -9,7 +9,7 @@ import type { SkinMetadata } from "./SkinManager";
 const sanitizeINI = (str: string) =>
 	str
 		.split("\n")
-		.filter((line) => /(^\[.*\]$)|(^(\s|\t)*[a-zA-Z0-9]+\s*:.*)/g.test(line))
+		.filter((line) => /(^\[.*\])|(^(\s|\t)*[a-zA-Z0-9]+\s*:.*)/g.test(line))
 		.join("\n")
 		.replaceAll(/((\/\/)|(--)|(;)|(==)).*/g, "");
 
@@ -103,8 +103,6 @@ export default class Skin {
 				...(config as SkinConfig).Fonts,
 			},
 		};
-
-		// console.log(this.config);
 
 		this.colorsLength = Object.keys(this.config.Colours).filter((key) =>
 			/Combo[1-8]/g.test(key),
