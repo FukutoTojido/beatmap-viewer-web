@@ -6,6 +6,13 @@ import type { Resource } from "../ZipHandler";
 import type SkinManager from "./SkinManager";
 import type { SkinMetadata } from "./SkinManager";
 
+const sanitizeINI = (str: string) =>
+	str
+		.split("\n")
+		.filter((line) => /(^\[.*\]$)|(^(\s|\t)*[a-zA-Z0-9]+\s*:.*)/g.test(line))
+		.join("\n")
+		.replaceAll(/((\/\/)|(--)|(;)|(==)).*/g, "");
+
 export type SkinConfig = {
 	General: {
 		Name: string;
@@ -77,7 +84,7 @@ export default class Skin {
 		const configFile = await this.resources?.get("skin.ini")?.text();
 		if (!configFile) return;
 
-		const config = parse(configFile.replaceAll(/\/\/.*/g, ""), {
+		const config = parse(sanitizeINI(configFile), {
 			comment: ["//", "--", ";", "=="],
 			delimiter: ":",
 		});
@@ -105,7 +112,9 @@ export default class Skin {
 	}
 
 	private async loadTextures() {
-		const defaults = [...Array(10)].map((_, idx) => `${this.config.Fonts.HitCirclePrefix}-${idx}`);
+		const defaults = [...Array(10)].map(
+			(_, idx) => `${this.config.Fonts.HitCirclePrefix}-${idx}`,
+		);
 		const filenames = [
 			"approachcircle",
 			...defaults,
@@ -163,8 +172,13 @@ export default class Skin {
 					texture.update();
 
 					const extracted = filename.split("/").at(-1);
-					const isDefault = extracted ? /default-[0-9]+/g.test(extracted) : false;
-					this.textures.set(isDefault ? extracted as string : filename, texture);
+					const isDefault = extracted
+						? /default-[0-9]+/g.test(extracted)
+						: false;
+					this.textures.set(
+						isDefault ? (extracted as string) : filename,
+						texture,
+					);
 				} catch {
 					return;
 				}
