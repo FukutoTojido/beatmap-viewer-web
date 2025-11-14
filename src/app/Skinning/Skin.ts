@@ -11,7 +11,7 @@ const sanitizeINI = (str: string) =>
 		.split("\n")
 		.filter((line) => /(^\[.*\])|(^(\s|\t)*[a-zA-Z0-9]+\s*:.*)/g.test(line))
 		.join("\n")
-		.replaceAll(/((\/\/)|(--)|(;)|(==)).*/g, "");
+		.replaceAll(/((\/\/)|(;)|(==)).*/g, "");
 
 export type SkinConfig = {
 	General: {
@@ -88,6 +88,8 @@ export default class Skin {
 			comment: ["//", "--", ";", "=="],
 			delimiter: ":",
 		});
+
+		console.log(configFile);
 
 		this.config = {
 			General: {
