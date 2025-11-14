@@ -89,8 +89,6 @@ export default class Skin {
 			delimiter: ":",
 		});
 
-		console.log(configFile);
-
 		this.config = {
 			General: {
 				...this.config.General,

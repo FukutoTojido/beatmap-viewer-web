@@ -339,14 +339,29 @@ export default class Beatmap extends ScopedClass {
 			end: number;
 		}[] = [];
 		const effectPoints = this.data.controlPoints.effectPoints;
-		for (let i = 0; i < effectPoints.length; i += 2) {
-			const startPoint = effectPoints[i];
-			const endPoint = effectPoints[i + 1];
 
-			kiaiSections.push({
-				start: startPoint.startTime / (audio?.duration ?? 1),
-				end: endPoint ? endPoint.startTime / (audio?.duration ?? 1) : 1,
-			});
+		const buffer = [];
+		let isKiai = false;
+
+		for (let i = 0; i < effectPoints.length; i++) {
+			if (effectPoints[i].kiai && !isKiai) {
+				isKiai = true;
+				buffer.push(effectPoints[i].startTime / (audio?.duration ?? 1));
+
+				continue;
+			}
+
+			if (!effectPoints[i].kiai && isKiai) {
+				isKiai = false;
+				buffer.push(effectPoints[i].startTime / (audio?.duration ?? 1));
+
+				kiaiSections.push({
+					start: buffer[0],
+					end: buffer.at(-1) ?? 1,
+				});
+
+				buffer.length = 0;
+			}
 		}
 
 		const breaks: {
