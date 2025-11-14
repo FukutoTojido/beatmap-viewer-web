@@ -1,15 +1,15 @@
 import { HitResult } from "osu-classes";
+import type { Slider, Spinner } from "osu-standard-stable";
 import { Container, Sprite } from "pixi.js";
 import { inject } from "@/Context";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonJudgement";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacyJudgement";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
-import type { BaseObjectEvaluation } from "../Replay";
-import type DrawableHitObject from "./DrawableHitObject";
-import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
-import type { Slider, Spinner } from "osu-standard-stable";
 import { Clamp } from "@/utils";
+import type { BaseObjectEvaluation } from "../Replay";
+import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
+import type DrawableHitObject from "./DrawableHitObject";
 
 export default class DrawableJudgement extends AnimatedSkinnableElement {
 	container: Container;

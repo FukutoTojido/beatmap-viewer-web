@@ -150,6 +150,7 @@ export default class Skin {
 			"hit50",
 			"hit0",
 			"sliderb",
+			"sliderfollowcircle"
 		];
 
 		await Promise.all([
