@@ -133,10 +133,8 @@ export default class DrawableJudgement extends AnimatedSkinnableElement {
 					1,
 			);
 
-		const currentSkin = this.skinManager?.getCurrentSkin();
-		const frameLength = currentSkin?.config.General.AnimationFrameRate
-			? 1000 / currentSkin.config.General.AnimationFrameRate
-			: 1220 / this.texturesList.length;
+		const frameLength = 1000 / 60;
+
 		const frameIndex = Clamp(
 			Math.floor((timestamp - startTime) / frameLength),
 			0,
