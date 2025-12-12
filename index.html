@@ -6,20 +6,29 @@
             <div class="flex items-center gap-2.5 h-full">
                 <button
                     class="min-h-10 h-full px-5 rounded-full bg-black/40 hover:bg-white/10 outline-white/10 outline cursor-pointer transition"
-                    id="settingsButton">
+                    id="settingsButton"
+                >
                     <i class="ri-settings-3-fill text-white text-[24px]"></i>
                 </button>
-                <div class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full outline-white/10 outline min-h-10"
-                    id="search">
-                    <input type="text" name="" id="idInput"
+                <div
+                    class="flex items-center h-full has-focus-within:outline-2 has-focus-within:outline-text rounded-full outline-white/10 outline min-h-10"
+                    id="search"
+                >
+                    <input
+                        type="text"
+                        name=""
+                        id="idInput"
                         class="min-w-[264px] h-full rounded-full rounded-r-none focus-within:outline-0 bg-black/40 px-5 placeholder:text-white/60 text-white text-xs flex-1"
-                        placeholder="Open using beatmap ID / URL">
+                        placeholder="Open using beatmap ID / URL"
+                    />
                     <button class="h-full pr-5 rounded-full rounded-l-none bg-black/40" tabindex="-1" id="submitId">
                         <i class="ri-search-line text-white text-[24px]"></i>
                     </button>
                 </div>
-                <label for="fileInput"
-                    class="h-full p-5 rounded-full bg-black/40 hover:bg-white/10 outline-white/10 outline cursor-pointer text-white aspect-square flex items-center justify-center transition">
+                <label
+                    for="fileInput"
+                    class="h-full p-5 rounded-full bg-black/40 hover:bg-white/10 outline-white/10 outline cursor-pointer text-white aspect-square flex items-center justify-center transition"
+                >
                     <i class="ri-folder-add-fill"></i>
                     <input type="file" name="fileInput" id="fileInput" hidden />
                 </label>
@@ -32,9 +41,9 @@
                 <label for="diffs" class="relative h-full min-h-[50px] w-[320px] text-xs" id="diffsLabel">
                     <button id="diffs" class="hidden flyout-toggle"></button>
                     <div
-                        class="relative w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 outline-white/10 outline transition-colors cursor-pointer text-white select-none z-[100]">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            id="extraMode">
+                        class="relative w-full h-full min-h-[50px] bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 outline-white/10 outline transition-colors cursor-pointer text-white select-none z-[100]"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" id="extraMode">
                             <g clip-path="url(#clip0_1_34)">
                                 <rect x="1" y="1" width="18" height="18" rx="9" stroke="white" stroke-width="2" />
                                 <rect x="5" y="5" width="10" height="10" rx="5" fill="white" />
@@ -48,10 +57,11 @@
                         <span id="masterDiff" class="flex-1 text-left truncate">Choose Difficulty</span>
                         <span id="masterSR">SR★</span>
                     </div>
-                    <div id="diffsContainer"
+                    <div
+                        id="diffsContainer"
                         class="flyout absolute w-max min-w-full top-[100%] right-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline"
-                        style="max-width: calc(100vw - 20px);">
-                    </div>
+                        style="max-width: calc(100vw - 20px)"
+                    ></div>
                 </label>
             </div>
         </div>
@@ -59,18 +69,25 @@
         <div class="absolute bottom-0 right-0 invisible" id="a"></div>
         <div class="fixed w-full h-full hidden items-center justify-center bg-black/60 top-0 left-0 z-9999 p-5" id="splash">
             <div
-                class="max-w-full max-h-full w-[800px] min-h-[400px] bg-base border-surface-1 rounded-4xl border flex flex-col gap-5 drop-shadow-2xl overflow-hidden p-2.5 text-text" id="splashContainer">
-                <img src="./splash.png" alt="" class="w-full rounded-3xl border-surface-1 border">
-                <button class="absolute text-white right-5 top-5 flex items-center justify-center h-10 w-10 p-2.5 bg-black/10 cursor-pointer rounded-full hover:bg-white/10 transition"><i class="ri-close-line"></i></button>
+                class="relative max-w-full max-h-full w-[800px] min-h-[400px] bg-base border-surface-1 rounded-4xl border flex flex-col gap-5 drop-shadow-2xl overflow-hidden p-2.5 text-text"
+                id="splashContainer"
+            >
+                <img src="./splash.png" alt="" class="relative w-full rounded-3xl border-surface-1 border" />
+                <button
+                    class="absolute text-white right-5 top-5 flex items-center justify-center h-10 w-10 p-2.5 bg-black/10 cursor-pointer rounded-full hover:bg-white/10 transition"
+                >
+                    <i class="ri-close-line"></i>
+                </button>
                 <div class="flex flex-col gap-2 p-5 pt-0">
                     <div class="text-3xl font-bold">Welcome to JoSu!</div>
                     <ul>
-                        <li class="list-disc list-inside">To start JoSu!, please select a beatmap ID from <a
-                                href="https://osu.ppy.sh/beatmapsets" class="underline" target="_blank"
-                                rel="noopener noreferrer">osu! beatmap listing page</a>.
+                        <li class="list-disc list-inside">
+                            To start JoSu!, please select a beatmap ID from
+                            <a href="https://osu.ppy.sh/beatmapsets" class="underline" target="_blank" rel="noopener noreferrer">osu! beatmap listing page</a>.
                         </li>
-                        <li class="list-disc list-inside">Alternatively, you can import a local beatmap or replay by using
-                            the import button or drag and drop the .osz/.osr into the site.</li>
+                        <li class="list-disc list-inside">
+                            Alternatively, you can import a local beatmap or replay by using the import button or drag and drop the .osz/.osr into the site.
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -103,8 +120,7 @@
         </div> -->
         <div class="fixed top-0 left-0 w-full h-full bg-black/50 overlayHidden" id="overlay"></div>
     </main>
-    <div class="fixed top-0 w-[600px] max-w-[80vw] h-svh overflow-auto bg-crust flex flex-col gap-2.5 text-text"
-        id="settings">
+    <div class="fixed top-0 w-[600px] max-w-[80vw] h-svh overflow-auto bg-crust flex flex-col gap-2.5 text-text" id="settings">
         <div class="bg-base p-10 flex flex-col w-full">
             <div class="font-medium text-3xl">Settings</div>
             <div>Change how JoSu! behaves</div>
@@ -114,18 +130,19 @@
             <label for="skins" class="relative h-full min-h-[50px] w-full text-xs" id="skinsLabel">
                 <button id="skins" class="hidden flyout-toggle"></button>
                 <div
-                    class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none outline-white/10 outline">
+                    class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none outline-white/10 outline"
+                >
                     <span id="currentSkin" class="flex-1 text-left truncate">Current Skin</span>
                 </div>
-                <div id="skinsContainer"
-                    class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline">
-                </div>
+                <div
+                    id="skinsContainer"
+                    class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline"
+                ></div>
             </label>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
-                    <label class="font-normal flex-1 cursor-pointer" for="disableBeatmapSkin" tabindex="-1">Ignore
-                        beatmap skin</label>
-                    <input type="checkbox" name="disableBeatmapSkin" id="disableBeatmapSkin">
+                    <label class="font-normal flex-1 cursor-pointer" for="disableBeatmapSkin" tabindex="-1">Ignore beatmap skin</label>
+                    <input type="checkbox" name="disableBeatmapSkin" id="disableBeatmapSkin" />
                 </div>
             </div>
         </div>
@@ -134,27 +151,25 @@
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <label class="font-normal flex-1 cursor-pointer" for="grid" tabindex="-1">Show Grid</label>
-                    <input type="checkbox" name="grid" id="grid">
+                    <input type="checkbox" name="grid" id="grid" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
-                    <label class="font-normal flex-1 cursor-pointer" for="snakeIn" tabindex="-1">Snaking In
-                        Slider</label>
-                    <input type="checkbox" name="snakeIn" id="snakeIn">
+                    <label class="font-normal flex-1 cursor-pointer" for="snakeIn" tabindex="-1">Snaking In Slider</label>
+                    <input type="checkbox" name="snakeIn" id="snakeIn" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
-                    <label class="font-normal flex-1 cursor-pointer" for="snakeOut" tabindex="-1">Snaking Out
-                        Slider</label>
-                    <input type="checkbox" name="snakeOut" id="snakeOut">
+                    <label class="font-normal flex-1 cursor-pointer" for="snakeOut" tabindex="-1">Snaking Out Slider</label>
+                    <input type="checkbox" name="snakeOut" id="snakeOut" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <label class="font-normal flex-1 cursor-pointer" for="hitAnim" tabindex="-1">Hit Animation</label>
-                    <input type="checkbox" name="hitAnim" id="hitAnim">
+                    <input type="checkbox" name="hitAnim" id="hitAnim" />
                 </div>
             </div>
         </div>
@@ -165,25 +180,25 @@
                     <div class="font-normal">Background Dim</div>
                     <label for="backgroundDim">100%</label>
                 </div>
-                <input type="range" name="backgrounđDim" id="backgroundDim" min="0" max="100" step="1" tabindex="-1">
+                <input type="range" name="backgrounđDim" id="backgroundDim" min="0" max="100" step="1" tabindex="-1" />
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <div class="font-normal">Background Blur</div>
                     <label for="backgroundBlur">100%</label>
                 </div>
-                <input type="range" name="backgroundBlur" id="backgroundBlur" min="0" max="100" step="1" tabindex="-1">
+                <input type="range" name="backgroundBlur" id="backgroundBlur" min="0" max="100" step="1" tabindex="-1" />
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <label class="font-normal flex-1 cursor-pointer" for="video" tabindex="-1">Show Video</label>
-                    <input type="checkbox" name="video" id="video">
+                    <input type="checkbox" name="video" id="video" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <label class="font-normal flex-1 cursor-pointer" for="storyboard">Show Storyboard</label>
-                    <input type="checkbox" name="storyboard" id="storyboard" tabindex="-1">
+                    <input type="checkbox" name="storyboard" id="storyboard" tabindex="-1" />
                 </div>
             </div>
         </div>
@@ -194,26 +209,26 @@
                     <div class="font-normal">Master Volume</div>
                     <label for="masterVolume">100%</label>
                 </div>
-                <input type="range" name="masterVolume" id="masterVolume" min="0" max="1" step="0.01" tabindex="-1">
+                <input type="range" name="masterVolume" id="masterVolume" min="0" max="1" step="0.01" tabindex="-1" />
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <div class="font-normal">Music Volume</div>
                     <label for="musicVolume">100%</label>
                 </div>
-                <input type="range" name="musicVolume" id="musicVolume" min="0" max="1" step="0.01" tabindex="-1">
+                <input type="range" name="musicVolume" id="musicVolume" min="0" max="1" step="0.01" tabindex="-1" />
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <div class="font-normal">Effect Volume</div>
                     <label for="effectVolume">100%</label>
                 </div>
-                <input type="range" name="effectVolume" id="effectVolume" min="0" max="1" step="0.01" tabindex="-1">
+                <input type="range" name="effectVolume" id="effectVolume" min="0" max="1" step="0.01" tabindex="-1" />
             </div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <label class="font-normal flex-1 cursor-pointer" for="hitsound">Disable beatmap hitsound</label>
-                    <input type="checkbox" name="hitsound" id="hitsound" tabindex="-1">
+                    <input type="checkbox" name="hitsound" id="hitsound" tabindex="-1" />
                 </div>
             </div>
         </div>
@@ -221,15 +236,13 @@
             <div class="font-medium">Beatmap Mirror</div>
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm gap-2.5">
-                    <input type="radio" name="beatmapMirror" id="mirror-nerinyan" value="Nerinyan"
-                        data-url="https://api.nerinyan.moe/d/$setId" tabindex="-1">
+                    <input type="radio" name="beatmapMirror" id="mirror-nerinyan" value="Nerinyan" data-url="https://api.nerinyan.moe/d/$setId" tabindex="-1" />
                     <label class="font-normal flex-1 cursor-pointer flex flex-col" for="mirror-nerinyan">
                         <span>Nerinyan</span>
                     </label>
                 </div>
                 <div class="flex items-center justify-between w-full text-sm gap-2.5">
-                    <input type="radio" name="beatmapMirror" id="mirror-catboy" value="Catboy"
-                        data-url="https://catboy.best/d/$setId" tabindex="-1">
+                    <input type="radio" name="beatmapMirror" id="mirror-catboy" value="Catboy" data-url="https://catboy.best/d/$setId" tabindex="-1" />
                     <label class="font-normal flex-1 cursor-pointer flex flex-col" for="mirror-catboy">
                         <span>Catboy</span>
                     </label>
@@ -244,7 +257,7 @@
                         <span>Asynchronous Loading</span>
                         <span class="text-xs">Load beatmap asynchronously for responsiveness</span>
                     </label>
-                    <input type="checkbox" name="asyncLoading" id="asyncLoading" tabindex="-1">
+                    <input type="checkbox" name="asyncLoading" id="asyncLoading" tabindex="-1" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
@@ -253,7 +266,7 @@
                         <span>Antialiasing</span>
                         <span class="text-xs">Might cause performance issues on lower-end devices</span>
                     </label>
-                    <input type="checkbox" name="antialiasing" id="antialiasing" tabindex="-1">
+                    <input type="checkbox" name="antialiasing" id="antialiasing" tabindex="-1" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
@@ -261,7 +274,7 @@
                     <label class="font-normal flex-1 cursor-pointer flex flex-col" for="overlapGameplays">
                         <span>Overlap gameplays in multi-mode</span>
                     </label>
-                    <input type="checkbox" name="overlapGameplays" id="overlapGameplays" tabindex="-1">
+                    <input type="checkbox" name="overlapGameplays" id="overlapGameplays" tabindex="-1" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
@@ -269,7 +282,7 @@
                     <label class="font-normal flex-1 cursor-pointer flex flex-col" for="modsHD">
                         <span>Hidden</span>
                     </label>
-                    <input type="checkbox" name="modsHD" id="modsHD" tabindex="-1">
+                    <input type="checkbox" name="modsHD" id="modsHD" tabindex="-1" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
@@ -277,7 +290,7 @@
                     <label class="font-normal flex-1 cursor-pointer flex flex-col" for="modsHR">
                         <span>Hard Rock</span>
                     </label>
-                    <input type="checkbox" name="modsHR" id="modsHR" tabindex="-1">
+                    <input type="checkbox" name="modsHR" id="modsHR" tabindex="-1" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5">
@@ -285,7 +298,7 @@
                     <label class="font-normal flex-1 cursor-pointer flex flex-col" for="modsDT">
                         <span>Double Time</span>
                     </label>
-                    <input type="checkbox" name="modsDT" id="modsDT" tabindex="-1">
+                    <input type="checkbox" name="modsDT" id="modsDT" tabindex="-1" />
                 </div>
             </div>
             <div class="flex flex-col w-full gap-2.5 text-sm">
@@ -296,21 +309,29 @@
                 <label for="renderer" class="relative h-full min-h-[50px] w-full text-xs" id="rendererLabel">
                     <button id="renderer" class="hidden flyout-toggle"></button>
                     <div
-                        class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none outline-white/10 outline">
+                        class="w-full h-full bg-black/40 flex items-center gap-2.5 rounded-full px-5 hover:bg-white/10 transition-colors cursor-pointer text-text select-none outline-white/10 outline"
+                    >
                         <span id="currentRenderer" class="flex-1 text-left truncate">Current Renderer</span>
                     </div>
-                    <div id="rendererContainer"
-                        class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline">
+                    <div
+                        id="rendererContainer"
+                        class="flyout absolute w-full top-[100%] left-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline"
+                    >
                         <div class="flex gap-2.5 items-center">
                             <button
                                 class="flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white renderer-select"
-                                data-renderer="webgl">WebGL
+                                data-renderer="webgl"
+                            >
+                                WebGL
                             </button>
                         </div>
                         <div class="flex gap-2.5 items-center">
                             <button
                                 class="flex w-full items-center gap-2.5 p-2.5 hover:bg-white/10 cursor-pointer transition-colors rounded-[10px] text-white renderer-select"
-                                data-renderer="webgpu">WebGPU</button>
+                                data-renderer="webgpu"
+                            >
+                                WebGPU
+                            </button>
                         </div>
                     </div>
                 </label>
@@ -318,8 +339,10 @@
             <div class="flex flex-col w-full gap-2.5">
                 <div class="flex items-center justify-between w-full text-sm">
                     <label for="reloadDefaultSkins" class="relative h-full min-h-[50px] w-full text-xs">
-                        <button id="reloadDefaultSkins"
-                            class="w-full h-full bg-crust flex items-center gap-2.5 rounded-full px-5 hover:bg-text transition-colors cursor-pointer text-text hover:text-base select-none">
+                        <button
+                            id="reloadDefaultSkins"
+                            class="w-full h-full bg-crust flex items-center gap-2.5 rounded-full px-5 hover:bg-text transition-colors cursor-pointer text-text hover:text-base select-none"
+                        >
                             <span id="currentSkin" class="flex-1 text-center truncate">Reload default skins</span>
                         </button>
                     </label>
@@ -332,29 +355,38 @@
                 <span class="text-xs">In case you wanna contact me :D</span>
             </div>
             <div class="flex gap-2.5">
-                <a href="https://osu.ppy.sh/users/8266808" target="_blank" rel="noopener noreferrer"
-                    class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center">
+                <a
+                    href="https://osu.ppy.sh/users/8266808"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center"
+                >
                     <i class="ri-user-3-fill"></i><span class="contactLabel">ANON TOKYO</span>
                 </a>
-                <a href="https://github.com/FukutoTojido" target="_blank" rel="noopener noreferrer"
-                    class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center">
+                <a
+                    href="https://github.com/FukutoTojido"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center"
+                >
                     <i class="ri-github-fill"></i><span class="contactLabel">FukutoTojido</span>
                 </a>
-                <a href="https://twitter.com/FukutoTojido" target="_blank" rel="noopener noreferrer"
-                    class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center">
+                <a
+                    href="https://twitter.com/FukutoTojido"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-2 rounded-lg bg-mantle text-text visited:text-text flex gap-2.5 px-5 hover:bg-surface-0 transition text-sm items-center text-center"
+                >
                     <i class="ri-twitter-fill"></i><span class="contactLabel">@FukutoTojido</span>
                 </a>
             </div>
         </div>
     </div>
-    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50 z-[999]"
-        id="loading">
+    <div class="absolute w-full h-full top-0 left-0 flex items-center justify-center gap-2.5 bg-black/50 z-[999]" id="loading">
         <span class="loader scale-50"></span>
         <div class="flex flex-col">
             <div class="font-medium text-lg">JoSu! is loading</div>
-            <div id="loadingText" class="text-sm">
-                Initiating
-            </div>
+            <div id="loadingText" class="text-sm">Initiating</div>
         </div>
     </div>
     <script type="module" src="/src/app/index.ts"></script>

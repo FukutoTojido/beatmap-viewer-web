@@ -110,7 +110,7 @@ export default class DrawableHitCircle
 			(val) => {
 				if (!val) return;
 
-			this.hitCircleSprite.tint = this.color;
+				this.hitCircleSprite.tint = this.color;
 			},
 		);
 	}
