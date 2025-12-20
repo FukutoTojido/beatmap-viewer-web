@@ -56,6 +56,7 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 	refreshSprite() {
 		super.refreshSprite();
 		this.approachCircle.refreshSprite();
+        this.defaults?.refreshSprites();
 
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;

@@ -3,6 +3,7 @@ import { Container, Sprite } from "pixi.js";
 import { update } from "@/Skinning/Legacy/LegacyDefaults";
 import type Skin from "@/Skinning/Skin";
 import SkinnableElement from "./SkinnableElement";
+import type { Context } from "@/Context";
 
 export default class DrawableDefaults extends SkinnableElement {
 	container: Container;
@@ -52,14 +53,17 @@ export default class DrawableDefaults extends SkinnableElement {
 	refreshSprites(skin?: Skin) {
 		const s = skin ?? this.skinManager?.getCurrentSkin();
 		if (!s) return;
-
+		
 		let width = s.config.Fonts.HitCircleOverlap;
 		for (let i = 0; i < this.sprites.length; i++) {
 			const text = this.sprites[i];
 			const digit = this.digits[i];
 
 			width -= s.config.Fonts.HitCircleOverlap;
-			const texture = s.getTexture(`default-${digit}`);
+			const texture = s.getTexture(
+				`default-${digit}`,
+				this.context.consume<Skin>("beatmapSkin"),
+			);
 			text.x = width;
 
 			if (texture) {
@@ -70,6 +74,12 @@ export default class DrawableDefaults extends SkinnableElement {
 		this.container.x = (-width / 2) * 0.8;
 		// this.container.x = 0;
 		this.container.y = 0;
+	}
+	
+	hook(context: Context) {
+		super.hook(context);
+		this.refreshSprites();
+		return this;
 	}
 
 	update(time: number) {

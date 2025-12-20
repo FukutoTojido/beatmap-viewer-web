@@ -4,8 +4,9 @@ import { Container, Sprite } from "pixi.js";
 import { update } from "@/Skinning/Shared/FollowPoints";
 import type Skin from "@/Skinning/Skin";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
-import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
 import { Clamp } from "@/utils";
+import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
+import type { Context } from "@/Context";
 
 export default class DrawableFollowPoints extends AnimatedSkinnableElement {
 	container: Container = new Container();
@@ -85,9 +86,18 @@ export default class DrawableFollowPoints extends AnimatedSkinnableElement {
 
 		this.texturesList = this.skinManager
 			?.getCurrentSkin()
-			.getAnimatedTexture("followpoint") ?? [BLANK_TEXTURE];
+			.getAnimatedTexture(
+				"followpoint",
+				this.context.consume<Skin>("beatmapSkin"),
+			) ?? [BLANK_TEXTURE];
 
 		if (this.sprites.length) this.container.addChild(...this.sprites);
+	}
+	
+	hook(context: Context) {
+        super.hook(context);
+        this.updateObjects(this.startObject, this.endObject);
+        return this;
 	}
 
 	update(time: number) {

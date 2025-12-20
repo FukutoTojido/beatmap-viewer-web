@@ -1,8 +1,11 @@
 import type { Slider } from "osu-standard-stable";
 import { Container, Sprite } from "pixi.js";
+import type GameplayConfig from "@/Config/GameplayConfig";
+import { type Context, inject } from "@/Context";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderBall";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacySliderBall";
 import type Skin from "@/Skinning/Skin";
+import Gameplay from "@/UI/main/viewer/Gameplay";
 import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
 import type DrawableSlider from "./DrawableSlider";
 
@@ -41,6 +44,20 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
+		);
+
+		inject<GameplayConfig>("config/gameplay")?.onChange(
+			"tintSliderBall",
+			(val) => {
+				const skin = this.skinManager?.getCurrentSkin();
+				if (!skin) return;
+
+				this.sliderb.tint =
+					skin.config.General.AllowSliderBallTint && val
+						? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+							0xffffff)
+						: 0xffffff;
+			},
 		);
 
 		this.refreshSprite();
@@ -105,6 +122,11 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		}
 
 		if (!skin.config.General.Argon) {
+			const beatmapHasSliderB =
+				this.context
+					.consume<Skin>("beatmapSkin")
+					?.animatedTextures.has("sliderb") ||
+				this.context.consume<Skin>("beatmapSkin")?.textures.has("sliderb");
 			const hasSliderB =
 				this.context
 					.consume<Skin>("beatmapSkin")
@@ -114,18 +136,28 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 				this.context.consume<Skin>("beatmapSkin")?.textures.has("sliderb");
 
 			this.slidernd.visible = !(
-				hasSliderB && skin !== this.skinManager?.defaultSkin
+				hasSliderB &&
+				(skin !== this.skinManager?.defaultSkin || beatmapHasSliderB)
 			);
 			this.sliderspec.visible = !(
-				hasSliderB && skin !== this.skinManager?.defaultSkin
+				hasSliderB &&
+				(skin !== this.skinManager?.defaultSkin || beatmapHasSliderB)
 			);
 
-			this.sliderb.tint = skin.config.General.AllowSliderBallTint
-				? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
-					0xffffff)
-				: 0xffffff;
+			this.sliderb.tint =
+				skin.config.General.AllowSliderBallTint &&
+				inject<GameplayConfig>("config/gameplay")?.tintSliderBall
+					? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+						0xffffff)
+					: 0xffffff;
 			this.slidernd.tint = 0x0;
 		}
+	}
+
+	hook(context: Context) {
+		super.hook(context);
+		this.refreshSprite();
+		return this;
 	}
 
 	update(time: number) {
@@ -146,7 +178,7 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		const diff = start.subtract(end);
 
 		const frameDelay = Math.max(
-			0.15 / this.object.velocity * (1000 / 60),
+			(0.15 / this.object.velocity) * (1000 / 60),
 			1000 / 60,
 		);
 

@@ -268,7 +268,7 @@ export default class Beatmap extends ScopedClass {
 							return;
 						}
 
-						resolve(new DrawableFollowPoints(startObject, endObject));
+						resolve(new DrawableFollowPoints(startObject, endObject).hook(this.context));
 					}, 5);
 				});
 			}),
@@ -282,7 +282,7 @@ export default class Beatmap extends ScopedClass {
 			const endObject = this.data.hitObjects[i + 1];
 			if (endObject.isNewCombo) continue;
 
-			connectors.push(new DrawableFollowPoints(startObject, endObject));
+			connectors.push(new DrawableFollowPoints(startObject, endObject).hook(this.context));
 		}
 
 		return connectors;

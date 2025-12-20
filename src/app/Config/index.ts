@@ -40,10 +40,12 @@ export default class Config {
 
 		this.renderer = provide(
 			"config/renderer",
-			new RendererConfig(savedSettings?.renderer ?? {
-				antialiasing: true,
-				renderer: "webgl"
-			}),
+			new RendererConfig(
+				savedSettings?.renderer ?? {
+					antialiasing: true,
+					renderer: "webgl",
+				},
+			),
 		);
 		this.mirror = provide(
 			"config/mirror",
@@ -109,6 +111,7 @@ export default class Config {
 					hitAnimation: true,
 					snakeInSlider: true,
 					snakeOutSlider: true,
+					tintSliderBall: false,
 				},
 			),
 		);

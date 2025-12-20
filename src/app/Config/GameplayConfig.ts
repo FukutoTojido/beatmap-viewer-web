@@ -5,6 +5,7 @@ export type GameplayProps = {
 	hitAnimation?: boolean;
 	snakeInSlider?: boolean;
 	snakeOutSlider?: boolean;
+	tintSliderBall?: boolean;
 };
 
 export default class GameplayConfig extends ConfigSection {
@@ -15,12 +16,18 @@ export default class GameplayConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const { showGrid, hitAnimation, snakeInSlider, snakeOutSlider } =
-			defaultOptions;
+		const {
+			showGrid,
+			hitAnimation,
+			snakeInSlider,
+			snakeOutSlider,
+			tintSliderBall,
+		} = defaultOptions;
 		this.showGrid = showGrid ?? true;
 		this.hitAnimation = hitAnimation ?? true;
 		this.snakeInSlider = snakeInSlider ?? true;
 		this.snakeOutSlider = snakeOutSlider ?? true;
+		this.tintSliderBall = tintSliderBall ?? false;
 	}
 
 	private _showGrid = true;
@@ -79,6 +86,20 @@ export default class GameplayConfig extends ConfigSection {
 		this.emitChange("snakeOut", val);
 	}
 
+	private _tintSliderball = false;
+	get tintSliderball() {
+		return this._tintSliderball;
+	}
+	set tintSliderBall(val: boolean) {
+		this._tintSliderball = val;
+
+		const ele = document.querySelector<HTMLInputElement>("#tintSliderBall");
+		if (!ele) return;
+		ele.checked = val;
+
+		this.emitChange("tintSliderBall", val);
+	}
+
 	loadEventListeners() {
 		document
 			.querySelector<HTMLInputElement>("#grid")
@@ -107,6 +128,13 @@ export default class GameplayConfig extends ConfigSection {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.snakeOutSlider = value;
 			});
+
+		document
+			.querySelector<HTMLInputElement>("#tintSliderBall")
+			?.addEventListener("change", (event) => {
+				const value = (event.target as HTMLInputElement)?.checked ?? true;
+				this.tintSliderBall = value;
+			});
 	}
 
 	jsonify(): GameplayProps {
@@ -115,6 +143,7 @@ export default class GameplayConfig extends ConfigSection {
 			hitAnimation: this.hitAnimation,
 			snakeInSlider: this.snakeInSlider,
 			snakeOutSlider: this.snakeOutSlider,
+			tintSliderBall: this.tintSliderBall
 		};
 	}
 }

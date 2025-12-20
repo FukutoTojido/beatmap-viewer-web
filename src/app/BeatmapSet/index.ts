@@ -90,6 +90,8 @@ export default class BeatmapSet extends ScopedClass {
 			new Skin(this.context.consume<Map<string, Resource>>("resources")),
 		);
 		await skin.init();
+		
+        console.log(skin);
 	}
 
 	async loadResources() {

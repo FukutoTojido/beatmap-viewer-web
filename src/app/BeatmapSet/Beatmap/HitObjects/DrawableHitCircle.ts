@@ -181,6 +181,7 @@ export default class DrawableHitCircle
 
 		this.refreshSprite();
 		this.approachCircle.refreshSprite();
+		this.defaults?.refreshSprites();
 
 		return this;
 	}
