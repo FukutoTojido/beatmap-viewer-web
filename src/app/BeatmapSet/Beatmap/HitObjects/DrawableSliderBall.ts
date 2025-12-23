@@ -54,7 +54,7 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 
 				this.sliderb.tint =
 					(skin.config.General.AllowSliderBallTint && val) ||
-					skin !== this.skinManager?.defaultSkin
+					skin === this.skinManager?.defaultSkin
 						? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
 							0xffffff)
 						: 0xffffff;
@@ -148,7 +148,7 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 			this.sliderb.tint =
 				(skin.config.General.AllowSliderBallTint &&
 					inject<GameplayConfig>("config/gameplay")?.tintSliderBall) ||
-				skin !== this.skinManager?.defaultSkin
+				skin === this.skinManager?.defaultSkin
 					? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
 						0xffffff)
 					: 0xffffff;
