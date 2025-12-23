@@ -86,12 +86,12 @@ export default class GameplayConfig extends ConfigSection {
 		this.emitChange("snakeOut", val);
 	}
 
-	private _tintSliderball = false;
-	get tintSliderball() {
-		return this._tintSliderball;
+	private _tintSliderBall = false;
+	get tintSliderBall() {
+		return this._tintSliderBall;
 	}
 	set tintSliderBall(val: boolean) {
-		this._tintSliderball = val;
+		this._tintSliderBall = val;
 
 		const ele = document.querySelector<HTMLInputElement>("#tintSliderBall");
 		if (!ele) return;
