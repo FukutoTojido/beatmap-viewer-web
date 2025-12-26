@@ -55,6 +55,7 @@ export default class Storyboard extends ScopedClass {
 	});
 
 	fill: Graphics;
+	startTime: number = Infinity;
 
 	constructor(private blob: Blob) {
 		super();
@@ -177,6 +178,7 @@ export default class Storyboard extends ScopedClass {
 		const tree = new IntervalTree<number>();
 		for (let i = 0; i < sprites.length; i++) {
 			const { startTime, endTime } = sprites[i];
+			if (startTime < this.startTime) this.startTime = startTime;
 			tree.insert([startTime, endTime], i);
 		}
 
@@ -240,6 +242,7 @@ export default class Storyboard extends ScopedClass {
 
 	update(timestamp: number) {
 		if (!inject<BackgroundConfig>("config/background")?.storyboard) return;
+		this.fill.alpha = timestamp < this.startTime ? 0 : 1;
 
 		const set = new Set<number>(
 			this._tree?.search([timestamp - 1, timestamp + 1]) as Array<number>,

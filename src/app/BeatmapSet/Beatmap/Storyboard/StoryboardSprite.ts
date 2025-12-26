@@ -1,21 +1,17 @@
-import { Context, ScopedClass } from "@/Context";
-import type { Resource } from "@/ZipHandler";
 import {
-	type ICommandTimeline,
-	type StoryboardSprite as StoryboardSpriteData,
 	Anchor,
-	type CommandTimeline,
-	BlendingEquation,
-	type CommandLoop,
-	type Command,
-	type Vector2,
-	type RGBColor,
 	type BlendingParameters,
+	type Command,
+	type CommandLoop,
+	type CommandTimeline,
 	type CommandTimelineGroup,
+	type RGBColor,
 	type StoryboardLayerType,
+	type StoryboardSprite as StoryboardSpriteData,
+	type Vector2,
 } from "@rian8337/osu-base";
-
-import { Assets, Sprite, type Texture } from "pixi.js";
+import { GlProgram, groupD8, Sprite, Texture } from "pixi.js";
+import { ScopedClass } from "@/Context";
 import { EasingsMap } from "@/UI/Easings";
 
 export default class StoryboardSprite extends ScopedClass {
@@ -138,17 +134,17 @@ export default class StoryboardSprite extends ScopedClass {
 	processGroups(groups: CommandTimelineGroup, timestamp: number) {
 		if (groups.alpha.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.alpha);
-			this.processAlpha(timestamp, nearestCommand);
+			if (nearestCommand) this.processAlpha(timestamp, nearestCommand);
 		}
 
 		if (groups.move.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.move);
-			this.processMove(timestamp, nearestCommand);
+			if (nearestCommand) this.processMove(timestamp, nearestCommand);
 		}
 
 		if (groups.scale.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.scale);
-			this.processScale(timestamp, nearestCommand);
+			if (nearestCommand) this.processScale(timestamp, nearestCommand);
 		}
 
 		if (groups.vectorScale.hasCommands) {
@@ -156,27 +152,27 @@ export default class StoryboardSprite extends ScopedClass {
 				timestamp,
 				groups.vectorScale,
 			);
-			this.processVectorScale(timestamp, nearestCommand);
+			if (nearestCommand) this.processVectorScale(timestamp, nearestCommand);
 		}
 
 		if (groups.rotation.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.rotation);
-			this.processRotate(timestamp, nearestCommand);
+			if (nearestCommand) this.processRotate(timestamp, nearestCommand);
 		}
 
 		if (groups.color.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.color);
-			this.processColor(timestamp, nearestCommand);
+			if (nearestCommand) this.processColor(timestamp, nearestCommand);
 		}
 
 		if (groups.x.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.x);
-			this.processMoveX(timestamp, nearestCommand);
+			if (nearestCommand) this.processMoveX(timestamp, nearestCommand);
 		}
 
 		if (groups.y.hasCommands) {
 			const nearestCommand = this.getNearestCommand(timestamp, groups.y);
-			this.processMoveY(timestamp, nearestCommand);
+			if (nearestCommand) this.processMoveY(timestamp, nearestCommand);
 		}
 
 		if (groups.blendingParameters.hasCommands) {
@@ -184,7 +180,7 @@ export default class StoryboardSprite extends ScopedClass {
 				timestamp,
 				groups.blendingParameters,
 			);
-			this.processBlending(timestamp, nearestCommand);
+			if (nearestCommand) this.processBlending(timestamp, nearestCommand);
 		}
 
 		if (groups.flipHorizontal.hasCommands) {
@@ -192,7 +188,7 @@ export default class StoryboardSprite extends ScopedClass {
 				timestamp,
 				groups.flipHorizontal,
 			);
-			this.processFlipHorizontal(timestamp, nearestCommand);
+			if (nearestCommand) this.processFlipHorizontal(timestamp, nearestCommand);
 		}
 
 		if (groups.flipVertical.hasCommands) {
@@ -200,7 +196,7 @@ export default class StoryboardSprite extends ScopedClass {
 				timestamp,
 				groups.flipVertical,
 			);
-			this.processFlipVerticle(timestamp, nearestCommand);
+			if (nearestCommand) this.processFlipVerticle(timestamp, nearestCommand);
 		}
 	}
 
@@ -454,31 +450,42 @@ export default class StoryboardSprite extends ScopedClass {
 		this.container.blendMode = "add";
 	}
 
+	private _flipH = false;
+	private _flipV = false;
 	processFlipHorizontal(timestamp: number, command: Command<boolean>) {
-		const { startValue, endValue, startTime, endTime, duration } = command;
-
-		if (timestamp <= endTime) {
-			this.container.scale.x *= startValue ? -1 : 1;
-			return;
-		}
+		const { startValue, endValue, endTime } = command;
+		let value = startValue;
 
 		if (timestamp > endTime) {
-			this.container.scale.x *= endValue ? -1 : 1;
-			return;
+			value = endValue;
+		}
+		if (this._flipH !== value) {
+			const source = this.container.texture.source;
+			const texture = new Texture({
+				source,
+				rotate: value ? groupD8.MIRROR_HORIZONTAL : groupD8.N,
+			});
+			this.container.texture = texture;
+            this._flipH = value;
 		}
 	}
 
 	processFlipVerticle(timestamp: number, command: Command<boolean>) {
-		const { startValue, endValue, startTime, endTime, duration } = command;
-
-		if (timestamp <= endTime) {
-			this.container.scale.y *= startValue ? -1 : 1;
-			return;
-		}
+		const { startValue, endValue, endTime } = command;
+		let value = startValue;
 
 		if (timestamp > endTime) {
-			this.container.scale.y *= endValue ? -1 : 1;
-			return;
+			value = endValue;
+		}
+
+		if (this._flipV !== value) {
+			const source = this.container.texture.source;
+			const texture = new Texture({
+				source,
+				rotate: value ? groupD8.MIRROR_VERTICAL : groupD8.N,
+			});
+			this.container.texture = texture;
+            this._flipV = value;
 		}
 	}
 
@@ -496,21 +503,45 @@ export default class StoryboardSprite extends ScopedClass {
 		commandGroup: CommandTimeline<T>,
 	) {
 		let idx = 0;
-		let holdIdx = 0;
-		for (let i = 0; i < commandGroup.commands.length; i++) {
-			if (commandGroup.commands[i].startTime >= timestamp) break;
-			if (
-				commandGroup.commands[i].startTime !==
-					commandGroup.commands[holdIdx].startTime ||
-				commandGroup.commands[i].endTime !==
-					commandGroup.commands[holdIdx].endTime
-			) {
-				holdIdx = i;
+
+		let l = 0;
+		let r = commandGroup.commands.length - 1;
+
+		while (l <= r) {
+			idx = l + ((r - l) >> 1);
+			const startTime = commandGroup.commands[idx].startTime;
+
+			if (startTime === timestamp) {
+				break;
 			}
-			idx = i;
+
+			if (startTime < timestamp) {
+				l = idx + 1;
+				continue;
+			}
+
+			r = idx - 1;
 		}
 
-		return commandGroup.commands[holdIdx];
+		while (commandGroup.commands[idx].startTime > timestamp && idx > 0) {
+			idx--;
+		}
+
+		let baseCommand = commandGroup.commands[idx];
+		let prevCommand = commandGroup.commands[idx - 1];
+
+		while (
+			idx > 0 &&
+			baseCommand.startTime === prevCommand?.startTime &&
+			prevCommand?.endTime === baseCommand.endTime
+		) {
+			idx--;
+
+			baseCommand = commandGroup.commands[idx];
+			prevCommand = commandGroup.commands[idx - 1];
+		}
+
+		return commandGroup.commands[idx];
 	}
 
 	private lerp(progress: number, start: number, end: number) {
