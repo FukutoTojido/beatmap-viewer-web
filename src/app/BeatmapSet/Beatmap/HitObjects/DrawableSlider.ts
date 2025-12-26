@@ -248,9 +248,9 @@ export default class DrawableSlider
 				.toReversed()
 				.map((circle) => circle.container),
 			this.followCircle.container,
-			this.layer,
 			this.ball.container,
 			this.drawableCircles[0].container,
+			this.layer,
 			this.layer2,
 		);
 
