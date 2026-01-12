@@ -53,6 +53,7 @@ export default class Beatmap extends ScopedClass {
 	private loaded = false;
 
 	private previousConnectors = new Set<number>();
+	previousObjects = new Set<number>();
 	previousTime = 0;
 
 	container: Gameplay;
