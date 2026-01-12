@@ -53,7 +53,6 @@ export default class Beatmap extends ScopedClass {
 	private loaded = false;
 
 	private previousConnectors = new Set<number>();
-	previousObjects = new Set<number>();
 	previousTime = 0;
 
 	container: Gameplay;
@@ -136,6 +135,8 @@ export default class Beatmap extends ScopedClass {
 			// biome-ignore lint/complexity/useLiteralKeys: Access Private
 			this.difficultyCalculator["_getWorkingBeatmap"](modsCombination);
 
+	    if (!beatmap.hitObjects.length) return;
+					
 		const sectionLength = 400;
 		const currentSectionEnd =
 			Math.ceil(beatmap.hitObjects[0].startTime / sectionLength) *
@@ -143,7 +144,6 @@ export default class Beatmap extends ScopedClass {
 
 		const clockRate = beatmap.difficulty.clockRate ?? 1;
 
-		// @ts-ignore
 		const skills: StandardStrainSkill[] = this.difficultyCalculator[
 			// biome-ignore lint/complexity/useLiteralKeys: Access Private
 			"_createSkills"
@@ -154,7 +154,6 @@ export default class Beatmap extends ScopedClass {
 		// biome-ignore lint/complexity/useLiteralKeys: Access Private
 		const speedStrainPeaks = skills[1]["_strainPeaks"];
 
-		// @ts-ignore
 		for (const hitObject of this.difficultyCalculator._getDifficultyHitObjects(
 			beatmap,
 			clockRate,
@@ -232,10 +231,10 @@ export default class Beatmap extends ScopedClass {
 						<span class="truncate">${this.data.metadata.version}</span>
 						<br/>
 						<span class="text-xs">
-							CS <span class="font-medium">${this.data.difficulty.circleSize.toFixed(1).replace(".0", "")}</span> / 
-							AR <span class="font-medium">${this.difficultyAttributes.approachRate.toFixed(1).replace(".0", "")}</span> / 
-							OD <span class="font-medium">${this.difficultyAttributes.overallDifficulty.toFixed(1).replace(".0", "")}</span> / 
-							HP <span class="font-medium">${this.difficultyAttributes.drainRate.toFixed(1).replace(".0", "")}</span> 
+							CS <span class="font-medium">${this.data.difficulty.circleSize.toFixed(1).replace(".0", "")}</span> /
+							AR <span class="font-medium">${this.difficultyAttributes.approachRate.toFixed(1).replace(".0", "")}</span> /
+							OD <span class="font-medium">${this.difficultyAttributes.overallDifficulty.toFixed(1).replace(".0", "")}</span> /
+							HP <span class="font-medium">${this.difficultyAttributes.drainRate.toFixed(1).replace(".0", "")}</span>
 						</span>`;
 		}
 		const svg = document.querySelector<SVGSVGElement>("#extraMode");
