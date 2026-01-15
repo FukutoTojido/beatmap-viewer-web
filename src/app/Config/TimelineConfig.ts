@@ -1,4 +1,5 @@
 import type { FederatedWheelEvent } from "pixi.js";
+import { Clamp } from "@/utils";
 import ConfigSection from "./ConfigSection";
 
 type TimelineConfigEvents = "scale" | "divisor";
@@ -14,7 +15,7 @@ export default class TimelineConfig extends ConfigSection {
 		if (!defaultOptions) return;
 
 		const { scale, divisor } = defaultOptions;
-		this.scale = scale ?? 1;
+		this.scale = Clamp(scale ?? 1, 0.5, 1.5);
 		this.divisor = divisor ?? 4;
 	}
 
@@ -23,7 +24,7 @@ export default class TimelineConfig extends ConfigSection {
 		return this._scale;
 	}
 	set scale(val: number) {
-		this._scale = val;
+		this._scale = Clamp(val, 0.5, 1.5);
 		this.emitChange("scale", val);
 	}
 

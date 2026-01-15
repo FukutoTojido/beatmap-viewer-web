@@ -25,7 +25,7 @@ export default class Zoomer {
 			const timeline = inject<TimelineConfig>("config/timeline");
 
 			if (!timeline) return;
-			timeline.scale = Math.min(1.5, timeline.scale - 0.1);
+			timeline.scale = Math.max(0.5, timeline.scale - 0.1);
 		});
 
 		this.container.addChild(zoomIn.container, zoomOut.container);
