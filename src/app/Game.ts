@@ -284,13 +284,13 @@ export class Game {
 
 			inject<Loading>("ui/loading")?.off();
 			document
-				.querySelector<HTMLDivElement>("#diffsContainer")
+				.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 				?.classList.remove("hidden");
 			document
-				.querySelector<HTMLDivElement>("#diffsContainer")
+				.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 				?.classList.remove("showOut");
 			document
-				.querySelector<HTMLDivElement>("#diffsContainer")
+				.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 				?.classList.add("showIn");
 
 			return;
@@ -439,13 +439,13 @@ export class Game {
 		inject<Loading>("ui/loading")?.off();
 
 		document
-			.querySelector<HTMLDivElement>("#diffsContainer")
+			.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 			?.classList.remove("hidden");
 		document
-			.querySelector<HTMLDivElement>("#diffsContainer")
+			.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 			?.classList.remove("showOut");
 		document
-			.querySelector<HTMLDivElement>("#diffsContainer")
+			.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 			?.classList.add("showIn");
 
 		return true;
@@ -523,13 +523,13 @@ export class Game {
 
 			if (!bms.master) {
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.remove("hidden");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.remove("showOut");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.add("showIn");
 			}
 		} catch (e) {
@@ -561,13 +561,13 @@ export class Game {
 
 			if (!bms.master) {
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.remove("hidden");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.remove("showOut");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.add("showIn");
 			}
 		} catch (e) {

@@ -152,10 +152,10 @@ export default class BeatmapSet extends ScopedClass {
 			button.addEventListener("click", () => {
 				this.loadMaster(i);
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.add("showOut");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.remove("showIn");
 			});
 
@@ -168,10 +168,10 @@ export default class BeatmapSet extends ScopedClass {
 				this.loadSlave(i);
 
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.add("showOut");
 				document
-					.querySelector<HTMLDivElement>("#diffsContainer")
+					.querySelector<HTMLDivElement>("#diffsContainerWrapper")
 					?.classList.remove("showIn");
 			});
 

@@ -58,10 +58,12 @@
                         <span id="masterSR">SR★</span>
                     </div>
                     <div
-                        id="diffsContainer"
-                        class="flyout absolute w-max min-w-full top-[100%] right-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 flex-col gap-[5px] hidden max-h-[50vh] overflow-auto outline-white/10 outline"
+                        id="diffsContainerWrapper"
                         style="max-width: calc(100vw - 20px)"
-                    ></div>
+                        class="flyout absolute w-max min-w-full top-[100%] right-0 mt-2.5 bg-black/40 backdrop-blur-2xl p-2.5 rounded-[20px] z-99 hidden max-h-[50vh] overflow-auto outline-white/10 outline"
+                    >
+                        <div id="diffsContainer" class="h-full flex-col gap-[5px] overflow-auto"></div>
+                    </div>
                 </label>
             </div>
         </div>

@@ -140,7 +140,12 @@ main {
 
 .flyout {
 	interpolate-size: allow-keywords;
-	overflow: hidden;
+	
+	&::-webkit-scrollbar {
+	    display: none
+	}
+	
+	scrollbar-width: none;
 }
 
 .overlay {
