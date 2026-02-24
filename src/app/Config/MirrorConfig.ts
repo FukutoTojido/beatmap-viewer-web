@@ -20,19 +20,19 @@ export default class MirrorConfig extends ConfigSection {
 		const { mirror } = defaultOptions;
 		this.mirror = mirror ?? {
 			name: "Nerinyan",
-			urlTemplate: "https://api.nerinyan.moe/d/$setId",
+			urlTemplate: "https://api.nerinyan.moe/v2/d/$setId",
 		};
 	}
 
 	private _mirror = {
 		name: "Nerinyan",
-		urlTemplate: "https://api.nerinyan.moe/d/$setId",
+		urlTemplate: "https://api.nerinyan.moe/v2/d/$setId",
 	};
 	get mirror() {
 		return this._mirror;
 	}
 	set mirror(val: Mirror) {
-		this._mirror = val;
+		this._mirror = { ...val, urlTemplate: this.migrate(val) };
 
 		for (const element of document.querySelectorAll<HTMLInputElement>(
 			"[name=beatmapMirror]",
@@ -64,5 +64,16 @@ export default class MirrorConfig extends ConfigSection {
 		return {
 			mirror: this.mirror,
 		};
+	}
+
+	migrate(val: Mirror) {
+		switch (val.name) {
+			case "Nerinyan": {
+				return "https://api.nerinyan.moe/v2/d/$setId";
+			}
+			default: {
+				return val.urlTemplate;
+			}
+		}
 	}
 }
