@@ -19,8 +19,9 @@ import DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle
 import DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
-import { inject } from "@/Context";
+import { inject, ScopedClass } from "@/Context";
 import { tweenGroup } from "@/UI/animation/AnimationController";
 import Easings from "@/UI/Easings";
 import Spinner from "./Spinner";
@@ -38,7 +39,7 @@ const defaultLayout: Omit<LayoutOptions, "target"> = {
 	objectFit: "none",
 };
 
-export default class Gameplay {
+export default class Gameplay extends ScopedClass {
 	container: Container;
 	wrapper: Container;
 	grid: Graphics;
@@ -60,6 +61,8 @@ export default class Gameplay {
 	selected: Set<number> = new Set();
 
 	constructor(public beatmap: Beatmap) {
+		super();
+
 		this.container = new Container({
 			label: "gameplay",
 			layout: {
@@ -139,36 +142,7 @@ export default class Gameplay {
 			this.selector,
 			this.cursorLayer,
 		);
-		this.wrapper.on("layout", () => {
-			const width = this.wrapper.layout?.computedLayout.width ?? 0;
-			const height = this.wrapper.layout?.computedLayout.height ?? 0;
-
-			const scale = Math.min(width / 640, height / 480);
-			const _w = 640 * scale * 0.9;
-			const _h = 480 * scale * 0.9;
-
-			this.objectsContainer.scale.set(scale);
-
-			this.objectsContainer.x = (width - _w) / 2;
-			this.objectsContainer.y = (height - _h) / 2;
-
-			this.cursorLayer.scale.set(scale);
-			this.cursorLayer.x = (width - _w) / 2;
-			this.cursorLayer.y = (height - _h) / 2;
-
-			this.grid.x = (width - _w) / 2;
-			this.grid.y = (height - _h) / 2;
-
-			this.drawGrid(_w);
-
-			this.selectContainer.scale.set(scale);
-
-			this.selectContainer.x = (width - _w) / 2;
-			this.selectContainer.y = (height - _h) / 2;
-
-			this.spinner.graphics.x = width / 2;
-			this.spinner.graphics.y = height / 2;
-		});
+		this.wrapper.on("layout", () => this.reLayout());
 
 		this.loadEventListeners();
 
@@ -224,6 +198,50 @@ export default class Gameplay {
 				this.grid.visible = val;
 			},
 		);
+	}
+
+	reLayout() {
+		const isFullscreen =
+			inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
+
+		const width = this.wrapper.layout?.computedLayout.width ?? 0;
+		const height = this.wrapper.layout?.computedLayout.height ?? 0;
+
+		const scale = Math.min(width / 640, height / 480);
+		const _w =
+			640 *
+			scale *
+			(isFullscreen || this.context.consume<number>("clients") !== 1
+				? 0.8
+				: 0.95);
+		const _h =
+			480 *
+			scale *
+			(isFullscreen || this.context.consume<number>("clients") !== 1
+				? 0.8
+				: 0.95);
+
+		this.objectsContainer.scale.set(scale);
+
+		this.objectsContainer.x = (width - _w) / 2;
+		this.objectsContainer.y = (height - _h) / 2;
+
+		this.cursorLayer.scale.set(scale);
+		this.cursorLayer.x = (width - _w) / 2;
+		this.cursorLayer.y = (height - _h) / 2;
+
+		this.grid.x = (width - _w) / 2;
+		this.grid.y = (height - _h) / 2;
+
+		this.drawGrid(_w);
+
+		this.selectContainer.scale.set(scale);
+
+		this.selectContainer.x = (width - _w) / 2;
+		this.selectContainer.y = (height - _h) / 2;
+
+		this.spinner.graphics.x = width / 2;
+		this.spinner.graphics.y = height / 2;
 	}
 
 	private _currentTween?: Tween;

@@ -1,13 +1,13 @@
 import { Tween } from "@tweenjs/tween.js";
 import { Container } from "pixi.js";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
-import { inject } from "@/Context";
+import { inject, ScopedClass } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { defaultEasing, tweenGroup } from "@/UI/animation/AnimationController";
 import FPS from "../FPS";
 import type Gameplay from ".";
 
-export default class Gameplays {
+export default class Gameplays extends ScopedClass {
 	container = new Container({
 		label: "gameplays",
 		layout: {
@@ -21,6 +21,8 @@ export default class Gameplays {
 	gameplays: Set<Gameplay> = new Set();
 
 	addGameplay(gameplay: Gameplay, index?: number) {
+		gameplay.hook(this.context);
+		
 		if (index === undefined) this.gameplays.add(gameplay);
 		else {
 			const deserialized = [...this.gameplays];
@@ -60,6 +62,9 @@ export default class Gameplays {
 	h = 0;
 
 	constructor() {
+		super();
+		this.context.provide<number>("clients", 0);
+		
 		const fps = new FPS();
 
 		this.container.addChild(fps.container);
@@ -106,6 +111,8 @@ export default class Gameplays {
 	tweenMap: Map<Gameplay, Tween> = new Map();
 
 	reLayoutChildren(target?: Gameplay) {
+		this.context.provide<number>("clients", this.gameplays.size);
+		
 		const overlapGameplays = inject<ExperimentalConfig>(
 			"config/experimental",
 		)?.overlapGameplays;

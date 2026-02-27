@@ -5,8 +5,8 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
-import Zoomer from "./Timeline/Zoomer";
 import Beatsnap from "./Timeline/Beatsnap";
+import Zoomer from "./Timeline/Zoomer";
 
 export default class Viewer {
 	container = new LayoutContainer({
