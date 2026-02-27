@@ -6,6 +6,7 @@ export type ExperimentalProps = {
 	hidden?: boolean;
 	hardRock?: boolean;
 	doubleTime?: boolean;
+	easy?: boolean;
 };
 
 export default class ExperimentalConfig extends ConfigSection {
@@ -16,22 +17,23 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const { asyncLoading, overlapGameplays, hidden, hardRock, doubleTime } =
-			defaultOptions;
+		const {
+			asyncLoading,
+			overlapGameplays,
+			hidden,
+			hardRock,
+			doubleTime,
+			easy,
+		} = defaultOptions;
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
-		this.hidden =
-			hidden ??
-			new URLSearchParams(window.location.search).get("m")?.includes("HD") ??
-			false;
-		this.hardRock =
-			hardRock ??
-			new URLSearchParams(window.location.search).get("m")?.includes("HR") ??
-			false;
-		this.doubleTime =
-			doubleTime ??
-			new URLSearchParams(window.location.search).get("m")?.includes("DT") ??
-			false;
+
+		const searchParams = new URLSearchParams(window.location.search).get("m");
+
+		this.hidden = hidden ?? searchParams?.includes("HD") ?? false;
+		this.hardRock = hardRock ?? searchParams?.includes("HR") ?? false;
+		this.doubleTime = doubleTime ?? searchParams?.includes("DT") ?? false;
+		this.easy = easy ?? searchParams?.includes("EZ") ?? false;
 	}
 
 	private _asyncLoading = true;
@@ -71,7 +73,12 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		const ele = document.querySelector<HTMLInputElement>("#modsHR");
 		if (!ele) return;
-		ele.checked = val;
+		ele.checked = val;		
+		
+		const EZ = document.querySelector<HTMLInputElement>("#modsEZ");
+		if (!EZ) return;
+		EZ.checked = false;
+		this._easy = false;
 
 		this.emitChange("mods", {
 			shouldRecalculate: true,
@@ -116,12 +123,36 @@ export default class ExperimentalConfig extends ConfigSection {
 		});
 	}
 
+	private _easy = true;
+	get easy() {
+		return this._easy;
+	}
+	set easy(val: boolean) {
+		this._easy = val;
+
+		const ele = document.querySelector<HTMLInputElement>("#modsEZ");
+		if (!ele) return;
+		ele.checked = val;
+
+		const HR = document.querySelector<HTMLInputElement>("#modsHR");
+		if (!HR) return;
+		HR.checked = false;
+		this._hardRock = false;
+
+		this.emitChange("mods", {
+			shouldRecalculate: true,
+			shouldPlaybackChange: false,
+			mods: this.getModsString(),
+		});
+	}
+
 	getModsString() {
 		const HD = this.hidden ? "HD" : "";
 		const HR = this.hardRock ? "HR" : "";
 		const DT = this.doubleTime ? "DT" : "";
+		const EZ = this.easy ? "EZ" : "";
 
-		return `${HD}${HR}${DT}`;
+		return `${HD}${HR}${DT}${EZ}`;
 	}
 
 	loadEventListeners() {
@@ -148,6 +179,12 @@ export default class ExperimentalConfig extends ConfigSection {
 			?.addEventListener("change", (event) => {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.doubleTime = value;
+			});
+		document
+			.querySelector<HTMLInputElement>("#modsEZ")
+			?.addEventListener("change", (event) => {
+				const value = (event.target as HTMLInputElement)?.checked ?? true;
+				this.easy = value;
 			});
 	}
 

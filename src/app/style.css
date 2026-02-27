@@ -571,3 +571,41 @@ input[type="radio"]:checked::before {
 .hideContainer {
 	animation: ease-in-out 500ms hideContainer forwards;
 }
+
+label.item {
+	opacity: 50%;
+	transition: ease-in-out 200ms;
+	border: solid 1px var(--color-surface-1);
+	
+	& img {
+		transition: cubic-bezier(0.03, 0.16, 0.29, 1.45) 200ms;
+		height: 20px;
+		
+		border-radius: 5px;
+	}
+	
+	& span {
+		flex: 1;
+		font-size: 14px;
+	}
+	
+	&:has(input:checked) {
+		opacity: 100%;
+		background: var(--color-surface-0);
+		
+		& img {
+			opacity: 100%;
+			scale: 1.1;
+			rotate: 5deg;
+		}
+	}
+}
+
+@media screen and (max-width: 600px) {
+	label.mods {
+		justify-content: center;
+	}
+	label.mods span {
+		display: none;
+	}
+}
