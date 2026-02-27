@@ -144,8 +144,8 @@ export default class Gameplay {
 			const height = this.wrapper.layout?.computedLayout.height ?? 0;
 
 			const scale = Math.min(width / 640, height / 480);
-			const _w = 512 * scale;
-			const _h = 384 * scale;
+			const _w = 640 * scale * 0.9;
+			const _h = 480 * scale * 0.9;
 
 			this.objectsContainer.scale.set(scale);
 
@@ -233,7 +233,7 @@ export default class Gameplay {
 		const height = 384 * scale;
 		const unit = 32 * scale;
 		const halfUnit = unit / 2;
-		const cornerRadius = 10 * scale;
+		const cornerRadius = 8 * scale;
 
 		this.grid.clear().roundRect(0, 0, width, height, cornerRadius).stroke({
 			color: 0xffffff,
@@ -243,15 +243,6 @@ export default class Gameplay {
 		});
 
 		for (let i = unit; i < width - 1; i += unit) {
-			if (i === width / 2) {
-				this.grid.moveTo(i, 0).lineTo(i, height).stroke({
-					color: 0xffffff,
-					alpha: 0.6,
-					width: 2,
-					alignment: 0.5,
-				});
-				continue;
-			}
 			this.grid.moveTo(i, 0).lineTo(i, height).stroke({
 				color: 0xffffff,
 				alpha: 0.4,
@@ -259,16 +250,7 @@ export default class Gameplay {
 			});
 		}
 
-		for (let i = unit; i < height; i += unit) {
-			if (i === height / 2) {
-				this.grid.moveTo(0, i).lineTo(width, i).stroke({
-					color: 0xffffff,
-					alpha: 0.6,
-					width: 2,
-					alignment: 0.5,
-				});
-				continue;
-			}
+		for (let i = unit; i < height - 1; i += unit) {
 			this.grid.moveTo(0, i).lineTo(width, i).stroke({
 				color: 0xffffff,
 				alpha: 0.4,
@@ -336,6 +318,28 @@ export default class Gameplay {
 				alignment: 0.5,
 				cap: "round",
 				join: "round",
+			});
+
+		this.grid
+			.moveTo(width / 2, 0)
+			.lineTo(width / 2, height)
+			.stroke({
+				color: 0xffffff,
+				alpha: 1,
+				width: 1,
+				alignment: 0.5,
+				pixelLine: false,
+			});
+
+		this.grid
+			.moveTo(0, height / 2)
+			.lineTo(width, height / 2)
+			.stroke({
+				color: 0xffffff,
+				alpha: 1,
+				width: 1,
+				alignment: 0.5,
+				pixelLine: false,
 			});
 	}
 
@@ -530,7 +534,7 @@ export default class Gameplay {
 			const bms = this.beatmap.context.consume<BeatmapSet>("beatmapset");
 			if (!bms) return;
 
-			const idx = bms.difficulties.findIndex((b) => b === this.beatmap);
+			const idx = bms.difficulties.indexOf(this.beatmap);
 			bms.unloadSlave(idx);
 		};
 		closeButtonContainer.addEventListener("pointertap", () => unloadSelf());

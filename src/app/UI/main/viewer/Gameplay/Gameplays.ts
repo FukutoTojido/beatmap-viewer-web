@@ -15,6 +15,7 @@ export default class Gameplays {
 			flex: 1,
 		},
 		interactive: true,
+		zIndex: 1
 	});
 
 	gameplays: Set<Gameplay> = new Set();
@@ -44,8 +45,8 @@ export default class Gameplays {
 
 	switchGameplay(a: Gameplay, b: Gameplay) {
 		const deserialized = [...this.gameplays];
-		const idxA = deserialized.findIndex((beatmap) => beatmap === a);
-		const idxB = deserialized.findIndex((beatmap) => beatmap === b);
+		const idxA = deserialized.indexOf(a);
+		const idxB = deserialized.indexOf(b);
 
 		if (idxA === -1 || idxB === -1) return;
 		deserialized[idxA] = b;

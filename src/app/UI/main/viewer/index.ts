@@ -40,6 +40,7 @@ export default class Viewer {
 					a: 0.8,
 				},
 			},
+			zIndex: 2
 		});
 
 		wrapper.addChild(timeline.container, zoomer.container, beatsnap.container);
