@@ -5,6 +5,7 @@ import AnimationController, {
 	tweenGroup,
 } from "./UI/animation/AnimationController";
 import "./FPSSystem";
+import axios from "axios";
 import BeatmapSet from "./BeatmapSet";
 import Replay from "./BeatmapSet/Beatmap/Replay";
 import {
@@ -309,6 +310,24 @@ export class Game {
 
 			const replay = new Replay();
 			await replay.process(new Blob([file]));
+			
+			const hookReplay = async () => {
+				if (!replay.data?.info.beatmapHashMD5) return;
+				await this.loadHash(replay.data?.info.beatmapHashMD5);
+
+				const bms = inject<BeatmapSet>("beatmapset");
+
+				const bm = bms?.difficulties.findIndex(
+					(bm) => bm.md5 === replay.data?.info.beatmapHashMD5,
+				);
+				if (bm !== -1 && bm !== undefined && bm !== null)
+					bms?.difficulties[bm].hookReplay(replay);
+			}
+			
+			if (!bms) {
+				await hookReplay();
+				return;
+			}
 
 			const bm = bms?.difficulties.findIndex(
 				(bm) => bm.md5 === replay.data?.info.beatmapHashMD5,
@@ -394,17 +413,7 @@ export class Game {
 				});
 
 				fetch.addEventListener("click", async () => {
-					if (!replay.data?.info.beatmapHashMD5) return;
-					await this.loadHash(replay.data?.info.beatmapHashMD5);
-
-					const bms = inject<BeatmapSet>("beatmapset");
-
-					const bm = bms?.difficulties.findIndex(
-						(bm) => bm.md5 === replay.data?.info.beatmapHashMD5,
-					);
-					if (bm !== -1 && bm !== undefined && bm !== null)
-						bms?.difficulties[bm].hookReplay(replay);
-
+					await hookReplay();
 					document.body.removeChild(container);
 				});
 
@@ -452,15 +461,26 @@ export class Game {
 	}
 
 	private async loadFromQuery() {
-		const queries = new URLSearchParams(window.location.search).getAll("b");
+		const searchParams = new URLSearchParams(window.location.search);
+
+		const queries = searchParams.getAll("b");
 		const IDs = queries.length !== 0 ? queries : [];
 
-		if (IDs.length === 0) {
+		const replay = searchParams.get("r");
+
+		if (IDs.length === 0 && !replay) {
 			inject<Loading>("ui/loading")?.off();
 			return false;
 		}
 
-		await this.loadIDs(IDs);
+		if (IDs.length !== 0) {
+			await this.loadIDs(IDs);
+		}
+
+		if (replay) {
+			await this.loadReplayFromLink(replay);
+		}
+
 		return true;
 	}
 
@@ -610,6 +630,21 @@ export class Game {
 		await bms.getDifficulties();
 
 		return bms;
+	}
+
+	async loadReplayFromLink(url: string) {
+		inject<Loading>("ui/loading")?.on();
+		const replay = await getBeatmapFromExternalUrl(url);
+
+		if (!replay) {
+			inject<Loading>("ui/loading")?.off();
+			return;
+		}
+
+		const file = new File([replay], "replay.osr");
+		await this.processFile(file);
+		
+		inject<Loading>("ui/loading")?.off();
 	}
 
 	private resize() {
