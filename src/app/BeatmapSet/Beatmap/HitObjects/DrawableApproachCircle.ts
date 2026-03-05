@@ -1,10 +1,13 @@
 import type { Circle } from "osu-standard-stable";
 import { Sprite } from "pixi.js";
+import type BeatmapSet from "@/BeatmapSet";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonApproachCircle";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacyApproachCircle";
 import type Skin from "@/Skinning/Skin";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Beatmap from "..";
 import SkinnableElement from "./SkinnableElement";
 
@@ -26,6 +29,10 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
 		);
+		this.gameplaysEventCallback = inject<Gameplays>(
+			"ui/main/viewer/gameplays",
+		)?.on("change", () => this.refreshColor());
+		inject<ExperimentalConfig>("config/experimental")?.onChange("overlapGameplays", () => this.refreshColor());
 	}
 
 	private _object!: Circle;
@@ -58,7 +65,24 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		);
 		if (approachCircle) this.container.texture = approachCircle;
 
+		this.refreshColor();
+	}
+
+	refreshColor() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
 		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		const tintByDiff =
+			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
+			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
+			beatmap?.color;
+
+		if (tintByDiff) {
+			this.container.tint = beatmap.color;
+			return;
+		}
+
 		if (
 			beatmap?.data.colors.comboColors.length &&
 			!inject<SkinningConfig>("config/skinning")?.disableBeatmapSkin
@@ -86,5 +110,10 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		this.container.destroy();
 		if (this.skinEventCallback)
 			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
+		if (this.gameplaysEventCallback)
+			inject<Gameplays>("ui/main/viewer/gameplays")?.remove(
+				"change",
+				this.gameplaysEventCallback,
+			);
 	}
 }

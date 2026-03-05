@@ -4,13 +4,18 @@ import {
 	type HitSample as Sample,
 } from "osu-classes";
 import type { Slider, SliderHead } from "osu-standard-stable";
+import type BeatmapSet from "@/BeatmapSet";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { inject } from "@/Context";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderHead";
 import type Skin from "@/Skinning/Skin";
 import HitSample from "../../../Audio/HitSample";
+import type Beatmap from "..";
 import DrawableApproachCircle from "./DrawableApproachCircle";
 import DrawableDefaults from "./DrawableDefaults";
 import DrawableHitCircle from "./DrawableHitCircle";
 import type DrawableSlider from "./DrawableSlider";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 
 export default class DrawableSliderHead extends DrawableHitCircle {
 	hitSound?: HitSample;
@@ -56,7 +61,7 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 	refreshSprite() {
 		super.refreshSprite();
 		this.approachCircle.refreshSprite();
-        this.defaults?.refreshSprites();
+		this.defaults?.refreshSprites();
 
 		const skin = this.skinManager?.getCurrentSkin();
 		if (!skin) return;
@@ -90,14 +95,28 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 
 		this.headUpdateFn = skin.config.General.Argon ? argonUpdate : null;
 
-		const color =
-			this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
-			0xffffff;
+		this.refreshColor();
+
+		this.timelineObject?.refreshSprite();
+	}
+
+	refreshColor() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		const tintByDiff =
+			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
+			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
+			beatmap?.color;
+
+		const color = tintByDiff
+			? beatmap.color
+			: (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+				0xffffff);
 		this.hitCircleSprite.tint = color;
 		this.flashPiece.tint = color;
 		this.color = color;
-
-		this.timelineObject?.refreshSprite();
 	}
 
 	update(time: number) {

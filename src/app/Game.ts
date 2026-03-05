@@ -25,6 +25,7 @@ import Loading from "./UI/loading";
 import Main from "./UI/main";
 import SidePanel from "./UI/sidepanel";
 import ZipHandler from "./ZipHandler";
+import type Gameplays from "./UI/main/viewer/Gameplay/Gameplays";
 
 // import { debounce } from "./utils";
 
@@ -538,7 +539,7 @@ export class Game {
 
 				if (idx === -1) continue;
 				if (i === 0) await bms.loadMaster(idx);
-				if (i !== 0) bms.loadSlave(idx);
+				if (i !== 0) await bms.loadSlave(idx);
 			}
 
 			if (!bms.master) {

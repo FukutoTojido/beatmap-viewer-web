@@ -1,19 +1,44 @@
+import type BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import calculateSliderProgress from "@/BeatmapSet/Beatmap/HitObjects/CalculateSliderProgress";
 import createGeometry from "@/BeatmapSet/Beatmap/HitObjects/CreateSliderGeometry";
 import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import { darken, lighten } from "@/utils";
 import { sharedUpdate } from "../Shared/Slider";
+import { Color } from "pixi.js";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 
 const blur = new URLSearchParams(window.location.search).get("blur");
 
 export const refreshSprite = (drawable: DrawableSlider) => {
+	refreshColor(drawable);
+	drawable.timelineObject?.refreshSprite();
+
+	const path = calculateSliderProgress(drawable.object.path, 0, 1);
+	if (!path.length) return;
+
+	const { aPosition, indexBuffer } = createGeometry(
+		path,
+		drawable.object.radius * (236 / 256),
+	);
+	drawable._baseGeometry.attributes.aPosition.buffer.data = new Float32Array(
+		aPosition,
+	);
+	drawable._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
+};
+
+export const refreshColor = (drawable: DrawableSlider) => {
 	const skin = drawable.skinManager?.getCurrentSkin();
 	if (!skin) return;
 
 	const beatmap = drawable.context.consume<Beatmap>("beatmapObject");
+	const tintByDiff =
+		(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
+		inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
+		beatmap?.color;
 
 	const comboIndex =
 		drawable.object.comboIndexWithOffsets %
@@ -35,7 +60,7 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 			? `${trackColor.red},${trackColor.green},${trackColor.blue}`
 			: skin.config.Colours.SliderTrackOverride;
 
-	const color = (trackOverride ?? comboColor)
+	const color = (tintByDiff ? new Color(beatmap.color).toUint8RgbArray().join(",") : (trackOverride ?? comboColor))
 		.split(",")
 		.map((value) => +value / 255);
 	drawable.trackColor = color;
@@ -72,20 +97,6 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 		1.0,
 	];
 	drawable._selectShader.resources.customUniforms.uniforms.borderWidth = 0.128;
-
-	drawable.timelineObject?.refreshSprite();
-
-	const path = calculateSliderProgress(drawable.object.path, 0, 1);
-	if (!path.length) return;
-
-	const { aPosition, indexBuffer } = createGeometry(
-		path,
-		drawable.object.radius * (236 / 256),
-	);
-	drawable._baseGeometry.attributes.aPosition.buffer.data = new Float32Array(
-		aPosition,
-	);
-	drawable._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
 };
 
 export const update = (drawable: DrawableSlider, time: number) => {

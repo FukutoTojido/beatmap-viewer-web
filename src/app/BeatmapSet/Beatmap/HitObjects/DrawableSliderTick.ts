@@ -1,16 +1,18 @@
 import {
 	HitResult,
-	Vector2,
 	type LegacyReplayFrame,
 	type HitSample as Sample,
+	Vector2,
 } from "osu-classes";
 import type { Slider, SliderTick } from "osu-standard-stable";
 import { Sprite } from "pixi.js";
 import type BeatmapSet from "@/BeatmapSet";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import { inject } from "@/Context";
 import { update } from "@/Skinning/Legacy/LegacySliderTick";
 import type Skin from "@/Skinning/Skin";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import HitSample from "../../../Audio/HitSample";
 import type Beatmap from "..";
 import DrawableHitObject from "./DrawableHitObject";
@@ -53,6 +55,13 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
 		);
+		this.gameplaysEventCallback = inject<Gameplays>(
+			"ui/main/viewer/gameplays",
+		)?.on("change", () => this.refreshColor());
+		inject<ExperimentalConfig>("config/experimental")?.onChange(
+			"overlapGameplays",
+			() => this.refreshColor(),
+		);
 	}
 
 	updateObjects(object: SliderTick, parent: Slider, sample: Sample) {
@@ -87,13 +96,29 @@ export default class DrawableSliderTick extends DrawableHitObject {
 				: undefined,
 		);
 
-		this.container.tint = skin.config.General.Argon
-			? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
-				0xffffff)
-			: 0xffffff;
-
 		if (!sliderTick) return;
 		this.container.texture = sliderTick;
+
+		this.refreshColor();
+	}
+
+	refreshColor() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+
+		const tintByDiff =
+			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
+			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
+			beatmap?.color;
+
+		this.container.tint = tintByDiff
+			? beatmap.color
+			: skin.config.General.Argon
+				? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+					0xffffff)
+				: 0xffffff;
 	}
 
 	playHitSound(time: number): void {
@@ -167,5 +192,10 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		this.container.destroy();
 		if (this.skinEventCallback)
 			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
+		if (this.gameplaysEventCallback)
+			inject<Gameplays>("ui/main/viewer/gameplays")?.remove(
+				"change",
+				this.gameplaysEventCallback,
+			);
 	}
 }

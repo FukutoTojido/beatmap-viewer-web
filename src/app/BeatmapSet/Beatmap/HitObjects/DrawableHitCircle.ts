@@ -8,6 +8,7 @@ import type { StandardHitObject } from "osu-standard-stable";
 import { type ColorSource, Container, RenderLayer, Sprite } from "pixi.js";
 import HitSample from "@/Audio/HitSample";
 import type BeatmapSet from "@/BeatmapSet";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { type Context, inject } from "@/Context";
 import {
@@ -18,8 +19,10 @@ import {
 	refreshSprite as legacyRefreshSprite,
 	update as legacyUpdate,
 } from "@/Skinning/Legacy/LegacyHitCircle";
+import { sharedRefreshColor } from "@/Skinning/Shared/HitCircle";
 import type SkinManager from "@/Skinning/SkinManager";
 import type ProgressBar from "@/UI/main/controls/ProgressBar";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 import type Beatmap from "..";
 import type { BaseObjectEvaluation } from "../Replay";
 import TimelineHitCircle from "../Timeline/TimelineHitCircle";
@@ -98,6 +101,10 @@ export default class DrawableHitCircle
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
 		);
+		this.gameplaysEventCallback = inject<Gameplays>(
+			"ui/main/viewer/gameplays",
+		)?.on("change", () => this.refreshColor());
+		inject<ExperimentalConfig>("config/experimental")?.onChange("overlapGameplays", () => this.refreshColor());
 
 		this.timelineObject = new TimelineHitCircle(object).hook(this.context);
 
@@ -198,6 +205,10 @@ export default class DrawableHitCircle
 			legacyRefreshSprite(this);
 			this.updateFn = legacyUpdate;
 		}
+	}
+
+	refreshColor() {
+		sharedRefreshColor(this);
 	}
 
 	playHitSound(time: number, _?: number): void {
@@ -314,5 +325,11 @@ export default class DrawableHitCircle
 
 		if (this.skinEventCallback)
 			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
+
+		if (this.gameplaysEventCallback)
+			inject<Gameplays>("ui/main/viewer/gameplays")?.remove(
+				"change",
+				this.gameplaysEventCallback,
+			);
 	}
 }

@@ -6,7 +6,6 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import { defaultEasing, tweenGroup } from "@/UI/animation/AnimationController";
 import FPS from "../FPS";
 import type Gameplay from ".";
-import type FullscreenConfig from "@/Config/FullscreenConfig";
 
 type GameplayEvents = "add" | "remove" | "change";
 
@@ -40,7 +39,7 @@ export default class Gameplays extends ScopedClass {
 			];
 			this.gameplays = new Set(newArr);
 		}
-		this.container.addChildAt(gameplay.container, 0);
+		this.container.addChild(...[...this.gameplays].toReversed().map(gameplay => gameplay.container), this.fps.container);
 
 		this._emitChange("add");
 		this._emitChange("change");
@@ -72,11 +71,13 @@ export default class Gameplays extends ScopedClass {
 	w = 0;
 	h = 0;
 
+	fps: FPS;
 	constructor() {
 		super();
 		this.context.provide<number>("clients", 0);
 
 		const fps = new FPS();
+		this.fps = fps;
 
 		this.container.addChild(fps.container);
 		this.container.on("layout", (layout) => {
@@ -94,8 +95,6 @@ export default class Gameplays extends ScopedClass {
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
 			(direction) => {
-				const isFullscreen =
-					inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
@@ -117,7 +116,10 @@ export default class Gameplays extends ScopedClass {
 
 		inject<ExperimentalConfig>("config/experimental")?.onChange(
 			"overlapGameplays",
-			() => this.reLayoutChildren(),
+			() => {
+				this.reLayoutChildren();
+				this._emitChange("change");
+			},
 		);
 	}
 
@@ -283,7 +285,7 @@ export default class Gameplays extends ScopedClass {
 		this._callbacks.get(event)?.delete(callback);
 	}
 
-	private _emitChange(event: GameplayEvents, val?: unknown) {
+	_emitChange(event: GameplayEvents, val?: unknown) {
 		const callbacks = this._callbacks.get(event);
 		if (!callbacks) return;
 

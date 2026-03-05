@@ -1,11 +1,14 @@
 import type { Slider } from "osu-standard-stable";
 import { Container, Sprite } from "pixi.js";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { type Context, inject } from "@/Context";
 import { update as argonUpdate } from "@/Skinning/Argon/ArgonSliderBall";
 import { update as legacyUpdate } from "@/Skinning/Legacy/LegacySliderBall";
 import type Skin from "@/Skinning/Skin";
 import Gameplay from "@/UI/main/viewer/Gameplay";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
+import type Beatmap from "..";
 import AnimatedSkinnableElement from "./AnimatedSkinnableElement";
 import type DrawableSlider from "./DrawableSlider";
 
@@ -45,19 +48,18 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		this.skinEventCallback = this.skinManager?.addSkinChangeListener(() =>
 			this.refreshSprite(),
 		);
+		this.gameplaysEventCallback = inject<Gameplays>(
+			"ui/main/viewer/gameplays",
+		)?.on("change", () => this.refreshColor());
+		inject<ExperimentalConfig>("config/experimental")?.onChange(
+			"overlapGameplays",
+			() => this.refreshColor(),
+		);
 
 		inject<GameplayConfig>("config/gameplay")?.onChange(
 			"tintSliderBall",
-			(val) => {
-				const skin = this.skinManager?.getCurrentSkin();
-				if (!skin) return;
-
-				this.sliderb.tint =
-					skin.config.General.AllowSliderBallTint &&
-					(val || skin === this.skinManager?.defaultSkin)
-						? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
-							0xffffff)
-						: 0xffffff;
+			() => {
+				this.refreshColor();
 			},
 		);
 
@@ -113,9 +115,23 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		);
 		this.updateFn = skin.config.General.Argon ? argonUpdate : legacyUpdate;
 
+		this.refreshColor();
+	}
+
+	refreshColor() {
+		const skin = this.skinManager?.getCurrentSkin();
+		if (!skin) return;
+
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+
+		const tintByDiff =
+			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
+			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
+			beatmap?.color;
+
 		if (skin.config.General.Argon) {
 			this.slidernd.tint =
-				this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+				tintByDiff ? beatmap.color : this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
 				0xffffff;
 			this.sliderb.tint = 0xffffff;
 			this.slidernd.visible = true;
@@ -146,7 +162,7 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 			);
 
 			this.sliderb.tint =
-				skin.config.General.AllowSliderBallTint &&
+				tintByDiff ? beatmap.color : skin.config.General.AllowSliderBallTint &&
 				(inject<GameplayConfig>("config/gameplay")?.tintSliderBall ||
 					skin === this.skinManager?.defaultSkin)
 					? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
@@ -201,5 +217,10 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		this.container.destroy();
 		if (this.skinEventCallback)
 			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
+		if (this.gameplaysEventCallback)
+			inject<Gameplays>("ui/main/viewer/gameplays")?.remove(
+				"change",
+				this.gameplaysEventCallback,
+			);
 	}
 }

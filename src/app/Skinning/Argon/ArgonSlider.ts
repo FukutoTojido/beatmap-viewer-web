@@ -6,13 +6,39 @@ import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import { darken } from "@/utils";
 import { sharedUpdate } from "../Shared/Slider";
+import type BeatmapSet from "@/BeatmapSet";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
+import { Color } from "pixi.js";
+import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 
 export const refreshSprite = (drawable: DrawableSlider) => {
+	refreshColor(drawable);
+	
+	drawable.timelineObject?.refreshSprite();
+
+	const path = calculateSliderProgress(drawable.object.path, 0, 1);
+	if (!path.length) return;
+
+	const { aPosition, indexBuffer } = createGeometry(
+		path,
+		drawable.object.radius * (236 / 256) * 0.95,
+	);
+	drawable._baseGeometry.attributes.aPosition.buffer.data = new Float32Array(
+		aPosition,
+	);
+	drawable._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
+};
+
+export const refreshColor = (drawable: DrawableSlider) => {
 	const skin = drawable.skinManager?.getCurrentSkin();
 	if (!skin) return;
 
 	const beatmap = drawable.context.consume<Beatmap>("beatmapObject");
-
+	const tintByDiff =
+		(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
+		inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
+		beatmap?.color;
+	
 	const comboIndex =
 		drawable.object.comboIndexWithOffsets %
 		(beatmap?.data.colors.comboColors.length &&
@@ -27,7 +53,7 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 			: // biome-ignore lint/suspicious/noExplicitAny: It is complicated
 				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
 
-	const color = comboColor.split(",").map((value) => +value / 255);
+	const color = (tintByDiff ? new Color(beatmap.color).toUint8RgbArray().join(",") : comboColor).split(",").map((value) => +value / 255);
 	drawable.trackColor = color;
 	drawable.color = comboColor;
 
@@ -53,20 +79,6 @@ export const refreshSprite = (drawable: DrawableSlider) => {
 	];
 	drawable._selectShader.resources.customUniforms.uniforms.borderWidth =
 		0.128 * 1.65;
-
-	drawable.timelineObject?.refreshSprite();
-
-	const path = calculateSliderProgress(drawable.object.path, 0, 1);
-	if (!path.length) return;
-
-	const { aPosition, indexBuffer } = createGeometry(
-		path,
-		drawable.object.radius * (236 / 256) * 0.95,
-	);
-	drawable._baseGeometry.attributes.aPosition.buffer.data = new Float32Array(
-		aPosition,
-	);
-	drawable._baseGeometry.indexBuffer.data = new Uint32Array(indexBuffer);
 };
 
 export const update = (drawable: DrawableSlider, time: number) => {
