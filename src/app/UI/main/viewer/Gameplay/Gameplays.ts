@@ -6,6 +6,11 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import { defaultEasing, tweenGroup } from "@/UI/animation/AnimationController";
 import FPS from "../FPS";
 import type Gameplay from ".";
+import type FullscreenConfig from "@/Config/FullscreenConfig";
+
+type GameplayEvents = "add" | "remove" | "change";
+
+export type GameplaysEventCallback = (val: unknown) => unknown;
 
 export default class Gameplays extends ScopedClass {
 	container = new Container({
@@ -15,14 +20,16 @@ export default class Gameplays extends ScopedClass {
 			flex: 1,
 		},
 		interactive: true,
-		zIndex: 1
+		zIndex: 1,
 	});
 
 	gameplays: Set<Gameplay> = new Set();
 
+	private _callbacks = new Map<GameplayEvents, Set<GameplaysEventCallback>>();
+
 	addGameplay(gameplay: Gameplay, index?: number) {
 		gameplay.hook(this.context);
-		
+
 		if (index === undefined) this.gameplays.add(gameplay);
 		else {
 			const deserialized = [...this.gameplays];
@@ -35,6 +42,8 @@ export default class Gameplays extends ScopedClass {
 		}
 		this.container.addChildAt(gameplay.container, 0);
 
+		this._emitChange("add");
+		this._emitChange("change");
 		this.reLayoutChildren(gameplay);
 	}
 
@@ -42,6 +51,8 @@ export default class Gameplays extends ScopedClass {
 		this.gameplays.delete(gameplay);
 		this.container.removeChild(gameplay.container);
 
+		this._emitChange("remove");
+		this._emitChange("change");
 		this.reLayoutChildren();
 	}
 
@@ -64,7 +75,7 @@ export default class Gameplays extends ScopedClass {
 	constructor() {
 		super();
 		this.context.provide<number>("clients", 0);
-		
+
 		const fps = new FPS();
 
 		this.container.addChild(fps.container);
@@ -83,6 +94,8 @@ export default class Gameplays extends ScopedClass {
 		inject<ResponsiveHandler>("responsiveHandler")?.on(
 			"layout",
 			(direction) => {
+				const isFullscreen =
+					inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
@@ -112,7 +125,7 @@ export default class Gameplays extends ScopedClass {
 
 	reLayoutChildren(target?: Gameplay) {
 		this.context.provide<number>("clients", this.gameplays.size);
-		
+
 		const overlapGameplays = inject<ExperimentalConfig>(
 			"config/experimental",
 		)?.overlapGameplays;
@@ -247,13 +260,35 @@ export default class Gameplays extends ScopedClass {
 			if (w !== 100) {
 				gameplay.showDiffName(i !== 0 && !overlapGameplays);
 
-				const scale = Math.min(1, 1 / columnsCount * 1.5);
+				const scale = Math.min(1, (1 / columnsCount) * 1.5);
 
 				gameplay.statsContainer.scale.set(scale);
 			} else {
 				gameplay.hideDiffName();
 				gameplay.statsContainer.scale.set(1);
 			}
+		}
+	}
+
+	on(event: GameplayEvents, callback: GameplaysEventCallback) {
+		if (!this._callbacks.get(event)) {
+			this._callbacks.set(event, new Set());
+		}
+
+		this._callbacks.get(event)?.add(callback);
+		return callback;
+	}
+
+	remove(event: GameplayEvents, callback: GameplaysEventCallback) {
+		this._callbacks.get(event)?.delete(callback);
+	}
+
+	private _emitChange(event: GameplayEvents, val?: unknown) {
+		const callbacks = this._callbacks.get(event);
+		if (!callbacks) return;
+
+		for (const callback of callbacks) {
+			callback(val);
 		}
 	}
 }

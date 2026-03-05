@@ -4,12 +4,12 @@ import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject, provide } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { Clamp } from "@/utils";
+import type Controls from "../controls";
 import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
 import Beatsnap from "./Timeline/Beatsnap";
 import Zoomer from "./Timeline/Zoomer";
-import type Controls from "../controls";
 
 export default class Viewer {
 	container = new LayoutContainer({

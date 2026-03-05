@@ -28,6 +28,32 @@ export default class Main {
 
 		this.container.addChild(viewer.container);
 
+		inject<ResponsiveHandler>("responsiveHandler")?.on(
+			"layout",
+			(direction) => {
+				const isFullscreen =
+					inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
+
+				switch (direction) {
+					case "landscape": {
+						this.container.removeChild(controls.container);
+						viewer.container.addChild(controls.container);
+						break;
+					}
+					case "portrait": {
+						if (!isFullscreen) {
+							this.container.removeChild(controls.container);
+							viewer.container.addChild(controls.container);
+							break;
+						}
+
+						viewer.container.removeChild(controls.container);
+						this.container.addChild(controls.container);
+					}
+				}
+			},
+		);
+
 		this.container.addEventListener(
 			"wheel",
 			(event) => {
