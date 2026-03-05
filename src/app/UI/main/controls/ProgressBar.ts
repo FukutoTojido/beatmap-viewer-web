@@ -1,5 +1,6 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import {
+    Color,
 	type ColorSource,
 	type FederatedPointerEvent,
 	Graphics,
@@ -14,7 +15,7 @@ export default class ProgressBar {
 		layout: {
 			flex: 1,
 			height: "100%",
-			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
+			backgroundColor: new Color(inject<ColorConfig>("config/color")?.color.crust).setAlpha(0.7),
 			alignItems: "center",
 			justifyContent: "center",
 			paddingInline: 30,
@@ -74,7 +75,7 @@ export default class ProgressBar {
 		inject<ColorConfig>("config/color")?.onChange(
 			"color",
 			({ crust, surface0, text }) => {
-				this.container.layout = { backgroundColor: crust };
+				this.container.layout = { backgroundColor: new Color(crust).setAlpha(0.7) };
 				this.line.layout = { backgroundColor: surface0 };
 				this.thumb
 					.clear()

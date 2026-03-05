@@ -1,8 +1,8 @@
+import { LayoutContainer } from "@pixi/layout/components";
+import { Assets, Color, Sprite } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import type { Game } from "@/Game";
-import { LayoutContainer } from "@pixi/layout/components";
-import { Assets, Sprite } from "pixi.js";
 
 export default class Metadata {
 	container = new LayoutContainer({
@@ -10,7 +10,9 @@ export default class Metadata {
 		layout: {
 			aspectRatio: 1,
 			height: "100%",
-			backgroundColor: inject<ColorConfig>("config/color")?.color.mantle,
+			backgroundColor: new Color(
+				inject<ColorConfig>("config/color")?.color.mantle,
+			).setAlpha(0.7),
 			flexShrink: 0,
 			alignItems: "center",
 			justifyContent: "center",
@@ -38,7 +40,9 @@ export default class Metadata {
 		inject<ColorConfig>("config/color")?.onChange(
 			"color",
 			({ mantle, text }) => {
-				this.container.layout = { backgroundColor: mantle };
+				this.container.layout = {
+					backgroundColor: new Color(mantle).setAlpha(0.7),
+				};
 				this.sprite.tint = text;
 			},
 		);
@@ -50,15 +54,17 @@ export default class Metadata {
 
 		this.container.addEventListener("pointerenter", () => {
 			this.container.layout = {
-				backgroundColor:
+				backgroundColor: new Color(
 					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
+				).setAlpha(0.7),
 			};
 		});
 
 		this.container.addEventListener("pointerleave", () => {
 			this.container.layout = {
-				backgroundColor:
+				backgroundColor: new Color(
 					inject<ColorConfig>("config/color")?.color.mantle ?? 0xffffff,
+				).setAlpha(0.7),
 			};
 		});
 	}

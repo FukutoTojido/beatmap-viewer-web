@@ -9,6 +9,7 @@ import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
 import Beatsnap from "./Timeline/Beatsnap";
 import Zoomer from "./Timeline/Zoomer";
+import type Controls from "../controls";
 
 export default class Viewer {
 	container = new LayoutContainer({
@@ -24,7 +25,7 @@ export default class Viewer {
 		interactive: true,
 	});
 
-	constructor() {
+	constructor(controls: Controls) {
 		const timeline = provide("ui/main/viewer/timeline", new Timeline());
 		const zoomer = provide("ui/main/viewer/zoomer", new Zoomer());
 		const beatsnap = provide("ui/main/viewer/beatsnap", new Beatsnap());
@@ -54,7 +55,7 @@ export default class Viewer {
 
 		wrapper.addChild(timeline.container, zoomer.container, beatsnap.container);
 
-		this.container.addChild(background.container, wrapper, gameplays.container);
+		this.container.addChild(background.container, wrapper, gameplays.container, controls.container);
 
 		inject<FullscreenConfig>("config/fullscreen")?.onChange(
 			"fullscreen",

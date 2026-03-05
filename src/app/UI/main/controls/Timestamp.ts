@@ -1,8 +1,8 @@
+import { LayoutContainer } from "@pixi/layout/components";
+import { BitmapText, Color } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
-import { LayoutContainer } from "@pixi/layout/components";
-import { BitmapText } from "pixi.js";
 
 export default class Timestamp {
 	container = new LayoutContainer({
@@ -10,7 +10,9 @@ export default class Timestamp {
 		layout: {
 			width: 150,
 			height: "100%",
-			backgroundColor: inject<ColorConfig>("config/color")?.color.base,
+			backgroundColor: new Color(
+				inject<ColorConfig>("config/color")?.color.base,
+			).setAlpha(0.7),
 			flexShrink: 0,
 			flexDirection: "column",
 			alignItems: "center",
@@ -75,10 +77,12 @@ export default class Timestamp {
 		this.container.addChild(this.digitsContainer, this.timingContainer);
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
-			this.container.layout = { backgroundColor: base };
+			this.container.layout = {
+				backgroundColor: new Color(base).setAlpha(0.7),
+			};
 			this.bpm.style.fill = text;
 			this.sliderVelocity.style.fill = text;
-			
+
 			for (const digit of this.digits) {
 				digit.style.fill = text;
 			}

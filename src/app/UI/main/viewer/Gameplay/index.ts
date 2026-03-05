@@ -3,6 +3,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import { Tween } from "@tweenjs/tween.js";
 import { Vector2 } from "osu-classes";
 import {
+	AlphaFilter,
 	// Application,
 	Assets,
 	Container,
@@ -128,7 +129,7 @@ export default class Gameplay extends ScopedClass {
 			interactive: false,
 			eventMode: "none",
 			visible: inject<GameplayConfig>("config/gameplay")?.showGrid ?? true,
-			alpha: 0.5,
+			filters: [new AlphaFilter({ alpha: 0.5, antialias: true })],
 		});
 		this.drawGrid(512);
 
@@ -206,6 +207,11 @@ export default class Gameplay extends ScopedClass {
 		const isFullscreen =
 			inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 
+		const shouldKeepScale =
+			isFullscreen ||
+			(this.context.consume<number>("clients") !== 1 &&
+				!inject<ExperimentalConfig>("config/experimental")?.overlapGameplays);
+
 		const width = this.wrapper.layout?.computedLayout.width ?? 0;
 		const height = this.wrapper.layout?.computedLayout.height ?? 0;
 
@@ -235,13 +241,7 @@ export default class Gameplay extends ScopedClass {
 		this.spinner.graphics.x = width / 2;
 		this.spinner.graphics.y = height / 2;
 
-		this.wrapper.scale.set(
-			isFullscreen ||
-				(this.context.consume<number>("clients") !== 1 &&
-					!inject<ExperimentalConfig>("config/experimental")?.overlapGameplays)
-				? 1
-				: 0.95 / 0.8,
-		);
+		this.wrapper.scale.set(shouldKeepScale ? 1 : 0.98 / 0.8);
 	}
 
 	private _currentTween?: Tween;

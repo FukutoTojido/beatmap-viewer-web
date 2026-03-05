@@ -1,5 +1,5 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import { Assets, Sprite } from "pixi.js";
+import { Assets, Color, Sprite } from "pixi.js";
 import type BeatmapSet from "@/BeatmapSet";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
@@ -9,7 +9,7 @@ export default class Play {
 		label: "play",
 		layout: {
 			aspectRatio: 1,
-			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
+			backgroundColor: new Color(inject<ColorConfig>("config/color")?.color.crust).setAlpha(0.7),
 			height: "100%",
 			flexShrink: 0,
 			alignItems: "center",
@@ -38,7 +38,7 @@ export default class Play {
 		inject<ColorConfig>("config/color")?.onChange(
 			"color",
 			({ crust, text }) => {
-				this.container.layout = { backgroundColor: crust };
+				this.container.layout = { backgroundColor: new Color(crust).setAlpha(0.7) };
 				this.sprite.tint = text;
 			},
 		);
@@ -52,14 +52,14 @@ export default class Play {
 		this.container.addEventListener("pointerenter", () => {
 			this.container.layout = {
 				backgroundColor:
-					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
+					new Color(inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff).setAlpha(0.7),
 			};
 		});
 
 		this.container.addEventListener("pointerleave", () => {
 			this.container.layout = {
 				backgroundColor:
-					inject<ColorConfig>("config/color")?.color.crust ?? 0xffffff,
+					new Color(inject<ColorConfig>("config/color")?.color.crust ?? 0xffffff).setAlpha(0.7),
 			};
 		});
 	}

@@ -17,49 +17,16 @@ export default class Main {
 			height: "100%",
 			boxSizing: "border-box",
 			flexDirection: "column",
-			gap: 10,
+
 			overflow: "hidden",
 		},
 	});
 
 	constructor() {
 		const controls = provide("ui/main/controls", new Controls());
-		const viewer = provide("ui/main/viewer", new Viewer());
+		const viewer = provide("ui/main/viewer", new Viewer(controls));
 
-		this.container.addChild(viewer.container, controls.container);
-
-		inject<ResponsiveHandler>("responsiveHandler")?.on(
-			"layout",
-			(direction) => {
-				const isFullscreen =
-					inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
-				switch (direction) {
-					case "landscape": {
-						this.container.layout = {
-							gap: isFullscreen ? 0 : 10,
-						};
-						break;
-					}
-					case "portrait": {
-						this.container.layout = {
-							gap: 0,
-						};
-						break;
-					}
-				}
-			},
-		);
-
-		inject<FullscreenConfig>("config/fullscreen")?.onChange(
-			"fullscreen",
-			(isFullscreen) => {
-				const direction =
-					inject<ResponsiveHandler>("responsiveHandler")?.direction;
-				this.container.layout = {
-					gap: isFullscreen || direction === "portrait" ? 0 : 10,
-				};
-			},
-		);
+		this.container.addChild(viewer.container);
 
 		this.container.addEventListener(
 			"wheel",

@@ -1,14 +1,15 @@
 import { LayoutContainer } from "@pixi/layout/components";
+import { Color } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject, provide } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import ZContainer from "@/UI/core/ZContainer";
 import Fullscreen from "./Fullscreen";
 import Metadata from "./Metadata";
 import Play from "./Play";
 import ProgressBar from "./ProgressBar";
 import Timestamp from "./Timestamp";
-import ZContainer from "@/UI/core/ZContainer";
 
 export default class Controls {
 	container = new ZContainer({
@@ -17,11 +18,11 @@ export default class Controls {
 			width: "100%",
 			height: 60,
 			flexGrow: 0,
-			backgroundColor: inject<ColorConfig>("config/color")?.color.crust,
+			backgroundColor: new Color(inject<ColorConfig>("config/color")?.color.crust).setAlpha(0.7),
 			flexDirection: "row",
-			borderRadius: 20,
 			overflow: "hidden",
 		},
+		zIndex: 9999,
 	});
 
 	open = false;
@@ -57,7 +58,7 @@ export default class Controls {
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ crust }) => {
 			this.container.layout = {
-				backgroundColor: crust,
+				backgroundColor: new Color(crust).setAlpha(0.),
 			};
 		});
 
@@ -70,7 +71,6 @@ export default class Controls {
 				this.container.layout = {
 					position:
 						isFullscreen && direction === "landscape" ? "absolute" : "relative",
-					borderRadius: isFullscreen || direction === "portrait" ? 0 : 20,
 					bottom: isFullscreen ? 0 : undefined,
 					height:
 						isFullscreen && direction === "landscape"
@@ -94,7 +94,6 @@ export default class Controls {
 				switch (direction) {
 					case "landscape": {
 						this.container.layout = {
-							borderRadius: isFullscreen ? 0 : 20,
 							flexDirection: "row",
 							height: 60,
 						};
@@ -112,7 +111,6 @@ export default class Controls {
 					}
 					case "portrait": {
 						this.container.layout = {
-							borderRadius: 0,
 							flexDirection: "column",
 							height: "auto",
 						};
