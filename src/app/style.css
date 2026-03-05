@@ -55,7 +55,7 @@ body {
 	width: 100%;
 	height: 100%;
 
-	background-image: url("https://fukutotojido.s-ul.eu/9WppjJGO");
+	background-image: url("https://cdn.try-z.net/hamidacchi.jpg");
 
 	background-position: center;
 	background-size: cover;
@@ -606,6 +606,16 @@ label.item {
 		justify-content: center;
 	}
 	label.mods span {
+		display: none;
+	}
+}
+
+.reset {
+	filter: drop-shadow(0 0 3px var(--color-text))
+}
+
+.rangeInput {
+	&:has(input[type=range][data-modified="false"]) button[data-for=cursorSize] {
 		display: none;
 	}
 }

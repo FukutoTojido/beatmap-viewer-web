@@ -2,6 +2,7 @@ import { HitResult, type LegacyReplayFrame, type Score } from "osu-classes";
 import { ScoreDecoder } from "osu-parsers";
 import { Slider, Spinner } from "osu-standard-stable";
 import { Sprite } from "pixi.js";
+import SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
@@ -37,6 +38,9 @@ export default class Replay {
 			inject<SkinManager>("skinManager")
 				?.getCurrentSkin()
 				.getTexture("cursor") ?? BLANK_TEXTURE;
+		this.cursor.scale.set(
+			inject<SkinningConfig>("config/skinning")?.cursorSize ?? 1,
+		);
 
 		this.trails = [...Array(10)].map(
 			(_, idx) =>
@@ -52,6 +56,9 @@ export default class Replay {
 				inject<SkinManager>("skinManager")
 					?.getCurrentSkin()
 					.getTexture("cursortrail") ?? BLANK_TEXTURE;
+			trail.scale.set(
+				inject<SkinningConfig>("config/skinning")?.cursorSize ?? 1,
+			);
 		}
 
 		inject<SkinManager>("skinManager")?.addSkinChangeListener((skin) => {
@@ -60,6 +67,14 @@ export default class Replay {
 				trail.texture = skin.getTexture("cursortrail") ?? BLANK_TEXTURE;
 			}
 		});
+
+		inject<SkinningConfig>("config/skinning")?.onChange(
+			"cursorSize",
+			(val: number) => {
+				this.cursor.scale.set(val);
+				for (const trail of this.trails) trail.scale.set(val);
+			},
+		);
 	}
 
 	async process(raw: Blob) {

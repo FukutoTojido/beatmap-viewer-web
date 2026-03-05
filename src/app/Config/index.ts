@@ -84,6 +84,7 @@ export default class Config {
 				savedSettings?.skinning ?? {
 					skinningIdx: 0,
 					disableBeatmapSkin: false,
+					cursorSize: 1,
 				},
 			),
 		);

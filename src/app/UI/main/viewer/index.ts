@@ -1,7 +1,9 @@
 import { LayoutContainer } from "@pixi/layout/components";
+import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject, provide } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import { Clamp } from "@/utils";
 import Background from "./Background";
 import Gameplays from "./Gameplay/Gameplays";
 import Timeline from "./Timeline";
@@ -37,10 +39,17 @@ export default class Viewer {
 					r: 0,
 					g: 0,
 					b: 0,
-					a: 0.8,
+					a: Clamp(
+						(inject<BackgroundConfig>("config/background")?.backgroundDim ??
+							80) /
+							100 +
+							0.2,
+						0,
+						1,
+					),
 				},
 			},
-			zIndex: 2
+			zIndex: 2,
 		});
 
 		wrapper.addChild(timeline.container, zoomer.container, beatsnap.container);
@@ -88,6 +97,20 @@ export default class Viewer {
 
 				wrapper.layout = {
 					height: isFullscreen ? (direction === "portrait" ? 80 : 0) : 80,
+				};
+			},
+		);
+
+		inject<BackgroundConfig>("config/background")?.onChange(
+			"backgroundDim",
+			(val) => {
+				wrapper.layout = {
+					backgroundColor: {
+						r: 0,
+						g: 0,
+						b: 0,
+						a: Clamp(val / 100 + 0.2, 0, 1),
+					},
 				};
 			},
 		);

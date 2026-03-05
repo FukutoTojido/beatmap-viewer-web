@@ -19,6 +19,7 @@ import DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle
 import DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ColorConfig from "@/Config/ColorConfig";
+import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject, ScopedClass } from "@/Context";
@@ -127,6 +128,7 @@ export default class Gameplay extends ScopedClass {
 			interactive: false,
 			eventMode: "none",
 			visible: inject<GameplayConfig>("config/gameplay")?.showGrid ?? true,
+			alpha: 0.5,
 		});
 		this.drawGrid(512);
 
@@ -208,18 +210,8 @@ export default class Gameplay extends ScopedClass {
 		const height = this.wrapper.layout?.computedLayout.height ?? 0;
 
 		const scale = Math.min(width / 640, height / 480);
-		const _w =
-			640 *
-			scale *
-			(isFullscreen || this.context.consume<number>("clients") !== 1
-				? 0.8
-				: 0.95);
-		const _h =
-			480 *
-			scale *
-			(isFullscreen || this.context.consume<number>("clients") !== 1
-				? 0.8
-				: 0.95);
+		const _w = 512 * scale;
+		const _h = 384 * scale;
 
 		this.objectsContainer.scale.set(scale);
 
@@ -242,6 +234,14 @@ export default class Gameplay extends ScopedClass {
 
 		this.spinner.graphics.x = width / 2;
 		this.spinner.graphics.y = height / 2;
+
+		this.wrapper.scale.set(
+			isFullscreen ||
+				(this.context.consume<number>("clients") !== 1 &&
+					!inject<ExperimentalConfig>("config/experimental")?.overlapGameplays)
+				? 1
+				: 0.95 / 0.8,
+		);
 	}
 
 	private _currentTween?: Tween;

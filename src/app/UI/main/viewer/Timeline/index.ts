@@ -97,7 +97,12 @@ export default class Timeline {
 				.lineTo(0, height / 2 - 3)
 				.lineTo(3, height / 2)
 				.lineTo(-3, height / 2)
-				.fill(0xcdd6f4);
+				//
+				.fill(0xcdd6f4)
+				//
+				.moveTo(-width / 2, height / 2)
+				.lineTo(width / 2, height / 2)
+				.stroke(0xa6adc8);
 
 			thumb.context = thumbContext;
 		});

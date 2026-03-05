@@ -147,6 +147,16 @@
 					<input type="checkbox" name="disableBeatmapSkin" id="disableBeatmapSkin" />
 				</div>
 			</div>
+			<div class="flex flex-col w-full gap-2.5 rangeInput">
+				<div class="flex items-center justify-between w-full text-sm">
+					<div class="flex items-center gap-2.5">
+						<div class="font-normal">Cursor Size</div>
+						<button class="cursor-pointer reset -rotate-45 text-xs" data-for="cursorSize"><i class="ri-reset-left-line"></i></button>
+					</div>
+					<label for="cursorSize">1.00x</label>
+				</div>
+				<input type="range" name="cursorSize" id="cursorSize" min="0.1" max="2" step="0.01" tabindex="-1" />
+			</div>
 		</div>
 		<div class="bg-base p-10 flex flex-col w-full gap-5">
 			<div class="font-medium">Mods</div>
@@ -317,7 +327,6 @@
 						hidden
 					/>
 				</label>
-			
 			</div>
 		</div>
 		<div class="bg-base p-10 flex flex-col w-full gap-5">
