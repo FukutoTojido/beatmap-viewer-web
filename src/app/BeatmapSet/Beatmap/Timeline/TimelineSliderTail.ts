@@ -53,7 +53,9 @@ export default class TimelineSliderTail extends TimelineHitCircle {
 		const baseColor = this.context.consume<DrawableSlider>("object")?.color;
 		const color = baseColor?.includes("rgb")
 			? (baseColor ?? "rgb(0, 0, 0)")
-			: `rgb(${baseColor ?? "0,0,0"})`;
+			: baseColor?.includes("#")
+				? baseColor
+				: `rgb(${baseColor ?? "0,0,0"})`;
 		this.hitCircle.tint = color;
 	}
 }

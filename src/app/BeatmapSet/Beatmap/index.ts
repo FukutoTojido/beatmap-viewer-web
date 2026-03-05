@@ -12,7 +12,7 @@ import {
 	StandardRuleset,
 	type StandardStrainSkill,
 } from "osu-standard-stable";
-import type { ColorSource } from "pixi.js";
+import { Color, type ColorSource } from "pixi.js";
 import type Audio from "@/Audio";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
@@ -47,6 +47,7 @@ export default class Beatmap extends ScopedClass {
 	connectors: DrawableFollowPoints[] = [];
 
 	color: ColorSource;
+	randomColor: ColorSource = new Color(Math.floor(Math.random() * 0xffffff)).toHex();
 
 	private worker = new ObjectsWorker();
 

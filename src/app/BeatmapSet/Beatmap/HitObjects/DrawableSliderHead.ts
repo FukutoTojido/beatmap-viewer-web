@@ -108,10 +108,10 @@ export default class DrawableSliderHead extends DrawableHitCircle {
 		const tintByDiff =
 			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
 			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-			beatmap?.color;
+			beatmap?.randomColor;
 
 		const color = tintByDiff
-			? beatmap.color
+			? beatmap.randomColor
 			: (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
 				0xffffff);
 		this.hitCircleSprite.tint = color;

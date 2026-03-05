@@ -38,7 +38,7 @@ export const refreshColor = (drawable: DrawableSlider) => {
 	const tintByDiff =
 		(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
 		inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-		beatmap?.color;
+		beatmap?.randomColor;
 
 	const comboIndex =
 		drawable.object.comboIndexWithOffsets %
@@ -60,7 +60,7 @@ export const refreshColor = (drawable: DrawableSlider) => {
 			? `${trackColor.red},${trackColor.green},${trackColor.blue}`
 			: skin.config.Colours.SliderTrackOverride;
 
-	const color = (tintByDiff ? new Color(beatmap.color).toUint8RgbArray().join(",") : (trackOverride ?? comboColor))
+	const color = (tintByDiff ? new Color(beatmap.randomColor).toUint8RgbArray().join(",") : (trackOverride ?? comboColor))
 		.split(",")
 		.map((value) => +value / 255);
 	drawable.trackColor = color;

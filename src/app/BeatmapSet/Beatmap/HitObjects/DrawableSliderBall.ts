@@ -127,11 +127,11 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 		const tintByDiff =
 			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
 			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-			beatmap?.color;
+			beatmap?.randomColor;
 
 		if (skin.config.General.Argon) {
 			this.slidernd.tint =
-				tintByDiff ? beatmap.color : this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
+				tintByDiff ? beatmap.randomColor : this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
 				0xffffff;
 			this.sliderb.tint = 0xffffff;
 			this.slidernd.visible = true;
@@ -162,7 +162,7 @@ export default class DrawableSliderBall extends AnimatedSkinnableElement {
 			);
 
 			this.sliderb.tint =
-				tintByDiff ? beatmap.color : skin.config.General.AllowSliderBallTint &&
+				tintByDiff ? beatmap.randomColor : skin.config.General.AllowSliderBallTint &&
 				(inject<GameplayConfig>("config/gameplay")?.tintSliderBall ||
 					skin === this.skinManager?.defaultSkin)
 					? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??

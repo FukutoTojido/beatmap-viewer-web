@@ -50,12 +50,12 @@ export const sharedRefreshColor = (drawable: DrawableHitCircle) => {
 	const tintByDiff =
 		(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1  &&
 		inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-		beatmap?.color;
+		beatmap?.randomColor;
 
 	if (tintByDiff) {
-		drawable.color = beatmap.color;
-		drawable.hitCircleSprite.tint = beatmap.color;
-		drawable.flashPiece.tint = beatmap.color;
+		drawable.color = beatmap.randomColor;
+		drawable.hitCircleSprite.tint = beatmap.randomColor;
+		drawable.flashPiece.tint = beatmap.randomColor;
 		return;
 	}
 

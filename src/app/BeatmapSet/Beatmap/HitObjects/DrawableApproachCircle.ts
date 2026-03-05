@@ -76,10 +76,10 @@ export default class DrawableApproachCircle extends SkinnableElement {
 		const tintByDiff =
 			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
 			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-			beatmap?.color;
+			beatmap?.randomColor;
 
 		if (tintByDiff) {
-			this.container.tint = beatmap.color;
+			this.container.tint = beatmap.randomColor;
 			return;
 		}
 

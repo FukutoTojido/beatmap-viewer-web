@@ -111,10 +111,10 @@ export default class DrawableSliderTick extends DrawableHitObject {
 		const tintByDiff =
 			(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
 			inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-			beatmap?.color;
+			beatmap?.randomColor;
 
 		this.container.tint = tintByDiff
-			? beatmap.color
+			? beatmap.randomColor
 			: skin.config.General.Argon
 				? (this.context.consume<DrawableSlider>("slider")?.getColor(skin) ??
 					0xffffff)

@@ -8,13 +8,7 @@ import {
 	SpinnerTick,
 	type StandardHitObject,
 } from "osu-standard-stable";
-import {
-	AlphaFilter,
-	Color,
-	FillGradient,
-	Graphics,
-	Text,
-} from "pixi.js";
+import { AlphaFilter, Color, FillGradient, Graphics, Text } from "pixi.js";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { type Context, inject } from "@/Context";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
@@ -247,14 +241,12 @@ export default class TimelineSlider extends TimelineHitObject {
 			this.filter.alpha = 0.7;
 		}
 
-		this.body.tint = this.context
-			.consume<DrawableSlider>("object")
-			?.color.includes("rgb")
-			? (this.context.consume<DrawableSlider>("object")?.color ??
-				"rgb(0, 0, 0)")
-			: `rgb(${
-					this.context.consume<DrawableSlider>("object")?.color ?? "0,0,0"
-				})`;
+		const color = this.context.consume<DrawableSlider>("object")?.color;
+		this.body.tint = color?.includes("rgb")
+			? (color ?? "rgb(0, 0, 0)")
+			: color?.includes("#")
+				? (color ?? 0)
+				: `rgb(${color ?? "0,0,0"})`;
 
 		for (const object of this.circles) {
 			object.refreshSprite();

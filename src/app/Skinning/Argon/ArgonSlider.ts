@@ -37,7 +37,7 @@ export const refreshColor = (drawable: DrawableSlider) => {
 	const tintByDiff =
 		(inject<Gameplays>("ui/main/viewer/gameplays")?.gameplays.size ?? 1) - 1 &&
 		inject<ExperimentalConfig>("config/experimental")?.overlapGameplays &&
-		beatmap?.color;
+		beatmap?.randomColor;
 	
 	const comboIndex =
 		drawable.object.comboIndexWithOffsets %
@@ -53,7 +53,7 @@ export const refreshColor = (drawable: DrawableSlider) => {
 			: // biome-ignore lint/suspicious/noExplicitAny: It is complicated
 				((skin.config.Colours as any)[`Combo${comboIndex + 1}`] as string);
 
-	const color = (tintByDiff ? new Color(beatmap.color).toUint8RgbArray().join(",") : comboColor).split(",").map((value) => +value / 255);
+	const color = (tintByDiff ? new Color(beatmap.randomColor).toUint8RgbArray().join(",") : comboColor).split(",").map((value) => +value / 255);
 	drawable.trackColor = color;
 	drawable.color = comboColor;
 
