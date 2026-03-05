@@ -90,8 +90,8 @@ export default class BeatmapSet extends ScopedClass {
 			new Skin(this.context.consume<Map<string, Resource>>("resources")),
 		);
 		await skin.init();
-		
-        console.log(skin);
+
+		console.log(skin);
 	}
 
 	async loadResources() {
@@ -367,9 +367,8 @@ export default class BeatmapSet extends ScopedClass {
 		const oldMaster = this.master;
 		const isSwitch = this.slaves.has(beatmap);
 
-		this.loadPeripherals(beatmap);
-
 		if (isSwitch && oldMaster) {
+			await this.loadPeripherals(beatmap);
 			inject<Gameplays>("ui/main/viewer/gameplays")?.switchGameplay(
 				beatmap.container,
 				oldMaster.container,
@@ -379,7 +378,11 @@ export default class BeatmapSet extends ScopedClass {
 			this.slaves.add(oldMaster);
 		} else {
 			this.master?.destroy();
-			await this.loadBeatmap(beatmap, 0);
+
+			await Promise.all([
+				this.loadPeripherals(beatmap),
+				this.loadBeatmap(beatmap, 0),
+			]);
 		}
 
 		const graph = inject<DifficultyGraph>("ui/sidepanel/modding/difficulty");
