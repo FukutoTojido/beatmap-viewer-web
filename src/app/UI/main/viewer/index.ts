@@ -44,7 +44,7 @@ export default class Viewer {
 						(inject<BackgroundConfig>("config/background")?.backgroundDim ??
 							80) /
 							100 +
-							0.2,
+							0.1,
 						0,
 						1,
 					),
@@ -110,7 +110,7 @@ export default class Viewer {
 						r: 0,
 						g: 0,
 						b: 0,
-						a: Clamp(val / 100 + 0.2, 0, 1),
+						a: Clamp(val / 100 + 0.1, 0, 1),
 					},
 				};
 			},
