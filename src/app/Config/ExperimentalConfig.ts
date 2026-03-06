@@ -9,6 +9,8 @@ export type ExperimentalProps = {
 	easy?: boolean;
 };
 
+type Mods = "hidden" | "hardRock" | "doubleTime" | "easy"
+
 export default class ExperimentalConfig extends ConfigSection {
 	constructor(defaultOptions?: ExperimentalProps) {
 		super();
@@ -17,23 +19,22 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		if (!defaultOptions) return;
 
-		const {
-			asyncLoading,
-			overlapGameplays,
-			hidden,
-			hardRock,
-			doubleTime,
-			easy,
-		} = defaultOptions;
+		const { asyncLoading, overlapGameplays } = defaultOptions;
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
 
 		const searchParams = new URLSearchParams(window.location.search).get("m");
-
-		this.hidden = hidden ?? searchParams?.includes("HD") ?? false;
-		this.hardRock = hardRock ?? searchParams?.includes("HR") ?? false;
-		this.doubleTime = doubleTime ?? searchParams?.includes("DT") ?? false;
-		this.easy = easy ?? searchParams?.includes("EZ") ?? false;
+		const modMap: [string, Mods][] = [
+			["HD", "hidden"],
+			["HR", "hardRock"],
+			["DT", "doubleTime"],
+			["EZ", "easy"]
+		]
+		
+		for (const [abbr, mod] of modMap) {
+			if (!searchParams?.includes(abbr)) continue;
+			this[mod] = true;
+		}
 	}
 
 	private _asyncLoading = true;
@@ -64,7 +65,7 @@ export default class ExperimentalConfig extends ConfigSection {
 		this.emitChange("overlapGameplays", val);
 	}
 
-	private _hardRock = true;
+	private _hardRock = false;
 	get hardRock() {
 		return this._hardRock;
 	}
@@ -73,8 +74,8 @@ export default class ExperimentalConfig extends ConfigSection {
 
 		const ele = document.querySelector<HTMLInputElement>("#modsHR");
 		if (!ele) return;
-		ele.checked = val;		
-		
+		ele.checked = val;
+
 		const EZ = document.querySelector<HTMLInputElement>("#modsEZ");
 		if (!EZ) return;
 		EZ.checked = false;
@@ -87,7 +88,7 @@ export default class ExperimentalConfig extends ConfigSection {
 		});
 	}
 
-	private _doubleTime = true;
+	private _doubleTime = false;
 	get doubleTime() {
 		return this._doubleTime;
 	}
@@ -105,7 +106,7 @@ export default class ExperimentalConfig extends ConfigSection {
 		});
 	}
 
-	private _hidden = true;
+	private _hidden = false;
 	get hidden() {
 		return this._hidden;
 	}
@@ -123,7 +124,7 @@ export default class ExperimentalConfig extends ConfigSection {
 		});
 	}
 
-	private _easy = true;
+	private _easy = false;
 	get easy() {
 		return this._easy;
 	}
