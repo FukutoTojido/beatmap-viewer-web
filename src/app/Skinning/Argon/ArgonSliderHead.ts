@@ -1,4 +1,4 @@
-import type DrawableSliderHead from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderHead";
+import type DrawableSliderHead from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSliderHead";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 

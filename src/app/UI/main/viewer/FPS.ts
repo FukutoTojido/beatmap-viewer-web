@@ -1,6 +1,6 @@
 import { LayoutContainer } from "@pixi/layout/components";
-import { provide } from "@/Context";
 import { BitmapText } from "pixi.js";
+import { provide } from "@/Context";
 
 export default class FPS {
 	container = new LayoutContainer({

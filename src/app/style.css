@@ -618,4 +618,7 @@ label.item {
 	&:has(input[type=range][data-modified="false"]) button[data-for=cursorSize] {
 		display: none;
 	}
+	&:has(input[type=range][data-modified="false"]) button[data-for=scrollSpeed] {
+		display: none;
+	}
 }

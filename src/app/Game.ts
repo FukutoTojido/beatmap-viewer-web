@@ -5,7 +5,6 @@ import AnimationController, {
 	tweenGroup,
 } from "./UI/animation/AnimationController";
 import "./FPSSystem";
-import axios from "axios";
 import BeatmapSet from "./BeatmapSet";
 import Replay from "./BeatmapSet/Beatmap/Replay";
 import {
@@ -25,9 +24,6 @@ import Loading from "./UI/loading";
 import Main from "./UI/main";
 import SidePanel from "./UI/sidepanel";
 import ZipHandler from "./ZipHandler";
-import type Gameplays from "./UI/main/viewer/Gameplay/Gameplays";
-
-// import { debounce } from "./utils";
 
 RenderTarget.defaultOptions.depth = true;
 RenderTarget.defaultOptions.stencil = true;
@@ -90,8 +86,8 @@ export class Game {
 			antialias: inject<RendererConfig>("config/renderer")?.antialiasing,
 			powerPreference: "high-performance",
 			backgroundAlpha: 0,
-			// useBackBuffer: true,
-			// clearBeforeRender: true,
+			useBackBuffer: true,
+			clearBeforeRender: true,
 			// depth: true,
 			autoDensity: true,
 			resolution: devicePixelRatio,

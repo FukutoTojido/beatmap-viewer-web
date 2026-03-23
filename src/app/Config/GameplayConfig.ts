@@ -6,6 +6,7 @@ export type GameplayProps = {
 	snakeInSlider?: boolean;
 	snakeOutSlider?: boolean;
 	tintSliderBall?: boolean;
+	scrollSpeed?: number;
 };
 
 export default class GameplayConfig extends ConfigSection {
@@ -22,12 +23,14 @@ export default class GameplayConfig extends ConfigSection {
 			snakeInSlider,
 			snakeOutSlider,
 			tintSliderBall,
+			scrollSpeed,
 		} = defaultOptions;
 		this.showGrid = showGrid ?? true;
 		this.hitAnimation = hitAnimation ?? true;
 		this.snakeInSlider = snakeInSlider ?? true;
 		this.snakeOutSlider = snakeOutSlider ?? true;
 		this.tintSliderBall = tintSliderBall ?? false;
+		this.scrollSpeed = scrollSpeed ?? 25;
 	}
 
 	private _showGrid = true;
@@ -100,6 +103,28 @@ export default class GameplayConfig extends ConfigSection {
 		this.emitChange("tintSliderBall", val);
 	}
 
+	private _scrollSpeed = 1;
+	get scrollSpeed() {
+		return this._scrollSpeed;
+	}
+	set scrollSpeed(val: number) {
+		this._scrollSpeed = val;
+
+		const label = document.querySelector<HTMLLabelElement>(
+			"label[for=scrollSpeed]",
+		);
+		if (!label) return;
+		label.textContent = `${val}`;
+
+		const ele = document.querySelector<HTMLInputElement>("#scrollSpeed");
+		if (ele) {
+			ele.value = `${val}`;
+			ele.dataset.modified = val !== 25 ? "true" : "false";
+		}
+
+		this.emitChange("scrollSpeed", val);
+	}
+
 	loadEventListeners() {
 		document
 			.querySelector<HTMLInputElement>("#grid")
@@ -135,6 +160,19 @@ export default class GameplayConfig extends ConfigSection {
 				const value = (event.target as HTMLInputElement)?.checked ?? true;
 				this.tintSliderBall = value;
 			});
+		
+		document
+			.querySelector<HTMLInputElement>("#scrollSpeed")
+			?.addEventListener("input", (event) => {
+				const value = +((event.target as HTMLInputElement)?.value ?? 1);
+				this.scrollSpeed = value;
+			});
+		
+		document
+			.querySelector<HTMLInputElement>("button.reset[data-for=scrollSpeed]")
+			?.addEventListener("click", () => {
+				this.scrollSpeed = 25;
+			});
 	}
 
 	jsonify(): GameplayProps {
@@ -143,7 +181,8 @@ export default class GameplayConfig extends ConfigSection {
 			hitAnimation: this.hitAnimation,
 			snakeInSlider: this.snakeInSlider,
 			snakeOutSlider: this.snakeOutSlider,
-			tintSliderBall: this.tintSliderBall
+			tintSliderBall: this.tintSliderBall,
+			scrollSpeed: this.scrollSpeed,
 		};
 	}
 }

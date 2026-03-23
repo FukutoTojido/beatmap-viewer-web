@@ -1,4 +1,4 @@
-import type DrawableSliderRepeat from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderRepeat";
+import type DrawableSliderRepeat from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSliderRepeat";
 import Easings from "@/UI/Easings";
 import { Clamp } from "@/utils";
 

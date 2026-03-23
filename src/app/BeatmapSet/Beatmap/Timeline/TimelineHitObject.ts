@@ -3,7 +3,7 @@ import { Container } from "pixi.js";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { inject } from "@/Context";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
-import SkinnableElement from "../HitObjects/SkinnableElement";
+import SkinnableElement from "../Rulesets/Shared/HitObjects/SkinnableElement";
 
 export default abstract class TimelineHitObject extends SkinnableElement {
 	container: Container = new Container({

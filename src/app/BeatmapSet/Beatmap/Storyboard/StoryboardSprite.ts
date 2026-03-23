@@ -10,7 +10,7 @@ import {
 	type StoryboardSprite as StoryboardSpriteData,
 	type Vector2,
 } from "@rian8337/osu-base";
-import { GlProgram, groupD8, Sprite, Texture } from "pixi.js";
+import { groupD8, Sprite, Texture } from "pixi.js";
 import { ScopedClass } from "@/Context";
 import { EasingsMap } from "@/UI/Easings";
 

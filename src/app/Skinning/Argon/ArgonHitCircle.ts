@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { Easing, HitResult } from "osu-classes";
-import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
+import type DrawableHitCircle from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableHitCircle";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";

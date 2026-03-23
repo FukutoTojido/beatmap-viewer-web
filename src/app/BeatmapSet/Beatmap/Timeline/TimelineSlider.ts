@@ -14,7 +14,7 @@ import { type Context, inject } from "@/Context";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
 import { darken } from "@/utils";
 import type Beatmap from "..";
-import type DrawableSlider from "../HitObjects/DrawableSlider";
+import type DrawableSlider from "../Rulesets/Standard/HitObjects/DrawableSlider";
 import type TimelineHitCircle from "./TimelineHitCircle";
 import TimelineHitObject from "./TimelineHitObject";
 import TimelineSliderHead from "./TimelineSliderHead";

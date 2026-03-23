@@ -1,5 +1,5 @@
 import { parse } from "js-ini";
-import { Assets, Texture } from "pixi.js";
+import { Assets, groupD8, Texture } from "pixi.js";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import type { Resource } from "../ZipHandler";
@@ -39,6 +39,10 @@ export type SkinConfig = {
 	Fonts: {
 		HitCirclePrefix: string;
 		HitCircleOverlap: number;
+	};
+} & {
+	[section: string]: {
+		[key: string]: unknown;
 	};
 };
 
@@ -84,12 +88,27 @@ export default class Skin {
 		const configFile = await this.resources?.get("skin.ini")?.text();
 		if (!configFile) return;
 
-		const config = parse(sanitizeINI(configFile), {
+		let sanitized = sanitizeINI(configFile);
+		const matches = sanitized.match(/\[Mania\](.|(\r)?\n)*?Keys:(\s)*[0-9]+/gm);
+
+		for (const match of matches ?? []) {
+			const keys = match.match(/(?<=(Keys:(\s)*))[0-9]+/gm);
+			if (!keys || !keys.length) continue;
+
+			const keysNum = +keys[0];
+			sanitized = sanitized.replace(
+				match,
+				match.replace("[Mania]", `[ManiaKey=${keysNum}]`),
+			);
+		}
+
+		const config = parse(sanitized, {
 			comment: ["//", "--", ";", "=="],
 			delimiter: ":",
 		});
 
 		this.config = {
+			...config,
 			General: {
 				...this.config.General,
 				...(config as SkinConfig).General,
@@ -113,6 +132,40 @@ export default class Skin {
 		const defaults = [...Array(10)].map(
 			(_, idx) => `${this.config.Fonts.HitCirclePrefix}-${idx}`,
 		);
+		const maniaNotes = ["1", "2", "S", "s"].reduce<string[]>((accm, index) => {
+			accm.push(
+				...["", "H", "L", "T", "h", "l", "t"].reduce<string[]>(
+					(accmType, type) => {
+						accmType.push(`mania-note${index}${type}`);
+						return accmType;
+					},
+					[],
+				),
+			);
+			return accm;
+		}, []);
+		const maniaAnimatedNotes = ["1", "2", "S", "s"].reduce<string[]>(
+			(accm, index) => {
+				accm.push(
+					...["L", "l"].reduce<string[]>((accmType, type) => {
+						accmType.push(`mania-note${index}${type}`);
+						return accmType;
+					}, []),
+				);
+				return accm;
+			},
+			[],
+		);
+		const maniaKeys = ["1", "2", "S", "s"].reduce<string[]>((accm, index) => {
+			accm.push(
+				...["", "D", "d"].reduce<string[]>((accmType, type) => {
+					accmType.push(`mania-key${index}${type}`);
+					return accmType;
+				}, []),
+			);
+			return accm;
+		}, []);
+
 		const filenames = [
 			"approachcircle",
 			...defaults,
@@ -129,6 +182,9 @@ export default class Skin {
 			"hitcircleflash",
 			"hitcircleglow",
 			"hitcircleselect",
+			...maniaNotes,
+			...maniaKeys,
+			"mania-stage-hint",
 			"sliderb",
 			"sliderb-nd",
 			"sliderb-spec",
@@ -149,8 +205,9 @@ export default class Skin {
 			"hit100",
 			"hit50",
 			"hit0",
+			...maniaAnimatedNotes,
 			"sliderb",
-			"sliderfollowcircle"
+			"sliderfollowcircle",
 		];
 
 		await Promise.all([
@@ -175,9 +232,25 @@ export default class Skin {
 						? /default-[0-9]+/g.test(extracted)
 						: false;
 					this.textures.set(
-						isDefault ? (extracted as string) : filename,
+						isDefault
+							? (extracted as string).toLowerCase()
+							: filename.toLowerCase(),
 						texture,
 					);
+
+					if (!/mania-note[0-9]+(h|H)/g.test(filename)) return;
+
+					const tailName = filename.toLowerCase().replaceAll("h", "t");
+					if (!filenames.includes(tailName)) return;
+					
+					console.log(tailName)
+
+					const textureTail = new Texture({
+						source: texture.source,
+						rotate: groupD8.MIRROR_VERTICAL,
+					});
+
+					this.textures.set(tailName, textureTail);
 				} catch {
 					return;
 				}
@@ -228,7 +301,7 @@ export default class Skin {
 						: +(a[0].split("-").at(-1) ?? 0) - +(b[0].split("-").at(-1) ?? 0),
 				);
 				this.animatedTextures.set(
-					filenameBase,
+					filenameBase.toLowerCase(),
 					sorted.map(([_, texture]) => texture),
 				);
 			}),

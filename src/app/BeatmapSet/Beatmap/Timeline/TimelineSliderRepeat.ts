@@ -1,7 +1,7 @@
 import type { SliderRepeat } from "osu-standard-stable";
 import { Graphics, Sprite } from "pixi.js";
 import type Skin from "@/Skinning/Skin";
-import type DrawableSlider from "../HitObjects/DrawableSlider";
+import type DrawableSlider from "../Rulesets/Standard/HitObjects/DrawableSlider";
 import TimelineSliderTail from "./TimelineSliderTail";
 
 export default class TimelineSliderRepeat extends TimelineSliderTail {

@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import type { Slider, SliderHead } from "osu-standard-stable";
 import type Skin from "@/Skinning/Skin";
-import DrawableDefaults from "../HitObjects/DrawableDefaults";
-import type DrawableSlider from "../HitObjects/DrawableSlider";
+import DrawableDefaults from "../Rulesets/Standard/HitObjects/DrawableDefaults";
+import type DrawableSlider from "../Rulesets/Standard/HitObjects/DrawableSlider";
 import TimelineHitCircle from "./TimelineHitCircle";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
 

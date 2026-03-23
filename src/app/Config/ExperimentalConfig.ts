@@ -9,7 +9,7 @@ export type ExperimentalProps = {
 	easy?: boolean;
 };
 
-type Mods = "hidden" | "hardRock" | "doubleTime" | "easy"
+export type Mods = "hidden" | "hardRock" | "doubleTime" | "easy"
 
 export default class ExperimentalConfig extends ConfigSection {
 	constructor(defaultOptions?: ExperimentalProps) {

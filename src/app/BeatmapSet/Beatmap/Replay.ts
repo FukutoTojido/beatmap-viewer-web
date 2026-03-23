@@ -8,7 +8,7 @@ import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import { binarySearch, Clamp } from "@/utils";
 import type Beatmap from ".";
-import DrawableSlider from "./HitObjects/DrawableSlider";
+import DrawableSlider from "./Rulesets/Standard/HitObjects/DrawableSlider";
 
 export type BaseObjectEvaluation = {
 	value: number;

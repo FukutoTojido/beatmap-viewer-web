@@ -4,8 +4,8 @@ import { Sprite } from "pixi.js";
 import type { Context } from "@/Context";
 import type Skin from "@/Skinning/Skin";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
-import DrawableDefaults from "../HitObjects/DrawableDefaults";
-import type DrawableHitCircle from "../HitObjects/DrawableHitCircle";
+import DrawableDefaults from "../Rulesets/Standard/HitObjects/DrawableDefaults";
+import type DrawableHitCircle from "../Rulesets/Standard/HitObjects/DrawableHitCircle";
 import TimelineHitObject from "./TimelineHitObject";
 
 export default class TimelineHitCircle extends TimelineHitObject {
@@ -92,9 +92,10 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			this.context.consume<DrawableHitCircle>("object")?.color ?? "rgb(0,0,0)";
 		this.hitCircle.tint = color;
 		this.defaults.container.tint = 0xffffff;
-		this.defaults.sprites.map((sprite) => {
+
+		for (const sprite of this.defaults.sprites) {
 			sprite.tint = 0xffffff;
-		});
+		}
 
 		if (!skin.config.General.Argon) return;
 
@@ -106,9 +107,10 @@ export default class TimelineHitCircle extends TimelineHitObject {
 			0.587 * (col?.rgb().g / 255) +
 			0.114 * (col?.rgb().b / 255);
 		this.defaults.container.tint = lumi > 0.5 ? color : 0xffffff;
-		this.defaults.sprites.map((sprite) => {
+
+		for (const sprite of this.defaults.sprites) {
 			sprite.tint = lumi > 0.5 ? 0x333333 : 0xe5e5e5;
-		});
+		}
 	}
 
 	hook(context: Context) {

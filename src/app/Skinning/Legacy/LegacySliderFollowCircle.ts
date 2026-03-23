@@ -1,5 +1,5 @@
-import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
-import type DrawableSliderFollowCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderFollowCircle";
+import type DrawableSlider from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSlider";
+import type DrawableSliderFollowCircle from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSliderFollowCircle";
 import Easings from "@/UI/Easings";
 
 export const update = (drawable: DrawableSliderFollowCircle, time: number) => {

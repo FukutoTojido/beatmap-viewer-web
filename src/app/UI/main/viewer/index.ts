@@ -6,7 +6,7 @@ import type ResponsiveHandler from "@/ResponsiveHandler";
 import { Clamp } from "@/utils";
 import type Controls from "../controls";
 import Background from "./Background";
-import Gameplays from "./Gameplay/Gameplays";
+import Gameplays from "./Gameplays";
 import Timeline from "./Timeline";
 import Beatsnap from "./Timeline/Beatsnap";
 import Zoomer from "./Timeline/Zoomer";

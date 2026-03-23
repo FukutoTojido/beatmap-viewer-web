@@ -1,6 +1,6 @@
 import { HitResult } from "osu-classes";
 import type { Slider, Spinner } from "osu-standard-stable";
-import type DrawableJudgement from "@/BeatmapSet/Beatmap/HitObjects/DrawableJudgement";
+import type DrawableJudgement from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableJudgement";
 import Easings from "@/UI/Easings";
 import { Clamp } from "@/utils";
 
