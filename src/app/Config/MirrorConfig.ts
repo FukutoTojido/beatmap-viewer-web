@@ -69,7 +69,7 @@ export default class MirrorConfig extends ConfigSection {
 	migrate(val: Mirror) {
 		switch (val.name) {
 			case "Nerinyan": {
-				return "https://api.nerinyan.moe/d/$setId";
+				return "https://api.nerinyan.moe/v2/d/$setId";
 			}
 			default: {
 				return val.urlTemplate;
