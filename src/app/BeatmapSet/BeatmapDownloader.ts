@@ -64,7 +64,7 @@ export function processID(id: string): {
 			}
 		}
 
-		return null
+		return null;
 	} catch {
 		return null;
 	}
@@ -106,40 +106,26 @@ export async function getBeatmapFromId(
 	beatmapId: string,
 	beatmapSetId?: string,
 ) {
-	const mirrorConfig = inject<MirrorConfig>("config/mirror");
-	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
-
-	const {
-		mirror: { urlTemplate },
-	} = mirrorConfig;
-
 	const beatmapsetId = beatmapSetId ?? (await getBeatmapsetId(beatmapId));
 	if (!beatmapsetId)
 		throw new Error(
 			`Map(set) with id ${beatmapId ?? beatmapSetId} does not exist!!!`,
 		);
 
-	try {
-		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
-		const blob = await ky
-			.get(urlTemplate.replaceAll("$setId", beatmapsetId.toString()), {
-				headers: { Accept: "application/x-osu-beatmap-archive" },
-				onDownloadProgress(progressEvent) {
-					inject<Loading>("ui/loading")?.setText(
-						`Downloading map: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,
-					);
-				},
-			})
-			.blob();
-
-		return blob;
-	} catch (e) {
-		console.error(e);
-		return null;
-	}
+	return await fetchBlobFromMirror(beatmapsetId);
 }
 
 export async function getBeatmapFromHash(hash: string) {
+	const beatmapsetId = await getBeatmapsetIdFromHash(hash);
+	if (!beatmapsetId) throw new Error(`Map with hash ${hash} does not exist!!!`);
+
+	return await fetchBlobFromMirror(beatmapsetId);
+}
+
+const fetchBlobFromMirror = async (
+	beatmapsetId: string | number,
+	retry = 0,
+) => {
 	const mirrorConfig = inject<MirrorConfig>("config/mirror");
 	if (!mirrorConfig) throw new Error("Mirror Config not initialized yet!!!");
 
@@ -147,28 +133,58 @@ export async function getBeatmapFromHash(hash: string) {
 		mirror: { urlTemplate },
 	} = mirrorConfig;
 
-	const beatmapsetId = await getBeatmapsetIdFromHash(hash);
-	if (!beatmapsetId) throw new Error(`Map with hash ${hash} does not exist!!!`);
+	const allMirrors = [
+		...document.querySelectorAll<HTMLInputElement>("[name=beatmapMirror]"),
+	]
+		.map((ele) => ({
+			url: ele.dataset.url,
+			rank: ele.dataset.rank as string,
+			name: ele.value,
+		}))
+		.toSorted((a, b) => +a.rank - +b.rank);
+
+	const configIndex = allMirrors.findIndex(
+		(entry) => entry.url === urlTemplate,
+	);
+	const sortedMirrors = [
+		allMirrors[configIndex],
+		...allMirrors.slice(0, configIndex),
+		...allMirrors.slice(configIndex + 1),
+	];
+
+	const selectedMirror = sortedMirrors[retry % allMirrors.length];
+	inject<Loading>("ui/loading")?.setText(
+		retry === 0
+			? `Downloading with ${selectedMirror.name}`
+			: `Retrying with ${selectedMirror.name}`,
+	);
 
 	try {
 		inject<Loading>("ui/loading")?.setText("Getting beatmap...");
 		const blob = await ky
-			.get(urlTemplate.replaceAll("$setId", beatmapsetId.toString()), {
-				headers: { Accept: "application/x-osu-beatmap-archive" },
-				onDownloadProgress(progressEvent) {
-					inject<Loading>("ui/loading")?.setText(
-						`Downloading map: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,
-					);
+			.get(
+				selectedMirror.url?.replaceAll("$setId", beatmapsetId.toString()) ?? "",
+				{
+					headers: { Accept: "application/x-osu-beatmap-archive" },
+					onDownloadProgress(progressEvent) {
+						console.log(progressEvent);
+						inject<Loading>("ui/loading")?.setText(
+							retry === 0
+								? `Downloading with ${selectedMirror.name}: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`
+								: `Retrying with ${selectedMirror.name}: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`,
+						);
+					},
 				},
-			})
+			)
 			.blob();
 
 		return blob;
 	} catch (e) {
 		console.error(e);
-		return null;
+		if (retry >= allMirrors.length) return null;
+		return await fetchBlobFromMirror(beatmapsetId, retry + 1);
 	}
-}
+};
 
 export async function getBeatmapFromExternalUrl(url: string) {
 	try {
