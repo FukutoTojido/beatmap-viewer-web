@@ -144,7 +144,7 @@ const fetchBlobFromMirror = async (
 		.toSorted((a, b) => +a.rank - +b.rank);
 
 	const configIndex = allMirrors.findIndex(
-		(entry) => entry.url === urlTemplate,
+		(entry) => entry.url === urlTemplate.trim(),
 	);
 	const sortedMirrors = [
 		allMirrors[configIndex],
@@ -167,7 +167,6 @@ const fetchBlobFromMirror = async (
 				{
 					headers: { Accept: "application/x-osu-beatmap-archive" },
 					onDownloadProgress(progressEvent) {
-						console.log(progressEvent);
 						inject<Loading>("ui/loading")?.setText(
 							retry === 0
 								? `Downloading with ${selectedMirror.name}: ${(100 * (progressEvent.percent ?? 0)).toFixed(2)}%`
