@@ -149,6 +149,7 @@ const fetchBlobFromMirror = async (
 	const sortedMirrors = [
 		allMirrors[configIndex],
 		...allMirrors.slice(0, configIndex),
+		// Thanks Mistral!
 		{
 			url: "https://beatmaps.akatsuki.gg/api/d/$setId",
 			name: "Akatsuki",
