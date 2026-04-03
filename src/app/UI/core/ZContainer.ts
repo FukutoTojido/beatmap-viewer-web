@@ -1,8 +1,7 @@
 import {
-	LayoutContainer,
-	type LayoutContainerOptions,
+	LayoutContainer
 } from "@pixi/layout/components";
-import { AlphaFilter, type FillInput, type StrokeInput } from "pixi.js";
+import type { FillInput, StrokeInput } from "pixi.js";
 import AnimationController from "../animation/AnimationController";
 
 export interface ZContainerStyle {
@@ -13,12 +12,6 @@ export interface ZContainerStyle {
 
 export default class ZContainer extends LayoutContainer {
 	animationControler = new AnimationController();
-	alphaFilter = new AlphaFilter({ alpha: 1 });
-	
-	constructor(options?: LayoutContainerOptions) {
-		super(options);
-		this.filters = [this.alphaFilter];
-	}
 
 	triggerAnimation(
 		key: string,

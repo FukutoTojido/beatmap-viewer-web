@@ -8,7 +8,7 @@ import {
 	SpinnerTick,
 	type StandardHitObject,
 } from "osu-standard-stable";
-import { AlphaFilter, Color, FillGradient, Graphics, Text } from "pixi.js";
+import { Color, FillGradient, Graphics, Text } from "pixi.js";
 import type TimelineConfig from "@/Config/TimelineConfig";
 import { type Context, inject } from "@/Context";
 import { DEFAULT_SCALE } from "@/UI/main/viewer/Timeline";
@@ -51,12 +51,7 @@ const radialGradient = new FillGradient({
 
 export default class TimelineSlider extends TimelineHitObject {
 	circles: TimelineHitCircle[] = [];
-	filter = new AlphaFilter({
-		alpha: 0.7,
-	});
-	body: Graphics = new Graphics({
-		filters: this.filter,
-	});
+	body: Graphics = new Graphics({ alpha: 0.7 });
 	select: Graphics;
 
 	length = 0;
@@ -228,7 +223,7 @@ export default class TimelineSlider extends TimelineHitObject {
 					cap: "round",
 					color: "white",
 				});
-			this.filter.alpha = 1;
+			this.body.alpha = 1;
 		} else {
 			this.body
 				.clear()
@@ -238,7 +233,7 @@ export default class TimelineSlider extends TimelineHitObject {
 				.fill(radialGradient)
 				.rect(0, -((25 * 236) / 256), this.length, (50 * 236) / 256)
 				.fill(gradient);
-			this.filter.alpha = 0.7;
+			this.body.alpha = 0.7;
 		}
 
 		const color = this.context.consume<DrawableSlider>("object")?.color;
