@@ -354,6 +354,10 @@ export default class DrawableSlider
 
 	set object(val: Slider) {
 		this._object = val;
+		
+		this._cachedHead = -1;
+		this._cachedTail = -1;
+		this._cachedScale = -1;
 
 		this.nodes.clear();
 		for (let i = 0; i < val.path.controlPoints.length; i++) {
@@ -585,6 +589,10 @@ export default class DrawableSlider
 		);
 	}
 
+	private _cachedHead = -1;
+	private _cachedTail = -1;
+	private _cachedScale = -1;
+
 	updateGeometry(progressHead = 0, progressTail = 0, scale = 1) {
 		const snakeIn = inject<GameplayConfig>("config/gameplay")?.snakeInSlider;
 		const snakeOut = inject<GameplayConfig>("config/gameplay")?.snakeOutSlider;
@@ -600,6 +608,17 @@ export default class DrawableSlider
 
 		head = snakeOut ? head : 0;
 		tail = snakeIn ? tail : 1;
+
+		if (
+			this._cachedHead === head &&
+			this._cachedTail === tail &&
+			this._cachedScale === scale
+		)
+			return;
+
+		this._cachedHead = head;
+		this._cachedTail = tail;
+		this._cachedScale = scale;
 
 		const path = calculateSliderProgress(this.object.path, head, tail);
 		this.path = path;
