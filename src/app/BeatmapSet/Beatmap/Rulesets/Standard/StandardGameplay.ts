@@ -1,4 +1,4 @@
-import { AlphaFilter, Container, Graphics, Rectangle } from "pixi.js";
+import { Container, Graphics, Rectangle } from "pixi.js";
 import type Beatmap from "@/BeatmapSet/Beatmap";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
@@ -22,7 +22,7 @@ export default class StandardGameplay extends Gameplay {
 			interactive: false,
 			eventMode: "none",
 			visible: inject<GameplayConfig>("config/gameplay")?.showGrid ?? true,
-			filters: [new AlphaFilter({ alpha: 0.5, antialias: true })],
+			alpha: 0.5
 		});
 		this.drawGrid(512);
 
