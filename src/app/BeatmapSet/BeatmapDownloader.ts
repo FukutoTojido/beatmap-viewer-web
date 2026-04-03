@@ -149,6 +149,11 @@ const fetchBlobFromMirror = async (
 	const sortedMirrors = [
 		allMirrors[configIndex],
 		...allMirrors.slice(0, configIndex),
+		{
+			url: "https://beatmaps.akatsuki.gg/api/d/$setId",
+			name: "Akatsuki",
+			rank: -1,
+		},
 		...allMirrors.slice(configIndex + 1),
 	];
 
