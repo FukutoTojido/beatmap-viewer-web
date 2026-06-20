@@ -267,7 +267,11 @@ export default class BeatmapSet extends ScopedClass {
 			await Assets.load({ src: url, parser: "texture" }),
 		);
 
-		document.body.style.backgroundImage = `url("${url}")`;
+		const bg = document.querySelector<HTMLDivElement>("#bg");
+		if (bg) {
+			bg.style.backgroundImage = `url("${url}")`;
+		}
+		
 		await loadColorPalette(url);
 	}
 
