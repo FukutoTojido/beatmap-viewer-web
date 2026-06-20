@@ -12,7 +12,7 @@ export default class Metadata {
 			height: "100%",
 			backgroundColor: new Color(
 				inject<ColorConfig>("config/color")?.color.mantle,
-			).setAlpha(0.7),
+			).setAlpha(0.9),
 			flexShrink: 0,
 			alignItems: "center",
 			justifyContent: "center",
@@ -41,7 +41,7 @@ export default class Metadata {
 			"color",
 			({ mantle, text }) => {
 				this.container.layout = {
-					backgroundColor: new Color(mantle).setAlpha(0.7),
+					backgroundColor: new Color(mantle).setAlpha(0.9),
 				};
 				this.sprite.tint = text;
 			},
@@ -56,7 +56,7 @@ export default class Metadata {
 			this.container.layout = {
 				backgroundColor: new Color(
 					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
-				).setAlpha(0.7),
+				).setAlpha(1.0),
 			};
 		});
 
@@ -64,7 +64,7 @@ export default class Metadata {
 			this.container.layout = {
 				backgroundColor: new Color(
 					inject<ColorConfig>("config/color")?.color.mantle ?? 0xffffff,
-				).setAlpha(0.7),
+				).setAlpha(0.9),
 			};
 		});
 	}

@@ -12,7 +12,7 @@ export default class Timestamp {
 			height: "100%",
 			backgroundColor: new Color(
 				inject<ColorConfig>("config/color")?.color.base,
-			).setAlpha(0.7),
+			).setAlpha(0.9),
 			flexShrink: 0,
 			flexDirection: "column",
 			alignItems: "center",
@@ -78,7 +78,7 @@ export default class Timestamp {
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ base, text }) => {
 			this.container.layout = {
-				backgroundColor: new Color(base).setAlpha(0.7),
+				backgroundColor: new Color(base).setAlpha(0.9),
 			};
 			this.bpm.style.fill = text;
 			this.sliderVelocity.style.fill = text;

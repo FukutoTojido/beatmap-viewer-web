@@ -9,7 +9,7 @@ export default class Play {
 		label: "play",
 		layout: {
 			aspectRatio: 1,
-			backgroundColor: new Color(inject<ColorConfig>("config/color")?.color.crust).setAlpha(0.7),
+			backgroundColor: new Color(inject<ColorConfig>("config/color")?.color.crust).setAlpha(0.9),
 			height: "100%",
 			flexShrink: 0,
 			alignItems: "center",
@@ -38,7 +38,7 @@ export default class Play {
 		inject<ColorConfig>("config/color")?.onChange(
 			"color",
 			({ crust, text }) => {
-				this.container.layout = { backgroundColor: new Color(crust).setAlpha(0.7) };
+				this.container.layout = { backgroundColor: new Color(crust).setAlpha(0.9) };
 				this.sprite.tint = text;
 			},
 		);
@@ -52,14 +52,14 @@ export default class Play {
 		this.container.addEventListener("pointerenter", () => {
 			this.container.layout = {
 				backgroundColor:
-					new Color(inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff).setAlpha(0.7),
+					new Color(inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff).setAlpha(1),
 			};
 		});
 
 		this.container.addEventListener("pointerleave", () => {
 			this.container.layout = {
 				backgroundColor:
-					new Color(inject<ColorConfig>("config/color")?.color.crust ?? 0xffffff).setAlpha(0.7),
+					new Color(inject<ColorConfig>("config/color")?.color.crust ?? 0xffffff).setAlpha(0.9),
 			};
 		});
 	}
