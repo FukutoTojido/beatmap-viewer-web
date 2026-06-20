@@ -76,6 +76,10 @@ main {
 	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
+#bg {
+	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+}
+
 #topBar {
 	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
@@ -171,8 +175,10 @@ main {
 	left: 0;
 }
 
-main:has(.overlay) {
-	transform: translateX(40px);
+body:has(.overlay) {
+	& main, & #bg {
+		transform: translateX(200px);
+	}
 }
 
 .toasts {
