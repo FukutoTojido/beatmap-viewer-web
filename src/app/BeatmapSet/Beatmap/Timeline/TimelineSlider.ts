@@ -21,6 +21,8 @@ import TimelineSliderHead from "./TimelineSliderHead";
 import TimelineSliderRepeat from "./TimelineSliderRepeat";
 import TimelineSliderTail from "./TimelineSliderTail";
 
+const innerColor = Color.shared.setValue(darken([1, 1, 1, 1], 0.1)).toHex();
+
 const gradient = new FillGradient({
 	start: { x: 0, y: 0 },
 	end: { x: 0, y: 1 },
@@ -28,7 +30,7 @@ const gradient = new FillGradient({
 		{ offset: 0, color: 0xffffff },
 		{
 			offset: 0.5,
-			color: Color.shared.setValue(darken([1, 1, 1, 1], 0.1)).toHex(),
+			color: innerColor,
 		},
 		{ offset: 1, color: 0xffffff },
 	],
@@ -38,16 +40,34 @@ const gradient = new FillGradient({
 	wrapMode: "clamp-to-edge",
 });
 
-const radialGradient = new FillGradient({
+const headRadialGradient = new FillGradient({
 	type: "radial",
 	colorStops: [
 		{
 			offset: 0,
-			color: Color.shared.setValue(darken([1, 1, 1, 1], 0.1)).toHex(),
+			color: innerColor,
 		},
 		{ offset: 1, color: 0xffffff },
 	],
 });
+
+const tailRadialGradient = new FillGradient({
+	type: "radial",
+	colorStops: [
+		{
+			offset: 0,
+			color: innerColor,
+		},
+		{ offset: 1, color: 0xffffff },
+	],
+});
+
+headRadialGradient.buildRadialGradient();
+headRadialGradient.transform.scale(2, 1);
+
+tailRadialGradient.buildRadialGradient();
+tailRadialGradient.transform.scale(2, 1);
+tailRadialGradient.transform.translate(-1, 0);
 
 export default class TimelineSlider extends TimelineHitObject {
 	circles: TimelineHitCircle[] = [];
@@ -227,12 +247,19 @@ export default class TimelineSlider extends TimelineHitObject {
 		} else {
 			this.body
 				.clear()
-				.circle(0, 0, (25 * 236) / 256)
-				.fill(radialGradient)
-				.circle(this.length, 0, (25 * 236) / 256)
-				.fill(radialGradient)
+				.arc(0, 0, (25 * 236) / 256, Math.PI / 2, (3 * Math.PI) / 2)
+				.fill(headRadialGradient)
 				.rect(0, -((25 * 236) / 256), this.length, (50 * 236) / 256)
-				.fill(gradient);
+				.fill(gradient)
+				.moveTo(this.length, 0)
+				.arc(
+					this.length,
+					0,
+					(25 * 236) / 256,
+					(3 * Math.PI) / 2,
+					(5 * Math.PI) / 2,
+				)
+				.fill(tailRadialGradient);
 			this.body.alpha = 0.7;
 		}
 

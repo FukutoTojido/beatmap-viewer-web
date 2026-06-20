@@ -82,6 +82,7 @@ export default class StandardGameplay extends Gameplay {
 		this.spinner.graphics.y = height / 2;
 
 		this.wrapper.scale.set(shouldKeepScale ? 1 : 0.98 / 0.8);
+		this.background.scale.set(shouldKeepScale ? 1 : 0.8 / 0.98);
 	}
 
 	drawGrid(width = 512) {

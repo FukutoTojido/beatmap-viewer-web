@@ -55,8 +55,6 @@ body {
 	width: 100%;
 	height: 100%;
 
-	background-image: url("https://cdn.try-z.net/hamidacchi.jpg");
-
 	background-position: center;
 	background-size: cover;
 
@@ -75,6 +73,10 @@ main {
 
 	overflow: hidden;
 
+	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
+}
+
+#bg {
 	transition: cubic-bezier(0, 0.4, 0, 1) 200ms;
 }
 
@@ -173,8 +175,10 @@ main {
 	left: 0;
 }
 
-main:has(.overlay) {
-	transform: translateX(40px);
+body:has(.overlay) {
+	& main, & #bg {
+		transform: translateX(200px);
+	}
 }
 
 .toasts {

@@ -149,6 +149,13 @@ const fetchBlobFromMirror = async (
 	const sortedMirrors = [
 		allMirrors[configIndex],
 		...allMirrors.slice(0, configIndex),
+		// Thanks Mistral!
+		// AWW FUCK IT HAS CORS
+		// {
+		// 	url: "https://beatmaps.akatsuki.gg/api/d/$setId",
+		// 	name: "Akatsuki",
+		// 	rank: -1,
+		// },
 		...allMirrors.slice(configIndex + 1),
 	];
 
