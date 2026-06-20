@@ -134,7 +134,7 @@ export default class ManiaGameplay extends Gameplay {
 		this.keysContainer.scale.set(scale);
 
 		this.wrapper.scale.set(1);
-		this.background.scale.set(shouldKeepScale ? 1 : 1.2);
+		this.background.scale.set(1);
 	}
 
 	refreshSprite() {
