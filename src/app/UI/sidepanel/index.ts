@@ -337,7 +337,7 @@ export default class SidePanel {
 		game?.state.toggleSidebar("CLOSED");
 	}
 
-	private index: number;
+	index: number;
 	switchTab(index: number) {
 		this.container.removeChild(this.tabs[this.index].content.container);
 		this.headers[this.index].layout = {

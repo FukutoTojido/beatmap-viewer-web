@@ -5,8 +5,10 @@ import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject, provide } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import ZContainer from "@/UI/core/ZContainer";
+import Back from "./Back";
 import Fullscreen from "./Fullscreen";
 import Metadata from "./Metadata";
+import Next from "./Next";
 import Play from "./Play";
 import ProgressBar from "./ProgressBar";
 import Timestamp from "./Timestamp";
@@ -18,7 +20,9 @@ export default class Controls {
 			width: "100%",
 			height: 60,
 			flexGrow: 0,
-			backgroundColor: new Color(inject<ColorConfig>("config/color")?.color.crust).setAlpha(0.7),
+			backgroundColor: new Color(
+				inject<ColorConfig>("config/color")?.color.crust,
+			).setAlpha(0.7),
 			flexDirection: "row",
 			overflow: "hidden",
 		},
@@ -30,9 +34,29 @@ export default class Controls {
 	constructor() {
 		const timestamp = provide("ui/main/controls/timestamp", new Timestamp());
 		const metadata = provide("ui/main/controls/metadata", new Metadata());
+		const back = provide("ui/main/controls/back", new Back());
 		const play = provide("ui/main/controls/play", new Play());
+		const next = provide("ui/main/controls/next", new Next());
 		const progressBar = provide("ui/main/controls/progress", new ProgressBar());
 		const fullscreen = provide("ui/main/controls/fullscreen", new Fullscreen());
+
+		const infoContainer = new LayoutContainer({
+			layout: {
+				height: "100%",
+			},
+		});
+		infoContainer.addChild(timestamp.container, metadata.container);
+
+		const buttonsContainer = new LayoutContainer({
+			layout: {
+				justifyContent: "center",
+				height: "100%",
+				backgroundColor: new Color(
+					inject<ColorConfig>("config/color")?.color.crust,
+				).setAlpha(0.9),
+			},
+		});
+		buttonsContainer.addChild(back.container, play.container, next.container);
 
 		const restContainer = provide(
 			"ui/main/controls/rest",
@@ -43,14 +67,9 @@ export default class Controls {
 				},
 			}),
 		);
-		restContainer.addChild(
-			metadata.container,
-			play.container,
-			progressBar.container,
-			fullscreen.container,
-		);
+		restContainer.addChild(progressBar.container, fullscreen.container);
 
-		this.container.addChild(timestamp.container, restContainer);
+		this.container.addChild(infoContainer, buttonsContainer, restContainer);
 
 		this.container.addEventListener("pointertap", (event) => {
 			event.stopPropagation();
@@ -58,7 +77,11 @@ export default class Controls {
 
 		inject<ColorConfig>("config/color")?.onChange("color", ({ crust }) => {
 			this.container.layout = {
-				backgroundColor: new Color(crust).setAlpha(0.),
+				backgroundColor: new Color(crust).setAlpha(0),
+			};
+
+			buttonsContainer.layout = {
+				backgroundColor: new Color(crust).setAlpha(0.9),
 			};
 		});
 
@@ -97,6 +120,13 @@ export default class Controls {
 							flexDirection: "row",
 							height: 60,
 						};
+						infoContainer.layout = {
+							height: "100%",
+						};
+						buttonsContainer.layout = {
+							width: undefined,
+							height: "100%",
+						};
 						restContainer.layout = {
 							flex: 1,
 							height: "100%",
@@ -113,6 +143,13 @@ export default class Controls {
 						this.container.layout = {
 							flexDirection: "column",
 							height: "auto",
+						};
+						infoContainer.layout = {
+							height: 60,
+						};
+						buttonsContainer.layout = {
+							width: "100%",
+							height: 60,
 						};
 						restContainer.layout = {
 							flex: undefined,

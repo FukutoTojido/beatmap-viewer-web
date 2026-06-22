@@ -4,9 +4,9 @@ import type BeatmapSet from "@/BeatmapSet";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 
-export default class Play {
+export default class Next {
 	container = new LayoutContainer({
-		label: "play",
+		label: "next",
 		layout: {
 			aspectRatio: 1,
 			height: "100%",
@@ -20,7 +20,7 @@ export default class Play {
 
 	constructor() {
 		(async () => {
-			const texture = await Assets.load("./assets/play.png");
+			const texture = await Assets.load("./assets/next.png");
 			this.sprite.texture = texture;
 			this.sprite.width = 20;
 			this.sprite.height = 20;
@@ -41,7 +41,7 @@ export default class Play {
 		this.container.cursor = "pointer";
 
 		this.container.addEventListener("pointertap", () =>
-			inject<BeatmapSet>("beatmapset")?.toggle(),
+			inject<BeatmapSet>("beatmapset")?.smoothTick(1),
 		);
 
 		this.container.addEventListener("pointerenter", () => {
