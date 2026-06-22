@@ -427,9 +427,11 @@ export default class BeatmapSet extends ScopedClass {
 	}
 
 	toggle() {
+		const audio = this.context.consume<Audio>("audio");
+		if (!audio?.init) throw new Error("Audio hasn't been initialized");
+		
 		const playButton = inject<Play>("ui/main/controls/play");
 
-		const audio = this.context.consume<Audio>("audio");
 		audio?.toggle();
 
 		this.master?.toggle();
@@ -470,7 +472,7 @@ export default class BeatmapSet extends ScopedClass {
 
 	seek(time: number) {
 		const audio = this.context.consume<Audio>("audio");
-		if (!audio) throw new Error("Audio hasn't been initialized");
+		if (!audio?.init) throw new Error("Audio hasn't been initialized");
 
 		audio.currentTime = time;
 
