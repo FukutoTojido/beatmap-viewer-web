@@ -3,6 +3,7 @@ import { Assets, Color, Sprite } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
 import type { Game } from "@/Game";
+import SidePanel from "@/UI/sidepanel";
 
 export default class Metadata {
 	container = new LayoutContainer({
@@ -49,7 +50,14 @@ export default class Metadata {
 
 		this.container.cursor = "pointer";
 		this.container.addEventListener("pointertap", () => {
-			inject<Game>("game")?.state.toggleSidebar();
+			const sidepanel = inject<SidePanel>("ui/sidepanel");
+			const game = inject<Game>("game");
+
+			if (!(game?.state.sidebar === "OPENED" && sidepanel?.index !== 0)) {
+				inject<Game>("game")?.state.toggleSidebar();
+			}
+
+			inject<SidePanel>("ui/sidepanel")?.switchTab(0);
 		});
 
 		this.container.addEventListener("pointerenter", () => {

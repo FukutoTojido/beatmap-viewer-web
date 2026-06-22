@@ -2,7 +2,9 @@ import { LayoutContainer } from "@pixi/layout/components";
 import { BitmapText, Color } from "pixi.js";
 import type ColorConfig from "@/Config/ColorConfig";
 import { inject } from "@/Context";
+import type { Game } from "@/Game";
 import type ResponsiveHandler from "@/ResponsiveHandler";
+import type SidePanel from "@/UI/sidepanel";
 
 export default class Timestamp {
 	container = new LayoutContainer({
@@ -19,9 +21,12 @@ export default class Timestamp {
 			justifyContent: "center",
 			gap: 2,
 		},
+		cursor: "pointer",
 	});
 
-	digitsContainer = new LayoutContainer();
+	digitsContainer = new LayoutContainer({
+		cursor: "pointer",
+	});
 	digits: BitmapText[] = [];
 
 	timingContainer = new LayoutContainer({
@@ -29,6 +34,7 @@ export default class Timestamp {
 			gap: 5,
 			alignItems: "baseline",
 		},
+		cursor: "pointer",
 	});
 	bpm = new BitmapText({
 		text: "0BPM",
@@ -93,16 +99,46 @@ export default class Timestamp {
 			(direction) => {
 				switch (direction) {
 					case "landscape": {
-						this.container.layout = { width: 150, height: "100%" };
+						this.container.layout = {
+							width: 150,
+							height: "100%",
+							flex: undefined,
+						};
 						break;
 					}
 					case "portrait": {
-						this.container.layout = { width: "100%", height: 60 };
+						this.container.layout = { flex: 1, height: 60 };
 						break;
 					}
 				}
 			},
 		);
+
+		this.container.cursor = "pointer";
+		this.container.addEventListener("pointertap", () => {
+			const sidepanel = inject<SidePanel>("ui/sidepanel");
+			const game = inject<Game>("game");
+
+			if (!(game?.state.sidebar === "OPENED" && sidepanel?.index !== 1)) {
+				inject<Game>("game")?.state.toggleSidebar();
+			}
+
+			inject<SidePanel>("ui/sidepanel")?.switchTab(1);
+		});
+		this.container.addEventListener("pointerenter", () => {
+			this.container.layout = {
+				backgroundColor: new Color(
+					inject<ColorConfig>("config/color")?.color.surface2 ?? 0xffffff,
+				).setAlpha(1.0),
+			};
+		});
+		this.container.addEventListener("pointerleave", () => {
+			this.container.layout = {
+				backgroundColor: new Color(
+					inject<ColorConfig>("config/color")?.color.base ?? 0xffffff,
+				).setAlpha(0.9),
+			};
+		});
 	}
 
 	createDigit(text: string, width = 9) {
