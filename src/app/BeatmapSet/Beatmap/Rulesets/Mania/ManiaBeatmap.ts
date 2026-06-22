@@ -94,7 +94,7 @@ export default class ManiaBeatmap extends Beatmap {
 
 			points.push({
 				startTime: Math.min(difficultyPoint.startTime, timingPoint.startTime),
-				sliderVelocity: difficultyPoint.sliderVelocity,
+				sliderVelocity: difficultyPoint.startTime < timingPoint.startTime ? 1 : sliderVelocity,
 				bpmMultiplier: timingPoint.bpm / this.data.bpm,
 			});
 
@@ -146,7 +146,9 @@ export default class ManiaBeatmap extends Beatmap {
 
 	createStatsAttributes(): Record<string, string> {
 		return {
-			WHAT: "THE FUCK",
+			Keys: this.data.difficulty.circleSize.toFixed(1).replace(".0", ""),
+			OD: this.data.difficulty.overallDifficulty.toFixed(1).replace(".0", ""),
+			HP: this.data.difficulty.drainRate.toFixed(1).replace(".0", ""),
 		};
 	}
 

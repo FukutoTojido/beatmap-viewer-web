@@ -43,7 +43,7 @@ export default class Gameplays extends ScopedClass {
 		this.container.addChild(
 			...[...this.gameplays].toReversed().map((gameplay) => gameplay.container),
 			this.fps.container,
-			this.debug.container,
+			// this.debug.container,
 		);
 
 		this._emitChange("add");
@@ -90,7 +90,7 @@ export default class Gameplays extends ScopedClass {
 
 		this.container.addChild(
 			fps.container,
-			debug.container
+			// debug.container
 		);
 		this.container.on("layout", (layout) => {
 			const width = layout.computedLayout.width;

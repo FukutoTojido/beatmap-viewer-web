@@ -14,19 +14,19 @@ export default abstract class DrawableManiaHitObject extends DrawableHitObject {
 		super(object);
 		this.object = object;
 	}
-	
+
 	hook(context: Context) {
 		super.hook(context);
-		
+
 		this.refreshSprite();
-		
+
 		return this;
 	}
 
 	update(time: number) {
 		const beatmap = this.context.consume<ManiaBeatmap>("beatmapObject");
-		const hitPosition = beatmap?.hitPosition ?? 480; 
-		
+		const hitPosition = beatmap?.hitPosition ?? 480;
+
 		const progress = this.getDistanceAtTime(time, this.object.startTime);
 		this.container.y = Clamp(hitPosition - progress, 0, hitPosition);
 
@@ -96,7 +96,7 @@ export default abstract class DrawableManiaHitObject extends DrawableHitObject {
 
 	destroy() {
 		this.container.destroy();
-		
+
 		if (this.skinEventCallback)
 			this.skinManager?.removeSkinChangeListener(this.skinEventCallback);
 	}
