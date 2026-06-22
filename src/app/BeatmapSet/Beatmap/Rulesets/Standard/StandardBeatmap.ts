@@ -1,13 +1,13 @@
 import { sort } from "fast-sort";
 import {
-	Circle,
-	Slider,
-	Spinner,
-	type StandardBeatmap as StandardBeatmapBase,
-	type StandardDifficultyAttributes,
-	type StandardDifficultyCalculator,
-	StandardRuleset,
-	type StandardStrainSkill,
+    Circle,
+    Slider,
+    Spinner,
+    type StandardBeatmap as StandardBeatmapBase,
+    type StandardDifficultyAttributes,
+    type StandardDifficultyCalculator,
+    StandardRuleset,
+    type StandardStrainSkill,
 } from "osu-standard-stable";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
@@ -17,11 +17,11 @@ import Beatmap from "../..";
 import type Replay from "../../Replay";
 import type DrawableHitObject from "../Shared/HitObjects/DrawableHitObject";
 import type { IHasApproachCircle } from "../Shared/HitObjects/DrawableHitObject";
+import ObjectsWorker from "../Shared/Worker/Objects?worker";
 import DrawableFollowPoints from "./HitObjects/DrawableFollowPoints";
 import DrawableHitCircle from "./HitObjects/DrawableHitCircle";
 import DrawableSlider from "./HitObjects/DrawableSlider";
 import DrawableSpinner from "./HitObjects/DrawableSpinner";
-import ObjectsWorker from "./Worker/Objects?worker";
 import type StandardGameplay from "./StandardGameplay";
 
 export default class StandardBeatmap extends Beatmap {

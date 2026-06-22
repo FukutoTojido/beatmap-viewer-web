@@ -86,7 +86,7 @@ export async function getDefaultLegacy() {
 		accm.push(
 			...["L"].reduce<string[]>((accmType, type) => {
 				accmType.push(
-					...[1, 2, 3, 4, 5].reduce<string[]>((accmFrame, frame) => {
+					...[0, 1, 2, 3, 4, 5].reduce<string[]>((accmFrame, frame) => {
 						accmFrame.push(`mania-note${index}${type}-${frame}@2x.png`);
 						return accmFrame;
 					}, []),

@@ -1,3 +1,4 @@
+import type { HitSample as Sample } from "osu-classes";
 import type { HoldTail } from "osu-mania-stable";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import type ManiaBeatmap from "../ManiaBeatmap";
@@ -9,7 +10,7 @@ export default class DrawableHoldTail extends DrawableHoldHead {
 		object: HoldTail,
 		public hold: DrawableHold,
 	) {
-		super(object, hold);
+		super(object, hold, []);
 	}
 
 	override refreshSprite(): void {
@@ -23,7 +24,7 @@ export default class DrawableHoldTail extends DrawableHoldHead {
 		const index =
 			this.object.column === halfPoint &&
 			beatmap.data.originalTotalColumns % 2 === 1
-				? "S"
+				? "s"
 				: this.object.column < halfPoint
 					? (this.object.column % 2) + 1
 					: ((beatmap.data.originalTotalColumns - this.object.column - 1) % 2) +

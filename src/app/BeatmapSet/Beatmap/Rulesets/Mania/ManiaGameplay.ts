@@ -68,14 +68,6 @@ export default class ManiaGameplay extends Gameplay {
 	}
 
 	reLayout() {
-		const isFullscreen =
-			inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
-
-		const shouldKeepScale =
-			isFullscreen ||
-			(this.context.consume<number>("clients") !== 1 &&
-				!inject<ExperimentalConfig>("config/experimental")?.overlapGameplays);
-
 		let columnWidth = 0;
 		for (const width of this.beatmap.columnWidths ?? []) {
 			columnWidth += width;
@@ -143,7 +135,7 @@ export default class ManiaGameplay extends Gameplay {
 
 		const skin = skinManager?.getCurrentSkin();
 		if (!skin) return;
-
+		
 		const beatmap = this.beatmap;
 		const halfPoint = Math.floor(beatmap.data.originalTotalColumns / 2);
 
@@ -156,7 +148,7 @@ export default class ManiaGameplay extends Gameplay {
 						? (i % 2) + 1
 						: ((beatmap.data.originalTotalColumns - i - 1) % 2) + 1;
 
-			const key = skin.getTexture(`mania-key${index}`) ?? BLANK_TEXTURE;
+			const key = skin.getTexture(`mania-key${index}`.toLowerCase()) ?? BLANK_TEXTURE;
 
 			object.height = key.height * 0.625;
 			object.texture = key;

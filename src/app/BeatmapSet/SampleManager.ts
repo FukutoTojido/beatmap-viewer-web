@@ -19,7 +19,8 @@ export default class SampleManager {
 	async load() {
 		await Promise.all(
 			[...this.files].map(async ([filename, resource]) => {
-				if (!HITSOUND_REGEX.test(filename)) return;
+				if (!HITSOUND_REGEX.test(filename) && !/(\.wav)$/.test(filename))
+					return;
 				if (!resource) return;
 
 				let audioBuffer: AudioBuffer;
@@ -46,7 +47,13 @@ export default class SampleManager {
 		);
 	}
 
-	get(sampleSet: string, hitSound: string, idx: number) {
+	get(sampleSet: string, hitSound: string, idx: number, filename?: string) {
+		if (filename) {
+			const key = filename.split(".").slice(0, -1).join(".").toLowerCase();
+			const buffer = this.map.get(key);
+			if (buffer) return buffer;
+		}
+
 		const skinManager = inject<SkinManager>("skinManager");
 
 		const key = `${sampleSet}-${hitSound}${idx === 1 ? "" : idx}`;

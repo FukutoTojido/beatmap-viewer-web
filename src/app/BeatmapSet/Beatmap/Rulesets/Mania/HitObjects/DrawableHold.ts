@@ -1,6 +1,10 @@
 import { type Hold, HoldHead, HoldTail } from "osu-mania-stable";
 import { Container, Sprite, Texture } from "pixi.js";
+import type BeatmapSet from "@/BeatmapSet";
+import type Beatmap from "@/BeatmapSet/Beatmap";
+import { inject } from "@/Context";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
+import type ProgressBar from "@/UI/main/controls/ProgressBar";
 import type IAnimatedSkinnableElement from "../../Shared/HitObjects/IAnimatedSkinnableElement";
 import type ManiaBeatmap from "../ManiaBeatmap";
 import DrawableHoldHead from "./DrawableHoldHead";
@@ -35,7 +39,9 @@ export default class DrawableHold
 		for (const object of this.object.nestedHitObjects) {
 			if (object instanceof HoldHead)
 				this.nestedObjects.push(
-					new DrawableHoldHead(object, this).hook(this.context),
+					new DrawableHoldHead(object, this, this.object.samples).hook(
+						this.context,
+					),
 				);
 			if (object instanceof HoldTail)
 				this.nestedObjects.push(
@@ -65,8 +71,9 @@ export default class DrawableHold
 
 		const halfPoint = Math.floor(beatmap.data.originalTotalColumns / 2);
 		const index =
+			this.object.column === halfPoint &&
 			beatmap.data.originalTotalColumns % 2 === 1
-				? "S"
+				? "s"
 				: this.object.column < halfPoint
 					? (this.object.column % 2) + 1
 					: ((beatmap.data.originalTotalColumns - this.object.column - 1) % 2) +
@@ -77,17 +84,17 @@ export default class DrawableHold
 
 		const note = skin.getTexture(`mania-note${index}h`) ?? BLANK_TEXTURE;
 		const ratio = note.height / note.width;
-		
+
 		const columnWidth = beatmap.columnWidths[this.object.column];
 
-		this.body.y = -columnWidth * ratio / 2;
+		this.body.y = (-columnWidth * ratio) / 2;
 		this.body.width = columnWidth;
-		
+
 		let offset = 0;
 		for (let i = 0; i < this.object.column; i++) {
 			offset += beatmap.columnWidths[i];
 		}
-		
+
 		this.container.x = offset + beatmap.columnWidths[this.object.column] / 2;
 
 		for (const object of this.nestedObjects) {
@@ -128,7 +135,17 @@ export default class DrawableHold
 		};
 	}
 
-	playHitSound(_?: number, __?: number): void {}
+	playHitSound(time: number): void {
+		const beatmap = this.context.consume<Beatmap>("beatmapObject");
+		const isSeeking =
+			inject<ProgressBar>("ui/main/controls/progress")?.isSeeking ||
+			inject<BeatmapSet>("beatmapset")?.isSeeking;
+		if (!beatmap || isSeeking) return;
+
+		for (const object of this.nestedObjects) {
+			object.playHitSound(time, 0);
+		}
+	}
 
 	destroy() {
 		super.destroy();

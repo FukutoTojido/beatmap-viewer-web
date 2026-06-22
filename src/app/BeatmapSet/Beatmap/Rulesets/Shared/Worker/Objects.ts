@@ -1,6 +1,6 @@
 import IntervalTree from "@flatten-js/interval-tree";
 
-type HitObjectMini = {
+export type HitObjectMini = {
 	startTime: number;
 	endTime: number;
 	timePreempt: number;

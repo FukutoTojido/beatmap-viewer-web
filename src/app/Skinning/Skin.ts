@@ -93,7 +93,7 @@ export default class Skin {
 
 		for (const match of matches ?? []) {
 			const keys = match.match(/(?<=(Keys:(\s)*))[0-9]+/gm);
-			if (!keys || !keys.length) continue;
+			if (!keys?.length) continue;
 
 			const keysNum = +keys[0];
 			sanitized = sanitized.replace(
@@ -242,8 +242,6 @@ export default class Skin {
 
 					const tailName = filename.toLowerCase().replaceAll("h", "t");
 					if (!filenames.includes(tailName)) return;
-					
-					console.log(tailName)
 
 					const textureTail = new Texture({
 						source: texture.source,
@@ -262,8 +260,8 @@ export default class Skin {
 						: new RegExp(`^${filenameBase}-[0-9]+`);
 
 				const entries = new Set(
-					this.resources
-						?.keys()
+					[...(this.resources
+						?.keys() ?? [])]
 						.filter((filename) => regex.test(filename))
 						.map((filename) =>
 							filename.replaceAll("@2x", "").replaceAll(".png", ""),

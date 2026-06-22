@@ -15,6 +15,7 @@ import { inject } from "@/Context";
 import type Skin from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import Beatmap from "../..";
+import ObjectsWorker from "../Shared/Worker/Objects?worker";
 import DrawableHold from "./HitObjects/DrawableHold";
 import type DrawableManiaHitObject from "./HitObjects/DrawableManiaHitObject";
 import DrawableNote from "./HitObjects/DrawableNote";
@@ -36,6 +37,8 @@ export default class ManiaBeatmap extends Beatmap {
 
 	declare objects: DrawableManiaHitObject[];
 	declare container: ManiaGameplay;
+
+	protected worker = new ObjectsWorker();
 
 	velocityPoints: VelocityPoint[] = [];
 
@@ -111,12 +114,16 @@ export default class ManiaBeatmap extends Beatmap {
 		}
 
 		this.velocityPoints = sort(points).asc([(point) => point.startTime]);
-		console.log(this);
 
 		this.refreshSprite(this.data);
 		this.skinEventListener = inject<SkinManager>(
 			"skinManager",
 		)?.addSkinChangeListener(() => this.refreshSprite(this.data));
+
+		this.worker.postMessage({
+			type: "preempt",
+			preempt: 100,
+		});
 	}
 
 	refreshSprite(data: ManiaBeatmapBase) {
@@ -135,8 +142,6 @@ export default class ManiaBeatmap extends Beatmap {
 			const columnWidth = Math.min(100, +(columnWidthRaw[i] ?? 30));
 			this.columnWidths.push(columnWidth);
 		}
-
-		console.log(this.columnWidths);
 	}
 
 	createStatsAttributes(): Record<string, string> {
@@ -208,6 +213,41 @@ export default class ManiaBeatmap extends Beatmap {
 			const { start, end } = object.getTimeRange();
 			this._objectsTree.insert([start, end], i);
 		}
+
+		this.worker.postMessage({
+			type: "init",
+			objects: this.data.hitObjects
+				.map((object) => {
+					return {
+						startTime: object.startTime,
+						endTime: (object as Hold).endTime,
+					};
+				})
+				.filter((object) => object !== null),
+			connectors: [],
+		});
+
+		this.worker.onmessage = (
+			event:
+				| {
+						data: {
+							objects: Set<number>;
+							type: string;
+							currentTime: number;
+							previousTime: number;
+						};
+				  }
+				| undefined,
+		) => {
+			switch (event?.data.type) {
+				case "update": {
+					const { objects, currentTime, previousTime } = event.data;
+					this.previousTime = previousTime;
+					this.update(currentTime, objects);
+					break;
+				}
+			}
+		};
 	}
 
 	scrollTime = 0;
@@ -288,12 +328,15 @@ export default class ManiaBeatmap extends Beatmap {
 
 	update(time: number, objects: Set<number>): void {
 		if (!this.loaded) return;
+		super.update(time, objects);
+	}
 
+	destroy(): void {
 		if (this.skinEventListener)
 			inject<SkinManager>("skinManager")?.removeSkinChangeListener(
 				this.skinEventListener,
 			);
 
-		super.update(time, objects);
+		super.destroy();
 	}
 }
