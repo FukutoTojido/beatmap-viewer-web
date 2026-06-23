@@ -49,7 +49,7 @@
     "osu-parsers": "^4.1.7",
     "osu-standard-stable": "^5.0.1",
     "pixi-filters": "^6.1.2",
-    "pixi.js": "^8.12.0",
+    "pixi.js": "^8.19.0",
     "tailwindcss": "^4.1.12",
     "tone": "^15.1.22",
     "vite": "^6.3.5",
