@@ -6,6 +6,7 @@ import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
 import Gameplay from "../Shared/Gameplay";
 import type ManiaBeatmap from "./ManiaBeatmap";
+import type DrawableManiaHitObject from "./HitObjects/DrawableManiaHitObject";
 
 export default class ManiaGameplay extends Gameplay {
 	grid: Graphics;
@@ -166,5 +167,9 @@ export default class ManiaGameplay extends Gameplay {
 			color: 0x000000,
 			alpha: 0.5,
 		});
+	}
+
+	frame(time: number, objects: DrawableManiaHitObject[]) {
+		
 	}
 }

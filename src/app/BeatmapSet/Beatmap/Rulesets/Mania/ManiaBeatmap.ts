@@ -94,7 +94,10 @@ export default class ManiaBeatmap extends Beatmap {
 
 			points.push({
 				startTime: Math.min(difficultyPoint.startTime, timingPoint.startTime),
-				sliderVelocity: difficultyPoint.startTime < timingPoint.startTime ? 1 : sliderVelocity,
+				sliderVelocity:
+					difficultyPoint.startTime < timingPoint.startTime
+						? 1
+						: sliderVelocity,
 				bpmMultiplier: timingPoint.bpm / this.data.bpm,
 			});
 
@@ -307,7 +310,10 @@ export default class ManiaBeatmap extends Beatmap {
 		}
 
 		const objects = new Set<number>(
-			this._objectsTree.search([time - 200, time + duration]) as Array<number>,
+			this._objectsTree.search([
+				time - 200,
+				time + duration + 200,
+			]) as Array<number>,
 		);
 		const disposed = this.previousObjects.difference(objects);
 
@@ -326,6 +332,11 @@ export default class ManiaBeatmap extends Beatmap {
 			this.container.objectsContainer.addChild(object.container);
 			object.update(time);
 		}
+
+		this.container.frame(
+			time,
+			objs.map((idx) => this.objects[idx]),
+		);
 	}
 
 	update(time: number, objects: Set<number>): void {
