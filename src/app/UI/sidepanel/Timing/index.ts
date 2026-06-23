@@ -6,7 +6,9 @@ import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import { inject } from "@/Context";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import type State from "@/State";
-import AnimationController from "@/UI/animation/AnimationController";
+import AnimationController, {
+	tweenGroup,
+} from "@/UI/animation/AnimationController";
 import Easings from "@/UI/Easings";
 import Point from "./Point";
 
@@ -21,6 +23,7 @@ export default class Timing {
 	private animationControler = new AnimationController();
 
 	private _cachedWidth? = 360;
+	private _cachedHeight? = 0;
 
 	constructor() {
 		this.container = new LayoutContainer({
@@ -38,17 +41,20 @@ export default class Timing {
 		this._timingContainer = new Container();
 		this.container.addChild(this._timingContainer);
 
-		this.container.on("layout", () => {
-			const offset =
-				this.currentIdx * 45 -
-				(this.container.layout?.computedLayout.height ?? 0) +
-				40;
-			this.scrollTo(Math.max(0, offset));
+		this.container.on("layout", (layout) => {
+			const width = layout._computedLayout.height;
+			const height = layout._computedLayout.height;
 
-			if (this.container.layout?.computedLayout.width !== this._cachedWidth) {
-				this._cachedWidth = this.container.layout?.computedLayout.width;
+			if (this._cachedHeight !== height) {
+				this._cachedHeight = height;
+				const offset = this.currentIdx * 45 - height + 40;
+				this.scrollTo(Math.max(0, offset));
+			}
+
+			if (width !== this._cachedWidth) {
+				this._cachedWidth = width;
 				for (const point of this.points) {
-					point.reWidth(this.container.layout?.computedLayout.width ?? 360);
+					point.reWidth(width);
 				}
 			}
 		});
@@ -234,9 +240,10 @@ export default class Timing {
 			return;
 		}
 
+		const from = this._scrollOffset;
 		const tween = this.animationControler.addAnimation(
 			"offset",
-			this._scrollOffset,
+			from,
 			boundOffset,
 			(value) => {
 				this._scrollTo(value);
@@ -248,12 +255,12 @@ export default class Timing {
 			Easings.OutCubic,
 			() => {
 				if (boundOffset < 0) {
-					this.scrollTo(0);
+					this._scrollTo(0);
 					return;
 				}
 
 				if (boundOffset > maxScroll) {
-					this.scrollTo(maxScroll);
+					this._scrollTo(maxScroll);
 					return;
 				}
 			},
@@ -319,18 +326,20 @@ export default class Timing {
 
 	private bounceBack(leway = 200) {
 		const topBound = 0;
-		const bottomBound =
+		const bottomBound = Math.max(
+			0,
 			this.points.length * 45 -
-			5 -
-			(this.container.layout?.computedLayout.height ?? 0);
+				5 -
+				(this.container.layout?.computedLayout.height ?? 0),
+		);
 
-		if (this._scrollOffset < topBound - leway) {
-			this.scrollTo(0);
+		if (this._scrollOffset <= topBound - leway) {
+			this._scrollTo(0);
 			return true;
 		}
 
-		if (this._scrollOffset > bottomBound + leway) {
-			this.scrollTo(bottomBound);
+		if (this._scrollOffset >= bottomBound + leway) {
+			this._scrollTo(bottomBound);
 			return true;
 		}
 
