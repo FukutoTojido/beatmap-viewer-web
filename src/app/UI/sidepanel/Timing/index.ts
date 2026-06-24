@@ -42,7 +42,7 @@ export default class Timing {
 		this.container.addChild(this._timingContainer);
 
 		this.container.on("layout", (layout) => {
-			const width = layout._computedLayout.height;
+			const width = layout._computedLayout.width;
 			const height = layout._computedLayout.height;
 
 			if (this._cachedHeight !== height) {
