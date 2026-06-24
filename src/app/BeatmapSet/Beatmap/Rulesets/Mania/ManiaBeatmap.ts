@@ -311,8 +311,8 @@ export default class ManiaBeatmap extends Beatmap {
 
 		const objects = new Set<number>(
 			this._objectsTree.search([
-				time - 200,
-				time + duration + 200,
+				time - 300,
+				time + duration,
 			]) as Array<number>,
 		);
 		const disposed = this.previousObjects.difference(objects);

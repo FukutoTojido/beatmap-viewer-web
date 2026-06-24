@@ -1,20 +1,27 @@
-import { Container, Graphics, Sprite } from "pixi.js";
-import type ExperimentalConfig from "@/Config/ExperimentalConfig";
-import type FullscreenConfig from "@/Config/FullscreenConfig";
+import { Container, Graphics, Sprite, Texture } from "pixi.js";
 import { inject } from "@/Context";
 import { BLANK_TEXTURE } from "@/Skinning/Skin";
 import type SkinManager from "@/Skinning/SkinManager";
+import { Clamp } from "@/utils";
 import Gameplay from "../Shared/Gameplay";
-import type ManiaBeatmap from "./ManiaBeatmap";
+import DrawableHold from "./HitObjects/DrawableHold";
 import type DrawableManiaHitObject from "./HitObjects/DrawableManiaHitObject";
+import DrawableNote from "./HitObjects/DrawableNote";
+import type ManiaBeatmap from "./ManiaBeatmap";
 
 export default class ManiaGameplay extends Gameplay {
 	grid: Graphics;
 	mask: Graphics;
 
 	keys: Sprite[] = [];
+	stageLights: Sprite[] = [];
+
 	stageHint: Sprite;
 	keysContainer: Container = new Container();
+
+	stageLightTextureList: Texture[] = [];
+	lightingLTextureList: Texture[] = [];
+	lightingNTextureList: Texture[] = [];
 
 	constructor(public beatmap: ManiaBeatmap) {
 		super(beatmap);
@@ -45,8 +52,17 @@ export default class ManiaGameplay extends Gameplay {
 				anchor: { x: 0.5, y: 1 },
 				width: 30,
 			});
+			const light = new Sprite({
+				label: `light-${i}`,
+				anchor: { x: 0.5, y: 1 },
+				width: 30,
+				visible: false,
+			});
+
 			this.keys.push(sprite);
-			this.keysContainer.addChild(sprite);
+			this.stageLights.push(light);
+
+			this.keysContainer.addChild(sprite, light);
 		}
 
 		this.wrapper.addChild(
@@ -119,6 +135,11 @@ export default class ManiaGameplay extends Gameplay {
 			object.x = accumulated + width / 2;
 			object.width = width;
 
+			const light = this.stageLights[i];
+			light.x = accumulated + width / 2;
+			light.width = width;
+			light.y = -67;
+
 			accumulated += width;
 		}
 
@@ -136,7 +157,7 @@ export default class ManiaGameplay extends Gameplay {
 
 		const skin = skinManager?.getCurrentSkin();
 		if (!skin) return;
-		
+
 		const beatmap = this.beatmap;
 		const halfPoint = Math.floor(beatmap.data.originalTotalColumns / 2);
 
@@ -149,11 +170,16 @@ export default class ManiaGameplay extends Gameplay {
 						? (i % 2) + 1
 						: ((beatmap.data.originalTotalColumns - i - 1) % 2) + 1;
 
-			const key = skin.getTexture(`mania-key${index}`.toLowerCase()) ?? BLANK_TEXTURE;
+			const key =
+				skin.getTexture(`mania-key${index}`.toLowerCase()) ?? BLANK_TEXTURE;
 
 			object.height = key.height * 0.625;
 			object.texture = key;
 		}
+
+		this.stageLightTextureList = skin.getAnimatedTexture(
+			`mania-stage-light`.toLowerCase(),
+		) ?? [BLANK_TEXTURE];
 
 		const stageHint = skin.getTexture("mania-stage-hint") ?? BLANK_TEXTURE;
 		this.stageHint.height = (stageHint.height * 9) / 10;
@@ -169,7 +195,83 @@ export default class ManiaGameplay extends Gameplay {
 		});
 	}
 
-	frame(time: number, objects: DrawableManiaHitObject[]) {
-		
+	frame(time: number, drawables: DrawableManiaHitObject[]) {
+		// peppy said it should have been 400 * 100 / currentBPM but who knows lol
+		const animationLength = 250;
+
+		const scanned = drawables.filter((drawable) => {
+			const startTime = drawable.object.startTime;
+			let endTime = drawable.object.startTime;
+
+			if (drawable instanceof DrawableHold) {
+				endTime = drawable.object.endTime;
+			}
+
+			return startTime <= time && time <= endTime + 200;
+		});
+
+		const state: (DrawableManiaHitObject | undefined)[] = Array(
+			this.beatmap.data.originalTotalColumns,
+		).fill(undefined);
+		for (const drawable of scanned) {
+			const idx = drawable.object.column;
+
+			if (!state[idx]) {
+				state[idx] = drawable;
+			}
+
+			if (state[idx].object.startTime < drawable.object.startTime) {
+				state[idx] = drawable;
+			}
+		}
+
+		for (let i = 0; i < this.beatmap.data.originalTotalColumns; i++) {
+			const drawable = state[i];
+			const stageLight = this.stageLights[i];
+
+			if (!drawable) {
+				stageLight.visible = false;
+				stageLight.alpha = 0;
+				continue;
+			}
+
+			const startTime = drawable.object.startTime;
+			const deltaStart = time - startTime;
+
+			let deltaEnd = 0;
+
+			if (drawable instanceof DrawableNote) {
+				deltaEnd = time - drawable.object.startTime;
+			}
+
+			if (drawable instanceof DrawableHold) {
+				deltaEnd = time - drawable.object.endTime;
+			}
+
+			if (deltaEnd > animationLength || deltaStart < 0) {
+				stageLight.visible = false;
+				stageLight.alpha = 0;
+				continue;
+			}
+
+			const frameLength = 1000 / 30;
+			const frameIndex =
+				Math.floor(Math.max(0, deltaStart) / frameLength) %
+				this.stageLightTextureList.length;
+
+			const texture = this.stageLightTextureList[frameIndex];
+			stageLight.texture = texture;
+			stageLight.height = texture.height;
+
+			if (deltaStart >= 0) {
+				stageLight.visible = true;
+				stageLight.alpha = 1;
+			}
+
+			if (deltaEnd >= 0 && deltaEnd < animationLength) {
+				const opacity = 1 - deltaEnd / animationLength;
+				stageLight.alpha = Clamp(opacity, 0, 1);
+			}
+		}
 	}
 }

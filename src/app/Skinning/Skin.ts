@@ -185,6 +185,7 @@ export default class Skin {
 			...maniaNotes,
 			...maniaKeys,
 			"mania-stage-hint",
+			"mania-stage-light",
 			"sliderb",
 			"sliderb-nd",
 			"sliderb-spec",
@@ -206,6 +207,7 @@ export default class Skin {
 			"hit50",
 			"hit0",
 			...maniaAnimatedNotes,
+			"mania-stage-light",
 			"sliderb",
 			"sliderfollowcircle",
 		];
