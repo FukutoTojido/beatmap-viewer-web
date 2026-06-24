@@ -8,8 +8,7 @@ export default class Background {
 		strength:
 			((inject<BackgroundConfig>("config/background")?.backgroundBlur ?? 0) /
 				100) *
-			50,
-		quality: 10,
+			15,
 		antialias: false,
 		resolution: 0.5,
 	});
