@@ -311,7 +311,7 @@ export default class ManiaBeatmap extends Beatmap {
 
 		const objects = new Set<number>(
 			this._objectsTree.search([
-				time - 300,
+				time - 330,
 				time + duration,
 			]) as Array<number>,
 		);

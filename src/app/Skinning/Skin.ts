@@ -182,6 +182,8 @@ export default class Skin {
 			"hitcircleflash",
 			"hitcircleglow",
 			"hitcircleselect",
+			"lightingL",
+			"lightingN",
 			...maniaNotes,
 			...maniaKeys,
 			"mania-stage-hint",
@@ -206,6 +208,8 @@ export default class Skin {
 			"hit100",
 			"hit50",
 			"hit0",
+			"lightingL",
+			"lightingN",
 			...maniaAnimatedNotes,
 			"mania-stage-light",
 			"sliderb",
@@ -258,8 +262,8 @@ export default class Skin {
 			...animatedFilenames.map(async (filenameBase) => {
 				const regex =
 					filenameBase === "sliderb"
-						? new RegExp(`^${filenameBase}[0-9]+`)
-						: new RegExp(`^${filenameBase}-[0-9]+`);
+						? new RegExp(`^${filenameBase}[0-9]+`, "i")
+						: new RegExp(`^${filenameBase}-[0-9]+`, "i");
 
 				const entries = new Set(
 					[...(this.resources

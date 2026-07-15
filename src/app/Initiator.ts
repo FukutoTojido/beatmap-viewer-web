@@ -96,6 +96,13 @@ export async function getDefaultLegacy() {
 		);
 		return accm;
 	}, []);
+	const maniaAnimatedLighting = [0, 1, 2, 3, 4, 5].reduce<string[]>(
+		(accmFrame, frame) => {
+			accmFrame.push(`lightingL-${frame}@2x.png`);
+			return accmFrame;
+		},
+		[],
+	);
 	const maniaKeys = ["1", "2", "S"].reduce<string[]>((accm, index) => {
 		accm.push(
 			...["", "D"].reduce<string[]>((accmType, type) => {
@@ -123,6 +130,8 @@ export async function getDefaultLegacy() {
 		"hitcircle@2x.png",
 		"hitcircleoverlay@2x.png",
 		"hitcircleselect@2x.png",
+		...maniaAnimatedLighting,
+		"lightingN@2x.png",
 		...maniaNotes,
 		...maniaKeys,
 		...maniaAnimatedNotes,
