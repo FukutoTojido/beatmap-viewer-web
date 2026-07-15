@@ -12,7 +12,7 @@ export default defineConfig({
 		esbuildOptions: {
 			target: "esnext",
 		},
-		exclude: ["web-demuxer", "wavesurfer.js"],
+		exclude: ["web-demuxer", "wavesurfer.js", "@tosuapp/lazer-calculator-prebuilt"],
 	},
 	resolve: {
 		alias: {

@@ -57,5 +57,8 @@
     "vite-plugin-node-polyfills": "^0.24.0",
     "wavesurfer.js": "^7.10.2",
     "web-demuxer": "^3.0.3"
-  }
+  },
+  "trustedDependencies": [
+    "@tosuapp/lazer-calculator"
+  ]
 }
