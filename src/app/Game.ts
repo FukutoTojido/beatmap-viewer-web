@@ -18,6 +18,7 @@ import Config from "./Config";
 import type FullscreenConfig from "./Config/FullscreenConfig";
 import type RendererConfig from "./Config/RendererConfig";
 import { inject, provide } from "./Context";
+import params from "./Params";
 import ResponsiveHandler from "./ResponsiveHandler";
 import SkinManager from "./Skinning/SkinManager";
 import Loading from "./UI/loading";
@@ -42,9 +43,6 @@ export class Game {
 		config.experimental.onChange(
 			"mods",
 			({ mods: modsString }: { mods: string }) => {
-				const url = window.location;
-				const params = new URLSearchParams(url.search);
-
 				if (modsString === "") {
 					params.delete("m");
 				} else {
@@ -60,7 +58,7 @@ export class Game {
 			const params = url.searchParams;
 
 			if (isFullscreen) {
-				params.set("fullscreen", "true");
+				params.set("fullscreen", "");
 				document.body.classList.add("fullscreen");
 			} else {
 				params.delete("fullscreen");
@@ -144,7 +142,7 @@ export class Game {
 
 		// biome-ignore lint/style/noNonNullAssertion: I'm tired boss
 		inject<FullscreenConfig>("config/fullscreen")!.fullscreen =
-			!!new URLSearchParams(window.location.search).get("fullscreen");
+			params.has("fullscreen");
 
 		provide("ui/loading", new Loading());
 
@@ -307,7 +305,7 @@ export class Game {
 
 			const replay = new Replay();
 			await replay.process(new Blob([file]));
-			
+
 			const hookReplay = async () => {
 				if (!replay.data?.info.beatmapHashMD5) return;
 				await this.loadHash(replay.data?.info.beatmapHashMD5);
@@ -319,8 +317,8 @@ export class Game {
 				);
 				if (bm !== -1 && bm !== undefined && bm !== null)
 					bms?.difficulties[bm].hookReplay(replay);
-			}
-			
+			};
+
 			if (!bms) {
 				await hookReplay();
 				return;
@@ -458,12 +456,10 @@ export class Game {
 	}
 
 	private async loadFromQuery() {
-		const searchParams = new URLSearchParams(window.location.search);
-
-		const queries = searchParams.getAll("b");
+		const queries = params.getAll("b");
 		const IDs = queries.length !== 0 ? queries : [];
 
-		const replay = searchParams.get("r");
+		const replay = params.get("r");
 
 		if (IDs.length === 0 && !replay) {
 			inject<Loading>("ui/loading")?.off();
@@ -508,7 +504,6 @@ export class Game {
 		try {
 			let bms = inject<BeatmapSet>("beatmapset");
 			if (
-				!bms ||
 				!bms?.difficulties.some(
 					(diff) => diff.data.metadata.beatmapId === +IDs[0],
 				)
@@ -562,7 +557,6 @@ export class Game {
 		try {
 			let bms = inject<BeatmapSet>("beatmapset");
 			if (
-				!bms ||
 				!bms?.difficulties.some(
 					(diff) => diff.data.metadata.beatmapSetId === +ID,
 				)
@@ -599,7 +593,7 @@ export class Game {
 
 		try {
 			let bms = inject<BeatmapSet>("beatmapset");
-			if (!bms || !bms?.difficulties.some((diff) => diff.md5 === hash)) {
+			if (!bms?.difficulties.some((diff) => diff.md5 === hash)) {
 				bms?.destroy();
 				const blob = await getBeatmapFromHash(hash);
 
@@ -640,7 +634,7 @@ export class Game {
 
 		const file = new File([replay], "replay.osr");
 		await this.processFile(file);
-		
+
 		inject<Loading>("ui/loading")?.off();
 	}
 

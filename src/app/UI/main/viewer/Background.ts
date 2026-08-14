@@ -2,6 +2,7 @@ import { BlurFilter, Container, Sprite, Texture } from "pixi.js";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject } from "@/Context";
+import params from "@/Params";
 
 export default class Background {
 	blurFilter = new BlurFilter({
@@ -60,6 +61,10 @@ export default class Background {
 	constructor() {
 		this.container.addChild(this.sprite, this.video, this.storyboardContainer);
 
+		if (params.has("hs_only")) {
+			this.storyboardContainer.visible = false;
+		}
+
 		this.container.on("layout", (layout) => {
 			const { width, height } = layout.computedLayout;
 			const timelineHeight = 80;
@@ -67,7 +72,10 @@ export default class Background {
 			const isFullscreen =
 				inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 
-			const _timelineHeight = isFullscreen ? 0 : timelineHeight;
+			const _timelineHeight =
+				isFullscreen || params.has("hs_only") || params.has("sb_only")
+					? 0
+					: timelineHeight;
 
 			const scale = Math.min(width / 640, (height - _timelineHeight) / 480);
 			const _w = 640 * scale;

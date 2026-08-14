@@ -9,6 +9,7 @@ import type AudioConfig from "@/Config/AudioConfig";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type TimelineConfig from "@/Config/TimelineConfig";
+import params from "@/Params";
 import Skin from "@/Skinning/Skin";
 import { tweenGroup } from "@/UI/animation/AnimationController";
 import Easings from "@/UI/Easings";
@@ -293,7 +294,7 @@ export default class BeatmapSet extends ScopedClass {
 		if (bg) {
 			bg.style.backgroundImage = `url("${url}")`;
 		}
-		
+
 		await loadColorPalette(url);
 	}
 
@@ -347,10 +348,12 @@ export default class BeatmapSet extends ScopedClass {
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
-		inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
-			beatmap.container,
-			index,
-		);
+		if (!params.has("sb_only") && !params.has("hs_only")) {
+			inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
+				beatmap.container,
+				index,
+			);
+		}
 
 		beatmap.container.spinner.spin = true;
 		await beatmap.loadHitObjects();
@@ -430,7 +433,7 @@ export default class BeatmapSet extends ScopedClass {
 	toggle() {
 		const audio = this.context.consume<Audio>("audio");
 		if (!audio?.init) throw new Error("Audio hasn't been initialized");
-		
+
 		const playButton = inject<Play>("ui/main/controls/play");
 
 		audio?.toggle();

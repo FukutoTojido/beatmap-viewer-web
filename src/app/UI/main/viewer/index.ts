@@ -2,6 +2,7 @@ import { LayoutContainer } from "@pixi/layout/components";
 import type BackgroundConfig from "@/Config/BackgroundConfig";
 import type FullscreenConfig from "@/Config/FullscreenConfig";
 import { inject, provide } from "@/Context";
+import params from "@/Params";
 import type ResponsiveHandler from "@/ResponsiveHandler";
 import { Clamp } from "@/utils";
 import type Controls from "../controls";
@@ -57,7 +58,7 @@ export default class Viewer {
 
 		this.container.addChild(
 			background.container,
-			wrapper,
+			...(params.has("hs_only") || params.has("sb_only") ? [] : [wrapper]),
 			gameplays.container,
 			controls.container,
 		);

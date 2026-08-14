@@ -1,3 +1,4 @@
+import params from "@/Params";
 import ConfigSection from "./ConfigSection";
 
 export type ExperimentalProps = {
@@ -23,7 +24,7 @@ export default class ExperimentalConfig extends ConfigSection {
 		this.asyncLoading = asyncLoading ?? true;
 		this.overlapGameplays = overlapGameplays ?? false;
 
-		const searchParams = new URLSearchParams(window.location.search).get("m");
+		const searchParams = params.get("m");
 		const modMap: [string, Mods][] = [
 			["HD", "hidden"],
 			["HR", "hardRock"],
