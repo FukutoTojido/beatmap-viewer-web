@@ -63,6 +63,7 @@ export default class Background {
 
 		if (params.has("hs_only")) {
 			this.storyboardContainer.visible = false;
+			this.video.visible = false;
 		}
 
 		this.container.on("layout", (layout) => {
@@ -135,9 +136,9 @@ export default class Background {
 					objectPosition: "center",
 					objectFit: "cover",
 				},
+				visible: params.has("hs_only"),
 			});
 
-			this.container.removeChild(this.video);
 			this.container.addChild(
 				this.sprite,
 				this.video,
