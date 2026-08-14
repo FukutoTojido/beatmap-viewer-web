@@ -58,7 +58,7 @@ export default class Viewer {
 
 		this.container.addChild(
 			background.container,
-			...(params.has("hs_only") || params.has("sb_only") ? [] : [wrapper]),
+			...(params.has("hs_only") || params.has("sb_only") || params.has("i_have_intel_graphics") ? [] : [wrapper]),
 			gameplays.container,
 			controls.container,
 		);

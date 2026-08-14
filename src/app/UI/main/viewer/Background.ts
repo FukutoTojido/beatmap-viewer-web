@@ -61,7 +61,7 @@ export default class Background {
 	constructor() {
 		this.container.addChild(this.sprite, this.video, this.storyboardContainer);
 
-		if (params.has("hs_only")) {
+		if (params.has("hs_only") || params.has("i_have_intel_graphics")) {
 			this.storyboardContainer.visible = false;
 			this.video.visible = false;
 		}
@@ -74,7 +74,7 @@ export default class Background {
 				inject<FullscreenConfig>("config/fullscreen")?.fullscreen;
 
 			const _timelineHeight =
-				isFullscreen || params.has("hs_only") || params.has("sb_only")
+				isFullscreen || params.has("hs_only") || params.has("sb_only") || params.has("i_have_intel_graphics")
 					? 0
 					: timelineHeight;
 
@@ -136,7 +136,7 @@ export default class Background {
 					objectPosition: "center",
 					objectFit: "cover",
 				},
-				visible: !params.has("hs_only"),
+				visible: !params.has("hs_only") && !params.has("i_have_intel_graphics"),
 			});
 
 			this.container.addChild(

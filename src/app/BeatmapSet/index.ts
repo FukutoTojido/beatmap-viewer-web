@@ -348,7 +348,7 @@ export default class BeatmapSet extends ScopedClass {
 	async loadBeatmap(beatmap: Beatmap, index?: number) {
 		inject<Loading>("ui/loading")?.setText("Loading hitObjects");
 
-		if (!params.has("sb_only") && !params.has("hs_only")) {
+		if (!params.has("sb_only") && !params.has("hs_only") && !params.has("i_have_intel_graphics")) {
 			inject<Gameplays>("ui/main/viewer/gameplays")?.addGameplay(
 				beatmap.container,
 				index,
