@@ -136,7 +136,7 @@ export default class Background {
 					objectPosition: "center",
 					objectFit: "cover",
 				},
-				visible: params.has("hs_only"),
+				visible: !params.has("hs_only"),
 			});
 
 			this.container.addChild(
