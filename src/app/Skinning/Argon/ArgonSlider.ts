@@ -1,7 +1,7 @@
 import type Beatmap from "@/BeatmapSet/Beatmap";
-import calculateSliderProgress from "@/BeatmapSet/Beatmap/HitObjects/CalculateSliderProgress";
-import createGeometry from "@/BeatmapSet/Beatmap/HitObjects/CreateSliderGeometry";
-import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
+import calculateSliderProgress from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/CalculateSliderProgress";
+import createGeometry from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/CreateSliderGeometry";
+import type DrawableSlider from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSlider";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import { darken } from "@/utils";
@@ -9,7 +9,7 @@ import { sharedUpdate } from "../Shared/Slider";
 import type BeatmapSet from "@/BeatmapSet";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import { Color } from "pixi.js";
-import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
+import type Gameplays from "@/UI/main/viewer/Gameplays";
 
 export const refreshSprite = (drawable: DrawableSlider) => {
 	refreshColor(drawable);

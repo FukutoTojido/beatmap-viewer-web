@@ -19,7 +19,7 @@ export default class HitSample extends ScopedClass {
 
 	private _hitSamples: Sample[] = [];
 	get hitSamples() {
-		return this._hitSamples
+		return this._hitSamples;
 	}
 	set hitSamples(val: Sample[]) {
 		this._hitSamples = val;
@@ -40,7 +40,7 @@ export default class HitSample extends ScopedClass {
 
 		this.srcs = [];
 		for (const hitSample of this.hitSamples) {
-			let { sampleSet, hitSound } = hitSample;
+			let { sampleSet, hitSound, filename } = hitSample;
 			if (sampleSet === "None") sampleSet = samplePoint.sampleSet;
 			if (sampleSet === "None") sampleSet = "Normal";
 			if (!hitSound.includes("slider")) hitSound = `hit${hitSound}`;
@@ -51,6 +51,7 @@ export default class HitSample extends ScopedClass {
 				inject<AudioConfig>("config/audio")?.hitsound
 					? 0
 					: samplePoint.customIndex,
+				filename,
 			);
 			if (!buffer) continue;
 

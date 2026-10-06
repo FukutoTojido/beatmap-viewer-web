@@ -1,11 +1,11 @@
 import BeatmapSet from "@/BeatmapSet";
 import type Beatmap from "@/BeatmapSet/Beatmap";
-import type DrawableHitCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitCircle";
+import type DrawableHitCircle from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableHitCircle";
 import ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
 import type Skin from "../Skin";
-import Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
+import type Gameplays from "@/UI/main/viewer/Gameplays";
 
 export const sharedRefreshSprite = (drawable: DrawableHitCircle) => {
 	const skin = drawable.skinManager?.getCurrentSkin();

@@ -1,4 +1,4 @@
-import type DrawableApproachCircle from "@/BeatmapSet/Beatmap/HitObjects/DrawableApproachCircle";
+import type DrawableApproachCircle from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableApproachCircle";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import { inject } from "@/Context";
 

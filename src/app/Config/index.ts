@@ -113,6 +113,7 @@ export default class Config {
 					snakeInSlider: true,
 					snakeOutSlider: true,
 					tintSliderBall: false,
+					scrollSpeed: 25,
 				},
 			),
 		);

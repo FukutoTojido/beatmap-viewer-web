@@ -1,15 +1,14 @@
-import type BeatmapSet from "@/BeatmapSet";
+import { Color } from "pixi.js";
 import type Beatmap from "@/BeatmapSet/Beatmap";
-import calculateSliderProgress from "@/BeatmapSet/Beatmap/HitObjects/CalculateSliderProgress";
-import createGeometry from "@/BeatmapSet/Beatmap/HitObjects/CreateSliderGeometry";
-import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
+import calculateSliderProgress from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/CalculateSliderProgress";
+import createGeometry from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/CreateSliderGeometry";
+import type DrawableSlider from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSlider";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type SkinningConfig from "@/Config/SkinningConfig";
 import { inject } from "@/Context";
+import type Gameplays from "@/UI/main/viewer/Gameplays";
 import { darken, lighten } from "@/utils";
 import { sharedUpdate } from "../Shared/Slider";
-import { Color } from "pixi.js";
-import type Gameplays from "@/UI/main/viewer/Gameplay/Gameplays";
 
 const blur = new URLSearchParams(window.location.search).get("blur");
 

@@ -1,5 +1,5 @@
-import type DrawableDefaults from "@/BeatmapSet/Beatmap/HitObjects/DrawableDefaults";
-import type DrawableHitObject from "@/BeatmapSet/Beatmap/HitObjects/DrawableHitObject";
+import type DrawableHitObject from "@/BeatmapSet/Beatmap/Rulesets/Shared/HitObjects/DrawableHitObject";
+import type DrawableDefaults from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableDefaults";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";
 

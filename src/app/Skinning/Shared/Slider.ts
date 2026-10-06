@@ -1,5 +1,5 @@
 import { HitResult } from "osu-classes";
-import type DrawableSlider from "@/BeatmapSet/Beatmap/HitObjects/DrawableSlider";
+import type DrawableSlider from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSlider";
 import type ExperimentalConfig from "@/Config/ExperimentalConfig";
 import type GameplayConfig from "@/Config/GameplayConfig";
 import { inject } from "@/Context";

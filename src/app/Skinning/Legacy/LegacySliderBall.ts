@@ -1,4 +1,4 @@
-import type DrawableSliderBall from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderBall";
+import type DrawableSliderBall from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSliderBall";
 
 export const update = (drawable: DrawableSliderBall, time: number) => {
 	const completionProgress = Math.min(

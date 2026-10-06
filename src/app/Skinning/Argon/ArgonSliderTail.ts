@@ -1,4 +1,4 @@
-import type DrawableSliderTail from "@/BeatmapSet/Beatmap/HitObjects/DrawableSliderTail";
+import type DrawableSliderTail from "@/BeatmapSet/Beatmap/Rulesets/Standard/HitObjects/DrawableSliderTail";
 import type Skin from "../Skin";
 
 export const update = (drawable: DrawableSliderTail, _: number) => {
