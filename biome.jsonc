@@ -10,7 +10,8 @@
 		"includes": ["**", "!node_modules"]
 	},
 	"formatter": {
-		"enabled": true
+		"enabled": true,
+		"lineEnding": "lf"
 	},
 	"linter": {
 		"enabled": true,
